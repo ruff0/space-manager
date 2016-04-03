@@ -11,6 +11,19 @@ var elixir = require('laravel-elixir');
  |
  */
 
-elixir(function(mix) {
-    mix.sass('app.scss');
+elixir(function (mix) {
+	mix
+		.less('app.less')
+		.copy('./resources/assets/images', './public/images')
+		.copy('./resources/assets/icons', './public/fonts')
+		.scripts([
+			'plugins/loaders/pace.min.js',
+			'core/libraries/jquery.min.js',
+			'core/libraries/bootstrap.min.js',
+			'plugins/loaders/blockui.min.js',
+			'plugins/forms/styling/uniform.min.js',
+			'core/app.js',
+			'pages/login.js',
+			'plugins/ui/ripple.min.js'
+		]);
 });
