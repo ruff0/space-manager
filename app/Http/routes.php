@@ -11,10 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
+Route::get('/', function () { return view('welcome'); });
+Route::get('/home', 'HomeController@index');
 Route::auth();
 
-Route::get('/home', 'HomeController@index');
+Route::group(['middleware' => ['auth', 'web'], 'prefix' => 'admin', 'namespace' => 'Admin'], function () {
+    Route::get('/', ['as' => 'admin.index', 'uses' => 'DashboardController@index']);
+});
