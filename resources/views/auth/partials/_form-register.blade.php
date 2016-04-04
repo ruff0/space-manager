@@ -1,4 +1,4 @@
-<form action="{{ url('/register') }}" method="POST">
+<form action="{{ url('/register?form=register') }}" method="POST">
 	{!! csrf_field() !!}
 	<div class="text-center">
 		<div class="icon-object border-success text-success">
@@ -16,24 +16,24 @@
 		       class="form-control"
 		       placeholder="Tu nombre de usuario"
 		       name="name"
-		       value="{{ old('name') }}"
+		       @if(old('form') == 'register') value="{{ old('name') }}" @endif
 		/>
 		<div class="form-control-feedback">
 			<i class="icon-user-check text-muted"></i>
 		</div>
-		@include('forms._validation-error', ['field' => 'name'])
+		@if(old('form') == 'register') @include('forms._validation-error', ['field' => 'name']) @endif
 	</div>
 	<div class="form-group has-feedback has-feedback-left">
 		<input type="text"
 		       class="form-control"
 		       placeholder="Tu Email"
 		       name="email"
-		       value="{{ old('email') }}"
+		       @if(old('form') == 'register') value="{{ old('email') }}" @endif
 		/>
 		<div class="form-control-feedback">
 			<i class="icon-mention text-muted"></i>
 		</div>
-		@include('forms._validation-error', ['field' => 'email'])
+		@if(old('form') == 'register') 	@include('forms._validation-error', ['field' => 'email']) @endif
 	</div>
 
 	<div class="form-group has-feedback has-feedback-left">
@@ -45,7 +45,7 @@
 		<div class="form-control-feedback">
 			<i class="icon-user-lock text-muted"></i>
 		</div>
-		@include('forms._validation-error', ['field' => 'password'])
+		@if(old('form') == 'register') @include('forms._validation-error', ['field' => 'password']) @endif
 	</div>
 
 	<div class="form-group has-feedback has-feedback-left">
@@ -57,7 +57,7 @@
 		<div class="form-control-feedback">
 			<i class="icon-user-lock text-muted"></i>
 		</div>
-		@include('forms._validation-error', ['field' => 'password_confirmation'])
+		@if(old('form') == 'register') @include('forms._validation-error', ['field' => 'password_confirmation']) @endif
 	</div>
 
 

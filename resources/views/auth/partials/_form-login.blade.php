@@ -1,4 +1,5 @@
-<form action="{{ url('/login') }}" role="form" method="POST">
+{{--{!! dd(app('request')) !!}}--}}
+<form action="{{ url('/login?form=login') }}" role="form" method="POST">
 	{!! csrf_field() !!}
 	<div class="text-center">
 		<div class="icon-object border-slate-300 text-slate-300"><i class="icon-reading"></i>
@@ -14,12 +15,12 @@
 		       placeholder="Email"
 		       name="email"
 		       required="required"
-		       value="{{ old('email') }}"
+		       @if(old('form') != 'register') value="{{ old('email') }}" @endif
 		/>
 		<div class="form-control-feedback">
 			<i class="icon-user text-muted"></i>
 		</div>
-		@include('forms._validation-error', ['field' => 'email'])
+		@if(old('form') != 'register')	@include('forms._validation-error', ['field' => 'email']) @endif
 	</div>
 
 	<div class="form-group has-feedback has-feedback-left">
@@ -28,12 +29,11 @@
 		       placeholder="Password"
 		       name="password"
 		       required="required"
-		       value="{{ old('password') }}"
 		/>
 		<div class="form-control-feedback">
 			<i class="icon-lock2 text-muted"></i>
 		</div>
-		@include('forms._validation-error', ['field' => 'password'])
+		@if(old('form') != 'register') 	@include('forms._validation-error', ['field' => 'password']) @endif
 	</div>
 
 	<div class="form-group login-options">
