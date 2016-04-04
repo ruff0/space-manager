@@ -36,6 +36,6 @@ class User extends Authenticatable
 	 */
 	public function avatar($size = 40)
 	{
-		return "http://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email))). "&s=" . $size;
+		return "http://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email))) . "?s=" . $size;
 	}
 }
