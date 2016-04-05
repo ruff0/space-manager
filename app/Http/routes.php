@@ -11,10 +11,29 @@
 |
 */
 
-Route::get('/', function () { return view('welcome'); });
-Route::get('/home', 'HomeController@index');
+
+Route::get('/', function () {
+	return view('welcome');
+});
+
+
 Route::auth();
 
-Route::group(['middleware' => ['auth', 'web'], 'prefix' => 'admin', 'namespace' => 'Admin'], function () {
-    Route::get('/', ['as' => 'admin.index', 'uses' => 'DashboardController@index']);
+Route::group(['middleware' => ['auth'] ], function (){
+	Route::get('/home', 'HomeController@index');
+
+	Route::group([ 'namespace' => 'User'], function () {
+		Route::resource('users.profiles', 'ProfilesController', [
+			'except' => ['index', 'show', 'create', 'destroy']
+		]);
+	});
+	Route::group(['namespace' => 'Team'], function () {
+		Route::resource('teams', 'TeamsController', [
+			'except' => ['index', 'show', 'create', 'destroy']
+		]);
+	});
+
+	Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
+		Route::get('/', ['as' => 'admin.index', 'uses' => 'DashboardController@index']);
+	});
 });

@@ -16,6 +16,7 @@ elixir(function (mix) {
 		.less('app.less')
 		.copy('./resources/assets/images', './public/images')
 		.copy('./resources/assets/icons', './public/fonts')
+		.copy('./resources/assets/js/page', './public/js/page')
 		.scripts([
 			'plugins/loaders/pace.min.js',
 			'core/libraries/jquery.min.js',
