@@ -1,8 +1,8 @@
 <?php
 
-namespace App\User;
+namespace App\Team;
 
-use App\User;
+use App\User\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Team extends Model
@@ -10,7 +10,16 @@ class Team extends Model
 	/**
 	 * Fillable fields
 	 */
-	protected $fillable = ['company_name', 'company_id'];
+	protected $fillable = [
+		'name',
+		'identity',
+		'address_line1',
+		'address_line2',
+		'zip',
+		'city',
+		'state',
+		'phone'
+	];
 
 	/**
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany

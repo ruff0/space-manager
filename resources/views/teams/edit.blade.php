@@ -1,13 +1,12 @@
 @extends('layouts.app')
 
 @section('page-scripts')
-	<script src="/js/page/home.js"></script>
+	{{--<script src="/js/page/home.js"></script>--}}
 @endsection
 
 @section('content')
 	<div class="container-fluid">
 		<div class="row">
-
 			@include('common.toolbar')
 
 			{{-- Content area --}}
@@ -18,8 +17,12 @@
 					<div class="col-lg-10">
 						<div class="tabbable">
 							<div class="tab-content">
-
-
+								<div class="panel panel-flat">
+									<div class="panel-heading"></div>
+									<div class="panel-body">
+										@include('teams.forms.edit')
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -68,8 +71,8 @@
 
 				{{-- Footer --}}
 				{{--<div class="footer text-muted">--}}
-					{{--&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov"--}}
-					                                                         {{--target="_blank">Eugene Kopyov</a>--}}
+				{{--&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov"--}}
+				{{--target="_blank">Eugene Kopyov</a>--}}
 				{{--</div>--}}
 				{{-- /footer --}}
 
@@ -77,8 +80,4 @@
 			{{-- /content area --}}
 		</div>
 	</div>
-
-	@if(!$user->hasProfile())
-		@include('users.profiles.partials._needsProfile-modal')
-	@endif
 @endsection

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\Team;
 
 use App\Http\Requests\Request;
 
-class CreateProfileForm extends Request
+class UpdateTeamForm extends Request
 {
 	/**
 	 * Determine if the user is authorized to make this request.
@@ -23,17 +23,7 @@ class CreateProfileForm extends Request
 	 */
 	public function rules()
 	{
-		return [
-			'name'           => 'required',
-			'lastname'       => 'required',
-			'identity'       => 'required',
-			'address_line1'  => 'required',
-			'city'           => 'required',
-			'state'          => 'required',
-			'zip'            => 'required',
-			'mobile'         => 'required',
-			'phone'          => 'required',
-		];
+		return [];
 	}
 
 	/**
@@ -44,9 +34,8 @@ class CreateProfileForm extends Request
 	public function attributes()
 	{
 		return [
-			'name'           => 'nombre',
-			'lastname'       => 'apellidos',
-			'identity'       => 'NIF / NIE',
+			'name'           => 'razón social',
+			'identity'       => 'CIF',
 			'address[line1]' => 'dirección',
 			'city'           => 'ciudad',
 			'state'          => 'provincia',

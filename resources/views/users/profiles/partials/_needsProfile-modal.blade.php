@@ -8,7 +8,7 @@
 
 			<form action="{{ route('users.profiles.store', [$user->id]) }}" method="POST">
 				<div class="modal-body">
-					@include('user.profile.forms.create')
+					@include('users.profiles.forms.form')
 				</div>
 				<div class="modal-footer">
 					{{--<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>--}}

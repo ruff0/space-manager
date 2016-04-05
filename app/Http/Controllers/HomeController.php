@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User\Profile;
 use Laracasts\Utilities\JavaScript\JavaScriptFacade;
 
 class HomeController extends Controller
@@ -12,14 +13,21 @@ class HomeController extends Controller
 	 */
 	public function __construct()
 	{
-		$this->middleware('auth');
 	 	$user = auth()->user();
 
 		JavaScriptFacade::put([
 			'needsProfile'  => $user->hasProfile() ? false : true,
 			'user' => $user,
 		]);
+
+		view()->share('user', $user);
+
+		if(!$user->hasProfile())
+		{
+			view()->share('profile', new Profile);
+		}
 	}
+
 
 	/**
 	 * Show the application dashboard.
@@ -28,7 +36,6 @@ class HomeController extends Controller
 	 */
 	public function index()
 	{
-//		dd(session());
 		return view('pages.home');
 	}
 }

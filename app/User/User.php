@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\User;
 
 use App\User\Profile;
+use App\Team\Team;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -53,6 +54,14 @@ class User extends Authenticatable
 	}
 
 	/**
+	 * Whether the user belong to a Team or not
+	 */
+	public function hasTeam()
+	{
+		return $this->team;
+	}
+
+	/**
 	 * The user profile
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
@@ -69,6 +78,6 @@ class User extends Authenticatable
 	 */
 	public function team()
 	{
-		return $this->belongsTo(User::class);
+		return $this->belongsTo(Team::class);
 	}
 }

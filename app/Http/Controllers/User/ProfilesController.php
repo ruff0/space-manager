@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Requests\User\CreateProfileForm;
-use App\User;
+use App\User\User;
 use App\User\Profile;
 use Illuminate\Http\Request;
 
@@ -20,11 +20,14 @@ class ProfilesController extends Controller
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function store(CreateProfileForm $request, User $user)
+	public function store(CreateProfileForm $request, User $users)
 	{
-		$user->profile()->create($request->all());
+		$profile = $users->profile()->create($request->all());
 
-		return redirect()->route('users.profiles.edit');
+		return redirect()->route('users.profiles.edit', [
+			$users->id,
+			$profile->id
+		]);
 	}
 
 	/**
