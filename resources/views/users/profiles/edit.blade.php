@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('page-scripts')
+	{{--<script src="/js/page/home.js"></script>--}}
+@endsection
+
 @section('content')
 	<div class="container-fluid">
 		<div class="row">
@@ -14,7 +18,6 @@
 				</ul>
 
 				<div class="navbar-collapse collapse" id="navbar-filter">
-
 					<div class="navbar-right">
 						<ul class="nav navbar-nav">
 							<li class="dropdown">
@@ -25,7 +28,7 @@
 								</a>
 								<ul class="dropdown-menu dropdown-menu-right">
 									<li>
-										<a href="#">
+										<a href="{{route('users.profiles.edit', [$user->id, $user->profile->id])}}">
 											<i class="icon-cog5"></i> Profile settings
 										</a>
 									</li>
@@ -52,8 +55,12 @@
 					<div class="col-lg-10">
 						<div class="tabbable">
 							<div class="tab-content">
-
-
+								<div class="panel panel-flat">
+									<div class="panel-heading"></div>
+									<div class="panel-body">
+										@include('users.profiles.forms.edit')
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -85,9 +92,13 @@
 						{{-- Navigation --}}
 						<div class="panel panel-flat">
 							<div class="list-group no-border">
-								<a href="#" class="list-group-item"><i class="icon-user"></i> My profile</a>
+								<a href="#" class="list-group-item">
+									<i class="icon-user"></i> My profile
+								</a>
 								<div class="list-group-divider"></div>
-								<a href="#" class="list-group-item"><i class="icon-cog3"></i> Account settings</a>
+								<a href="#" class="list-group-item">
+									<i class="icon-cog3"></i> Account settings
+								</a>
 							</div>
 						</div>
 						{{-- /navigation --}}
@@ -98,8 +109,8 @@
 
 				{{-- Footer --}}
 				{{--<div class="footer text-muted">--}}
-					{{--&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov"--}}
-					                                                         {{--target="_blank">Eugene Kopyov</a>--}}
+				{{--&copy; 2015. <a href="#">Limitless Web App Kit</a> by <a href="http://themeforest.net/user/Kopyov"--}}
+				{{--target="_blank">Eugene Kopyov</a>--}}
 				{{--</div>--}}
 				{{-- /footer --}}
 

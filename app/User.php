@@ -2,8 +2,13 @@
 
 namespace App;
 
+use App\User\Profile;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+/**
+ * @property mixed profile
+ * @property mixed id
+ */
 class User extends Authenticatable
 {
 	/**
@@ -37,5 +42,33 @@ class User extends Authenticatable
 	public function avatar($size = 40)
 	{
 		return "http://www.gravatar.com/avatar/" . md5(strtolower(trim($this->email))) . "?s=" . $size;
+	}
+
+	/**
+	 * Whether the user has a profile already set or not
+	 */
+	public function hasProfile()
+	{
+		return $this->profile;
+	}
+
+	/**
+	 * The user profile
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function profile()
+	{
+		return $this->hasOne(Profile::class);
+	}
+
+	/**
+	 * The team this user belongs to
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
+	public function team()
+	{
+		return $this->belongsTo(User::class);
 	}
 }
