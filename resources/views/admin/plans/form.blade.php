@@ -35,6 +35,7 @@
 			       class="form-control"
 			       name="price"
 			       value="{{ old('price', $plan->price) }}"
+			       {!! $plan->exists ? 'disabled' : ''  !!}
 			/>
 			@include('forms._validation-error', ['field' => 'price'])
 		</div>
