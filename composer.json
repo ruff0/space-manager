@@ -13,7 +13,8 @@
     "laracasts/utilities": "~2.0",
     "overtrue/laravel-lang": "dev-master",
     "barryvdh/laravel-debugbar": "^2.2",
-    "laravel/cashier": "~5.0"
+    "laravel/cashier": "~5.0",
+    "cviebrock/eloquent-sluggable": "^3.1"
   },
   "require-dev": {
     "fzaninotto/faker": "~1.4",
