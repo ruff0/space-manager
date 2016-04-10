@@ -2,14 +2,24 @@
 
 namespace App\Space;
 
+use App\Events\Plan\PlanWasCreated;
+use App\Events\Plan\PlanWasDeleted;
+use App\Events\Plan\PlanWasUpdated;
 use Illuminate\Database\Eloquent\Model;
+use Cviebrock\EloquentSluggable\SluggableInterface;
+use Cviebrock\EloquentSluggable\SluggableTrait;
+
 
 /**
  * @property string  name
  * @property integer price
+ * @property string  slug
+ * @property string  stripe_id
  */
-class Plan extends Model
+class Plan extends Model implements SluggableInterface
 {
+	use SluggableTrait;
+
 	/**
 	 * The corresponding table.
 	 *
@@ -26,6 +36,16 @@ class Plan extends Model
 		'name',
 		'price',
 		'description',
+	];
+
+	/**
+	 * Sluggable field build array
+	 *
+	 * @var array
+	 */
+	protected $sluggable = [
+		'build_from' => 'name',
+		'save_to'    => 'slug',
 	];
 
 	/**
@@ -49,5 +69,74 @@ class Plan extends Model
 	public function getPriceAttribute($value)
 	{
 		return $value / 100;
+	}
+
+	public function priceForStripe()
+	{
+		return $this->price * 100;
+	}
+
+	/**
+	 * Save a new model and return the instance.
+	 *
+	 * @param  array $attributes
+	 *
+	 * @return static
+	 */
+	public static function create(array $attributes = [])
+	{
+		$plan = parent::create($attributes);
+
+		list($stripePlan) = event(
+			new PlanWasCreated($plan)
+		);
+		$plan->stripe_id = $stripePlan->id;
+		$plan->save();
+
+		return $plan;
+	}
+
+
+	/**
+	 * Update the model in the database.
+	 *
+	 * @param  array $attributes
+	 * @param  array $options
+	 *
+	 * @return bool|int
+	 */
+	public function update(array $attributes = [], array $options = [])
+	{
+		$plan = parent::update($attributes, $options);
+
+		if($plan)
+		{
+			list($stripePlan) = event(
+				new PlanWasUpdated($this)
+			);
+		}
+
+		return $plan;
+	}
+
+	/**
+	 * Delete the model from the database.
+	 *
+	 * @return bool|null
+	 *
+	 * @throws \Exception
+	 */
+	public function delete()
+	{
+		$deleted = parent::delete();
+
+		if($deleted)
+		{
+			list($stripePlan) = event(
+				new PlanWasDeleted($this)
+			);
+		}
+
+		return $deleted;
 	}
 }
