@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
 			if ($user = Auth::user()) {
 				view()->share('user', $user);
 			}
+		});
+
+		Blade::directive('currencyFormat', function ($value) {
+			return "<?php echo number_format($value, 2, ',', '.') . ' €'?>";
 		});
 	}
 

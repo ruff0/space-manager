@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.admin')
 
 @section('body-class', '')
 
@@ -6,7 +6,7 @@
 	<!-- Page content -->
 <div class="page-content">
 
-	@include('common.sidebar')
+	@include('admin.common.sidebar')
 
 	<!-- Main content -->
 	<div class="content-wrapper">

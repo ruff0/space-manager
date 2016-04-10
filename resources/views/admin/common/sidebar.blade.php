@@ -17,7 +17,23 @@
 		<div class="sidebar-category sidebar-category-visible">
 			<div class="category-content no-padding">
 				<ul class="navigation navigation-main navigation-accordion">
+					<li>
+						<a href="{{ url('/admin') }}" class="legitRipple">
+							<i class="icon-home4"></i>
+							<span>Dashboard</span>
+						</a>
+					</li>
 
+					<li class="navigation-header">
+						<span>Espacio Coworking</span>
+						<i class="icon-menu" title="Espacio Coworking"></i>
+					</li>
+					<li>
+						<a href="{{ route('admin.plans.index') }}" class="legitRipple">
+							<i class="icon-cash3"></i>
+							<span>Planes</span>
+						</a>
+					</li>
 				</ul>
 			</div>
 		</div>

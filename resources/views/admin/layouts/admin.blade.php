@@ -11,20 +11,33 @@
 	<link href="/fonts/icomoon/styles.css" rel="stylesheet" type="text/css">
 	<link href="/css/app.css" rel="stylesheet" type="text/css">
 	<!-- /global stylesheets -->
-
-	<!-- Core JS files -->
-	<script type="text/javascript" src="/js/all.js"></script>
-	<!-- /core JS files -->
 </head>
 
 <body class="@yield('body-class')">
 
-@include('common.navbar')
+@include('admin.common.navbar')
 
 <!-- Page container -->
 <div class="page-container">
 	@yield('content')
 </div>
 <!-- /page container -->
+
+<!-- Core JS files -->
+<script type="text/javascript" src="/js/all.js"></script>
+<script type="text/javascript" src="/js/admin.js"></script>
+<!-- /core JS files -->
+@if(session('success'))
+	<script>
+		$(function () {
+			new PNotify({
+				title : "",
+				text: "{{session('success')}}",
+				addclass: 'bg-success'
+			});
+		});
+	</script>
+@endif
+
 </body>
 </html>
