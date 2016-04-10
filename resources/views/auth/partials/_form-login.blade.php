@@ -24,7 +24,7 @@
 	</div>
 
 	<div class="form-group has-feedback has-feedback-left">
-		<input type="text"
+		<input type="password"
 		       class="form-control"
 		       placeholder="Password"
 		       name="password"

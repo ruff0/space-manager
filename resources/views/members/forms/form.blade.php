@@ -9,7 +9,7 @@
 				       placeholder="Mi empresa S.L."
 				       class="form-control"
 				       name="name"
-				       value="{{ old('name', $team->name) }}"
+				       value="{{ old('name', $member->name) }}"
 				/>
 				@include('forms._validation-error', ['field' => 'name'])
 			</div>
@@ -20,7 +20,7 @@
 				       placeholder="00000000N"
 				       class="form-control"
 				       name="identity"
-				       value="{{old('identity', $team->identity)}}"
+				       value="{{old('identity', $member->identity)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'identity'])
 			</div>
@@ -35,7 +35,7 @@
 				       placeholder="c/La Paz 12"
 				       class="form-control"
 				       name="address_line1"
-				       value="{{old('address_line1', $team->address_line1)}}"
+				       value="{{old('address_line1', $member->address_line1)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'address_line1'])
 			</div>
@@ -46,7 +46,7 @@
 				       placeholder="Bloque 2, 1º Izq."
 				       class="form-control"
 				       name="address_line2"
-				       value="{{old('address_line2', $team->address_line2)}}"
+				       value="{{old('address_line2', $member->address_line2)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'address_line2'])
 			</div>
@@ -61,7 +61,7 @@
 				       placeholder="Alicante"
 				       class="form-control"
 				       name="city"
-				       value="{{old('city', $team->city)}}"
+				       value="{{old('city', $member->city)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'city'])
 			</div>
@@ -72,7 +72,7 @@
 				       placeholder="Alicante"
 				       class="form-control"
 				       name="state"
-				       value="{{old('state', $team->state)}}"
+				       value="{{old('state', $member->state)}}"
 				>
 				@include('forms._validation-error', ['field' => 'state'])
 			</div>
@@ -83,7 +83,7 @@
 				       placeholder="03001"
 				       class="form-control"
 				       name="zip"
-				       value="{{old('zip', $team->zip)}}"
+				       value="{{old('zip', $member->zip)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'zip'])
 			</div>
@@ -99,7 +99,7 @@
 				       data-mask="965-12-34-56"
 				       class="form-control"
 				       name="mobile"
-				       value="{{old('mobile', $team->mobile)}}"
+				       value="{{old('mobile', $member->mobile)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'mobile'])
 				{{--<span class="help-block">965-12-34-56</span>--}}
@@ -111,7 +111,7 @@
 				       data-mask="666-12-34-56"
 				       class="form-control"
 				       name="phone"
-				       value="{{old('phone', $team->phone)}}"
+				       value="{{old('phone', $member->phone)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'phone'])
 				{{--<span class="help-block">666-12-34-56</span>--}}

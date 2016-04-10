@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------------------------
 *
-*  # Team page
+*  # Member page
 *
 *  Specific JS code additions for user_pages_team.html page
 *

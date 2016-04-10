@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Plan;
+namespace App\Events\Space;
 
 use App\Events\Event;
 use App\Space\Plan;

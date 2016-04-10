@@ -26,8 +26,8 @@
 							</li>
 						@endif
 						<li>
-							<a href="{{route('teams.edit', [$user->team->id])}}">
-								<i class="icon-cog5"></i> Team Settings
+							<a href="{{route('members.edit', [$user->member->id])}}">
+								<i class="icon-cog5"></i> Member Settings
 							</a>
 						</li>
 						<li class="divider"></li>

@@ -131,31 +131,31 @@
 	</div>
 </fieldset>
 
-{{--<fieldset>--}}
-	{{--<legend>Datos de la empresa</legend>--}}
-	{{--<div class="form-group">--}}
-		{{--<div class="row">--}}
-			{{--<div class="col-sm-8">--}}
-				{{--<label>Razón Sócial</label>--}}
-				{{--<input type="text"--}}
-				       {{--placeholder="Mi mega empresa S.L."--}}
-				       {{--class="form-control"--}}
-				       {{--name="company[name]"--}}
-				       {{--value="{{old('company[name]')}}"--}}
-				{{-->--}}
-				{{--@include('forms._validation-error', ['field' => 'company[name]'])--}}
-			{{--</div>--}}
+<fieldset>
+	<legend>Datos de la empresa</legend>
+	<div class="form-group">
+		<div class="row">
+			<div class="col-sm-8">
+				<label>Razón Sócial</label>
+				<input type="text"
+				       placeholder="Mi mega empresa S.L."
+				       class="form-control"
+				       name="company_name"
+				       value="{{old('company_name', $profile->user ? $profile->user->member->company_name : '')}}"
+				>
+				@include('forms._validation-error', ['field' => 'company_name'])
+			</div>
 
-			{{--<div class="col-sm-4">--}}
-				{{--<label>CIF</label>--}}
-				{{--<input type="text"--}}
-				       {{--placeholder="B00000000N"--}}
-				       {{--class="form-control"--}}
-				       {{--name="company[id]"--}}
-				       {{--value="{{old('company[id]')}}"--}}
-				{{--/>--}}
-				{{--@include('forms._validation-error', ['field' => 'company[id]'])--}}
-			{{--</div>--}}
-		{{--</div>--}}
-	{{--</div>--}}
-{{--</fieldset>--}}
+			<div class="col-sm-4">
+				<label>CIF</label>
+				<input type="text"
+				       placeholder="B00000000N"
+				       class="form-control"
+				       name="company_identity"
+				       value="{{old('company_identity', $profile->user ? $profile->user->member->company_identity : '')}}"
+				/>
+				@include('forms._validation-error', ['field' => 'company_identity'])
+			</div>
+		</div>
+	</div>
+</fieldset>

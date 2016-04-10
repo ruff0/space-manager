@@ -13,18 +13,21 @@ class HomeController extends Controller
 	 */
 	public function __construct()
 	{
-	 	$user = auth()->user();
+		$user = auth()->user();
 
-		JavaScriptFacade::put([
-			'needsProfile'  => $user->hasProfile() ? false : true,
-			'user' => $user,
-		]);
+		if ($user) {
+			JavaScriptFacade::put([
+				'needsProfile' => $user->hasProfile() ? false : true,
+				'user'         => $user,
+			]);
 
-		view()->share('user', $user);
 
-		if(!$user->hasProfile())
-		{
-			view()->share('profile', new Profile);
+			view()->share('user', $user);
+
+
+			if (!$user->hasProfile()) {
+				view()->share('profile', new Profile);
+			}
 		}
 	}
 

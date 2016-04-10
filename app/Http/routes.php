@@ -27,8 +27,8 @@ Route::group(['middleware' => ['auth'] ], function (){
 			'except' => ['index', 'show', 'create', 'destroy']
 		]);
 	});
-	Route::group(['namespace' => 'Team'], function () {
-		Route::resource('teams', 'TeamsController', [
+	Route::group(['namespace' => 'Member'], function () {
+		Route::resource('members', 'MembersController', [
 			'except' => ['index', 'show', 'create', 'destroy']
 		]);
 	});

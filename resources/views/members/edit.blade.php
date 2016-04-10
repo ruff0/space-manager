@@ -20,7 +20,7 @@
 								<div class="panel panel-flat">
 									<div class="panel-heading"></div>
 									<div class="panel-body">
-										@include('teams.forms.edit')
+										@include('members.forms.edit')
 									</div>
 								</div>
 							</div>

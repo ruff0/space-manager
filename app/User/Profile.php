@@ -22,7 +22,6 @@ class Profile extends Model
 		'zip',
 		'mobile',
 		'phone',
-
 	];
 
 	/**

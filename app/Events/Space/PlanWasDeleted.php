@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Events\Plan;
+namespace App\Events\Space;
 
 use App\Events\Event;
 use App\Space\Plan;
 
-
-class PlanWasCreated extends Event
+class PlanWasDeleted extends Event
 {
 	/**
 	 * @var Plan

@@ -37,7 +37,7 @@
 	</div>
 
 	<div class="form-group has-feedback has-feedback-left">
-		<input type="text"
+		<input type="password"
 		       class="form-control"
 		       placeholder="Tu password"
 		       name="password"
@@ -49,7 +49,7 @@
 	</div>
 
 	<div class="form-group has-feedback has-feedback-left">
-		<input type="text"
+		<input type="password"
 		       class="form-control"
 		       placeholder="Confirma tu password"
 		       name="password_confirmation"

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Listeners\Plan;
+namespace App\Listeners\Space;
 
-use App\Events\Plan\PlanWasDeleted;
+use App\Events\Space\PlanWasDeleted;
 use Illuminate\Support\Facades\Config;
 use Stripe\Plan as StripePlan;
 use Stripe\Stripe;

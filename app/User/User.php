@@ -2,8 +2,8 @@
 
 namespace App\User;
 
+use App\Space\Member;
 use App\User\Profile;
-use App\Team\Team;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
@@ -54,11 +54,11 @@ class User extends Authenticatable
 	}
 
 	/**
-	 * Whether the user belong to a Team or not
+	 * Whether the user is already a Member or not
 	 */
-	public function hasTeam()
+	public function isMember()
 	{
-		return $this->team;
+		return $this->member;
 	}
 
 	/**
@@ -72,12 +72,12 @@ class User extends Authenticatable
 	}
 
 	/**
-	 * The team this user belongs to
+	 * The member this user belongs to
 	 *
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
 	 */
-	public function team()
+	public function member()
 	{
-		return $this->belongsTo(Team::class);
+		return $this->belongsTo(Member::class);
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Events\User\UserCreatedProfile;
 use App\Http\Requests\User\CreateProfileForm;
 use App\User\User;
 use App\User\Profile;
@@ -23,6 +24,15 @@ class ProfilesController extends Controller
 	public function store(CreateProfileForm $request, User $users)
 	{
 		$profile = $users->profile()->create($request->all());
+		event(
+			new UserCreatedProfile(
+				$profile,
+				$request->only([
+					'company_name',
+					'company_identity'
+				])
+			)
+		);
 
 		return redirect()->route('users.profiles.edit', [
 			$users->id,

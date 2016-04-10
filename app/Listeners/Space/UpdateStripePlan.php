@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Listeners\Plan;
+namespace App\Listeners\Space;
 
-use App\Events\Plan\PlanWasCreated;
+use App\Events\Space\PlanWasUpdated;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use Stripe\Plan as StripePlan;
 use Stripe\Stripe;
 
-class CreateStripePlan
+class UpdateStripePlan
 {
 	/**
 	 * The Stripe API key.
@@ -16,11 +16,6 @@ class CreateStripePlan
 	 * @var string
 	 */
 	protected static $stripeKey;
-
-	/**
-	 * @var StripePlan
-	 */
-	private $stripePlan;
 
 	/**
 	 * Create the event listener.
@@ -36,6 +31,7 @@ class CreateStripePlan
 
 	/**
 	 * Returns Stripe Api Key
+	 *
 	 * @return string
 	 */
 	protected function getStripeKey()
@@ -46,22 +42,16 @@ class CreateStripePlan
 	/**
 	 * Handle the event.
 	 *
-	 * @param  PlanWasCreated $event
+	 * @param  PlanWasUpdated $event
 	 *
-	 * @return StripePlan
+	 * @return void
 	 */
-	public function handle(PlanWasCreated $event)
+	public function handle(PlanWasUpdated $event)
 	{
-
-		$plan = $this->stripePlan->create([
-			"id"                   => $event->plan->slug,
-			"amount"               => $event->plan->priceForStripe(),
-			"currency"             => "eur", // User always €
-			"interval"             => "month",
-			"name"                 => $event->plan->name,
-			"statement_descriptor" => Str::limit("Ulab - {$event->plan->name}", 22, '')
-		]);
-
-		return $plan;
+		$plan = $this->stripePlan->retrieve($event->plan->slug);
+		$plan->name = $event->plan->name;
+		$plan->statement_descriptor = Str::limit("Ulab - {$event->plan->name}", 22, '');
+		
+		return $plan->save();
 	}
 }

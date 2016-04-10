@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Team;
+namespace App\Space;
 
 use App\User\User;
 use Illuminate\Database\Eloquent\Model;
 
-class Team extends Model
+class Member extends Model
 {
 	/**
 	 * Fillable fields
@@ -18,7 +18,10 @@ class Team extends Model
 		'zip',
 		'city',
 		'state',
-		'phone'
+		'phone',
+		'mobile',
+		'company_name',
+		'company_identity',
 	];
 
 	/**

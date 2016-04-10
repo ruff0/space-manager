@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Team;
+namespace App\Http\Requests\Space;
 
 use App\Http\Requests\Request;
 
-class UpdateTeamForm extends Request
+class UpdateMemberForm extends Request
 {
 	/**
 	 * Determine if the user is authorized to make this request.
