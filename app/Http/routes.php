@@ -35,5 +35,6 @@ Route::group(['middleware' => ['auth'] ], function (){
 
 	Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 		Route::get('/', ['as' => 'admin.index', 'uses' => 'DashboardController@index']);
+		Route::resource('plans', 'PlansController');
 	});
 });

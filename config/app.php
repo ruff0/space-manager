@@ -154,6 +154,8 @@ return [
 		Laracasts\Utilities\JavaScript\JavaScriptServiceProvider::class,
 		Overtrue\LaravelLang\TranslationServiceProvider::class,
 		Barryvdh\Debugbar\ServiceProvider::class,
+		Cviebrock\EloquentSluggable\SluggableServiceProvider::class,
+		Laravel\Cashier\CashierServiceProvider::class,
 		/*
 		 * Application Service Providers...
 		 */
