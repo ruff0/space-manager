@@ -15,7 +15,7 @@ class AddSlugToPlansTable extends Migration
 	public function up()
 	{
 		Schema::table('plans', function (Blueprint $table) {
-			$table->string('slug')->nullable();
+			$table->string('slug')->after('name')->nullable();
 		});
 	}
 
