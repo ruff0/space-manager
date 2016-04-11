@@ -2,12 +2,12 @@
 
 namespace App\Space;
 
-use App\Events\Plan\PlanWasCreated;
-use App\Events\Plan\PlanWasDeleted;
-use App\Events\Plan\PlanWasUpdated;
+use App\Events\Space\PlanWasCreated;
+use App\Events\Space\PlanWasDeleted;
+use App\Events\Space\PlanWasUpdated;
 use Illuminate\Database\Eloquent\Model;
-use Cviebrock\EloquentSluggable\SluggableInterface;
 use Cviebrock\EloquentSluggable\SluggableTrait;
+use Cviebrock\EloquentSluggable\SluggableInterface;
 
 
 /**
