@@ -13,33 +13,6 @@ use App\Http\Controllers\Controller;
 
 class ProfilesController extends Controller
 {
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param CreateProfileForm $request
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function store(CreateProfileForm $request, User $users)
-	{
-		$profile = $users->profile()->create($request->all());
-		event(
-			new UserCreatedProfile(
-				$profile,
-				$request->only([
-					'company_name',
-					'company_identity'
-				])
-			)
-		);
-
-		return redirect()->route('users.profiles.edit', [
-			$users->id,
-			$profile->id
-		]);
-	}
-
 	/**
 	 * Show the form for editing the specified resource.
 	 *

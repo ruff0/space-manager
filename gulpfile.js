@@ -31,15 +31,23 @@ elixir(function (mix) {
 			'plugins/forms/styling/switchery.min.js',
 			'plugins/notifications/pnotify.min.js',
 			'core/app.js',
-			'pages/plans_list.js',
 			'pages/form_checkboxes_radios.js',
 			'pages/login.js',
 			'plugins/ui/ripple.min.js'
 		])
 		.scripts(
 			[
+				'page/admin/members.js',
+				'page/admin/plans.js',
 				'admin.js'
 			],
 			'./public/js/admin.js'
+		)
+		.scripts(
+			[
+				'page/home.js',
+				'app.js'
+			],
+			'./public/js/all.js'
 		);
 });

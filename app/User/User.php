@@ -54,11 +54,39 @@ class User extends Authenticatable
 	}
 
 	/**
+	 * Whether the user needs a profile or not
+	 */
+	public function needsProfile()
+	{
+		return !$this->hasProfile();
+	}
+
+	/**
 	 * Whether the user is already a Member or not
 	 */
 	public function isMember()
 	{
 		return $this->member;
+	}
+	
+	/**
+	 * Whether the user is already a Member or not
+	 */
+	public function needsMemberData()
+	{
+		return $this->member->needsFillData();
+	}
+
+	/**
+	 * Returns users profile full name
+	 * @return string
+	 */
+	public function fullName()
+	{
+		if($this->hasProfile())
+			return $this->profile->fullName();
+
+		return "";
 	}
 
 	/**

@@ -14,8 +14,10 @@ class CreateMembersTable extends Migration
 	{
 		Schema::create('members', function (Blueprint $table) {
 			$table->increments('id');
-			$table->string('name');
-			$table->string('identity');
+			$table->string('name')->nullable();
+			$table->string('lastname')->nullable();
+			$table->string('email');
+			$table->string('identity')->nullable();
 			$table->string('address_line1');
 			$table->string('address_line2');
 			$table->string('zip');
@@ -23,8 +25,9 @@ class CreateMembersTable extends Migration
 			$table->string('state');
 			$table->string('phone');
 			$table->string('mobile');
-			$table->string('company_name');
-			$table->string('company_identity');
+			$table->boolean('is_company');
+			$table->string('company_name')->nullable();
+			$table->string('company_identity')->nullable();
 			$table->timestamps();
 		});
 	}

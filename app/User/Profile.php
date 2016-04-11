@@ -7,22 +7,27 @@ use App\User\User;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @property mixed id
+ * @property integer id
+ * @property string  name
+ * @property string  lastname
  */
 class Profile extends Model
 {
 	protected $fillable = [
 		'name',
 		'lastname',
-		'identity',
-		'address_line1',
-		'address_line2',
-		'city',
-		'state',
-		'zip',
 		'mobile',
-		'phone',
 	];
+
+	/**
+	 * Returns users profile fullname
+	 *
+	 * @return string
+	 */
+	public function fullName()
+	{
+		return $this->name . ' ' . $this->lastname;
+	}
 
 	/**
 	 * Returns the related user

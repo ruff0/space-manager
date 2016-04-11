@@ -77,8 +77,7 @@
 			{{-- /content area --}}
 		</div>
 	</div>
-
-	@if(!$user->hasProfile())
-		@include('users.profiles.partials._needsProfile-modal')
+	@if($user->needsMemberData())
+		@include('users.profiles.partials._needsMemberData-modal')
 	@endif
 @endsection
