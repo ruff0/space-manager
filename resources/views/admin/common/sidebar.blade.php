@@ -6,7 +6,9 @@
 		<div class="sidebar-user-material">
 			<div class="category-content">
 				<div class="sidebar-user-material-content">
-					<a href="#"><img src="{{$user->avatar()}}" class="img-circle img-responsive" alt=""></a>
+					<a href="#" class="legitRipple">
+						<img src="{{$user->avatar(120)}}" class="img-circle img-responsive" alt="{{$user->mail}}" style="background: white;">
+					</a>
 					<h6>{{$user->name}}</h6>
 					<span class="text-size-small">{{$user->email}}</span>
 				</div>
