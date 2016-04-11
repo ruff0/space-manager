@@ -37,6 +37,7 @@ elixir(function (mix) {
 		])
 		.scripts(
 			[
+				'page/admin/bookablesizes.js',
 				'page/admin/bookabletypes.js',
 				'page/admin/members.js',
 				'page/admin/plans.js',

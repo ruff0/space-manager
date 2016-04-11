@@ -31,7 +31,7 @@
 			<label>Activo</label>
 			<div class="checkbox checkbox-switchery">
 				<label for="active">
-				<input name="active" id="active" type="checkbox" class="switchery"
+				<input name="active" id="active" type="checkbox" class="switchery" value="1"
 					{!! $bookabletype->active || old('active')? 'checked' : null !!}
 				/>
 					<span class="text-muted">

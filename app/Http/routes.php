@@ -41,5 +41,6 @@ Route::group(['middleware' => ['auth'] ], function (){
 		Route::resource('members', 'MembersController');
 
 		Route::resource('bookabletypes', 'BookableTypesController');
+		Route::resource('bookablesizes', 'BookableSizesController');
 	});
 });

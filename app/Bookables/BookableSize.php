@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
 
-class BookableType extends Model implements SluggableInterface
+class BookableSize extends Model implements SluggableInterface
 {
 	use SluggableTrait;
 
@@ -19,7 +19,9 @@ class BookableType extends Model implements SluggableInterface
 		'name',
 		'slug',
 		'description',
+		'max_occupants',
 		'active',
+		'floor',
 	];
 
 	/**
