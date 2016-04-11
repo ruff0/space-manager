@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Space\Member;
 use App\User\Profile;
 use Laracasts\Utilities\JavaScript\JavaScriptFacade;
 
@@ -17,16 +18,13 @@ class HomeController extends Controller
 
 		if ($user) {
 			JavaScriptFacade::put([
-				'needsProfile' => $user->hasProfile() ? false : true,
-				'user'         => $user,
+				'needsMemberData' => $user->needsMemberData()
 			]);
-
 
 			view()->share('user', $user);
 
-
-			if (!$user->hasProfile()) {
-				view()->share('profile', new Profile);
+			if ($user->needsMemberData()) {
+				view()->share('member', $user->member);
 			}
 		}
 	}

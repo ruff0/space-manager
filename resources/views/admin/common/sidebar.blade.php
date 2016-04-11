@@ -29,6 +29,13 @@
 						<i class="icon-menu" title="Espacio Coworking"></i>
 					</li>
 					<li>
+						<a href="{{ route('admin.members.index') }}" class="legitRipple">
+							<i class="icon-users4"></i>
+							<span>Miembros</span>
+						</a>
+					</li>
+
+					<li>
 						<a href="{{ route('admin.plans.index') }}" class="legitRipple">
 							<i class="icon-cash3"></i>
 							<span>Planes</span>

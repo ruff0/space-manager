@@ -3,7 +3,7 @@
 	<legend>Datos personales</legend>
 	<div class="form-group">
 		<div class="row">
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<label>Nombre</label>
 				<input type="text"
 				       placeholder="Antonio"
@@ -14,7 +14,7 @@
 				@include('forms._validation-error', ['field' => 'name'])
 			</div>
 
-			<div class="col-sm-4">
+			<div class="col-sm-6">
 				<label>Apellidos</label>
 				<input type="text"
 				       placeholder="Gómez Pérez"
@@ -24,85 +24,21 @@
 				/>
 				@include('forms._validation-error', ['field' => 'lastname'])
 			</div>
-
-			<div class="col-sm-4">
-				<label>NIF / NIE</label>
-				<input type="text"
-				       placeholder="00000000N"
-				       class="form-control"
-				       name="identity"
-				       value="{{old('identity', $profile->identity)}}"
-				/>
-				@include('forms._validation-error', ['field' => 'identity'])
-			</div>
 		</div>
 	</div>
-
 	<div class="form-group">
 		<div class="row">
 			<div class="col-sm-6">
-				<label>Dirección</label>
-				<input type="text"
-				       placeholder="c/La Paz 12"
+				<label>Email</label>
+				<input type="email"
+				       placeholder="usuario@email.com"
 				       class="form-control"
-				       name="address_line1"
-				       value="{{old('address_line1', $profile->address_line1)}}"
+				       name="email"
+				       value="{{old('email', $profile->email?:$user->email)}}"
 				/>
-				@include('forms._validation-error', ['field' => 'address_line1'])
+				@include('forms._validation-error', ['field' => 'email'])
 			</div>
 
-			<div class="col-sm-6">
-				<label>&nbsp;</label>
-				<input type="text"
-				       placeholder="Bloque 2, 1º Izq."
-				       class="form-control"
-				       name="address_line2"
-				       value="{{old('address_line2', $profile->address_line2)}}"
-				/>
-				@include('forms._validation-error', ['field' => 'address_line2'])
-			</div>
-		</div>
-	</div>
-
-	<div class="form-group">
-		<div class="row">
-			<div class="col-sm-4">
-				<label>Ciudad</label>
-				<input type="text"
-				       placeholder="Alicante"
-				       class="form-control"
-				       name="city"
-				       value="{{old('city', $profile->city)}}"
-				/>
-				@include('forms._validation-error', ['field' => 'city'])
-			</div>
-
-			<div class="col-sm-4">
-				<label>Provincia</label>
-				<input type="text"
-				       placeholder="Alicante"
-				       class="form-control"
-				       name="state"
-				       value="{{old('state', $profile->state)}}"
-				>
-				@include('forms._validation-error', ['field' => 'state'])
-			</div>
-
-			<div class="col-sm-4">
-				<label>Código postal</label>
-				<input type="text"
-				       placeholder="03001"
-				       class="form-control"
-				       name="zip"
-				       value="{{old('zip', $profile->zip)}}"
-				/>
-				@include('forms._validation-error', ['field' => 'zip'])
-			</div>
-		</div>
-	</div>
-
-	<div class="form-group">
-		<div class="row">
 			<div class="col-sm-6">
 				<label>Móvil</label>
 				<input type="text"
@@ -113,48 +49,6 @@
 				       value="{{old('mobile', $profile->mobile)}}"
 				/>
 				@include('forms._validation-error', ['field' => 'mobile'])
-				{{--<span class="help-block">965-12-34-56</span>--}}
-			</div>
-			<div class="col-sm-6">
-				<label>Télefono</label>
-				<input type="text"
-				       placeholder="666-12-34-56"
-				       data-mask="666-12-34-56"
-				       class="form-control"
-				       name="phone"
-				       value="{{old('phone', $profile->phone)}}"
-				/>
-				@include('forms._validation-error', ['field' => 'phone'])
-				{{--<span class="help-block">666-12-34-56</span>--}}
-			</div>
-		</div>
-	</div>
-</fieldset>
-
-<fieldset>
-	<legend>Datos de la empresa</legend>
-	<div class="form-group">
-		<div class="row">
-			<div class="col-sm-8">
-				<label>Razón Sócial</label>
-				<input type="text"
-				       placeholder="Mi mega empresa S.L."
-				       class="form-control"
-				       name="company_name"
-				       value="{{old('company_name', $profile->user ? $profile->user->member->company_name : '')}}"
-				>
-				@include('forms._validation-error', ['field' => 'company_name'])
-			</div>
-
-			<div class="col-sm-4">
-				<label>CIF</label>
-				<input type="text"
-				       placeholder="B00000000N"
-				       class="form-control"
-				       name="company_identity"
-				       value="{{old('company_identity', $profile->user ? $profile->user->member->company_identity : '')}}"
-				/>
-				@include('forms._validation-error', ['field' => 'company_identity'])
 			</div>
 		</div>
 	</div>

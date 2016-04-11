@@ -13,6 +13,7 @@ class EventServiceProvider extends ServiceProvider
 	 * @var array
 	 */
 	protected $listen = [
+		// Plans Events
 		'App\Events\Space\PlanWasCreated' => [
 			'App\Listeners\Space\CreateStripePlan',
 		],
@@ -22,10 +23,20 @@ class EventServiceProvider extends ServiceProvider
 		'App\Events\Space\PlanWasUpdated' => [
 			'App\Listeners\Space\UpdateStripePlan',
 		],
-
-		'App\Events\User\UserCreatedProfile' => [
-			'App\Listeners\Space\UpdateMember',
+		// Member Events
+		'App\Events\Space\MemberRegistered' => [
+			'App\Listeners\User\CreateMainUser',
+			'App\Listeners\User\UpdateProfile',
 		],
+		
+		'App\Events\Space\MemberFilledData' => [
+			'App\Listeners\User\UpdateProfile',
+		],
+
+		// User Events
+//		'App\Events\User\UserCreatedProfile' => [
+//			'App\Listeners\Space\UpdateMember',
+//		],
 	];
 
 	/**

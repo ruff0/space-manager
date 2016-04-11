@@ -32,7 +32,12 @@ class MembersController extends Controller
 	 */
 	public function update(Member $members, UpdateMemberForm $request)
 	{
-		$members->update($request->all());
+		$data = $request->all();
+
+		if($request->has('company_identity'))
+			$data['is_company'] = true;
+
+		$members->update($data);
 
 		return redirect()->route('members.edit', [ $members->id ]);
 	}

@@ -22,12 +22,13 @@ Route::auth();
 Route::group(['middleware' => ['auth'] ], function (){
 	Route::get('/home', 'HomeController@index');
 
-	Route::group([ 'namespace' => 'User'], function () {
+	Route::group(['namespace' => 'User'], function () {
 		Route::resource('users.profiles', 'ProfilesController', [
 			'except' => ['index', 'show', 'create', 'destroy']
 		]);
 	});
-	Route::group(['namespace' => 'Member'], function () {
+	
+	Route::group(['namespace' => 'Space' ], function () {
 		Route::resource('members', 'MembersController', [
 			'except' => ['index', 'show', 'create', 'destroy']
 		]);
@@ -36,5 +37,6 @@ Route::group(['middleware' => ['auth'] ], function (){
 	Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 		Route::get('/', ['as' => 'admin.index', 'uses' => 'DashboardController@index']);
 		Route::resource('plans', 'PlansController');
+		Route::resource('members', 'MembersController');
 	});
 });
