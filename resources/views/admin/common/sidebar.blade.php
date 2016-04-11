@@ -41,6 +41,17 @@
 							<span>Planes</span>
 						</a>
 					</li>
+
+					<li class="navigation-header">
+						<span>Reservas</span>
+						<i class="icon-menu" title="Reservas"></i>
+					</li>
+					<li class="">
+						<a href="#" class="has-ul legitRipple"><i class="icon-stack2"></i> <span>Salas</span></a>
+						<ul class="hidden-ul" style="display: none;">
+							<li><a href="{{route('admin.bookabletypes.index')}}" class="legitRipple">Tipo de Sala</a></li>
+						</ul>
+					</li>
 				</ul>
 			</div>
 		</div>
