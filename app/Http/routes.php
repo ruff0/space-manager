@@ -39,8 +39,13 @@ Route::group(['middleware' => ['auth'] ], function (){
 
 		Route::resource('plans', 'PlansController');
 		Route::resource('members', 'MembersController');
-
+		Route::resource('bookables', 'BookablesController');
+		
+		// Resources
+		Route::resource('rooms', 'RoomsController');
+		
+		// Configs
 		Route::resource('bookabletypes', 'BookableTypesController');
-		Route::resource('bookablesizes', 'BookableSizesController');
+		
 	});
 });

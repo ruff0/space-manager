@@ -2,8 +2,8 @@
 
 @section('body-class', '')
 
-@section('new-form-text', 'Crear nuevo tamaño de sala')
-@section('new-form-url', route('admin.bookablesizes.create'))
+@section('new-form-text', 'Crear nuevo alquilable')
+@section('new-form-url', route('admin.bookables.create'))
 
 @section('content')
 	<!-- Page content -->
@@ -19,13 +19,13 @@
 			{{--Plans form--}}
 			<div class="panel panel-white">
 				<div class="panel-heading">
-					<h6 class="panel-title">Crear un tamaño de sala</h6>
+					<h6 class="panel-title">Crear un alquilable</h6>
 					<div class="heading-elements"></div>
 				</div>
 				<div class="panel-body">
-					<form action="{{ route('admin.bookablesizes.store') }}" method="POST">
+					<form action="{{ route('admin.bookables.store') }}" method="POST">
 
-						@include('admin.bookablesizes.form')
+						@include('admin.bookables.form')
 						<button type="submit" class="btn btn-primary pull-right">Guardar</button>
 					</form>
 				</div>

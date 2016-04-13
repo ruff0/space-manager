@@ -41,16 +41,20 @@
 							<span>Planes</span>
 						</a>
 					</li>
-
+					<li>
+						<a href="{{route('admin.bookables.index')}}" class="legitRipple">
+							<i class="icon-stack2"></i>
+							Alquilables
+						</a>
+					</li>
 					<li class="navigation-header">
-						<span>Reservas</span>
-						<i class="icon-menu" title="Reservas"></i>
+						<span>Configuración</span>
+						<i class="icon-menu" title="Configuración"></i>
 					</li>
 					<li class="">
-						<a href="#" class="has-ul legitRipple"><i class="icon-stack2"></i> <span>Salas</span></a>
+						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Alquilables</span></a>
 						<ul class="hidden-ul" style="display: none;">
-							<li><a href="{{route('admin.bookabletypes.index')}}" class="legitRipple">Tipo de Sala</a></li>
-							<li><a href="{{route('admin.bookablesizes.index')}}" class="legitRipple">Tamaño de Sala</a></li>
+							<li><a href="{{route('admin.bookabletypes.index')}}" class="legitRipple">Tipo de alquilable</a></li>
 						</ul>
 					</li>
 				</ul>

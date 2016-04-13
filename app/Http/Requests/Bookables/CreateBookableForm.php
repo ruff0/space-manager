@@ -4,7 +4,7 @@ namespace App\Http\Requests\Bookables;
 
 use App\Http\Requests\Request;
 
-class CreateBookableSizeForm extends Request
+class CreateBookableForm extends Request
 {
 	/**
 	 * Determine if the user is authorized to make this request.
@@ -25,6 +25,7 @@ class CreateBookableSizeForm extends Request
 	{
 		return [
 			'name' => 'required',
+			'bookable_type_id' => 'required',
 			'max_occupants' => 'required|numeric'
 		];
 	}

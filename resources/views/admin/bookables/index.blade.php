@@ -2,8 +2,8 @@
 
 @section('body-class', '')
 
-@section('new-form-text', 'Crear nuevo tamaño de sala')
-@section('new-form-url', route('admin.bookablesizes.create'))
+@section('new-form-text', 'Crear nuevo alquilable')
+@section('new-form-url', route('admin.bookables.create'))
 
 @section('content')
 <div class="page-content">
@@ -22,7 +22,7 @@
 					</div>
 				</div>
 
-				<table class="table bookablesizes-list table-lg">
+				<table class="table bookables-list table-lg">
 					<thead>
 					<tr>
 						<th>#</th>
@@ -36,24 +36,24 @@
 					</tr>
 					</thead>
 					<tbody>
-					@foreach($bookablesizes as $bookablesize)
-						<tr data-plan="{{$bookablesize->id}}">
-							<td>#{{$bookablesize->id}}</td>
-							<td>{{$bookablesize->name}}</td>
+					@foreach($bookables as $bookable)
+						<tr data-plan="{{$bookable->id}}">
+							<td>#{{$bookable->id}}</td>
+							<td>{{$bookable->name}}</td>
 							<td>
 								<div class="text-muted">
-									{{$bookablesize->description}}
+									{{$bookable->description}}
 								</div>
 							</td>
 							<td>
 									<a href="#" class="label
-										{!! $bookablesize->active ? 'label-success' : 'label-danger' !!}">
-										{!! $bookablesize->active ? 'Activo' : 'Inactivo' !!}
+										{!! $bookable->active ? 'label-success' : 'label-danger' !!}">
+										{!! $bookable->active ? 'Activo' : 'Inactivo' !!}
 									</a>
 							</td>
 							<td>
 								<i class="icon-calendar2 position-left"></i>
-								{{ $bookablesize->updated_at->format('d M Y H:i')  }}
+								{{ $bookable->updated_at->format('d M Y H:i')  }}
 							</td>
 							<td class="text-center">
 								<ul class="icons-list">
@@ -61,14 +61,14 @@
 										<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu9"></i></a>
 										<ul class="dropdown-menu dropdown-menu-right">
 											<li>
-												<a href="{{ route('admin.bookablesizes.edit', [$bookablesize->id]) }}">
-													<i class="icon-pencil7"></i> Editar tipo de sala
+												<a href="{{ route('admin.bookables.edit', [$bookable->id]) }}">
+													<i class="icon-pencil7"></i> Editar alquilable
 												</a>
 											</li>
 											<li>
-												<a href="{{route('admin.bookablesizes.destroy', [$bookablesize->id])}}"
+												<a href="{{route('admin.bookables.destroy', [$bookable->id])}}"
 												   role="delete-form"
-													 data-id="{{$bookablesize->id}}"
+													 data-id="{{$bookable->id}}"
 													 data-token="{{ csrf_token() }}"
 												>
 													<i class="icon-cross2 position-left"></i>

@@ -21,7 +21,7 @@ $("[role=delete-form]").on('click', function (e) {
 				text: result.message,
 				addclass: 'bg-success'
 			});
-			
+
 			$("tr[data-plan="+ $el.data('id') +"]").fadeOut(500);
 		},
 		error: function (resutl) {
@@ -32,4 +32,9 @@ $("[role=delete-form]").on('click', function (e) {
 			});
 		}
 	});
-});                                 
+});
+
+
+$('.select').select2({
+	containerCssClass: 'select-lg'
+});

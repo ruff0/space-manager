@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Bookables\BookableSize;
+use App\Bookables\Bookable;
 use App\Http\Controllers\AdminController;
-use App\Http\Requests\Bookables\CreateBookableSizeForm;
+use App\Http\Requests\Bookables\CreateBookableForm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use Symfony\Component\HttpFoundation\Response;
 
-class BookableSizesController extends AdminController
+class BookablesController extends AdminController
 {
 	public function __construct()
 	{
-		$this->current['model'] = 'Tamaños de sala';
+		$this->current['model'] = 'Alquilables';
 		view()->share('current', $this->current);
 	}
 
@@ -27,11 +27,11 @@ class BookableSizesController extends AdminController
 	public function index()
 	{
 		$this->current['action'] = 'Listado';
-		$bookablesizes = BookableSize::all();
+		$bookables = Bookable::all();
 
-		return view('admin.bookablesizes.index', [
+		return view('admin.bookables.index', [
 			'current'       => $this->current,
-			'bookablesizes' => $bookablesizes
+			'bookables' => $bookables
 		]);
 	}
 
@@ -43,11 +43,11 @@ class BookableSizesController extends AdminController
 	public function create()
 	{
 		$this->current['action'] = 'Crear';
-		$bookablesize = new BookableSize;
+		$bookable = new Bookable;
 
-		return view('admin.bookablesizes.create', [
+		return view('admin.bookables.create', [
 			'current'      => $this->current,
-			'bookablesize' => $bookablesize
+			'bookable' => $bookable
 		]);
 	}
 
@@ -55,66 +55,66 @@ class BookableSizesController extends AdminController
 	 * Store a newly created resource in storage.
 	 *
 	 *
-	 * @param CreateBookableSizeForm $request
+	 * @param CreateBookableForm $request
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function store(CreateBookableSizeForm $request)
+	public function store(CreateBookableForm $request)
 	{
-		$bookablesize = BookableSize::create($request->all());
+		$bookable = Bookable::create($request->all());
 
-		return redirect()->route('admin.bookablesizes.index')->with(
-			'success', 'El tamaño de sala se ha guardado correctamente'
+		return redirect()->route('admin.bookables.index')->with(
+			'success', 'La entidad se ha guardado correctamente'
 		);
 	}
 
 	/**
 	 * Display the specified resource.
 	 *
-	 * @param BookableSize $bookablesizes
+	 * @param Bookable $bookables
 	 *
 	 * @return \Illuminate\Http\Response
 	 *
 	 */
-	public function show(BookableSize $bookablesizes)
+	public function show(Bookable $bookables)
 	{
-		dd($bookablesizes);
+		dd($bookables);
 	}
 
 	/**
 	 * Show the form for editing the specified resource.
 	 *
 	 *
-	 * @param BookableSize $bookablesizes
+	 * @param Bookable $bookables
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function edit(BookableSize $bookablesizes)
+	public function edit(Bookable $bookables)
 	{
 		$this->current['action'] = 'Actualizar';
 
-		return view('admin.bookablesizes.edit', [
+		return view('admin.bookables.edit', [
 			'current'      => $this->current,
-			'bookablesize' => $bookablesizes
+			'bookable' => $bookables
 		]);
 	}
 
 	/**
 	 * Update the specified resource in storage.
 	 *
-	 * @param  \Illuminate\Http\Request $request
-
+	 * @param CreateBookableForm $request
+	 * @param Bookable           $bookables
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(Request $request, BookableSize $bookablesizes)
+	public function update(CreateBookableForm $request, Bookable $bookables)
 	{
-		$bookablesize = $bookablesizes->update(
+		$bookables->update(
 			$request->all()
 		);
 
-		return redirect()->route('admin.bookablesizes.index')->with(
-			'success', 'El tamaño de sala se ha guardado correctamente'
+		return redirect()->route('admin.bookables.index')->with(
+			'success', 'La entidad se ha guardado correctamente'
 		);
 	}
 
@@ -124,20 +124,20 @@ class BookableSizesController extends AdminController
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function destroy(BookableSize $bookablesizes, Request $request)
+	public function destroy(Bookable $bookables, Request $request)
 	{
-		$bookablesizes->delete();
+		$bookables->delete();
 
 		if ($request->ajax() || $request->wantsJson()) {
 			return new JsonResponse([
 				'status'  => 'success',
-				'message' => 'El tamaño de sala se ha borrado correctamente'
+				'message' => 'La entidad se ha borrado correctamente'
 			], Response::HTTP_OK
 			);
 		}
 
 		return redirect()->route('admin.bookabletypes.index')
 		                 ->withStatus('success')
-		                 ->withMessage('El tamaño de sala se ha borrado correctamente');
+		                 ->withMessage('La entidad se ha borrado correctamente');
 	}
 }

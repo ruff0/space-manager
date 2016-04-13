@@ -28,7 +28,7 @@ $.fn.dataTable.ext.order['dom-select'] = function (settings, col) {
 // Table setup
 // ------------------------------
 // Initialize data table
-$('.bookablesizes-list').DataTable({
+$('.bookables-list').DataTable({
 	autoWidth: true,
 	columnDefs: [
 		{
