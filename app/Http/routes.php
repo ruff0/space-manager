@@ -42,8 +42,10 @@ Route::group(['middleware' => ['auth'] ], function (){
 		Route::resource('bookables', 'BookablesController');
 		
 		// Resources
-		Route::resource('rooms', 'RoomsController');
-		
+		Route::resource('meetingrooms', 'MeetingRoomsController');
+		Route::resource('classrooms', 'ClassRoomsController');
+		Route::resource('spots', 'SpotsController');
+
 		// Configs
 		Route::resource('bookabletypes', 'BookableTypesController');
 		

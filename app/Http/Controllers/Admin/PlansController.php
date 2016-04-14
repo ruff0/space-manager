@@ -51,6 +51,8 @@ class PlansController extends AdminController
 		]);
 	}
 
+	
+
 	/**
 	 * Store a newly created resource in storage.
 	 *
@@ -63,7 +65,7 @@ class PlansController extends AdminController
 		$plan = Plan::create(
 			$request->all()
 		);
-		
+
 		return redirect()->route('admin.plans.index')->with(
 			'success', 'El plan se ha guardado correctamente'
 		);

@@ -40,6 +40,9 @@ elixir(function (mix) {
 		.scripts(
 			[
 				'page/admin/bookables.js',
+				'page/admin/meetingrooms.js',
+				'page/admin/classrooms.js',
+				'page/admin/spots.js',
 				'page/admin/bookabletypes.js',
 				'page/admin/members.js',
 				'page/admin/plans.js',
