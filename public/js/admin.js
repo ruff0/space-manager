@@ -126,6 +126,32 @@ $('.dataTables_length select').select2({
 	width: 'auto'
 });
 
+
+var availableContainers = $("[data-list='available-resources']").toArray();
+var selectedContainers = $("[data-list='selected-resources']").toArray();
+
+// Draggable for resources
+var drake = dragula(selectedContainers.concat(availableContainers), {
+	mirrorContainer: document.querySelector('.resources-list-container'),
+	moves: function (el, container, handle) {
+		return handle.classList.contains('dragula-handle');
+	},
+	accepts: function (el, target, source, sibling) {
+		return true;
+	}
+});
+
+drake.on('drag', function (el, source)
+{
+	$(".resources-list-container").addClass('bg-slate-300').addClass('active')
+}).on('dragend', function(el)
+{
+	$(".resources-list-container").removeClass('bg-slate-300').removeClass('active')
+}).on('drop', function(el, target, source, sibling)
+{
+	$(el).find(".form").show()
+})
+
 /* ------------------------------------------------------------------------------
  *
  *  # Task list view
@@ -921,26 +947,39 @@ $("[role=delete-form]").on('click', function (e) {
 		}
 	});
 
-	$.ajax({
-		url: $el.attr('href'),
-		type: 'DELETE',  // user.destroy
-		success: function (result) {
-			new PNotify({
-				title: "",
-				text: result.message,
-				addclass: 'bg-success'
-			});
+	swal({
+		title: "¿Estas seguro?",
+		text: "¡Este elemento no será recuperable si lo borras!",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#FF7043",
+		confirmButtonText: "Si, borralo. ¡me da ígual!",
+		cancelButtonText:"Mejor no lo borres"
+	}).then(function (isConfirm) {
+		if (isConfirm) {
+			swal.enableLoading();
+			$.ajax({
+				url: $el.attr('href'),
+				type: 'DELETE',  // user.destroy
+				success: function (result) {
+					new PNotify({
+						title: "",
+						text: result.message,
+						addclass: 'bg-success'
+					});
 
-			$("tr[data-plan="+ $el.data('id') +"]").fadeOut(500);
-		},
-		error: function (resutl) {
-			new PNotify({
-				title: "",
-				text: result.message,
-				addclass: 'bg-danger'
+					$("tr[data-plan=" + $el.data('id') + "]").fadeOut(500);
+				},
+				error: function (resutl) {
+					new PNotify({
+						title: "",
+						text: result.message,
+						addclass: 'bg-danger'
+					});
+				}
 			});
 		}
-	});
+	})
 });
 
 

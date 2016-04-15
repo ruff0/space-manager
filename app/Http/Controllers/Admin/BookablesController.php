@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class BookablesController extends AdminController
 {
+	/**
+	 * BookablesController constructor.
+	 */
 	public function __construct()
 	{
 		$this->current['model'] = 'Alquilables';

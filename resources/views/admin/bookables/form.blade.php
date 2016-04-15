@@ -1,5 +1,5 @@
 {!! csrf_field() !!}
-
+{{--<input type="hidden" name="resources[]" value="1">--}}
 <div class="form-group">
 	<div class="row pb-20">
 		<div class="col-sm-12">
@@ -69,7 +69,7 @@
 	</div>
 
 	<div class="row pb-20">
-		<div class="col-sm-12">
+		<div class="col-sm-6">
 			<label>Activo</label>
 			<div class="checkbox checkbox-switchery">
 				<label for="active">
@@ -82,6 +82,21 @@
 				</label>
 			</div>
 			@include('forms._validation-error', ['field' => 'active'])
+		</div>
+
+		<div class="col-sm-6">
+			<label>Mostrar con IVA</label>
+			<div class="checkbox checkbox-switchery">
+				<label for="show_vat">
+				<input name="show_vat" id="show_vat" type="checkbox" class="switchery" value="1"
+					{!! $bookable->show_vat || old('show_vat')? 'checked' : null !!}
+				/>
+					<span class="text-muted">
+						Mostrar este alquilable con IVA
+					</span>
+				</label>
+			</div>
+			@include('forms._validation-error', ['field' => 'show_vat'])
 		</div>
 	</div>
 </div>

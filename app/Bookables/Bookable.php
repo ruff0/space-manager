@@ -2,6 +2,7 @@
 
 namespace App\Bookables;
 
+use App\Resources\Models\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -62,6 +63,43 @@ class Bookable extends Model implements SluggableInterface
 	public function types()
 	{
 		return $this->hasOne(BookableType::class);
+	}
+
+	/**
+	 * Get all of the tags for the post.
+	 */
+	public function resources()
+	{
+		return $this->morphToMany(Resource::class, 'resourceable');
+	}
+	/**
+	 * Update the model in the database.
+	 *
+	 * @param  array $attributes
+	 * @param  array $options
+	 *
+	 * @return bool|int
+	 */
+	public function update(array $attributes = [], array $options = [])
+	{
+		$bookable = parent::update($attributes, $options);
+		// Extract this out of here
+		if (isset($attributes['resources'])) {
+			$resources = [];
+
+			foreach ($attributes['resources'] as $key => $resource)
+			{
+				if (isset($resource['settings'])) {
+				  $resource['settings'] = json_encode($resource['settings']);
+				}
+
+				$resources[$key] = $resource;
+			}
+
+			$this->resources()->sync($resources);
+		}
+
+		return $bookable;
 	}
 
 }

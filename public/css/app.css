@@ -35183,5 +35183,17 @@ label.display-block {
 .text-default:focus {
   color: #333333 !important;
 }
+.resources-list-container {
+  padding: 1em;
+  border-radius: 4px;
+}
+.resources-list-container .active {
+  min-height: 100px;
+}
+.resources-list-container > li {
+  padding: .5em;
+  background: #FAFAFA;
+  border-left: 2px solid #64B5F6;
+}
 
 /*# sourceMappingURL=app.css.map */
