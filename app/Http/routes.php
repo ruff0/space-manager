@@ -36,7 +36,18 @@ Route::group(['middleware' => ['auth'] ], function (){
 
 	Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function () {
 		Route::get('/', ['as' => 'admin.index', 'uses' => 'DashboardController@index']);
+
 		Route::resource('plans', 'PlansController');
 		Route::resource('members', 'MembersController');
+		Route::resource('bookables', 'BookablesController');
+		
+		// Resources
+		Route::resource('meetingrooms', 'MeetingRoomsController');
+		Route::resource('classrooms', 'ClassRoomsController');
+		Route::resource('spots', 'SpotsController');
+
+		// Configs
+		Route::resource('bookabletypes', 'BookableTypesController');
+		
 	});
 });

@@ -24,11 +24,15 @@ elixir(function (mix) {
 			'core/libraries/bootstrap.min.js',
 			'plugins/loaders/blockui.min.js',
 			'core/libraries/jquery_ui/widgets.min.js',
+			'core/libraries/jquery_ui/interactions.min.js',
 			'plugins/tables/datatables/datatables.min.js',
 			'plugins/tables/datatables/extensions/natural_sort.js',
 			'plugins/forms/selects/select2.min.js',
 			'plugins/forms/styling/uniform.min.js',
 			'plugins/forms/styling/switchery.min.js',
+			'plugins/forms/selects/select2.min.js',
+			'plugins/ui/dragula.min.js',
+			'plugins/notifications/sweet_alert.min.js',
 			'plugins/notifications/pnotify.min.js',
 			'core/app.js',
 			'pages/form_checkboxes_radios.js',
@@ -37,6 +41,11 @@ elixir(function (mix) {
 		])
 		.scripts(
 			[
+				'page/admin/bookables.js',
+				'page/admin/meetingrooms.js',
+				'page/admin/classrooms.js',
+				'page/admin/spots.js',
+				'page/admin/bookabletypes.js',
 				'page/admin/members.js',
 				'page/admin/plans.js',
 				'admin.js'

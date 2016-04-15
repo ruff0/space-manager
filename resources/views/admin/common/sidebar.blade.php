@@ -41,6 +41,47 @@
 							<span>Planes</span>
 						</a>
 					</li>
+					<li>
+						<a href="{{route('admin.bookables.index')}}" class="legitRipple">
+							<i class="icon-stack2"></i>
+							Alquilables
+						</a>
+					</li>
+					<li class="navigation-header">
+						<span>Recursos</span>
+						<i class="icon-menu" title="Recursos"></i>
+					</li>
+					<li class="">
+						<a href="#" class="has-ul legitRipple"><i class="icon-stack2"></i> <span>Salas & Puestos</span></a>
+						<ul class="hidden-ul" style="display: none;">
+							<li>
+								<a href="{{route('admin.meetingrooms.index')}}" class="legitRipple">
+									Salas de reuniones
+								</a>
+							</li>
+							<li>
+								<a href="{{route('admin.classrooms.index')}}" class="legitRipple">
+									Aulas
+								</a>
+							</li>
+							<li>
+								<a href="{{route('admin.spots.index')}}" class="legitRipple">
+									Puestos
+								</a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="navigation-header">
+						<span>Configuración</span>
+						<i class="icon-menu" title="Configuración"></i>
+					</li>
+					<li class="">
+						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Alquilables</span></a>
+						<ul class="hidden-ul" style="display: none;">
+							<li><a href="{{route('admin.bookabletypes.index')}}" class="legitRipple">Tipo de alquilable</a></li>
+						</ul>
+					</li>
 				</ul>
 			</div>
 		</div>
