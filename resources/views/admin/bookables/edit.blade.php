@@ -21,7 +21,6 @@
 							<form action="{{ route('admin.bookables.update', [$bookable->id]) }}" method="POST">
 								{{ method_field('PUT') }}
 								@include('admin.bookables.form')
-
 								<fieldset>
 									<legend>Recursos</legend>
 									<ul class="media-list media-list-container resources-list-container" data-list="selected-resources"

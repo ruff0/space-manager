@@ -34,6 +34,8 @@ elixir(function (mix) {
 			'plugins/ui/dragula.min.js',
 			'plugins/notifications/sweet_alert.min.js',
 			'plugins/notifications/pnotify.min.js',
+			'plugins/uploaders/dropzone.min.js',
+			'plugins/ui/jquery.dragster.js',
 			'core/app.js',
 			'pages/form_checkboxes_radios.js',
 			'pages/login.js',

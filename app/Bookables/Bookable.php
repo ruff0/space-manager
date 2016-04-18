@@ -2,6 +2,7 @@
 
 namespace App\Bookables;
 
+use App\Files\Image;
 use App\Resources\Models\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
@@ -39,7 +40,7 @@ class Bookable extends Model implements SluggableInterface
 		'save_to'    => 'slug',
 	];
 
-		#######################################################################################
+	#######################################################################################
 	# Special Methods
 	#######################################################################################
 	public function hasType($type)
@@ -72,11 +73,19 @@ class Bookable extends Model implements SluggableInterface
 	{
 		return $this->morphToMany(Resource::class, 'resourceable');
 	}
+
+	/**
+	 * Get all of the tags for the post.
+	 */
+	public function images()
+	{
+		return $this->morphToMany(Image::class, 'imageable');
+	}
 	/**
 	 * Update the model in the database.
 	 *
 	 * @param  array $attributes
-	 * @param  array $options
+	 * @param  array $options                                       ñ
 	 *
 	 * @return bool|int
 	 */

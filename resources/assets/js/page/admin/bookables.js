@@ -17,7 +17,6 @@ $.fn.dataTable.ext.order['dom-text'] = function (settings, col) {
 	});
 }
 
-
 // Create an array with the values of all the select options in a column
 $.fn.dataTable.ext.order['dom-select'] = function (settings, col) {
 	return this.api().column(col, {order: 'index'}).nodes().map(function (td, i) {

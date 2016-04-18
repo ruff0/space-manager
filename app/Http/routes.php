@@ -48,6 +48,8 @@ Route::group(['middleware' => ['auth'] ], function (){
 
 		// Configs
 		Route::resource('bookabletypes', 'BookableTypesController');
-		
+		// File uploads
+		Route::resource('files', 'FilesController');
+
 	});
 });

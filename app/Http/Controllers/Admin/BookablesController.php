@@ -112,9 +112,13 @@ class BookablesController extends AdminController
 	 */
 	public function update(CreateBookableForm $request, Bookable $bookables)
 	{
+		$images = $request->get('images');
+
 		$bookables->update(
 			$request->all()
 		);
+
+		$bookables->images()->sync($images);
 
 		return redirect()->route('admin.bookables.index')->with(
 			'success', 'La entidad se ha guardado correctamente'

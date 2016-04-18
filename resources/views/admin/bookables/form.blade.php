@@ -69,6 +69,11 @@
 	</div>
 
 	<div class="row pb-20">
+		<div class="col-sm-12">
+			@include('forms.images', ['entity' => $bookable])
+		</div>
+	</div>
+	<div class="row pb-20">
 		<div class="col-sm-6">
 			<label>Activo</label>
 			<div class="checkbox checkbox-switchery">
@@ -99,4 +104,5 @@
 			@include('forms._validation-error', ['field' => 'show_vat'])
 		</div>
 	</div>
+
 </div>

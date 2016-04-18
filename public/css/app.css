@@ -35195,5 +35195,24 @@ label.display-block {
   background: #FAFAFA;
   border-left: 2px solid #64B5F6;
 }
+#image-modal #image-gallery {
+  background-color: #ECEFF1;
+  max-height: 70vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+.thumb {
+  max-height: 100px;
+  overflow: hidden;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+.thumb.thumb-slide {
+  max-height: 200px !important;
+}
 
 /*# sourceMappingURL=app.css.map */
