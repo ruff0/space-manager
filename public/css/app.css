@@ -35214,5 +35214,8 @@ label.display-block {
 .thumb.thumb-slide {
   max-height: 200px !important;
 }
+body.home {
+  background-image: url("/images/backgrounds/ulab-background.jpg");
+}
 
 /*# sourceMappingURL=app.css.map */
