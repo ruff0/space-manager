@@ -18,7 +18,7 @@ class BookablesController extends AdminController
 	 */
 	public function __construct()
 	{
-		$this->current['model'] = 'Alquilables';
+		$this->current['model'] = 'Reservas';
 		view()->share('current', $this->current);
 	}
 
