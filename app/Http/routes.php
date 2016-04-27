@@ -11,21 +11,19 @@
 |
 */
 
-
 Route::get('/', function () {
 	return view('welcome');
 });
 
 Route::auth();
-
 Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api'], function () {
 	/**
 	 * Bookables Routes
 	 */
 	Route::group(['namespace' => 'Space'], function () {
 		Route::post('/members/{members}/payment-methods', [
-		  'as' => 'api.members.payment-methods.create',
-			'uses' => 	'PaymentMethods@store'
+			'as'   => 'api.members.payment-methods.create',
+			'uses' => 'PaymentMethods@store'
 		]);
 	});
 
@@ -42,14 +40,13 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 });
 
 
-
-Route::group(['middleware' => ['auth'] ], function (){
+Route::group(['middleware' => ['auth']], function () {
 	Route::get('/home', 'HomeController@index');
 
 	/**
 	 * Bookables Routes
 	 */
-	Route::group(['namespace' => 'Bookings'], function() {
+	Route::group(['namespace' => 'Bookings'], function () {
 		Route::get('/bookings', 'BookingsController@index');
 		Route::get('/bookings/create', 'BookingsController@create');
 	});
@@ -66,7 +63,7 @@ Route::group(['middleware' => ['auth'] ], function (){
 	/**
 	 * Spaces Routes
 	 */
-	Route::group(['namespace' => 'Space' ], function () {
+	Route::group(['namespace' => 'Space'], function () {
 		Route::resource('members', 'MembersController', [
 			'except' => ['index', 'show', 'create', 'destroy']
 		]);
@@ -78,7 +75,7 @@ Route::group(['middleware' => ['auth'] ], function (){
 		Route::resource('plans', 'PlansController');
 		Route::resource('members', 'MembersController');
 		Route::resource('bookables', 'BookablesController');
-		
+
 		// Resources
 		Route::resource('meetingrooms', 'MeetingRoomsController');
 		Route::resource('classrooms', 'ClassRoomsController');

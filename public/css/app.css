@@ -35226,8 +35226,27 @@ label.thumb-label input[type=radio] {
 .thumbnail {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 1px 5px rgba(0, 0, 0, 0.2) !important;
 }
+.thumbnail img {
+  transition: all .5s;
+}
 .thumbnail.selected {
   box-shadow: 0 1px 5px #00838F, 0 1px 5px #00838F !important;
+}
+.thumbnail.selected img {
+  transition: all .5s;
+  -webkit-filter: blur(2px);
+  filter: blur(2px);
+}
+.thumbnail.blocked .caption-overflow {
+  display: none;
+}
+.thumbnail.notavailable .caption-overflow {
+  display: none;
+}
+.thumbnail.notavailable img {
+  transition: all .5s;
+  -webkit-filter: blur(20px) grayscale(80%);
+  filter: blur(20px) grayscale(80%);
 }
 
 /*# sourceMappingURL=app.css.map */

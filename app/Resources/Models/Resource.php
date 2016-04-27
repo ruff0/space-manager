@@ -3,6 +3,7 @@
 namespace App\Resources\Models;
 
 use App\Bookables\Bookable;
+use App\Bookings\Booking;
 use App\Space\Plan;
 use Illuminate\Database\Eloquent\Model;
 
@@ -52,7 +53,7 @@ class Resource extends Model
 				break;
 
 			case "room" :
-				return $query->whereIn('resourceable_type', [
+				return $query->whereIn('resources.resourceable_type', [
 					MeetingRoom::class, ClassRoom::class, Spot::class
 				]);
 				break;
@@ -114,5 +115,13 @@ class Resource extends Model
 	public function bookables()
 	{
 		return $this->morphedByMany(Bookable::class, 'resourceable');
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function bookings()
+	{
+		return $this->hasMany(Booking::class);
 	}
 }

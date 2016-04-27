@@ -176,4 +176,9 @@ class Invoice extends Model
 		return (int) $this->total;
 	}
 
+	public static function findInvoiceByStripeCharge($stripe_charge_id = null)
+	{
+		return self::where('charge_id', $stripe_charge_id)->first();
+	}
+
 }

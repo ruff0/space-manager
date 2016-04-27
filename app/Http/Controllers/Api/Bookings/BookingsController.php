@@ -22,49 +22,48 @@ class BookingsController extends Controller
 {
 	public function index(Request $request)
 	{
-		$bookableTypes = [];
+		$available = [];
 
 		if ($request->has('date') && $request->has('type')) {
 			$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 			$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
-			$bookables = BookableType::find($request->get('type'))->bookables;
+			$bookables = BookableType::find($request->get('type'))->bookables()->get();
 
-			foreach ($bookables as $bookable) {
-				$rooms = [];
-
-				foreach ($bookable->resources as $resource) {
+			foreach ($bookables as $bookable)
+			{
+				foreach ($bookable->roomResources() as $resource)
+				{
 					$settings = $resource->settings;
-					$roomsIds = $resource->ofType('room')->lists('id');
-				}
-//				 dd($roomsIds);
-
-				$bookings = $bookable->bookings()
-//           ->where(function ($q) use ($roomsIds) {
-//             $q->whereIn('bookings.resource_id', $roomsIds);
-//           })
-           ->where(function ($q) use ($timeFrom, $timeTo) {
-             $q->where(function ($q) use ($timeFrom, $timeTo) {
-               $q->where('time_from', '>=', $timeFrom)
-                 ->where('time_to', '<=', $timeTo);
-             })
-						 ->orWhere(function ($q) use ($timeFrom, $timeTo) {
-							 $q->where('time_from', '<', $timeTo)
-							   ->where('time_to', '>', $timeTo);
-						 })
-						 ->orWhere(function ($q) use ($timeFrom, $timeTo) {
-							 $q->where('time_from', '<', $timeFrom)
-							   ->where('time_to', '>', $timeFrom);
-						 });
-           });
-				if ($bookings->count() == 0) {
-					array_push($bookableTypes, $bookable);
-					continue;
+					$bookings = $resource->bookings()->where(function ($q) use ($timeFrom, $timeTo) {
+						$q->where(function ($q) use ($timeFrom, $timeTo) {
+							$q->where('time_from', '>=', $timeFrom)
+							  ->where('time_to', '<=', $timeTo);
+						})
+						  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
+							  $q->where('time_from', '<', $timeTo)
+							    ->where('time_to', '>', $timeTo);
+						  })
+						  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
+							  $q->where('time_from', '<', $timeFrom)
+							    ->where('time_to', '>', $timeFrom);
+						  });
+					});
+					if($bookings->count() == 0)
+					{
+						foreach ($resource->bookables as $bookable) {
+							if(!in_array($bookable->id, $available))
+							{
+								$available[] = $bookable->id;
+							}
+						}
+					}
 				}
 			}
 		}
 
 		return [
-			'bookableTypes' => collect($bookableTypes)
+			'available' => BookableType::find($request->get('type'))->bookables()->whereIn('id', $available)->get(),
+			'notavailable' => BookableType::find($request->get('type'))->bookables()->whereNotIn('id', $available)->get()
 		];
 	}
 
@@ -119,10 +118,13 @@ class BookingsController extends Controller
 		$invoice->save();
 
 		// Make Stripe Charge
-		$member->charge($invoice->getTotalForStripe(), [
+		$charge = $member->charge($invoice->getTotalForStripe(), [
 			"currency" => $member->getCurrency(),
 			"customer" => $member->id
 		]);
+
+		$invoice->charge_id = $charge->id;
+		$invoice->save();
 
 		$rooms = collect($resources['rooms']);
 

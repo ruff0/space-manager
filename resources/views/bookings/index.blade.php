@@ -115,7 +115,7 @@
 													{{--</label>--}}
 												{{--</div>--}}
 												<div class="col-md-2">
-													<div class="thumbnail no-padding bookables" data-bookableType="{{$type->id}}"
+													<div class="thumbnail no-padding bookables blocked" data-bookableType="{{$type->id}}"
 													     data-bookable="{{$bookable->id}}">
 														<div class="thumb">
 															<img src="/images/placeholder.jpg" alt="">

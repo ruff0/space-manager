@@ -88,9 +88,20 @@ $el.steps({
 				$.ajax({
 					data: data,
 					url: '/api/bookings',
-					type: 'GET',  // user.destroy
+					type: 'GET',
+					dataType: 'json',
 					success: function (result) {
-						// console.log(result)
+						$(".bookables").removeClass('blocked');
+
+						$.each(result.notavailable, function(key, bookable){
+							$('[data-bookable='+ bookable.id +']').addClass('notavailable');
+							$('[data-bookable=' + bookable.id + ']').removeClass('selected')
+							$('[data-bookable=' + bookable.id + '] input[type=radio]').prop('checked', false);
+						})
+
+						$.each(result.available, function(key, bookable){
+							$('[data-bookable='+ bookable.id +']').removeClass('notavailable');
+						})
 					},
 					error: function (result) {
 						// console.log(result);

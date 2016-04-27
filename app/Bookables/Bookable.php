@@ -67,7 +67,7 @@ class Bookable extends Model implements SluggableInterface
 	 */
 	public function types()
 	{
-		return $this->hasOne(BookableType::class);
+		return $this->belongsTo(BookableType::class, 'bookable_type_id');
 	}
 
 	/**
@@ -98,9 +98,9 @@ class Bookable extends Model implements SluggableInterface
 	public function roomResources()
 	{
 		return $this->resources()
-		             ->where('resources.resourceable_type', MeetingRoom::class)
-		             ->orWhere('resources.resourceable_type', ClassRoom::class)
-		             ->orWhere('resources.resourceable_type', Spot::class);
+		             ->whereIn('resources.resourceable_type', [
+			             MeetingRoom::class,  ClassRoom::class,  Spot::class
+		             ])->get();
 	}
 
 
