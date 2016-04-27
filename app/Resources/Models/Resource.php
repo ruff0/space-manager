@@ -10,6 +10,24 @@ class Resource extends Model
 {
 
 	/**
+	 * The accessors to append to the model's array form.
+	 *
+	 * @var array
+	 */
+	protected $appends = ['settings'];
+
+	/**
+	 * Hidden attributes
+	 * @var array
+	 */
+	protected $hidden = ['pivot'];
+
+	public function getSettingsAttribute($value)
+	{
+		return $this->fromJson( $this->pivot->settings);
+	}
+
+	/**
 	 * Scope a query to only include resources of a given type.
 	 *
 	 * @param $query
@@ -31,6 +49,12 @@ class Resource extends Model
 				break;
 			case "meetingroom" :
 				$type = MeetingRoom::class;
+				break;
+
+			case "room" :
+				return $query->whereIn('resourceable_type', [
+					MeetingRoom::class, ClassRoom::class, Spot::class
+				]);
 				break;
 		}
 

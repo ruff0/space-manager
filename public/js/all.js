@@ -12,6 +12,3725 @@ void 0===c?d&&"get"in d&&null!==(e=d.get(a,b))?e:(e=n.find.attr(a,b),null==e?voi
  */
 if("undefined"==typeof jQuery)throw new Error("Bootstrap's JavaScript requires jQuery");+function(a){"use strict";var b=a.fn.jquery.split(" ")[0].split(".");if(b[0]<2&&b[1]<9||1==b[0]&&9==b[1]&&b[2]<1||b[0]>2)throw new Error("Bootstrap's JavaScript requires jQuery version 1.9.1 or higher, but lower than version 3")}(jQuery),+function(a){"use strict";function b(){var a=document.createElement("bootstrap"),b={WebkitTransition:"webkitTransitionEnd",MozTransition:"transitionend",OTransition:"oTransitionEnd otransitionend",transition:"transitionend"};for(var c in b)if(void 0!==a.style[c])return{end:b[c]};return!1}a.fn.emulateTransitionEnd=function(b){var c=!1,d=this;a(this).one("bsTransitionEnd",function(){c=!0});var e=function(){c||a(d).trigger(a.support.transition.end)};return setTimeout(e,b),this},a(function(){a.support.transition=b(),a.support.transition&&(a.event.special.bsTransitionEnd={bindType:a.support.transition.end,delegateType:a.support.transition.end,handle:function(b){return a(b.target).is(this)?b.handleObj.handler.apply(this,arguments):void 0}})})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var c=a(this),e=c.data("bs.alert");e||c.data("bs.alert",e=new d(this)),"string"==typeof b&&e[b].call(c)})}var c='[data-dismiss="alert"]',d=function(b){a(b).on("click",c,this.close)};d.VERSION="3.3.6",d.TRANSITION_DURATION=150,d.prototype.close=function(b){function c(){g.detach().trigger("closed.bs.alert").remove()}var e=a(this),f=e.attr("data-target");f||(f=e.attr("href"),f=f&&f.replace(/.*(?=#[^\s]*$)/,""));var g=a(f);b&&b.preventDefault(),g.length||(g=e.closest(".alert")),g.trigger(b=a.Event("close.bs.alert")),b.isDefaultPrevented()||(g.removeClass("in"),a.support.transition&&g.hasClass("fade")?g.one("bsTransitionEnd",c).emulateTransitionEnd(d.TRANSITION_DURATION):c())};var e=a.fn.alert;a.fn.alert=b,a.fn.alert.Constructor=d,a.fn.alert.noConflict=function(){return a.fn.alert=e,this},a(document).on("click.bs.alert.data-api",c,d.prototype.close)}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.button"),f="object"==typeof b&&b;e||d.data("bs.button",e=new c(this,f)),"toggle"==b?e.toggle():b&&e.setState(b)})}var c=function(b,d){this.$element=a(b),this.options=a.extend({},c.DEFAULTS,d),this.isLoading=!1};c.VERSION="3.3.6",c.DEFAULTS={loadingText:"loading..."},c.prototype.setState=function(b){var c="disabled",d=this.$element,e=d.is("input")?"val":"html",f=d.data();b+="Text",null==f.resetText&&d.data("resetText",d[e]()),setTimeout(a.proxy(function(){d[e](null==f[b]?this.options[b]:f[b]),"loadingText"==b?(this.isLoading=!0,d.addClass(c).attr(c,c)):this.isLoading&&(this.isLoading=!1,d.removeClass(c).removeAttr(c))},this),0)},c.prototype.toggle=function(){var a=!0,b=this.$element.closest('[data-toggle="buttons"]');if(b.length){var c=this.$element.find("input");"radio"==c.prop("type")?(c.prop("checked")&&(a=!1),b.find(".active").removeClass("active"),this.$element.addClass("active")):"checkbox"==c.prop("type")&&(c.prop("checked")!==this.$element.hasClass("active")&&(a=!1),this.$element.toggleClass("active")),c.prop("checked",this.$element.hasClass("active")),a&&c.trigger("change")}else this.$element.attr("aria-pressed",!this.$element.hasClass("active")),this.$element.toggleClass("active")};var d=a.fn.button;a.fn.button=b,a.fn.button.Constructor=c,a.fn.button.noConflict=function(){return a.fn.button=d,this},a(document).on("click.bs.button.data-api",'[data-toggle^="button"]',function(c){var d=a(c.target);d.hasClass("btn")||(d=d.closest(".btn")),b.call(d,"toggle"),a(c.target).is('input[type="radio"]')||a(c.target).is('input[type="checkbox"]')||c.preventDefault()}).on("focus.bs.button.data-api blur.bs.button.data-api",'[data-toggle^="button"]',function(b){a(b.target).closest(".btn").toggleClass("focus",/^focus(in)?$/.test(b.type))})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.carousel"),f=a.extend({},c.DEFAULTS,d.data(),"object"==typeof b&&b),g="string"==typeof b?b:f.slide;e||d.data("bs.carousel",e=new c(this,f)),"number"==typeof b?e.to(b):g?e[g]():f.interval&&e.pause().cycle()})}var c=function(b,c){this.$element=a(b),this.$indicators=this.$element.find(".carousel-indicators"),this.options=c,this.paused=null,this.sliding=null,this.interval=null,this.$active=null,this.$items=null,this.options.keyboard&&this.$element.on("keydown.bs.carousel",a.proxy(this.keydown,this)),"hover"==this.options.pause&&!("ontouchstart"in document.documentElement)&&this.$element.on("mouseenter.bs.carousel",a.proxy(this.pause,this)).on("mouseleave.bs.carousel",a.proxy(this.cycle,this))};c.VERSION="3.3.6",c.TRANSITION_DURATION=600,c.DEFAULTS={interval:5e3,pause:"hover",wrap:!0,keyboard:!0},c.prototype.keydown=function(a){if(!/input|textarea/i.test(a.target.tagName)){switch(a.which){case 37:this.prev();break;case 39:this.next();break;default:return}a.preventDefault()}},c.prototype.cycle=function(b){return b||(this.paused=!1),this.interval&&clearInterval(this.interval),this.options.interval&&!this.paused&&(this.interval=setInterval(a.proxy(this.next,this),this.options.interval)),this},c.prototype.getItemIndex=function(a){return this.$items=a.parent().children(".item"),this.$items.index(a||this.$active)},c.prototype.getItemForDirection=function(a,b){var c=this.getItemIndex(b),d="prev"==a&&0===c||"next"==a&&c==this.$items.length-1;if(d&&!this.options.wrap)return b;var e="prev"==a?-1:1,f=(c+e)%this.$items.length;return this.$items.eq(f)},c.prototype.to=function(a){var b=this,c=this.getItemIndex(this.$active=this.$element.find(".item.active"));return a>this.$items.length-1||0>a?void 0:this.sliding?this.$element.one("slid.bs.carousel",function(){b.to(a)}):c==a?this.pause().cycle():this.slide(a>c?"next":"prev",this.$items.eq(a))},c.prototype.pause=function(b){return b||(this.paused=!0),this.$element.find(".next, .prev").length&&a.support.transition&&(this.$element.trigger(a.support.transition.end),this.cycle(!0)),this.interval=clearInterval(this.interval),this},c.prototype.next=function(){return this.sliding?void 0:this.slide("next")},c.prototype.prev=function(){return this.sliding?void 0:this.slide("prev")},c.prototype.slide=function(b,d){var e=this.$element.find(".item.active"),f=d||this.getItemForDirection(b,e),g=this.interval,h="next"==b?"left":"right",i=this;if(f.hasClass("active"))return this.sliding=!1;var j=f[0],k=a.Event("slide.bs.carousel",{relatedTarget:j,direction:h});if(this.$element.trigger(k),!k.isDefaultPrevented()){if(this.sliding=!0,g&&this.pause(),this.$indicators.length){this.$indicators.find(".active").removeClass("active");var l=a(this.$indicators.children()[this.getItemIndex(f)]);l&&l.addClass("active")}var m=a.Event("slid.bs.carousel",{relatedTarget:j,direction:h});return a.support.transition&&this.$element.hasClass("slide")?(f.addClass(b),f[0].offsetWidth,e.addClass(h),f.addClass(h),e.one("bsTransitionEnd",function(){f.removeClass([b,h].join(" ")).addClass("active"),e.removeClass(["active",h].join(" ")),i.sliding=!1,setTimeout(function(){i.$element.trigger(m)},0)}).emulateTransitionEnd(c.TRANSITION_DURATION)):(e.removeClass("active"),f.addClass("active"),this.sliding=!1,this.$element.trigger(m)),g&&this.cycle(),this}};var d=a.fn.carousel;a.fn.carousel=b,a.fn.carousel.Constructor=c,a.fn.carousel.noConflict=function(){return a.fn.carousel=d,this};var e=function(c){var d,e=a(this),f=a(e.attr("data-target")||(d=e.attr("href"))&&d.replace(/.*(?=#[^\s]+$)/,""));if(f.hasClass("carousel")){var g=a.extend({},f.data(),e.data()),h=e.attr("data-slide-to");h&&(g.interval=!1),b.call(f,g),h&&f.data("bs.carousel").to(h),c.preventDefault()}};a(document).on("click.bs.carousel.data-api","[data-slide]",e).on("click.bs.carousel.data-api","[data-slide-to]",e),a(window).on("load",function(){a('[data-ride="carousel"]').each(function(){var c=a(this);b.call(c,c.data())})})}(jQuery),+function(a){"use strict";function b(b){var c,d=b.attr("data-target")||(c=b.attr("href"))&&c.replace(/.*(?=#[^\s]+$)/,"");return a(d)}function c(b){return this.each(function(){var c=a(this),e=c.data("bs.collapse"),f=a.extend({},d.DEFAULTS,c.data(),"object"==typeof b&&b);!e&&f.toggle&&/show|hide/.test(b)&&(f.toggle=!1),e||c.data("bs.collapse",e=new d(this,f)),"string"==typeof b&&e[b]()})}var d=function(b,c){this.$element=a(b),this.options=a.extend({},d.DEFAULTS,c),this.$trigger=a('[data-toggle="collapse"][href="#'+b.id+'"],[data-toggle="collapse"][data-target="#'+b.id+'"]'),this.transitioning=null,this.options.parent?this.$parent=this.getParent():this.addAriaAndCollapsedClass(this.$element,this.$trigger),this.options.toggle&&this.toggle()};d.VERSION="3.3.6",d.TRANSITION_DURATION=350,d.DEFAULTS={toggle:!0},d.prototype.dimension=function(){var a=this.$element.hasClass("width");return a?"width":"height"},d.prototype.show=function(){if(!this.transitioning&&!this.$element.hasClass("in")){var b,e=this.$parent&&this.$parent.children(".panel").children(".in, .collapsing");if(!(e&&e.length&&(b=e.data("bs.collapse"),b&&b.transitioning))){var f=a.Event("show.bs.collapse");if(this.$element.trigger(f),!f.isDefaultPrevented()){e&&e.length&&(c.call(e,"hide"),b||e.data("bs.collapse",null));var g=this.dimension();this.$element.removeClass("collapse").addClass("collapsing")[g](0).attr("aria-expanded",!0),this.$trigger.removeClass("collapsed").attr("aria-expanded",!0),this.transitioning=1;var h=function(){this.$element.removeClass("collapsing").addClass("collapse in")[g](""),this.transitioning=0,this.$element.trigger("shown.bs.collapse")};if(!a.support.transition)return h.call(this);var i=a.camelCase(["scroll",g].join("-"));this.$element.one("bsTransitionEnd",a.proxy(h,this)).emulateTransitionEnd(d.TRANSITION_DURATION)[g](this.$element[0][i])}}}},d.prototype.hide=function(){if(!this.transitioning&&this.$element.hasClass("in")){var b=a.Event("hide.bs.collapse");if(this.$element.trigger(b),!b.isDefaultPrevented()){var c=this.dimension();this.$element[c](this.$element[c]())[0].offsetHeight,this.$element.addClass("collapsing").removeClass("collapse in").attr("aria-expanded",!1),this.$trigger.addClass("collapsed").attr("aria-expanded",!1),this.transitioning=1;var e=function(){this.transitioning=0,this.$element.removeClass("collapsing").addClass("collapse").trigger("hidden.bs.collapse")};return a.support.transition?void this.$element[c](0).one("bsTransitionEnd",a.proxy(e,this)).emulateTransitionEnd(d.TRANSITION_DURATION):e.call(this)}}},d.prototype.toggle=function(){this[this.$element.hasClass("in")?"hide":"show"]()},d.prototype.getParent=function(){return a(this.options.parent).find('[data-toggle="collapse"][data-parent="'+this.options.parent+'"]').each(a.proxy(function(c,d){var e=a(d);this.addAriaAndCollapsedClass(b(e),e)},this)).end()},d.prototype.addAriaAndCollapsedClass=function(a,b){var c=a.hasClass("in");a.attr("aria-expanded",c),b.toggleClass("collapsed",!c).attr("aria-expanded",c)};var e=a.fn.collapse;a.fn.collapse=c,a.fn.collapse.Constructor=d,a.fn.collapse.noConflict=function(){return a.fn.collapse=e,this},a(document).on("click.bs.collapse.data-api",'[data-toggle="collapse"]',function(d){var e=a(this);e.attr("data-target")||d.preventDefault();var f=b(e),g=f.data("bs.collapse"),h=g?"toggle":e.data();c.call(f,h)})}(jQuery),+function(a){"use strict";function b(b){var c=b.attr("data-target");c||(c=b.attr("href"),c=c&&/#[A-Za-z]/.test(c)&&c.replace(/.*(?=#[^\s]*$)/,""));var d=c&&a(c);return d&&d.length?d:b.parent()}function c(c){c&&3===c.which||(a(e).remove(),a(f).each(function(){var d=a(this),e=b(d),f={relatedTarget:this};e.hasClass("open")&&(c&&"click"==c.type&&/input|textarea/i.test(c.target.tagName)&&a.contains(e[0],c.target)||(e.trigger(c=a.Event("hide.bs.dropdown",f)),c.isDefaultPrevented()||(d.attr("aria-expanded","false"),e.removeClass("open").trigger(a.Event("hidden.bs.dropdown",f)))))}))}function d(b){return this.each(function(){var c=a(this),d=c.data("bs.dropdown");d||c.data("bs.dropdown",d=new g(this)),"string"==typeof b&&d[b].call(c)})}var e=".dropdown-backdrop",f='[data-toggle="dropdown"]',g=function(b){a(b).on("click.bs.dropdown",this.toggle)};g.VERSION="3.3.6",g.prototype.toggle=function(d){var e=a(this);if(!e.is(".disabled, :disabled")){var f=b(e),g=f.hasClass("open");if(c(),!g){"ontouchstart"in document.documentElement&&!f.closest(".navbar-nav").length&&a(document.createElement("div")).addClass("dropdown-backdrop").insertAfter(a(this)).on("click",c);var h={relatedTarget:this};if(f.trigger(d=a.Event("show.bs.dropdown",h)),d.isDefaultPrevented())return;e.trigger("focus").attr("aria-expanded","true"),f.toggleClass("open").trigger(a.Event("shown.bs.dropdown",h))}return!1}},g.prototype.keydown=function(c){if(/(38|40|27|32)/.test(c.which)&&!/input|textarea/i.test(c.target.tagName)){var d=a(this);if(c.preventDefault(),c.stopPropagation(),!d.is(".disabled, :disabled")){var e=b(d),g=e.hasClass("open");if(!g&&27!=c.which||g&&27==c.which)return 27==c.which&&e.find(f).trigger("focus"),d.trigger("click");var h=" li:not(.disabled):visible a",i=e.find(".dropdown-menu"+h);if(i.length){var j=i.index(c.target);38==c.which&&j>0&&j--,40==c.which&&j<i.length-1&&j++,~j||(j=0),i.eq(j).trigger("focus")}}}};var h=a.fn.dropdown;a.fn.dropdown=d,a.fn.dropdown.Constructor=g,a.fn.dropdown.noConflict=function(){return a.fn.dropdown=h,this},a(document).on("click.bs.dropdown.data-api",c).on("click.bs.dropdown.data-api",".dropdown form",function(a){a.stopPropagation()}).on("click.bs.dropdown.data-api",f,g.prototype.toggle).on("keydown.bs.dropdown.data-api",f,g.prototype.keydown).on("keydown.bs.dropdown.data-api",".dropdown-menu",g.prototype.keydown)}(jQuery),+function(a){"use strict";function b(b,d){return this.each(function(){var e=a(this),f=e.data("bs.modal"),g=a.extend({},c.DEFAULTS,e.data(),"object"==typeof b&&b);f||e.data("bs.modal",f=new c(this,g)),"string"==typeof b?f[b](d):g.show&&f.show(d)})}var c=function(b,c){this.options=c,this.$body=a(document.body),this.$element=a(b),this.$dialog=this.$element.find(".modal-dialog"),this.$backdrop=null,this.isShown=null,this.originalBodyPad=null,this.scrollbarWidth=0,this.ignoreBackdropClick=!1,this.options.remote&&this.$element.find(".modal-content").load(this.options.remote,a.proxy(function(){this.$element.trigger("loaded.bs.modal")},this))};c.VERSION="3.3.6",c.TRANSITION_DURATION=300,c.BACKDROP_TRANSITION_DURATION=150,c.DEFAULTS={backdrop:!0,keyboard:!0,show:!0},c.prototype.toggle=function(a){return this.isShown?this.hide():this.show(a)},c.prototype.show=function(b){var d=this,e=a.Event("show.bs.modal",{relatedTarget:b});this.$element.trigger(e),this.isShown||e.isDefaultPrevented()||(this.isShown=!0,this.checkScrollbar(),this.setScrollbar(),this.$body.addClass("modal-open"),this.escape(),this.resize(),this.$element.on("click.dismiss.bs.modal",'[data-dismiss="modal"]',a.proxy(this.hide,this)),this.$dialog.on("mousedown.dismiss.bs.modal",function(){d.$element.one("mouseup.dismiss.bs.modal",function(b){a(b.target).is(d.$element)&&(d.ignoreBackdropClick=!0)})}),this.backdrop(function(){var e=a.support.transition&&d.$element.hasClass("fade");d.$element.parent().length||d.$element.appendTo(d.$body),d.$element.show().scrollTop(0),d.adjustDialog(),e&&d.$element[0].offsetWidth,d.$element.addClass("in"),d.enforceFocus();var f=a.Event("shown.bs.modal",{relatedTarget:b});e?d.$dialog.one("bsTransitionEnd",function(){d.$element.trigger("focus").trigger(f)}).emulateTransitionEnd(c.TRANSITION_DURATION):d.$element.trigger("focus").trigger(f)}))},c.prototype.hide=function(b){b&&b.preventDefault(),b=a.Event("hide.bs.modal"),this.$element.trigger(b),this.isShown&&!b.isDefaultPrevented()&&(this.isShown=!1,this.escape(),this.resize(),a(document).off("focusin.bs.modal"),this.$element.removeClass("in").off("click.dismiss.bs.modal").off("mouseup.dismiss.bs.modal"),this.$dialog.off("mousedown.dismiss.bs.modal"),a.support.transition&&this.$element.hasClass("fade")?this.$element.one("bsTransitionEnd",a.proxy(this.hideModal,this)).emulateTransitionEnd(c.TRANSITION_DURATION):this.hideModal())},c.prototype.enforceFocus=function(){a(document).off("focusin.bs.modal").on("focusin.bs.modal",a.proxy(function(a){this.$element[0]===a.target||this.$element.has(a.target).length||this.$element.trigger("focus")},this))},c.prototype.escape=function(){this.isShown&&this.options.keyboard?this.$element.on("keydown.dismiss.bs.modal",a.proxy(function(a){27==a.which&&this.hide()},this)):this.isShown||this.$element.off("keydown.dismiss.bs.modal")},c.prototype.resize=function(){this.isShown?a(window).on("resize.bs.modal",a.proxy(this.handleUpdate,this)):a(window).off("resize.bs.modal")},c.prototype.hideModal=function(){var a=this;this.$element.hide(),this.backdrop(function(){a.$body.removeClass("modal-open"),a.resetAdjustments(),a.resetScrollbar(),a.$element.trigger("hidden.bs.modal")})},c.prototype.removeBackdrop=function(){this.$backdrop&&this.$backdrop.remove(),this.$backdrop=null},c.prototype.backdrop=function(b){var d=this,e=this.$element.hasClass("fade")?"fade":"";if(this.isShown&&this.options.backdrop){var f=a.support.transition&&e;if(this.$backdrop=a(document.createElement("div")).addClass("modal-backdrop "+e).appendTo(this.$body),this.$element.on("click.dismiss.bs.modal",a.proxy(function(a){return this.ignoreBackdropClick?void(this.ignoreBackdropClick=!1):void(a.target===a.currentTarget&&("static"==this.options.backdrop?this.$element[0].focus():this.hide()))},this)),f&&this.$backdrop[0].offsetWidth,this.$backdrop.addClass("in"),!b)return;f?this.$backdrop.one("bsTransitionEnd",b).emulateTransitionEnd(c.BACKDROP_TRANSITION_DURATION):b()}else if(!this.isShown&&this.$backdrop){this.$backdrop.removeClass("in");var g=function(){d.removeBackdrop(),b&&b()};a.support.transition&&this.$element.hasClass("fade")?this.$backdrop.one("bsTransitionEnd",g).emulateTransitionEnd(c.BACKDROP_TRANSITION_DURATION):g()}else b&&b()},c.prototype.handleUpdate=function(){this.adjustDialog()},c.prototype.adjustDialog=function(){var a=this.$element[0].scrollHeight>document.documentElement.clientHeight;this.$element.css({paddingLeft:!this.bodyIsOverflowing&&a?this.scrollbarWidth:"",paddingRight:this.bodyIsOverflowing&&!a?this.scrollbarWidth:""})},c.prototype.resetAdjustments=function(){this.$element.css({paddingLeft:"",paddingRight:""})},c.prototype.checkScrollbar=function(){var a=window.innerWidth;if(!a){var b=document.documentElement.getBoundingClientRect();a=b.right-Math.abs(b.left)}this.bodyIsOverflowing=document.body.clientWidth<a,this.scrollbarWidth=this.measureScrollbar()},c.prototype.setScrollbar=function(){var a=parseInt(this.$body.css("padding-right")||0,10);this.originalBodyPad=document.body.style.paddingRight||"",this.bodyIsOverflowing&&this.$body.css("padding-right",a+this.scrollbarWidth)},c.prototype.resetScrollbar=function(){this.$body.css("padding-right",this.originalBodyPad)},c.prototype.measureScrollbar=function(){var a=document.createElement("div");a.className="modal-scrollbar-measure",this.$body.append(a);var b=a.offsetWidth-a.clientWidth;return this.$body[0].removeChild(a),b};var d=a.fn.modal;a.fn.modal=b,a.fn.modal.Constructor=c,a.fn.modal.noConflict=function(){return a.fn.modal=d,this},a(document).on("click.bs.modal.data-api",'[data-toggle="modal"]',function(c){var d=a(this),e=d.attr("href"),f=a(d.attr("data-target")||e&&e.replace(/.*(?=#[^\s]+$)/,"")),g=f.data("bs.modal")?"toggle":a.extend({remote:!/#/.test(e)&&e},f.data(),d.data());d.is("a")&&c.preventDefault(),f.one("show.bs.modal",function(a){a.isDefaultPrevented()||f.one("hidden.bs.modal",function(){d.is(":visible")&&d.trigger("focus")})}),b.call(f,g,this)})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.tooltip"),f="object"==typeof b&&b;(e||!/destroy|hide/.test(b))&&(e||d.data("bs.tooltip",e=new c(this,f)),"string"==typeof b&&e[b]())})}var c=function(a,b){this.type=null,this.options=null,this.enabled=null,this.timeout=null,this.hoverState=null,this.$element=null,this.inState=null,this.init("tooltip",a,b)};c.VERSION="3.3.6",c.TRANSITION_DURATION=150,c.DEFAULTS={animation:!0,placement:"top",selector:!1,template:'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',trigger:"hover focus",title:"",delay:0,html:!1,container:!1,viewport:{selector:"body",padding:0}},c.prototype.init=function(b,c,d){if(this.enabled=!0,this.type=b,this.$element=a(c),this.options=this.getOptions(d),this.$viewport=this.options.viewport&&a(a.isFunction(this.options.viewport)?this.options.viewport.call(this,this.$element):this.options.viewport.selector||this.options.viewport),this.inState={click:!1,hover:!1,focus:!1},this.$element[0]instanceof document.constructor&&!this.options.selector)throw new Error("`selector` option must be specified when initializing "+this.type+" on the window.document object!");for(var e=this.options.trigger.split(" "),f=e.length;f--;){var g=e[f];if("click"==g)this.$element.on("click."+this.type,this.options.selector,a.proxy(this.toggle,this));else if("manual"!=g){var h="hover"==g?"mouseenter":"focusin",i="hover"==g?"mouseleave":"focusout";this.$element.on(h+"."+this.type,this.options.selector,a.proxy(this.enter,this)),this.$element.on(i+"."+this.type,this.options.selector,a.proxy(this.leave,this))}}this.options.selector?this._options=a.extend({},this.options,{trigger:"manual",selector:""}):this.fixTitle()},c.prototype.getDefaults=function(){return c.DEFAULTS},c.prototype.getOptions=function(b){return b=a.extend({},this.getDefaults(),this.$element.data(),b),b.delay&&"number"==typeof b.delay&&(b.delay={show:b.delay,hide:b.delay}),b},c.prototype.getDelegateOptions=function(){var b={},c=this.getDefaults();return this._options&&a.each(this._options,function(a,d){c[a]!=d&&(b[a]=d)}),b},c.prototype.enter=function(b){var c=b instanceof this.constructor?b:a(b.currentTarget).data("bs."+this.type);return c||(c=new this.constructor(b.currentTarget,this.getDelegateOptions()),a(b.currentTarget).data("bs."+this.type,c)),b instanceof a.Event&&(c.inState["focusin"==b.type?"focus":"hover"]=!0),c.tip().hasClass("in")||"in"==c.hoverState?void(c.hoverState="in"):(clearTimeout(c.timeout),c.hoverState="in",c.options.delay&&c.options.delay.show?void(c.timeout=setTimeout(function(){"in"==c.hoverState&&c.show()},c.options.delay.show)):c.show())},c.prototype.isInStateTrue=function(){for(var a in this.inState)if(this.inState[a])return!0;return!1},c.prototype.leave=function(b){var c=b instanceof this.constructor?b:a(b.currentTarget).data("bs."+this.type);return c||(c=new this.constructor(b.currentTarget,this.getDelegateOptions()),a(b.currentTarget).data("bs."+this.type,c)),b instanceof a.Event&&(c.inState["focusout"==b.type?"focus":"hover"]=!1),c.isInStateTrue()?void 0:(clearTimeout(c.timeout),c.hoverState="out",c.options.delay&&c.options.delay.hide?void(c.timeout=setTimeout(function(){"out"==c.hoverState&&c.hide()},c.options.delay.hide)):c.hide())},c.prototype.show=function(){var b=a.Event("show.bs."+this.type);if(this.hasContent()&&this.enabled){this.$element.trigger(b);var d=a.contains(this.$element[0].ownerDocument.documentElement,this.$element[0]);if(b.isDefaultPrevented()||!d)return;var e=this,f=this.tip(),g=this.getUID(this.type);this.setContent(),f.attr("id",g),this.$element.attr("aria-describedby",g),this.options.animation&&f.addClass("fade");var h="function"==typeof this.options.placement?this.options.placement.call(this,f[0],this.$element[0]):this.options.placement,i=/\s?auto?\s?/i,j=i.test(h);j&&(h=h.replace(i,"")||"top"),f.detach().css({top:0,left:0,display:"block"}).addClass(h).data("bs."+this.type,this),this.options.container?f.appendTo(this.options.container):f.insertAfter(this.$element),this.$element.trigger("inserted.bs."+this.type);var k=this.getPosition(),l=f[0].offsetWidth,m=f[0].offsetHeight;if(j){var n=h,o=this.getPosition(this.$viewport);h="bottom"==h&&k.bottom+m>o.bottom?"top":"top"==h&&k.top-m<o.top?"bottom":"right"==h&&k.right+l>o.width?"left":"left"==h&&k.left-l<o.left?"right":h,f.removeClass(n).addClass(h)}var p=this.getCalculatedOffset(h,k,l,m);this.applyPlacement(p,h);var q=function(){var a=e.hoverState;e.$element.trigger("shown.bs."+e.type),e.hoverState=null,"out"==a&&e.leave(e)};a.support.transition&&this.$tip.hasClass("fade")?f.one("bsTransitionEnd",q).emulateTransitionEnd(c.TRANSITION_DURATION):q()}},c.prototype.applyPlacement=function(b,c){var d=this.tip(),e=d[0].offsetWidth,f=d[0].offsetHeight,g=parseInt(d.css("margin-top"),10),h=parseInt(d.css("margin-left"),10);isNaN(g)&&(g=0),isNaN(h)&&(h=0),b.top+=g,b.left+=h,a.offset.setOffset(d[0],a.extend({using:function(a){d.css({top:Math.round(a.top),left:Math.round(a.left)})}},b),0),d.addClass("in");var i=d[0].offsetWidth,j=d[0].offsetHeight;"top"==c&&j!=f&&(b.top=b.top+f-j);var k=this.getViewportAdjustedDelta(c,b,i,j);k.left?b.left+=k.left:b.top+=k.top;var l=/top|bottom/.test(c),m=l?2*k.left-e+i:2*k.top-f+j,n=l?"offsetWidth":"offsetHeight";d.offset(b),this.replaceArrow(m,d[0][n],l)},c.prototype.replaceArrow=function(a,b,c){this.arrow().css(c?"left":"top",50*(1-a/b)+"%").css(c?"top":"left","")},c.prototype.setContent=function(){var a=this.tip(),b=this.getTitle();a.find(".tooltip-inner")[this.options.html?"html":"text"](b),a.removeClass("fade in top bottom left right")},c.prototype.hide=function(b){function d(){"in"!=e.hoverState&&f.detach(),e.$element.removeAttr("aria-describedby").trigger("hidden.bs."+e.type),b&&b()}var e=this,f=a(this.$tip),g=a.Event("hide.bs."+this.type);return this.$element.trigger(g),g.isDefaultPrevented()?void 0:(f.removeClass("in"),a.support.transition&&f.hasClass("fade")?f.one("bsTransitionEnd",d).emulateTransitionEnd(c.TRANSITION_DURATION):d(),this.hoverState=null,this)},c.prototype.fixTitle=function(){var a=this.$element;(a.attr("title")||"string"!=typeof a.attr("data-original-title"))&&a.attr("data-original-title",a.attr("title")||"").attr("title","")},c.prototype.hasContent=function(){return this.getTitle()},c.prototype.getPosition=function(b){b=b||this.$element;var c=b[0],d="BODY"==c.tagName,e=c.getBoundingClientRect();null==e.width&&(e=a.extend({},e,{width:e.right-e.left,height:e.bottom-e.top}));var f=d?{top:0,left:0}:b.offset(),g={scroll:d?document.documentElement.scrollTop||document.body.scrollTop:b.scrollTop()},h=d?{width:a(window).width(),height:a(window).height()}:null;return a.extend({},e,g,h,f)},c.prototype.getCalculatedOffset=function(a,b,c,d){return"bottom"==a?{top:b.top+b.height,left:b.left+b.width/2-c/2}:"top"==a?{top:b.top-d,left:b.left+b.width/2-c/2}:"left"==a?{top:b.top+b.height/2-d/2,left:b.left-c}:{top:b.top+b.height/2-d/2,left:b.left+b.width}},c.prototype.getViewportAdjustedDelta=function(a,b,c,d){var e={top:0,left:0};if(!this.$viewport)return e;var f=this.options.viewport&&this.options.viewport.padding||0,g=this.getPosition(this.$viewport);if(/right|left/.test(a)){var h=b.top-f-g.scroll,i=b.top+f-g.scroll+d;h<g.top?e.top=g.top-h:i>g.top+g.height&&(e.top=g.top+g.height-i)}else{var j=b.left-f,k=b.left+f+c;j<g.left?e.left=g.left-j:k>g.right&&(e.left=g.left+g.width-k)}return e},c.prototype.getTitle=function(){var a,b=this.$element,c=this.options;return a=b.attr("data-original-title")||("function"==typeof c.title?c.title.call(b[0]):c.title)},c.prototype.getUID=function(a){do a+=~~(1e6*Math.random());while(document.getElementById(a));return a},c.prototype.tip=function(){if(!this.$tip&&(this.$tip=a(this.options.template),1!=this.$tip.length))throw new Error(this.type+" `template` option must consist of exactly 1 top-level element!");return this.$tip},c.prototype.arrow=function(){return this.$arrow=this.$arrow||this.tip().find(".tooltip-arrow")},c.prototype.enable=function(){this.enabled=!0},c.prototype.disable=function(){this.enabled=!1},c.prototype.toggleEnabled=function(){this.enabled=!this.enabled},c.prototype.toggle=function(b){var c=this;b&&(c=a(b.currentTarget).data("bs."+this.type),c||(c=new this.constructor(b.currentTarget,this.getDelegateOptions()),a(b.currentTarget).data("bs."+this.type,c))),b?(c.inState.click=!c.inState.click,c.isInStateTrue()?c.enter(c):c.leave(c)):c.tip().hasClass("in")?c.leave(c):c.enter(c)},c.prototype.destroy=function(){var a=this;clearTimeout(this.timeout),this.hide(function(){a.$element.off("."+a.type).removeData("bs."+a.type),a.$tip&&a.$tip.detach(),a.$tip=null,a.$arrow=null,a.$viewport=null})};var d=a.fn.tooltip;a.fn.tooltip=b,a.fn.tooltip.Constructor=c,a.fn.tooltip.noConflict=function(){return a.fn.tooltip=d,this}}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.popover"),f="object"==typeof b&&b;(e||!/destroy|hide/.test(b))&&(e||d.data("bs.popover",e=new c(this,f)),"string"==typeof b&&e[b]())})}var c=function(a,b){this.init("popover",a,b)};if(!a.fn.tooltip)throw new Error("Popover requires tooltip.js");c.VERSION="3.3.6",c.DEFAULTS=a.extend({},a.fn.tooltip.Constructor.DEFAULTS,{placement:"right",trigger:"click",content:"",template:'<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'}),c.prototype=a.extend({},a.fn.tooltip.Constructor.prototype),c.prototype.constructor=c,c.prototype.getDefaults=function(){return c.DEFAULTS},c.prototype.setContent=function(){var a=this.tip(),b=this.getTitle(),c=this.getContent();a.find(".popover-title")[this.options.html?"html":"text"](b),a.find(".popover-content").children().detach().end()[this.options.html?"string"==typeof c?"html":"append":"text"](c),a.removeClass("fade top bottom left right in"),a.find(".popover-title").html()||a.find(".popover-title").hide()},c.prototype.hasContent=function(){return this.getTitle()||this.getContent()},c.prototype.getContent=function(){var a=this.$element,b=this.options;return a.attr("data-content")||("function"==typeof b.content?b.content.call(a[0]):b.content)},c.prototype.arrow=function(){return this.$arrow=this.$arrow||this.tip().find(".arrow")};var d=a.fn.popover;a.fn.popover=b,a.fn.popover.Constructor=c,a.fn.popover.noConflict=function(){return a.fn.popover=d,this}}(jQuery),+function(a){"use strict";function b(c,d){this.$body=a(document.body),this.$scrollElement=a(a(c).is(document.body)?window:c),this.options=a.extend({},b.DEFAULTS,d),this.selector=(this.options.target||"")+" .nav li > a",this.offsets=[],this.targets=[],this.activeTarget=null,this.scrollHeight=0,this.$scrollElement.on("scroll.bs.scrollspy",a.proxy(this.process,this)),this.refresh(),this.process()}function c(c){return this.each(function(){var d=a(this),e=d.data("bs.scrollspy"),f="object"==typeof c&&c;e||d.data("bs.scrollspy",e=new b(this,f)),"string"==typeof c&&e[c]()})}b.VERSION="3.3.6",b.DEFAULTS={offset:10},b.prototype.getScrollHeight=function(){return this.$scrollElement[0].scrollHeight||Math.max(this.$body[0].scrollHeight,document.documentElement.scrollHeight)},b.prototype.refresh=function(){var b=this,c="offset",d=0;this.offsets=[],this.targets=[],this.scrollHeight=this.getScrollHeight(),a.isWindow(this.$scrollElement[0])||(c="position",d=this.$scrollElement.scrollTop()),this.$body.find(this.selector).map(function(){var b=a(this),e=b.data("target")||b.attr("href"),f=/^#./.test(e)&&a(e);return f&&f.length&&f.is(":visible")&&[[f[c]().top+d,e]]||null}).sort(function(a,b){return a[0]-b[0]}).each(function(){b.offsets.push(this[0]),b.targets.push(this[1])})},b.prototype.process=function(){var a,b=this.$scrollElement.scrollTop()+this.options.offset,c=this.getScrollHeight(),d=this.options.offset+c-this.$scrollElement.height(),e=this.offsets,f=this.targets,g=this.activeTarget;if(this.scrollHeight!=c&&this.refresh(),b>=d)return g!=(a=f[f.length-1])&&this.activate(a);if(g&&b<e[0])return this.activeTarget=null,this.clear();for(a=e.length;a--;)g!=f[a]&&b>=e[a]&&(void 0===e[a+1]||b<e[a+1])&&this.activate(f[a])},b.prototype.activate=function(b){this.activeTarget=b,this.clear();var c=this.selector+'[data-target="'+b+'"],'+this.selector+'[href="'+b+'"]',d=a(c).parents("li").addClass("active");
 d.parent(".dropdown-menu").length&&(d=d.closest("li.dropdown").addClass("active")),d.trigger("activate.bs.scrollspy")},b.prototype.clear=function(){a(this.selector).parentsUntil(this.options.target,".active").removeClass("active")};var d=a.fn.scrollspy;a.fn.scrollspy=c,a.fn.scrollspy.Constructor=b,a.fn.scrollspy.noConflict=function(){return a.fn.scrollspy=d,this},a(window).on("load.bs.scrollspy.data-api",function(){a('[data-spy="scroll"]').each(function(){var b=a(this);c.call(b,b.data())})})}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.tab");e||d.data("bs.tab",e=new c(this)),"string"==typeof b&&e[b]()})}var c=function(b){this.element=a(b)};c.VERSION="3.3.6",c.TRANSITION_DURATION=150,c.prototype.show=function(){var b=this.element,c=b.closest("ul:not(.dropdown-menu)"),d=b.data("target");if(d||(d=b.attr("href"),d=d&&d.replace(/.*(?=#[^\s]*$)/,"")),!b.parent("li").hasClass("active")){var e=c.find(".active:last a"),f=a.Event("hide.bs.tab",{relatedTarget:b[0]}),g=a.Event("show.bs.tab",{relatedTarget:e[0]});if(e.trigger(f),b.trigger(g),!g.isDefaultPrevented()&&!f.isDefaultPrevented()){var h=a(d);this.activate(b.closest("li"),c),this.activate(h,h.parent(),function(){e.trigger({type:"hidden.bs.tab",relatedTarget:b[0]}),b.trigger({type:"shown.bs.tab",relatedTarget:e[0]})})}}},c.prototype.activate=function(b,d,e){function f(){g.removeClass("active").find("> .dropdown-menu > .active").removeClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!1),b.addClass("active").find('[data-toggle="tab"]').attr("aria-expanded",!0),h?(b[0].offsetWidth,b.addClass("in")):b.removeClass("fade"),b.parent(".dropdown-menu").length&&b.closest("li.dropdown").addClass("active").end().find('[data-toggle="tab"]').attr("aria-expanded",!0),e&&e()}var g=d.find("> .active"),h=e&&a.support.transition&&(g.length&&g.hasClass("fade")||!!d.find("> .fade").length);g.length&&h?g.one("bsTransitionEnd",f).emulateTransitionEnd(c.TRANSITION_DURATION):f(),g.removeClass("in")};var d=a.fn.tab;a.fn.tab=b,a.fn.tab.Constructor=c,a.fn.tab.noConflict=function(){return a.fn.tab=d,this};var e=function(c){c.preventDefault(),b.call(a(this),"show")};a(document).on("click.bs.tab.data-api",'[data-toggle="tab"]',e).on("click.bs.tab.data-api",'[data-toggle="pill"]',e)}(jQuery),+function(a){"use strict";function b(b){return this.each(function(){var d=a(this),e=d.data("bs.affix"),f="object"==typeof b&&b;e||d.data("bs.affix",e=new c(this,f)),"string"==typeof b&&e[b]()})}var c=function(b,d){this.options=a.extend({},c.DEFAULTS,d),this.$target=a(this.options.target).on("scroll.bs.affix.data-api",a.proxy(this.checkPosition,this)).on("click.bs.affix.data-api",a.proxy(this.checkPositionWithEventLoop,this)),this.$element=a(b),this.affixed=null,this.unpin=null,this.pinnedOffset=null,this.checkPosition()};c.VERSION="3.3.6",c.RESET="affix affix-top affix-bottom",c.DEFAULTS={offset:0,target:window},c.prototype.getState=function(a,b,c,d){var e=this.$target.scrollTop(),f=this.$element.offset(),g=this.$target.height();if(null!=c&&"top"==this.affixed)return c>e?"top":!1;if("bottom"==this.affixed)return null!=c?e+this.unpin<=f.top?!1:"bottom":a-d>=e+g?!1:"bottom";var h=null==this.affixed,i=h?e:f.top,j=h?g:b;return null!=c&&c>=e?"top":null!=d&&i+j>=a-d?"bottom":!1},c.prototype.getPinnedOffset=function(){if(this.pinnedOffset)return this.pinnedOffset;this.$element.removeClass(c.RESET).addClass("affix");var a=this.$target.scrollTop(),b=this.$element.offset();return this.pinnedOffset=b.top-a},c.prototype.checkPositionWithEventLoop=function(){setTimeout(a.proxy(this.checkPosition,this),1)},c.prototype.checkPosition=function(){if(this.$element.is(":visible")){var b=this.$element.height(),d=this.options.offset,e=d.top,f=d.bottom,g=Math.max(a(document).height(),a(document.body).height());"object"!=typeof d&&(f=e=d),"function"==typeof e&&(e=d.top(this.$element)),"function"==typeof f&&(f=d.bottom(this.$element));var h=this.getState(g,b,e,f);if(this.affixed!=h){null!=this.unpin&&this.$element.css("top","");var i="affix"+(h?"-"+h:""),j=a.Event(i+".bs.affix");if(this.$element.trigger(j),j.isDefaultPrevented())return;this.affixed=h,this.unpin="bottom"==h?this.getPinnedOffset():null,this.$element.removeClass(c.RESET).addClass(i).trigger(i.replace("affix","affixed")+".bs.affix")}"bottom"==h&&this.$element.offset({top:g-b-f})}};var d=a.fn.affix;a.fn.affix=b,a.fn.affix.Constructor=c,a.fn.affix.noConflict=function(){return a.fn.affix=d,this},a(window).on("load",function(){a('[data-spy="affix"]').each(function(){var c=a(this),d=c.data();d.offset=d.offset||{},null!=d.offsetBottom&&(d.offset.bottom=d.offsetBottom),null!=d.offsetTop&&(d.offset.top=d.offsetTop),b.call(c,d)})})}(jQuery);
+/*!
+ * Jasny Bootstrap v3.1.3 (http://jasny.github.io/bootstrap)
+ * Copyright 2012-2014 Arnold Daniels
+ * Licensed under Apache-2.0 (https://github.com/jasny/bootstrap/blob/master/LICENSE)
+ */
+if("undefined"==typeof jQuery)throw new Error("Jasny Bootstrap's JavaScript requires jQuery");+function(a){"use strict";function b(){var a=document.createElement("bootstrap"),b={WebkitTransition:"webkitTransitionEnd",MozTransition:"transitionend",OTransition:"oTransitionEnd otransitionend",transition:"transitionend"};for(var c in b)if(void 0!==a.style[c])return{end:b[c]};return!1}void 0===a.support.transition&&(a.fn.emulateTransitionEnd=function(b){var c=!1,d=this;a(this).one(a.support.transition.end,function(){c=!0});var e=function(){c||a(d).trigger(a.support.transition.end)};return setTimeout(e,b),this},a(function(){a.support.transition=b()}))}(window.jQuery),+function(a){"use strict";var b=function(c,d){this.$element=a(c),this.options=a.extend({},b.DEFAULTS,d),this.state=null,this.placement=null,this.options.recalc&&(this.calcClone(),a(window).on("resize",a.proxy(this.recalc,this))),this.options.autohide&&a(document).on("click",a.proxy(this.autohide,this)),this.options.toggle&&this.toggle(),this.options.disablescrolling&&(this.options.disableScrolling=this.options.disablescrolling,delete this.options.disablescrolling)};b.DEFAULTS={toggle:!0,placement:"auto",autohide:!0,recalc:!0,disableScrolling:!0,modal:!1},b.prototype.offset=function(){switch(this.placement){case"left":case"right":return this.$element.outerWidth();case"top":case"bottom":return this.$element.outerHeight()}},b.prototype.calcPlacement=function(){function b(a,b){if("auto"===e.css(b))return a;if("auto"===e.css(a))return b;var c=parseInt(e.css(a),10),d=parseInt(e.css(b),10);return c>d?b:a}if("auto"!==this.options.placement)return void(this.placement=this.options.placement);this.$element.hasClass("in")||this.$element.css("visiblity","hidden !important").addClass("in");var c=a(window).width()/this.$element.width(),d=a(window).height()/this.$element.height(),e=this.$element;this.placement=c>=d?b("left","right"):b("top","bottom"),"hidden !important"===this.$element.css("visibility")&&this.$element.removeClass("in").css("visiblity","")},b.prototype.opposite=function(a){switch(a){case"top":return"bottom";case"left":return"right";case"bottom":return"top";case"right":return"left"}},b.prototype.getCanvasElements=function(){var b=this.options.canvas?a(this.options.canvas):this.$element,c=b.find("*").filter(function(){return"fixed"===a(this).css("position")}).not(this.options.exclude);return b.add(c)},b.prototype.slide=function(b,c,d){if(!a.support.transition){var e={};return e[this.placement]="+="+c,b.animate(e,350,d)}var f=this.placement,g=this.opposite(f);b.each(function(){"auto"!==a(this).css(f)&&a(this).css(f,(parseInt(a(this).css(f),10)||0)+c),"auto"!==a(this).css(g)&&a(this).css(g,(parseInt(a(this).css(g),10)||0)-c)}),this.$element.one(a.support.transition.end,d).emulateTransitionEnd(350)},b.prototype.disableScrolling=function(){var b=a("body").width(),c="padding-"+this.opposite(this.placement);if(void 0===a("body").data("offcanvas-style")&&a("body").data("offcanvas-style",a("body").attr("style")||""),a("body").css("overflow","hidden"),a("body").width()>b){var d=parseInt(a("body").css(c),10)+a("body").width()-b;setTimeout(function(){a("body").css(c,d)},1)}a("body").on("touchmove.bs",function(a){a.preventDefault()})},b.prototype.enableScrolling=function(){a("body").off("touchmove.bs")},b.prototype.show=function(){if(!this.state){var b=a.Event("show.bs.offcanvas");if(this.$element.trigger(b),!b.isDefaultPrevented()){this.state="slide-in",this.calcPlacement();var c=this.getCanvasElements(),d=this.placement,e=this.opposite(d),f=this.offset();-1!==c.index(this.$element)&&(a(this.$element).data("offcanvas-style",a(this.$element).attr("style")||""),this.$element.css(d,-1*f),this.$element.css(d)),c.addClass("canvas-sliding").each(function(){void 0===a(this).data("offcanvas-style")&&a(this).data("offcanvas-style",a(this).attr("style")||""),"static"===a(this).css("position")&&a(this).css("position","relative"),"auto"!==a(this).css(d)&&"0px"!==a(this).css(d)||"auto"!==a(this).css(e)&&"0px"!==a(this).css(e)||a(this).css(d,0)}),this.options.disableScrolling&&this.disableScrolling(),this.options.modal&&this.toggleBackdrop();var g=function(){"slide-in"==this.state&&(this.state="slid",c.removeClass("canvas-sliding").addClass("canvas-slid"),this.$element.trigger("shown.bs.offcanvas"))};setTimeout(a.proxy(function(){this.$element.addClass("in"),this.slide(c,f,a.proxy(g,this))},this),1)}}},b.prototype.hide=function(){if("slid"===this.state){var b=a.Event("hide.bs.offcanvas");if(this.$element.trigger(b),!b.isDefaultPrevented()){this.state="slide-out";var c=a(".canvas-slid"),d=(this.placement,-1*this.offset()),e=function(){"slide-out"==this.state&&(this.state=null,this.placement=null,this.$element.removeClass("in"),c.removeClass("canvas-sliding"),c.add(this.$element).add("body").each(function(){a(this).attr("style",a(this).data("offcanvas-style")).removeData("offcanvas-style")}),this.$element.trigger("hidden.bs.offcanvas"))};this.options.disableScrolling&&this.enableScrolling(),this.options.modal&&this.toggleBackdrop(),c.removeClass("canvas-slid").addClass("canvas-sliding"),setTimeout(a.proxy(function(){this.slide(c,d,a.proxy(e,this))},this),1)}}},b.prototype.toggle=function(){"slide-in"!==this.state&&"slide-out"!==this.state&&this["slid"===this.state?"hide":"show"]()},b.prototype.toggleBackdrop=function(b){if(b=b||a.noop,"slide-in"==this.state){var c=a.support.transition;this.$backdrop=a('<div class="modal-backdrop fade" />').insertAfter(this.$element),c&&this.$backdrop[0].offsetWidth,this.$backdrop.addClass("in"),c?this.$backdrop.one(a.support.transition.end,b).emulateTransitionEnd(150):b()}else if("slide-out"==this.state&&this.$backdrop){this.$backdrop.removeClass("in"),a("body").off("touchmove.bs");var d=this;a.support.transition?this.$backdrop.one(a.support.transition.end,function(){d.$backdrop.remove(),b(),d.$backdrop=null}).emulateTransitionEnd(150):(this.$backdrop.remove(),this.$backdrop=null,b())}else b&&b()},b.prototype.calcClone=function(){this.$calcClone=this.$element.clone().html("").addClass("offcanvas-clone").removeClass("in").appendTo(a("body"))},b.prototype.recalc=function(){if("none"!==this.$calcClone.css("display")&&("slid"===this.state||"slide-in"===this.state)){this.state=null,this.placement=null;var b=this.getCanvasElements();this.$element.removeClass("in"),b.removeClass("canvas-slid"),b.add(this.$element).add("body").each(function(){a(this).attr("style",a(this).data("offcanvas-style")).removeData("offcanvas-style")})}},b.prototype.autohide=function(b){0===a(b.target).closest(this.$element).length&&this.hide()};var c=a.fn.offcanvas;a.fn.offcanvas=function(c){return this.each(function(){var d=a(this),e=d.data("bs.offcanvas"),f=a.extend({},b.DEFAULTS,d.data(),"object"==typeof c&&c);e||d.data("bs.offcanvas",e=new b(this,f)),"string"==typeof c&&e[c]()})},a.fn.offcanvas.Constructor=b,a.fn.offcanvas.noConflict=function(){return a.fn.offcanvas=c,this},a(document).on("click.bs.offcanvas.data-api","[data-toggle=offcanvas]",function(b){var c,d=a(this),e=d.attr("data-target")||b.preventDefault()||(c=d.attr("href"))&&c.replace(/.*(?=#[^\s]+$)/,""),f=a(e),g=f.data("bs.offcanvas"),h=g?"toggle":d.data();b.stopPropagation(),g?g.toggle():f.offcanvas(h)})}(window.jQuery),+function(a){"use strict";var b=function(c,d){this.$element=a(c),this.options=a.extend({},b.DEFAULTS,d),this.$element.on("click.bs.rowlink","td:not(.rowlink-skip)",a.proxy(this.click,this))};b.DEFAULTS={target:"a"},b.prototype.click=function(b){var c=a(b.currentTarget).closest("tr").find(this.options.target)[0];if(a(b.target)[0]!==c)if(b.preventDefault(),c.click)c.click();else if(document.createEvent){var d=document.createEvent("MouseEvents");d.initMouseEvent("click",!0,!0,window,0,0,0,0,0,!1,!1,!1,!1,0,null),c.dispatchEvent(d)}};var c=a.fn.rowlink;a.fn.rowlink=function(c){return this.each(function(){var d=a(this),e=d.data("bs.rowlink");e||d.data("bs.rowlink",e=new b(this,c))})},a.fn.rowlink.Constructor=b,a.fn.rowlink.noConflict=function(){return a.fn.rowlink=c,this},a(document).on("click.bs.rowlink.data-api",'[data-link="row"]',function(b){if(0===a(b.target).closest(".rowlink-skip").length){var c=a(this);c.data("bs.rowlink")||(c.rowlink(c.data()),a(b.target).trigger("click.bs.rowlink"))}})}(window.jQuery),+function(a){"use strict";var b=void 0!==window.orientation,c=navigator.userAgent.toLowerCase().indexOf("android")>-1,d="Microsoft Internet Explorer"==window.navigator.appName,e=function(b,d){c||(this.$element=a(b),this.options=a.extend({},e.DEFAULTS,d),this.mask=String(this.options.mask),this.init(),this.listen(),this.checkVal())};e.DEFAULTS={mask:"",placeholder:"_",definitions:{9:"[0-9]",a:"[A-Za-z]",w:"[A-Za-z0-9]","*":"."}},e.prototype.init=function(){var b=this.options.definitions,c=this.mask.length;this.tests=[],this.partialPosition=this.mask.length,this.firstNonMaskPos=null,a.each(this.mask.split(""),a.proxy(function(a,d){"?"==d?(c--,this.partialPosition=a):b[d]?(this.tests.push(new RegExp(b[d])),null===this.firstNonMaskPos&&(this.firstNonMaskPos=this.tests.length-1)):this.tests.push(null)},this)),this.buffer=a.map(this.mask.split(""),a.proxy(function(a){return"?"!=a?b[a]?this.options.placeholder:a:void 0},this)),this.focusText=this.$element.val(),this.$element.data("rawMaskFn",a.proxy(function(){return a.map(this.buffer,function(a,b){return this.tests[b]&&a!=this.options.placeholder?a:null}).join("")},this))},e.prototype.listen=function(){if(!this.$element.attr("readonly")){var b=(d?"paste":"input")+".bs.inputmask";this.$element.on("unmask.bs.inputmask",a.proxy(this.unmask,this)).on("focus.bs.inputmask",a.proxy(this.focusEvent,this)).on("blur.bs.inputmask",a.proxy(this.blurEvent,this)).on("keydown.bs.inputmask",a.proxy(this.keydownEvent,this)).on("keypress.bs.inputmask",a.proxy(this.keypressEvent,this)).on(b,a.proxy(this.pasteEvent,this))}},e.prototype.caret=function(a,b){if(0!==this.$element.length){if("number"==typeof a)return b="number"==typeof b?b:a,this.$element.each(function(){if(this.setSelectionRange)this.setSelectionRange(a,b);else if(this.createTextRange){var c=this.createTextRange();c.collapse(!0),c.moveEnd("character",b),c.moveStart("character",a),c.select()}});if(this.$element[0].setSelectionRange)a=this.$element[0].selectionStart,b=this.$element[0].selectionEnd;else if(document.selection&&document.selection.createRange){var c=document.selection.createRange();a=0-c.duplicate().moveStart("character",-1e5),b=a+c.text.length}return{begin:a,end:b}}},e.prototype.seekNext=function(a){for(var b=this.mask.length;++a<=b&&!this.tests[a];);return a},e.prototype.seekPrev=function(a){for(;--a>=0&&!this.tests[a];);return a},e.prototype.shiftL=function(a,b){var c=this.mask.length;if(!(0>a)){for(var d=a,e=this.seekNext(b);c>d;d++)if(this.tests[d]){if(!(c>e&&this.tests[d].test(this.buffer[e])))break;this.buffer[d]=this.buffer[e],this.buffer[e]=this.options.placeholder,e=this.seekNext(e)}this.writeBuffer(),this.caret(Math.max(this.firstNonMaskPos,a))}},e.prototype.shiftR=function(a){for(var b=this.mask.length,c=a,d=this.options.placeholder;b>c;c++)if(this.tests[c]){var e=this.seekNext(c),f=this.buffer[c];if(this.buffer[c]=d,!(b>e&&this.tests[e].test(f)))break;d=f}},e.prototype.unmask=function(){this.$element.unbind(".bs.inputmask").removeData("bs.inputmask")},e.prototype.focusEvent=function(){this.focusText=this.$element.val();var a=this.mask.length,b=this.checkVal();this.writeBuffer();var c=this,d=function(){b==a?c.caret(0,b):c.caret(b)};d(),setTimeout(d,50)},e.prototype.blurEvent=function(){this.checkVal(),this.$element.val()!==this.focusText&&(this.$element.trigger("change"),this.$element.trigger("input"))},e.prototype.keydownEvent=function(a){var c=a.which;if(8==c||46==c||b&&127==c){var d=this.caret(),e=d.begin,f=d.end;return f-e===0&&(e=46!=c?this.seekPrev(e):f=this.seekNext(e-1),f=46==c?this.seekNext(f):f),this.clearBuffer(e,f),this.shiftL(e,f-1),!1}return 27==c?(this.$element.val(this.focusText),this.caret(0,this.checkVal()),!1):void 0},e.prototype.keypressEvent=function(a){var b=this.mask.length,c=a.which,d=this.caret();if(a.ctrlKey||a.altKey||a.metaKey||32>c)return!0;if(c){d.end-d.begin!==0&&(this.clearBuffer(d.begin,d.end),this.shiftL(d.begin,d.end-1));var e=this.seekNext(d.begin-1);if(b>e){var f=String.fromCharCode(c);if(this.tests[e].test(f)){this.shiftR(e),this.buffer[e]=f,this.writeBuffer();var g=this.seekNext(e);this.caret(g)}}return!1}},e.prototype.pasteEvent=function(){var a=this;setTimeout(function(){a.caret(a.checkVal(!0))},0)},e.prototype.clearBuffer=function(a,b){for(var c=this.mask.length,d=a;b>d&&c>d;d++)this.tests[d]&&(this.buffer[d]=this.options.placeholder)},e.prototype.writeBuffer=function(){return this.$element.val(this.buffer.join("")).val()},e.prototype.checkVal=function(a){for(var b=this.mask.length,c=this.$element.val(),d=-1,e=0,f=0;b>e;e++)if(this.tests[e]){for(this.buffer[e]=this.options.placeholder;f++<c.length;){var g=c.charAt(f-1);if(this.tests[e].test(g)){this.buffer[e]=g,d=e;break}}if(f>c.length)break}else this.buffer[e]==c.charAt(f)&&e!=this.partialPosition&&(f++,d=e);return!a&&d+1<this.partialPosition?(this.$element.val(""),this.clearBuffer(0,b)):(a||d+1>=this.partialPosition)&&(this.writeBuffer(),a||this.$element.val(this.$element.val().substring(0,d+1))),this.partialPosition?e:this.firstNonMaskPos};var f=a.fn.inputmask;a.fn.inputmask=function(b){return this.each(function(){var c=a(this),d=c.data("bs.inputmask");d||c.data("bs.inputmask",d=new e(this,b))})},a.fn.inputmask.Constructor=e,a.fn.inputmask.noConflict=function(){return a.fn.inputmask=f,this},a(document).on("focus.bs.inputmask.data-api","[data-mask]",function(){var b=a(this);b.data("bs.inputmask")||b.inputmask(b.data())})}(window.jQuery),+function(a){"use strict";var b="Microsoft Internet Explorer"==window.navigator.appName,c=function(b,c){if(this.$element=a(b),this.$input=this.$element.find(":file"),0!==this.$input.length){this.name=this.$input.attr("name")||c.name,this.$hidden=this.$element.find('input[type=hidden][name="'+this.name+'"]'),0===this.$hidden.length&&(this.$hidden=a('<input type="hidden">').insertBefore(this.$input)),this.$preview=this.$element.find(".fileinput-preview");var d=this.$preview.css("height");"inline"!==this.$preview.css("display")&&"0px"!==d&&"none"!==d&&this.$preview.css("line-height",d),this.original={exists:this.$element.hasClass("fileinput-exists"),preview:this.$preview.html(),hiddenVal:this.$hidden.val()},this.listen()}};c.prototype.listen=function(){this.$input.on("change.bs.fileinput",a.proxy(this.change,this)),a(this.$input[0].form).on("reset.bs.fileinput",a.proxy(this.reset,this)),this.$element.find('[data-trigger="fileinput"]').on("click.bs.fileinput",a.proxy(this.trigger,this)),this.$element.find('[data-dismiss="fileinput"]').on("click.bs.fileinput",a.proxy(this.clear,this))},c.prototype.change=function(b){var c=void 0===b.target.files?b.target&&b.target.value?[{name:b.target.value.replace(/^.+\\/,"")}]:[]:b.target.files;if(b.stopPropagation(),0===c.length)return void this.clear();this.$hidden.val(""),this.$hidden.attr("name",""),this.$input.attr("name",this.name);var d=c[0];if(this.$preview.length>0&&("undefined"!=typeof d.type?d.type.match(/^image\/(gif|png|jpeg)$/):d.name.match(/\.(gif|png|jpe?g)$/i))&&"undefined"!=typeof FileReader){var e=new FileReader,f=this.$preview,g=this.$element;e.onload=function(b){var e=a("<img>");e[0].src=b.target.result,c[0].result=b.target.result,g.find(".fileinput-filename").text(d.name),"none"!=f.css("max-height")&&e.css("max-height",parseInt(f.css("max-height"),10)-parseInt(f.css("padding-top"),10)-parseInt(f.css("padding-bottom"),10)-parseInt(f.css("border-top"),10)-parseInt(f.css("border-bottom"),10)),f.html(e),g.addClass("fileinput-exists").removeClass("fileinput-new"),g.trigger("change.bs.fileinput",c)},e.readAsDataURL(d)}else this.$element.find(".fileinput-filename").text(d.name),this.$preview.text(d.name),this.$element.addClass("fileinput-exists").removeClass("fileinput-new"),this.$element.trigger("change.bs.fileinput")},c.prototype.clear=function(a){if(a&&a.preventDefault(),this.$hidden.val(""),this.$hidden.attr("name",this.name),this.$input.attr("name",""),b){var c=this.$input.clone(!0);this.$input.after(c),this.$input.remove(),this.$input=c}else this.$input.val("");this.$preview.html(""),this.$element.find(".fileinput-filename").text(""),this.$element.addClass("fileinput-new").removeClass("fileinput-exists"),void 0!==a&&(this.$input.trigger("change"),this.$element.trigger("clear.bs.fileinput"))},c.prototype.reset=function(){this.clear(),this.$hidden.val(this.original.hiddenVal),this.$preview.html(this.original.preview),this.$element.find(".fileinput-filename").text(""),this.original.exists?this.$element.addClass("fileinput-exists").removeClass("fileinput-new"):this.$element.addClass("fileinput-new").removeClass("fileinput-exists"),this.$element.trigger("reset.bs.fileinput")},c.prototype.trigger=function(a){this.$input.trigger("click"),a.preventDefault()};var d=a.fn.fileinput;a.fn.fileinput=function(b){return this.each(function(){var d=a(this),e=d.data("bs.fileinput");e||d.data("bs.fileinput",e=new c(this,b)),"string"==typeof b&&e[b]()})},a.fn.fileinput.Constructor=c,a.fn.fileinput.noConflict=function(){return a.fn.fileinput=d,this},a(document).on("click.fileinput.data-api",'[data-provides="fileinput"]',function(b){var c=a(this);if(!c.data("bs.fileinput")){c.fileinput(c.data());var d=a(b.target).closest('[data-dismiss="fileinput"],[data-trigger="fileinput"]');d.length>0&&(b.preventDefault(),d.trigger("click.bs.fileinput"))}})}(window.jQuery);
+
+/* anytime.5.0.5.min.js
+Copyright 2008-2014 Andrew M. Andrews III.
+License: creativecommons.org/licenses/by-nc-sa/3.0/
+Any+Time is a trademark of Andrew M. Andrews III */
+var AnyTime={version:"5.0.5",pad:function(a,b){for(var c=String(Math.abs(a));c.length<b;)c="0"+c;return 0>a&&(c="-"+c),c}};!function(a){var b=[31,28,31,30,31,30,31,31,30,31,30,31],c=!1,d=[];a.fn.AnyTime_picker=function(a){return this.each(function(){AnyTime.picker(this.id,a)})},a.fn.AnyTime_noPicker=function(){return this.each(function(){AnyTime.noPicker(this.id)})},a.fn.AnyTime_setEarliest=function(a){return this.each(function(){AnyTime.setEarliest(this.id,a)})},a.fn.AnyTime_setLatest=function(a){return this.each(function(){AnyTime.setLatest(this.id,a)})},a.fn.AnyTime_current=function(a,b){a?(this.removeClass("AnyTime-out-btn ui-state-default ui-state-disabled ui-state-highlight"),this.addClass("AnyTime-cur-btn ui-state-default ui-state-highlight")):(this.removeClass("AnyTime-cur-btn ui-state-highlight"),b?this.removeClass("AnyTime-out-btn ui-state-disabled"):this.addClass("AnyTime-out-btn ui-state-disabled"))},a.fn.AnyTime_clickCurrent=function(){this.find(".AnyTime-cur-btn").triggerHandler("click")},a(document).ready(function(){for(var a in d)Array.prototype[a]||d[a].onReady();c=!0}),AnyTime.Converter=function(b){var c=0,d=9,e=9,f=6,g=3,h=Number.MIN_VALUE,i=Number.MIN_VALUE,j=Number.MIN_VALUE,k=-1,l=Number.MIN_VALUE,m=-1,n=!1;this.fmt="%Y-%m-%d %T",this.dAbbr=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],this.dNames=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],this.eAbbr=["BCE","CE"],this.mAbbr=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],this.mNames=["January","February","March","April","May","June","July","August","September","October","November","December"],this.baseYear=null,this.dAt=function(a,b){return a.charCodeAt(b)>="0".charCodeAt(0)&&a.charCodeAt(b)<="9".charCodeAt(0)},this.format=function(a){var b=new Date(a.getTime());h==Number.MIN_VALUE&&j!=Number.MIN_VALUE&&b.setTime(b.getTime()+6e4*b.getTimezoneOffset()+6e4*j);for(var d,e="",f=0;c>f;f++)if("%"!=this.fmt.charAt(f))e+=this.fmt.charAt(f);else{var g=this.fmt.charAt(f+1);switch(g){case"a":e+=this.dAbbr[b.getDay()];break;case"B":b.getFullYear()<0&&(e+=this.eAbbr[0]);break;case"b":e+=this.mAbbr[b.getMonth()];break;case"C":b.getFullYear()>0&&(e+=this.eAbbr[1]);break;case"c":e+=b.getMonth()+1;break;case"d":d=b.getDate(),10>d&&(e+="0"),e+=String(d);break;case"D":if(d=String(b.getDate()),e+=d,2==d.length&&"1"==d.charAt(0))e+="th";else switch(d.charAt(d.length-1)){case"1":e+="st";break;case"2":e+="nd";break;case"3":e+="rd";break;default:e+="th"}break;case"E":e+=this.eAbbr[b.getFullYear()<0?0:1];break;case"e":e+=b.getDate();break;case"H":d=b.getHours(),10>d&&(e+="0"),e+=String(d);break;case"h":case"I":d=b.getHours()%12,0==d?e+="12":(10>d&&(e+="0"),e+=String(d));break;case"i":d=b.getMinutes(),10>d&&(e+="0"),e+=String(d);break;case"k":e+=b.getHours();break;case"l":d=b.getHours()%12,e+=0==d?"12":String(d);break;case"M":e+=this.mNames[b.getMonth()];break;case"m":d=b.getMonth()+1,10>d&&(e+="0"),e+=String(d);break;case"p":e+=b.getHours()<12?"AM":"PM";break;case"r":d=b.getHours()%12,0==d?e+="12:":(10>d&&(e+="0"),e+=String(d)+":"),d=b.getMinutes(),10>d&&(e+="0"),e+=String(d)+":",d=b.getSeconds(),10>d&&(e+="0"),e+=String(d),e+=b.getHours()<12?"AM":"PM";break;case"S":case"s":d=b.getSeconds(),10>d&&(e+="0"),e+=String(d);break;case"T":d=b.getHours(),10>d&&(e+="0"),e+=String(d)+":",d=b.getMinutes(),10>d&&(e+="0"),e+=String(d)+":",d=b.getSeconds(),10>d&&(e+="0"),e+=String(d);break;case"W":e+=this.dNames[b.getDay()];break;case"w":e+=b.getDay();break;case"Y":e+=AnyTime.pad(b.getFullYear(),4);break;case"y":d=b.getFullYear()%100,e+=AnyTime.pad(d,2);break;case"Z":e+=AnyTime.pad(Math.abs(b.getFullYear()),4);break;case"z":e+=Math.abs(b.getFullYear());break;case"%":e+="%";break;case"#":d=h!=Number.MIN_VALUE?h:j==Number.MIN_VALUE?0-b.getTimezoneOffset():j,d>=0&&(e+="+"),e+=d;break;case"@":if(d=h!=Number.MIN_VALUE?h:j==Number.MIN_VALUE?0-b.getTimezoneOffset():j,AnyTime.utcLabel&&AnyTime.utcLabel[d]){e+=k>0&&k<AnyTime.utcLabel[d].length?AnyTime.utcLabel[d][k]:AnyTime.utcLabel[d][0];break}e+="UTC",g=":";case"+":case"-":case":":case";":d=h!=Number.MIN_VALUE?h:j==Number.MIN_VALUE?0-b.getTimezoneOffset():j,e+=0>d?"-":"+",d=Math.abs(d),e+="+"==g||":"==g?AnyTime.pad(Math.floor(d/60),2):Math.floor(d/60),(":"==g||";"==g)&&(e+=":"),e+=AnyTime.pad(d%60,2);break;case"f":case"j":case"U":case"u":case"V":case"v":case"X":case"x":throw"%"+g+" not implemented by AnyTime.Converter";default:e+=this.fmt.substr(f,2)}f++}return e},this.getUtcParseOffsetCaptured=function(){return i},this.getUtcParseOffsetSubIndex=function(){return m},this.parse=function(a){i=l,m=-1;for(var b,h,j,k,o,p=1,q=new Date(4,0,1,0,0,0,0),r=a.length,s=0,t=1,u=l,v=0;c>v;v++)if("%"==this.fmt.charAt(v)){var w=this.fmt.charAt(v+1);switch(w){case"a":for(h=!1,k=0;r>s+k;k++){for(j=a.substr(s,k),b=0;12>b;b++)if(this.dAbbr[b]==j){h=!0,s+=k;break}if(h)break}if(!h)throw"unknown weekday: "+a.substr(s);break;case"B":k=this.eAbbr[0].length,r>=s+k&&a.substr(s,k)==this.eAbbr[0]&&(p=-1,s+=k);break;case"b":for(h=!1,k=0;r>s+k;k++){for(j=a.substr(s,k),b=0;12>b;b++)if(this.mAbbr[b]==j){q.setMonth(b),h=!0,s+=k;break}if(h)break}if(!h)throw"unknown month: "+a.substr(s);break;case"C":k=this.eAbbr[1].length,r>=s+k&&a.substr(s,k)==this.eAbbr[1]&&(s+=k);break;case"c":r>s+1&&this.dAt(a,s+1)?(q.setMonth((Number(a.substr(s,2))-1)%12),s+=2):(q.setMonth((Number(a.substr(s,1))-1)%12),s++);break;case"D":r>s+1&&this.dAt(a,s+1)?(q.setDate(Number(a.substr(s,2))),s+=4):(q.setDate(Number(a.substr(s,1))),s+=3);break;case"d":q.setDate(Number(a.substr(s,2))),s+=2;break;case"E":if(k=this.eAbbr[0].length,r>=s+k&&a.substr(s,k)==this.eAbbr[0])p=-1,s+=k;else{if(!(s+(k=this.eAbbr[1].length)<=r&&a.substr(s,k)==this.eAbbr[1]))throw"unknown era: "+a.substr(s);s+=k}break;case"e":r>s+1&&this.dAt(a,s+1)?(q.setDate(Number(a.substr(s,2))),s+=2):(q.setDate(Number(a.substr(s,1))),s++);break;case"f":s+=6;break;case"H":q.setHours(Number(a.substr(s,2))),s+=2;break;case"h":case"I":q.setHours(Number(a.substr(s,2))),s+=2;break;case"i":q.setMinutes(Number(a.substr(s,2))),s+=2;break;case"k":r>s+1&&this.dAt(a,s+1)?(q.setHours(Number(a.substr(s,2))),s+=2):(q.setHours(Number(a.substr(s,1))),s++);break;case"l":r>s+1&&this.dAt(a,s+1)?(q.setHours(Number(a.substr(s,2))),s+=2):(q.setHours(Number(a.substr(s,1))),s++);break;case"M":for(h=!1,k=g;r>=s+k&&!(k>e);k++){for(j=a.substr(s,k),b=0;12>b;b++)if(this.mNames[b]==j){q.setMonth(b),h=!0,s+=k;break}if(h)break}break;case"m":q.setMonth((Number(a.substr(s,2))-1)%12),s+=2;break;case"p":12==q.getHours()?"A"==a.charAt(s)&&q.setHours(0):"P"==a.charAt(s)&&q.setHours(q.getHours()+12),s+=2;break;case"r":q.setHours(Number(a.substr(s,2))),q.setMinutes(Number(a.substr(s+3,2))),q.setSeconds(Number(a.substr(s+6,2))),12==q.getHours()?"A"==a.charAt(s+8)&&q.setHours(0):"P"==a.charAt(s+8)&&q.setHours(q.getHours()+12),s+=10;break;case"S":case"s":q.setSeconds(Number(a.substr(s,2))),s+=2;break;case"T":q.setHours(Number(a.substr(s,2))),q.setMinutes(Number(a.substr(s+3,2))),q.setSeconds(Number(a.substr(s+6,2))),s+=8;break;case"W":for(h=!1,k=f;r>=s+k&&!(k>d);k++){for(j=a.substr(s,k),b=0;7>b;b++)if(this.dNames[b]==j){h=!0,s+=k;break}if(h)break}break;case"w":s+=1;break;case"Y":b=4,"-"==a.substr(s,1)&&b++,q.setFullYear(Number(a.substr(s,b))),s+=b;break;case"y":b=2,"-"==a.substr(s,1)&&b++,o=Number(a.substr(s,b)),o+="number"==typeof this.baseYear?this.baseYear:70>o?2e3:1900,q.setFullYear(o),s+=b;break;case"Z":q.setFullYear(Number(a.substr(s,4))),s+=4;break;case"z":for(b=0;r>s&&this.dAt(a,s);)b=10*b+Number(a.charAt(s++));q.setFullYear(b);break;case"#":for("-"==a.charAt(s++)&&(t=-1),u=0;r>s&&String(b=Number(a.charAt(s)))==a.charAt(s);s++)u=10*u+b;u*=t;break;case"@":if(m=-1,AnyTime.utcLabel){h=!1;for(u in AnyTime.utcLabel)if(!Array.prototype[u]){for(b=0;b<AnyTime.utcLabel[u].length;b++)if(j=AnyTime.utcLabel[u][b],k=j.length,r>=s+k&&a.substr(s,k)==j){s+=k,h=!0;break}if(h)break}if(h){m=b,u=Number(u);break}}if(r>s+9||"UTC"!=a.substr(s,3))throw"unknown time zone: "+a.substr(s);s+=3,w=":";case"-":case"+":case":":case";":"-"==a.charAt(s++)&&(t=-1),u=Number(a.charAt(s)),("+"==w||":"==w||r>s+3&&String(Number(a.charAt(s+3)))!==a.charAt(s+3))&&(u=10*u+Number(a.charAt(++s))),u*=60,(":"==w||";"==w)&&s++,u=(u+Number(a.substr(++s,2)))*t,s+=2;break;case"j":case"U":case"u":case"V":case"v":case"X":case"x":throw"%"+this.fmt.charAt(v+1)+" not implemented by AnyTime.Converter";case"%":default:throw"%"+this.fmt.charAt(v+1)+" reserved for future use"}v++}else{if(this.fmt.charAt(v)!=a.charAt(s))throw a+' is not in "'+this.fmt+'" format';s++}return 0>p&&q.setFullYear(0-q.getFullYear()),u!=Number.MIN_VALUE&&(n?i=u:q.setTime(q.getTime()-6e4*u-6e4*q.getTimezoneOffset())),q},this.setUtcFormatOffsetAlleged=function(a){var b=h;return h=a,b},this.setUtcFormatOffsetSubIndex=function(a){var b=k;return k=a,b},function(h){var i,k;if(b=jQuery.extend(!0,{},b||{}),b.baseYear&&(h.baseYear=Number(b.baseYear)),b.format&&(h.fmt=b.format),c=h.fmt.length,b.dayAbbreviations&&(h.dAbbr=a.makeArray(b.dayAbbreviations)),b.dayNames)for(h.dNames=a.makeArray(b.dayNames),d=1,f=1e3,i=0;7>i;i++)k=h.dNames[i].length,k>d&&(d=k),f>k&&(f=k);if(b.eraAbbreviations&&(h.eAbbr=a.makeArray(b.eraAbbreviations)),b.monthAbbreviations&&(h.mAbbr=a.makeArray(b.monthAbbreviations)),b.monthNames)for(h.mNames=a.makeArray(b.monthNames),e=1,g=1e3,i=0;12>i;i++)k=h.mNames[i].length,k>e&&(e=k),g>k&&(g=k);"undefined"!=typeof b.utcFormatOffsetImposed&&(j=b.utcFormatOffsetImposed),"undefined"!=typeof b.utcParseOffsetAssumed&&(l=b.utcParseOffsetAssumed),b.utcParseOffsetCapture&&(n=!0)}(this)},AnyTime.noPicker=function(a){d[a]&&(d[a].cleanup(),delete d[a])},AnyTime.picker=function(e,f){if(d[e])throw'Cannot create another AnyTime.picker for "'+e+'"';var g=null;d[e]={twelveHr:!1,ajaxOpts:null,denyTab:!0,askEra:!1,cloak:null,conv:null,div:null,dB:null,dD:null,dY:null,dMo:null,dDoM:null,hDoM:null,hMo:null,hTitle:null,hY:null,dT:null,dH:null,dM:null,dS:null,dO:null,earliest:null,fBtn:null,fDOW:0,hBlur:null,hClick:null,hFocus:null,hKeydown:null,hKeypress:null,hResize:null,id:null,inp:null,latest:null,lastAjax:null,lostFocus:!1,lX:"X",lY:"Year",lO:"Time Zone",oBody:null,oConv:null,oCur:null,oDiv:null,oLab:null,oList:null,oSel:null,offMin:Number.MIN_VALUE,offSI:-1,offStr:"",pop:!0,ro:!1,time:null,url:null,yAhead:null,y0XXX:null,yCur:null,yDiv:null,yLab:null,yNext:null,yPast:null,yPrior:null,initialize:function(d){if(g=this,this.id="AnyTime--"+d.replace(/[^-_.A-Za-z0-9]/g,"--AnyTime--"),f=jQuery.extend(!0,{},f||{}),f.utcParseOffsetCapture=!0,this.conv=new AnyTime.Converter(f),f.placement)if("inline"==f.placement)this.pop=!1;else if("popup"!=f.placement)throw"unknown placement: "+f.placement;if(f.ajaxOptions&&(this.ajaxOpts=jQuery.extend({},f.ajaxOptions),this.ajaxOpts.success||(this.ajaxOpts.success=function(a){g.updVal(a)})),f.earliest&&(this.earliest="function"==typeof f.earliest.getTime?f.earliest.getTime():this.conv.parse(f.earliest.toString())),f.firstDOW){if(f.firstDOW<0||f.firstDOW>6)throw new Exception("illegal firstDOW: "+f.firstDOW);this.fDOW=f.firstDOW}f.latest&&(this.latest="function"==typeof f.latest.getTime?f.latest.getTime():this.conv.parse(f.latest.toString())),this.lX=f.labelDismiss||"X",this.lY=f.labelYear||"Year",this.lO=f.labelTimeZone||"Time Zone";var e,h,i,j=0,k=this.conv.fmt;this.askEra="undefined"!=typeof f.askEra?f.askEra:k.indexOf("%B")>=0||k.indexOf("%C")>=0||k.indexOf("%E")>=0;var l=k.indexOf("%Y")>=0||k.indexOf("%y")>=0||k.indexOf("%Z")>=0||k.indexOf("%z")>=0,m=k.indexOf("%b")>=0||k.indexOf("%c")>=0||k.indexOf("%M")>=0||k.indexOf("%m")>=0,n=k.indexOf("%D")>=0||k.indexOf("%d")>=0||k.indexOf("%e")>=0,o=l||m||n;this.twelveHr=k.indexOf("%h")>=0||k.indexOf("%I")>=0||k.indexOf("%l")>=0||k.indexOf("%r")>=0;var p=this.twelveHr||k.indexOf("%H")>=0||k.indexOf("%k")>=0||k.indexOf("%T")>=0,q=k.indexOf("%i")>=0||k.indexOf("%r")>=0||k.indexOf("%T")>=0,r=k.indexOf("%r")>=0||k.indexOf("%S")>=0||k.indexOf("%s")>=0||k.indexOf("%T")>=0;r&&"undefined"!=typeof f.askSecond&&(r=f.askSecond);var s=k.indexOf("%#")>=0||k.indexOf("%+")>=0||k.indexOf("%-")>=0||k.indexOf("%:")>=0||k.indexOf("%;")>=0||k.indexOf("%<")>=0||k.indexOf("%>")>=0||k.indexOf("%@")>=0,t=p||q||r||s;s&&(this.oConv=new AnyTime.Converter({format:f.formatUtcOffset||k.match(/\S*%[-+:;<>#@]\S*/g).join(" ")})),this.inp=a(document.getElementById(d)),this.ro=this.inp.prop("readonly"),this.inp.prop("readonly",!0),this.div=a('<div class="AnyTime-win AnyTime-pkr ui-widget ui-widget-content ui-corner-all" id="'+this.id+'" aria-live="off"></div>'),this.inp.after(this.div),this.hTitle=a('<h5 class="AnyTime-hdr ui-widget-header ui-corner-top"/>'),this.div.append(this.hTitle),this.dB=a('<div class="AnyTime-body"></div>'),this.div.append(this.dB),f.hideInput&&this.inp.css({border:0,height:"1px",margin:0,padding:0,width:"1px"}),h=null;var u=null;if(this.pop&&(u=a('<div class="AnyTime-x-btn ui-state-default">'+this.lX+"</div>"),this.hTitle.append(u),u.click(function(a){g.dismiss(a)})),i="",o){if(this.dD=a('<div class="AnyTime-date"></div>'),this.dB.append(this.dD),l&&(this.yLab=a('<h6 class="AnyTime-lbl AnyTime-lbl-yr">'+this.lY+"</h6>"),this.dD.append(this.yLab),this.dY=a('<ul class="AnyTime-yrs ui-helper-reset" />'),this.dD.append(this.dY),this.yPast=this.btn(this.dY,"&lt;",this.newYear,["yrs-past"],"- "+this.lY),this.yPrior=this.btn(this.dY,"1",this.newYear,["yr-prior"],"-1 "+this.lY),this.yCur=this.btn(this.dY,"2",this.newYear,["yr-cur"],this.lY),this.yCur.removeClass("ui-state-default"),this.yCur.addClass("AnyTime-cur-btn ui-state-default ui-state-highlight"),this.yNext=this.btn(this.dY,"3",this.newYear,["yr-next"],"+1 "+this.lY),this.yAhead=this.btn(this.dY,"&gt;",this.newYear,["yrs-ahead"],"+ "+this.lY),j++),m){for(i=f.labelMonth||"Month",this.hMo=a('<h6 class="AnyTime-lbl AnyTime-lbl-month">'+i+"</h6>"),this.dD.append(this.hMo),this.dMo=a('<ul class="AnyTime-mons" />'),this.dD.append(this.dMo),e=0;12>e;e++){var v=this.btn(this.dMo,this.conv.mAbbr[e],function(c){var d=a(c.target);if(!d.hasClass("AnyTime-out-btn")){var e=c.target.AnyTime_month,f=new Date(this.time.getTime());f.getDate()>b[e]&&f.setDate(b[e]),f.setMonth(e),this.set(f),this.upd(d)}},["mon","mon"+String(e+1)],i+" "+this.conv.mNames[e]);v[0].AnyTime_month=e}j++}if(n){i=f.labelDayOfMonth||"Day of Month",this.hDoM=a('<h6 class="AnyTime-lbl AnyTime-lbl-dom">'+i+"</h6>"),this.dD.append(this.hDoM),this.dDoM=a('<table border="0" cellpadding="0" cellspacing="0" class="AnyTime-dom-table"/>'),this.dD.append(this.dDoM),h=a('<thead class="AnyTime-dom-head"/>'),this.dDoM.append(h);var w=a('<tr class="AnyTime-dow"/>');for(h.append(w),e=0;7>e;e++)w.append('<th class="AnyTime-dow AnyTime-dow'+String(e+1)+'">'+this.conv.dAbbr[(this.fDOW+e)%7]+"</th>");var x=a('<tbody class="AnyTime-dom-body" />');this.dDoM.append(x);for(var y=0;6>y;y++)for(w=a('<tr class="AnyTime-wk AnyTime-wk'+String(y+1)+'"/>'),x.append(w),e=0;7>e;e++)this.btn(w,"x",function(b){var c=a(b.target);if(!c.hasClass("AnyTime-out-btn")){var d=Number(c.html());if(d){var e=new Date(this.time.getTime());e.setDate(d),this.set(e),this.upd(c)}}},["dom"],i);j++}}if(t){var z,A;if(this.dT=a('<div class="AnyTime-time"></div>'),this.dB.append(this.dT),p){this.dH=a('<div class="AnyTime-hrs"></div>'),this.dT.append(this.dH),i=f.labelHour||"Hour",this.dH.append(a('<h6 class="AnyTime-lbl AnyTime-lbl-hr">'+i+"</h6>"));var B=a('<ul class="AnyTime-hrs-am"/>');this.dH.append(B);var C=a('<ul class="AnyTime-hrs-pm"/>');for(this.dH.append(C),e=0;12>e;e++)h=this.twelveHr?0==e?"12am":String(e)+"am":AnyTime.pad(e,2),this.btn(B,h,this.newHour,["hr","hr"+String(e)],i+" "+h),h=this.twelveHr?0==e?"12pm":String(e)+"pm":e+12,this.btn(C,h,this.newHour,["hr","hr"+String(e+12)],i+" "+h);j++}if(q){for(this.dM=a('<div class="AnyTime-mins"></div>'),this.dT.append(this.dM),i=f.labelMinute||"Minute",this.dM.append(a('<h6 class="AnyTime-lbl AnyTime-lbl-min">'+i+"</h6>")),z=a('<ul class="AnyTime-mins-tens"/>'),this.dM.append(z),e=0;6>e;e++)this.btn(z,e,function(b){var c=a(b.target);if(!c.hasClass("AnyTime-out-btn")){var d=new Date(this.time.getTime());d.setMinutes(10*Number(c.text())+this.time.getMinutes()%10),this.set(d),this.upd(c)}},["min-ten","min"+e+"0"],i+" "+e+"0");for(;12>e;e++)this.btn(z,"&#160;",a.noop,["min-ten","min"+e+"0"],i+" "+e+"0").addClass("AnyTime-min-ten-btn-empty ui-state-default ui-state-disabled");for(A=a('<ul class="AnyTime-mins-ones"/>'),this.dM.append(A),e=0;10>e;e++)this.btn(A,e,function(b){var c=a(b.target);if(!c.hasClass("AnyTime-out-btn")){var d=new Date(this.time.getTime());d.setMinutes(10*Math.floor(this.time.getMinutes()/10)+Number(c.text())),this.set(d),this.upd(c)}},["min-one","min"+e],i+" "+e);for(;12>e;e++)this.btn(A,"&#160;",a.noop,["min-one","min"+e+"0"],i+" "+e).addClass("AnyTime-min-one-btn-empty ui-state-default ui-state-disabled");j++}if(r){for(this.dS=a('<div class="AnyTime-secs"></div>'),this.dT.append(this.dS),i=f.labelSecond||"Second",this.dS.append(a('<h6 class="AnyTime-lbl AnyTime-lbl-sec">'+i+"</h6>")),z=a('<ul class="AnyTime-secs-tens"/>'),this.dS.append(z),e=0;6>e;e++)this.btn(z,e,function(b){var c=a(b.target);if(!c.hasClass("AnyTime-out-btn")){var d=new Date(this.time.getTime());d.setSeconds(10*Number(c.text())+this.time.getSeconds()%10),this.set(d),this.upd(c)}},["sec-ten","sec"+e+"0"],i+" "+e+"0");for(;12>e;e++)this.btn(z,"&#160;",a.noop,["sec-ten","sec"+e+"0"],i+" "+e+"0").addClass("AnyTime-sec-ten-btn-empty ui-state-default ui-state-disabled");for(A=a('<ul class="AnyTime-secs-ones"/>'),this.dS.append(A),e=0;10>e;e++)this.btn(A,e,function(b){var c=a(b.target);if(!c.hasClass("AnyTime-out-btn")){var d=new Date(this.time.getTime());d.setSeconds(10*Math.floor(this.time.getSeconds()/10)+Number(c.text())),this.set(d),this.upd(c)}},["sec-one","sec"+e],i+" "+e);for(;12>e;e++)this.btn(A,"&#160;",a.noop,["sec-one","sec"+e+"0"],i+" "+e).addClass("AnyTime-sec-one-btn-empty ui-state-default ui-state-disabled");j++}s&&(this.dO=a('<div class="AnyTime-offs" ></div>'),this.dT.append("<br />"),this.dT.append(this.dO),this.oList=a('<ul class="AnyTime-off-list ui-helper-reset" />'),this.dO.append(this.oList),this.oCur=this.btn(this.oList,"",this.newOffset,["off","off-cur"],i),this.oCur.removeClass("ui-state-default"),this.oCur.addClass("AnyTime-cur-btn ui-state-default ui-state-highlight"),this.oSel=this.btn(this.oList,"&#177;",this.newOffset,["off","off-select"],"+/- "+this.lO),this.oMinW=this.dO.outerWidth(!0),this.oLab=a('<h6 class="AnyTime-lbl AnyTime-lbl-off">'+this.lO+"</h6>"),this.dO.prepend(this.oLab),j++)}f.labelTitle?this.hTitle.append(f.labelTitle):j>1?this.hTitle.append("Select a "+(o?t?"Date and Time":"Date":"Time")):this.hTitle.append("Select");try{this.time=this.conv.parse(this.inp.val()),this.offMin=this.conv.getUtcParseOffsetCaptured(),this.offSI=this.conv.getUtcParseOffsetSubIndex()}catch(D){this.time=new Date}this.lastAjax=this.time,this.pop&&(this.div.hide(),this.div.css("position","absolute")),this.inp.blur(this.hBlur=function(a){g.inpBlur(a)}),this.inp.click(this.hClick=function(a){g.showPkr(a)}),this.inp.focus(this.hFocus=function(a){g.lostFocus&&g.showPkr(a),g.lostFocus=!1}),this.inp.keydown(this.hKeydown=function(a){g.key(a)}),this.inp.keypress(this.hKeypress=function(){}),this.div.click(function(){g.lostFocus=!1,g.inp.focus()}),a(window).resize(this.hResize=function(a){g.pos(a)}),c&&this.onReady()},ajax:function(){if(this.ajaxOpts&&this.time.getTime()!=this.lastAjax.getTime())try{var b=jQuery.extend({},this.ajaxOpts);if("object"==typeof b.data)b.data[this.inp[0].name||this.inp[0].id]=this.inp.val();else{var c=(this.inp[0].name||this.inp[0].id)+"="+encodeURI(this.inp.val());b.data?b.data+="&"+c:b.data=c}a.ajax(b),this.lastAjax=this.time}catch(d){}},askOffset:function(b){if(this.oDiv)this.cloak.show(),this.oDiv.show();else{this.makeCloak(),this.oDiv=a('<div class="AnyTime-win AnyTime-off-selector ui-widget ui-widget-content ui-corner-all"></div>'),this.div.append(this.oDiv);var c=a('<h5 class="AnyTime-hdr AnyTime-hdr-off-selector ui-widget-header ui-corner-top" />');this.oDiv.append(c),this.oBody=a('<div class="AnyTime-body AnyTime-body-off-selector"></div>'),this.oDiv.append(this.oBody);var d=a('<div class="AnyTime-x-btn ui-state-default">'+this.lX+"</div>");c.append(d),d.click(function(a){g.dismissODiv(a)}),c.append(this.lO);var e=a('<ul class="AnyTime-off-off" />'),f=null;this.oBody.append(e);var h=this.oConv.fmt.indexOf("%@")>=0;if(AnyTime.utcLabel)for(var i=-720;720>i;i++)if(AnyTime.utcLabel[i]){this.oConv.setUtcFormatOffsetAlleged(i);for(var j=0;j<AnyTime.utcLabel[i].length&&(this.oConv.setUtcFormatOffsetSubIndex(j),f=this.btn(e,this.oConv.format(this.time),this.newOPos,["off-off"],i),f[0].AnyTime_offMin=i,f[0].AnyTime_offSI=j,h);j++);}if(f&&f.addClass("AnyTime-off-off-last-btn"),this.oDiv.outerHeight(!0)>this.div.height()){var k=this.oBody.width();this.oBody.css("height","0"),this.oBody.css({height:String(this.div.height()-(this.oDiv.outerHeight(!0)+this.oBody.outerHeight(!1)))+"px",width:String(k+20)+"px"})}this.oDiv.outerWidth(!0)>this.div.width()&&(this.oBody.css("width","0"),this.oBody.css("width",String(this.div.width()-(this.oDiv.outerWidth(!0)+this.oBody.outerWidth(!1)))+"px"))}this.pos(b),this.updODiv(null);var l=this.oDiv.find(".AnyTime-off-off-btn.AnyTime-cur-btn:first");l.length||(l=this.oDiv.find(".AnyTime-off-off-btn:first")),this.setFocus(l)},askYear:function(b){if(this.yDiv)this.cloak.show(),this.yDiv.show();else{this.makeCloak(),this.yDiv=a('<div class="AnyTime-win AnyTime-yr-selector ui-widget ui-widget-content ui-corner-all"></div>'),this.div.append(this.yDiv);var c=a('<h5 class="AnyTime-hdr AnyTime-hdr-yr-selector ui-widget-header ui-corner-top" />');this.yDiv.append(c);var d=a('<div class="AnyTime-x-btn ui-state-default">'+this.lX+"</div>");c.append(d),d.click(function(a){g.dismissYDiv(a)}),c.append(this.lY);var e=a('<div class="AnyTime-body AnyTime-body-yr-selector" ></div>');for(this.yDiv.append(e),cont=a('<ul class="AnyTime-yr-mil" />'),e.append(cont),this.y0XXX=this.btn(cont,0,this.newYPos,["mil","mil0"],this.lY+" 0000"),i=1;10>i;i++)this.btn(cont,i,this.newYPos,["mil","mil"+i],this.lY+" "+i+"000");for(cont=a('<ul class="AnyTime-yr-cent" />'),e.append(cont),i=0;10>i;i++)this.btn(cont,i,this.newYPos,["cent","cent"+i],this.lY+" "+i+"00");for(cont=a('<ul class="AnyTime-yr-dec" />'),e.append(cont),i=0;10>i;i++)this.btn(cont,i,this.newYPos,["dec","dec"+i],this.lY+" "+i+"0");for(cont=a('<ul class="AnyTime-yr-yr" />'),e.append(cont),i=0;10>i;i++)this.btn(cont,i,this.newYPos,["yr","yr"+i],this.lY+" "+i);this.askEra&&(cont=a('<ul class="AnyTime-yr-era" />'),e.append(cont),this.btn(cont,this.conv.eAbbr[0],function(b){var c=new Date(this.time.getTime()),d=c.getFullYear();d>0&&c.setFullYear(0-d),this.set(c),this.updYDiv(a(b.target))},["era","bce"],this.conv.eAbbr[0]),this.btn(cont,this.conv.eAbbr[1],function(b){var c=new Date(this.time.getTime()),d=c.getFullYear();0>d&&c.setFullYear(0-d),this.set(c),this.updYDiv(a(b.target))},["era","ce"],this.conv.eAbbr[1]))}this.pos(b),this.updYDiv(null),this.setFocus(this.yDiv.find(".AnyTime-yr-btn.AnyTime-cur-btn:first"))},inpBlur:function(a){return this.oDiv&&this.oDiv.is(":visible")?(g.inp.focus(),void 0):(this.lostFocus=!0,setTimeout(function(){g.lostFocus&&(g.div.find(".AnyTime-focus-btn").removeClass("AnyTime-focus-btn ui-state-focus"),g.pop?g.dismiss(a):g.ajax())},334),void 0)},btn:function(b,c,d,e,f){for(var h="ul"==b[0].nodeName.toLowerCase()?"li":"td",i="<"+h+' class="AnyTime-btn',j=0;j<e.length;j++)i+=" AnyTime-"+e[j]+"-btn";var k=a(i+' ui-state-default">'+c+"</"+h+">");return b.append(k),k.AnyTime_title=f,k.click(function(a){g.tempFunc=d,g.tempFunc(a)}),k.dblclick(function(b){var c=a(this);c.is(".AnyTime-off-off-btn")?g.dismissODiv(b):c.is(".AnyTime-mil-btn")||c.is(".AnyTime-cent-btn")||c.is(".AnyTime-dec-btn")||c.is(".AnyTime-yr-btn")||c.is(".AnyTime-era-btn")?g.dismissYDiv(b):g.pop&&g.dismiss(b)}),k},cleanup:function(){this.inp.prop("readonly",this.ro).off("blur",this.hBlur).off("click",this.hClick).off("focus",this.hFocus).off("keydown",this.hKeydown).off("keypress",this.hKeypress),a(window).off("resize",this.hResize),this.div.remove()},dismiss:function(){this.ajax(),this.yDiv&&this.dismissYDiv(),this.oDiv&&this.dismissODiv(),this.div.hide(),this.lostFocus=!0},dismissODiv:function(){this.oDiv.hide(),this.cloak.hide(),this.setFocus(this.oCur)},dismissYDiv:function(){this.yDiv.hide(),this.cloak.hide(),this.setFocus(this.yCur)},setFocus:function(a){if(a.hasClass("AnyTime-focus-btn")||(this.div.find(".AnyTime-focus-btn").removeClass("AnyTime-focus-btn ui-state-focus"),this.fBtn=a,a.removeClass("ui-state-default ui-state-highlight"),a.addClass("AnyTime-focus-btn ui-state-default ui-state-highlight ui-state-focus")),a.hasClass("AnyTime-off-off-btn")){var b=this.oBody.offset().top,c=a.offset().top,d=a.outerHeight(!0);b>c-d?this.oBody.scrollTop(c+this.oBody.scrollTop()-(this.oBody.innerHeight()+b)+2*d):c+d>b+this.oBody.innerHeight()&&this.oBody.scrollTop(c+this.oBody.scrollTop()-(b+d))}},key:function(a){var c,d=null,e=this,f=(this.div.find(".AnyTime-focus-btn"),a.keyCode||a.which);if(this.denyTab=!0,16==f);else if(10==f||13==f||27==f)this.oDiv&&this.oDiv.is(":visible")?this.dismissODiv(a):this.yDiv&&this.yDiv.is(":visible")?this.dismissYDiv(a):this.pop&&this.dismiss(a);else if(33==f||9==f&&a.shiftKey){if(this.fBtn.hasClass("AnyTime-off-off-btn"))9==f&&this.dismissODiv(a);else if(this.fBtn.hasClass("AnyTime-mil-btn"))9==f&&this.dismissYDiv(a);else if(this.fBtn.hasClass("AnyTime-cent-btn"))this.yDiv.find(".AnyTime-mil-btn.AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-dec-btn"))this.yDiv.find(".AnyTime-cent-btn.AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-yr-btn"))this.yDiv.find(".AnyTime-dec-btn.AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-era-btn"))this.yDiv.find(".AnyTime-yr-btn.AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.parents(".AnyTime-yrs").length){if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-mon-btn")){if(this.dY)this.yCur.triggerHandler("click");else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-dom-btn")){if(9==f&&a.shiftKey)return this.denyTab=!1,void 0;d=new Date(this.time.getTime()),a.shiftKey?d.setFullYear(d.getFullYear()-1):(c=d.getMonth()-1,d.getDate()>b[c]&&d.setDate(b[c]),d.setMonth(c)),this.keyDateChange(d)}else if(this.fBtn.hasClass("AnyTime-hr-btn")){if(d=this.dDoM||this.dMo)d.AnyTime_clickCurrent();else if(this.dY)this.yCur.triggerHandler("click");else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-min-ten-btn")){if(d=this.dH||this.dDoM||this.dMo)d.AnyTime_clickCurrent();else if(this.dY)this.yCur.triggerHandler("click");else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-min-one-btn"))this.dM.AnyTime_clickCurrent();else if(this.fBtn.hasClass("AnyTime-sec-ten-btn")){if(d=this.dM?this.dM.find(".AnyTime-mins-ones"):this.dH||this.dDoM||this.dMo)d.AnyTime_clickCurrent();else if(this.dY)this.yCur.triggerHandler("click");else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-sec-one-btn"))this.dS.AnyTime_clickCurrent();else if(this.fBtn.hasClass("AnyTime-off-btn"))if(d=this.dS?this.dS.find(".AnyTime-secs-ones"):this.dM?this.dM.find(".AnyTime-mins-ones"):this.dH||this.dDoM||this.dMo)d.AnyTime_clickCurrent();else if(this.dY)this.yCur.triggerHandler("click");else if(9==f)return this.denyTab=!1,void 0}else if(34==f||9==f){if(this.fBtn.hasClass("AnyTime-mil-btn"))this.yDiv.find(".AnyTime-cent-btn.AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-cent-btn"))this.yDiv.find(".AnyTime-dec-btn.AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-dec-btn"))this.yDiv.find(".AnyTime-yr-btn.AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-yr-btn"))d=this.yDiv.find(".AnyTime-era-btn.AnyTime-cur-btn"),d.length?d.triggerHandler("click"):9==f&&this.dismissYDiv(a);else if(this.fBtn.hasClass("AnyTime-era-btn"))9==f&&this.dismissYDiv(a);else if(this.fBtn.hasClass("AnyTime-off-off-btn"))9==f&&this.dismissODiv(a);else if(this.fBtn.parents(".AnyTime-yrs").length){if(d=this.dDoM||this.dMo||this.dH||this.dM||this.dS||this.dO)d.AnyTime_clickCurrent();else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-mon-btn")){if(d=this.dDoM||this.dH||this.dM||this.dS||this.dO)d.AnyTime_clickCurrent();else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-dom-btn"))if(9==f){if(d=this.dH||this.dM||this.dS||this.dO,!d)return this.denyTab=!1,void 0;d.AnyTime_clickCurrent()}else d=new Date(this.time.getTime()),a.shiftKey?d.setFullYear(d.getFullYear()+1):(c=d.getMonth()+1,d.getDate()>b[c]&&d.setDate(b[c]),d.setMonth(c)),this.keyDateChange(d);else if(this.fBtn.hasClass("AnyTime-hr-btn")){if(d=this.dM||this.dS||this.dO)d.AnyTime_clickCurrent();else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-min-ten-btn"))this.dM.find(".AnyTime-mins-ones .AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-min-one-btn")){if(d=this.dS||this.dO)d.AnyTime_clickCurrent();else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-sec-ten-btn"))this.dS.find(".AnyTime-secs-ones .AnyTime-cur-btn").triggerHandler("click");else if(this.fBtn.hasClass("AnyTime-sec-one-btn")){if(this.dO)this.dO.AnyTime_clickCurrent();else if(9==f)return this.denyTab=!1,void 0}else if(this.fBtn.hasClass("AnyTime-off-btn")&&9==f)return this.denyTab=!1,void 0}else if(35==f)this.fBtn.hasClass("AnyTime-mil-btn")||this.fBtn.hasClass("AnyTime-cent-btn")||this.fBtn.hasClass("AnyTime-dec-btn")||this.fBtn.hasClass("AnyTime-yr-btn")||this.fBtn.hasClass("AnyTime-era-btn")?(d=this.yDiv.find(".AnyTime-ce-btn"),d.length||(d=this.yDiv.find(".AnyTime-yr9-btn")),d.triggerHandler("click")):this.fBtn.hasClass("AnyTime-dom-btn")?(d=new Date(this.time.getTime()),d.setDate(1),d.setMonth(d.getMonth()+1),d.setDate(d.getDate()-1),a.ctrlKey&&d.setMonth(11),this.keyDateChange(d)):this.dS?this.dS.find(".AnyTime-sec9-btn").triggerHandler("click"):this.dM?this.dM.find(".AnyTime-min9-btn").triggerHandler("click"):this.dH?this.dH.find(".AnyTime-hr23-btn").triggerHandler("click"):this.dDoM?this.dDoM.find(".AnyTime-dom-btn-filled:last").triggerHandler("click"):this.dMo?this.dMo.find(".AnyTime-mon12-btn").triggerHandler("click"):this.dY&&this.yAhead.triggerHandler("click");else if(36==f)this.fBtn.hasClass("AnyTime-mil-btn")||this.fBtn.hasClass("AnyTime-cent-btn")||this.fBtn.hasClass("AnyTime-dec-btn")||this.fBtn.hasClass("AnyTime-yr-btn")||this.fBtn.hasClass("AnyTime-era-btn")?this.yDiv.find(".AnyTime-mil0-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-dom-btn")?(d=new Date(this.time.getTime()),d.setDate(1),a.ctrlKey&&d.setMonth(0),this.keyDateChange(d)):this.dY?this.yCur.triggerHandler("click"):this.dMo?this.dMo.find(".AnyTime-mon1-btn").triggerHandler("click"):this.dDoM?this.dDoM.find(".AnyTime-dom-btn-filled:first").triggerHandler("click"):this.dH?this.dH.find(".AnyTime-hr0-btn").triggerHandler("click"):this.dM?this.dM.find(".AnyTime-min00-btn").triggerHandler("click"):this.dS&&this.dS.find(".AnyTime-sec00-btn").triggerHandler("click");else if(37==f)this.fBtn.hasClass("AnyTime-dom-btn")?(d=new Date(this.time.getTime()),d.setDate(d.getDate()-1),this.keyDateChange(d)):this.keyBack();else if(38==f)this.fBtn.hasClass("AnyTime-dom-btn")?(d=new Date(this.time.getTime()),d.setDate(d.getDate()-7),this.keyDateChange(d)):this.keyBack();else if(39==f)this.fBtn.hasClass("AnyTime-dom-btn")?(d=new Date(this.time.getTime()),d.setDate(d.getDate()+1),this.keyDateChange(d)):this.keyAhead();else if(40==f)this.fBtn.hasClass("AnyTime-dom-btn")?(d=new Date(this.time.getTime()),d.setDate(d.getDate()+7),this.keyDateChange(d)):this.keyAhead();else{if((86==f||118==f)&&a.ctrlKey)return this.updVal(""),setTimeout(function(){e.showPkr(null)
+},100),void 0;this.showPkr(null)}a.preventDefault()},keyAhead:function(){this.fBtn.hasClass("AnyTime-mil9-btn")?this.yDiv.find(".AnyTime-cent0-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-cent9-btn")?this.yDiv.find(".AnyTime-dec0-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-dec9-btn")?this.yDiv.find(".AnyTime-yr0-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-yr9-btn")?this.yDiv.find(".AnyTime-bce-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-sec9-btn")||(this.fBtn.hasClass("AnyTime-sec50-btn")?this.dS.find(".AnyTime-sec0-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-min9-btn")?this.dS&&this.dS.find(".AnyTime-sec00-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-min50-btn")?this.dM.find(".AnyTime-min0-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-hr23-btn")?this.dM?this.dM.find(".AnyTime-min00-btn").triggerHandler("click"):this.dS&&this.dS.find(".AnyTime-sec00-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-hr11-btn")?this.dH.find(".AnyTime-hr12-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-mon12-btn")?this.dDoM?this.dDoM.AnyTime_clickCurrent():this.dH?this.dH.find(".AnyTime-hr0-btn").triggerHandler("click"):this.dM?this.dM.find(".AnyTime-min00-btn").triggerHandler("click"):this.dS&&this.dS.find(".AnyTime-sec00-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-yrs-ahead-btn")?this.dMo?this.dMo.find(".AnyTime-mon1-btn").triggerHandler("click"):this.dH?this.dH.find(".AnyTime-hr0-btn").triggerHandler("click"):this.dM?this.dM.find(".AnyTime-min00-btn").triggerHandler("click"):this.dS&&this.dS.find(".AnyTime-sec00-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-yr-cur-btn")?this.yNext.triggerHandler("click"):this.fBtn.next().triggerHandler("click"))},keyBack:function(){this.fBtn.hasClass("AnyTime-cent0-btn")?this.yDiv.find(".AnyTime-mil9-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-dec0-btn")?this.yDiv.find(".AnyTime-cent9-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-yr0-btn")?this.yDiv.find(".AnyTime-dec9-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-bce-btn")?this.yDiv.find(".AnyTime-yr9-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-yr-cur-btn")?this.yPrior.triggerHandler("click"):this.fBtn.hasClass("AnyTime-mon1-btn")?this.dY&&this.yCur.triggerHandler("click"):this.fBtn.hasClass("AnyTime-hr0-btn")?this.dDoM?this.dDoM.AnyTime_clickCurrent():this.dMo?this.dMo.find(".AnyTime-mon12-btn").triggerHandler("click"):this.dY&&this.yNext.triggerHandler("click"):this.fBtn.hasClass("AnyTime-hr12-btn")?this.dH.find(".AnyTime-hr11-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-min00-btn")?this.dH?this.dH.find(".AnyTime-hr23-btn").triggerHandler("click"):this.dDoM?this.dDoM.AnyTime_clickCurrent():this.dMo?this.dMo.find(".AnyTime-mon12-btn").triggerHandler("click"):this.dY&&this.yNext.triggerHandler("click"):this.fBtn.hasClass("AnyTime-min0-btn")?this.dM.find(".AnyTime-min50-btn").triggerHandler("click"):this.fBtn.hasClass("AnyTime-sec00-btn")?this.dM?this.dM.find(".AnyTime-min9-btn").triggerHandler("click"):this.dH?this.dH.find(".AnyTime-hr23-btn").triggerHandler("click"):this.dDoM?this.dDoM.AnyTime_clickCurrent():this.dMo?this.dMo.find(".AnyTime-mon12-btn").triggerHandler("click"):this.dY&&this.yNext.triggerHandler("click"):this.fBtn.hasClass("AnyTime-sec0-btn")?this.dS.find(".AnyTime-sec50-btn").triggerHandler("click"):this.fBtn.prev().triggerHandler("click")},keyDateChange:function(a){this.fBtn.hasClass("AnyTime-dom-btn")&&(this.set(a),this.upd(null),this.setFocus(this.dDoM.find(".AnyTime-cur-btn")))},makeCloak:function(){this.cloak?this.cloak.show():(this.cloak=a('<div class="AnyTime-cloak"></div>'),this.div.append(this.cloak),this.cloak.click(function(a){g.oDiv&&g.oDiv.is(":visible")?g.dismissODiv(a):g.dismissYDiv(a)}))},newHour:function(b){var c,d,e=a(b.target);if(!e.hasClass("AnyTime-out-btn")){if(this.twelveHr){var f=e.text();d=f.indexOf("a"),0>d?(d=Number(f.substr(0,f.indexOf("p"))),c=12==d?12:d+12):(d=Number(f.substr(0,d)),c=12==d?0:d)}else c=Number(e.text());d=new Date(this.time.getTime()),d.setHours(c),this.set(d),this.upd(e)}},newOffset:function(a){a.target==this.oSel[0]?this.askOffset(a):this.upd(this.oCur)},newOPos:function(b){var c=a(b.target);this.offMin=c[0].AnyTime_offMin,this.offSI=c[0].AnyTime_offSI;var d=new Date(this.time.getTime());this.set(d),this.updODiv(c)},newYear:function(b){var c=a(b.target);if(!c.hasClass("AnyTime-out-btn")){var d=c.text();if("<"==d||"&lt;"==d)this.askYear(b);else if(">"==d||"&gt;"==d)this.askYear(b);else{var e=new Date(this.time.getTime());e.setFullYear(Number(d)),this.set(e),this.upd(this.yCur)}}},newYPos:function(b){var c=a(b.target);if(!c.hasClass("AnyTime-out-btn")){var d=1,e=this.time.getFullYear();0>e&&(d=-1,e=0-e),e=AnyTime.pad(e,4),e=c.hasClass("AnyTime-mil-btn")?c.html()+e.substring(1,4):c.hasClass("AnyTime-cent-btn")?e.substring(0,1)+c.html()+e.substring(2,4):c.hasClass("AnyTime-dec-btn")?e.substring(0,2)+c.html()+e.substring(3,4):e.substring(0,3)+c.html(),"0000"==e&&(e=1);var f=new Date(this.time.getTime());f.setFullYear(d*e),this.set(f),this.updYDiv(c)}},onReady:function(){this.lostFocus=!0,this.pop?this.div.parent()!=document.body&&this.div.appendTo(document.body):this.upd(null)},pos:function(){if(this.pop){var b=this.inp.offset(),c=a(document.body).outerWidth(!0),d=this.div.outerWidth(!0),e=b.left;e+d>c-20&&(e=c-(d+20));var f=b.top-this.div.outerHeight(!0);0>f&&(f=b.top+this.inp.outerHeight(!0)),this.div.css({top:String(f)+"px",left:String(0>e?0:e)+"px"})}var g=this.div.offset();if(this.oDiv&&this.oDiv.is(":visible")){var h=this.oLab.offset();"absolute"==this.div.css("position")&&(h.top-=g.top,h.left=h.left-g.left,g={top:0,left:0});var i=this.oDiv.outerWidth(!0),j=this.div.outerWidth(!0);h.left+i>g.left+j&&(h.left=g.left+j-i,h.left<2&&(h.left=2));var k=this.oDiv.outerHeight(!0),l=this.div.outerHeight(!0);h.top+=this.oLab.outerHeight(!0),h.top+k>g.top+l&&(h.top=h.top-k),h.top<g.top&&(h.top=g.top),this.oDiv.css({top:h.top+"px",left:h.left+"px"})}else if(this.yDiv&&this.yDiv.is(":visible")){var m=this.yLab.offset();"absolute"==this.div.css("position")&&(m.top-=g.top,m.left=m.left-g.left,g={top:0,left:0}),m.left+=(this.yLab.outerWidth(!0)-this.yDiv.outerWidth(!0))/2,this.yDiv.css({top:m.top+"px",left:m.left+"px"})}this.cloak&&this.cloak.css({top:g.top+"px",left:g.left+"px",height:String(this.div.outerHeight(!0)-2)+"px",width:String(this.div.outerWidth(!0)-2)+"px"})},set:function(a){var b=a.getTime();this.time=this.earliest&&b<this.earliest?new Date(this.earliest):this.latest&&b>this.latest?new Date(this.latest):a},setEarliest:function(a){this.earliest=a,this.set(this.time)},setLatest:function(a){this.latest=a,this.set(this.time)},showPkr:function(a){try{this.time=this.conv.parse(this.inp.val()),this.offMin=this.conv.getUtcParseOffsetCaptured(),this.offSI=this.conv.getUtcParseOffsetSubIndex()}catch(b){this.time=new Date}this.set(this.time),this.upd(null),fBtn=null;var c=".AnyTime-cur-btn:first";this.dDoM?fBtn=this.dDoM.find(c):this.yCur?fBtn=this.yCur:this.dMo?fBtn=this.dMo.find(c):this.dH?fBtn=this.dH.find(c):this.dM?fBtn=this.dM.find(c):this.dS&&(fBtn=this.dS.find(c)),this.setFocus(fBtn),this.pos(a)},upd:function(b){var c=new Date(this.time.getTime());c.setMonth(0,1),c.setHours(0,0,0,0);var d=new Date(this.time.getTime());d.setMonth(11,31),d.setHours(23,59,59,999);var e=this.time.getFullYear();this.earliest&&this.yPast&&(d.setYear(e-2),d.getTime()<this.earliest?this.yPast.addClass("AnyTime-out-btn ui-state-disabled"):this.yPast.removeClass("AnyTime-out-btn ui-state-disabled")),this.yPrior&&(this.yPrior.text(AnyTime.pad(1==e?-1:e-1,4)),this.earliest&&(d.setYear(e-1),d.getTime()<this.earliest?this.yPrior.addClass("AnyTime-out-btn ui-state-disabled"):this.yPrior.removeClass("AnyTime-out-btn ui-state-disabled"))),this.yCur&&this.yCur.text(AnyTime.pad(e,4)),this.yNext&&(this.yNext.text(AnyTime.pad(-1==e?1:e+1,4)),this.latest&&(c.setYear(e+1),c.getTime()>this.latest?this.yNext.addClass("AnyTime-out-btn ui-state-disabled"):this.yNext.removeClass("AnyTime-out-btn ui-state-disabled"))),this.latest&&this.yAhead&&(c.setYear(e+2),c.getTime()>this.latest?this.yAhead.addClass("AnyTime-out-btn ui-state-disabled"):this.yAhead.removeClass("AnyTime-out-btn ui-state-disabled")),c.setFullYear(this.time.getFullYear()),d.setFullYear(this.time.getFullYear());var f=0;e=this.time.getMonth(),a("#"+this.id+" .AnyTime-mon-btn").each(function(){c.setMonth(f),d.setDate(1),d.setMonth(f+1),d.setDate(0),a(this).AnyTime_current(f==e,(!g.earliest||d.getTime()>=g.earliest)&&(!g.latest||c.getTime()<=g.latest)),f++}),c.setFullYear(this.time.getFullYear()),d.setFullYear(this.time.getFullYear()),c.setMonth(this.time.getMonth()),d.setMonth(this.time.getMonth(),1),e=this.time.getDate();var h=this.time.getMonth(),i=-1,j=c.getDay();this.fDOW>j&&(j+=7);var k=0,l=0;a("#"+this.id+" .AnyTime-wk").each(function(){l=g.fDOW,a(this).children().each(function(){if(l-g.fDOW<7){var b=a(this);0==k&&j>l||c.getMonth()!=h?(b.html("&#160;"),b.removeClass("AnyTime-dom-btn-filled AnyTime-cur-btn ui-state-default ui-state-highlight"),b.addClass("AnyTime-dom-btn-empty"),k?(1==c.getDate()&&0!=l?b.addClass("AnyTime-dom-btn-empty-after-filled"):b.removeClass("AnyTime-dom-btn-empty-after-filled"),c.getDate()<=7?b.addClass("AnyTime-dom-btn-empty-below-filled"):b.removeClass("AnyTime-dom-btn-empty-below-filled"),c.setDate(c.getDate()+1),d.setDate(d.getDate()+1)):(b.addClass("AnyTime-dom-btn-empty-above-filled"),l==j-1?b.addClass("AnyTime-dom-btn-empty-before-filled"):b.removeClass("AnyTime-dom-btn-empty-before-filled")),b.addClass("ui-state-default ui-state-disabled")):((f=c.getDate())==i&&c.setDate(++f),i=f,b.text(f),b.removeClass("AnyTime-dom-btn-empty AnyTime-dom-btn-empty-above-filled AnyTime-dom-btn-empty-before-filled AnyTime-dom-btn-empty-after-filled AnyTime-dom-btn-empty-below-filled ui-state-default ui-state-disabled"),b.addClass("AnyTime-dom-btn-filled ui-state-default"),b.AnyTime_current(f==e,(!g.earliest||d.getTime()>=g.earliest)&&(!g.latest||c.getTime()<=g.latest)),c.setDate(f+1),d.setDate(f+1))}l++}),k++}),c.setFullYear(this.time.getFullYear()),d.setFullYear(this.time.getFullYear()),c.setMonth(this.time.getMonth(),this.time.getDate()),d.setMonth(this.time.getMonth(),this.time.getDate());var m=!this.twelveHr,n=this.time.getHours();a("#"+this.id+" .AnyTime-hr-btn").each(function(){var b,e=this.innerHTML;m?b=Number(e):(b=Number(e.substring(0,e.length-2)),"a"==e.charAt(e.length-2)?12==b&&(b=0):12>b&&(b+=12)),c.setHours(b),d.setHours(b),a(this).AnyTime_current(n==b,(!g.earliest||d.getTime()>=g.earliest)&&(!g.latest||c.getTime()<=g.latest)),23>b&&c.setHours(c.getHours()+1)}),c.setHours(this.time.getHours()),d.setHours(this.time.getHours(),9);var o=this.time.getMinutes(),p=String(Math.floor(o/10)),q=String(o%10);if(a("#"+this.id+" .AnyTime-min-ten-btn:not(.AnyTime-min-ten-btn-empty)").each(function(){a(this).AnyTime_current(this.innerHTML==p,(!g.earliest||d.getTime()>=g.earliest)&&(!g.latest||c.getTime()<=g.latest)),c.getMinutes()<50&&(c.setMinutes(c.getMinutes()+10),d.setMinutes(d.getMinutes()+10))}),c.setMinutes(10*Math.floor(this.time.getMinutes()/10)),d.setMinutes(10*Math.floor(this.time.getMinutes()/10)),a("#"+this.id+" .AnyTime-min-one-btn:not(.AnyTime-min-one-btn-empty)").each(function(){a(this).AnyTime_current(this.innerHTML==q,(!g.earliest||d.getTime()>=g.earliest)&&(!g.latest||c.getTime()<=g.latest)),c.setMinutes(c.getMinutes()+1),d.setMinutes(d.getMinutes()+1)}),c.setMinutes(this.time.getMinutes()),d.setMinutes(this.time.getMinutes(),9),o=this.time.getSeconds(),p=String(Math.floor(o/10)),q=String(o%10),a("#"+this.id+" .AnyTime-sec-ten-btn:not(.AnyTime-sec-ten-btn-empty)").each(function(){a(this).AnyTime_current(this.innerHTML==p,(!g.earliest||d.getTime()>=g.earliest)&&(!g.latest||c.getTime()<=g.latest)),c.getSeconds()<50&&(c.setSeconds(c.getSeconds()+10),d.setSeconds(d.getSeconds()+10))}),c.setSeconds(10*Math.floor(this.time.getSeconds()/10)),d.setSeconds(10*Math.floor(this.time.getSeconds()/10)),a("#"+this.id+" .AnyTime-sec-one-btn:not(.AnyTime-sec-one-btn-empty)").each(function(){a(this).AnyTime_current(this.innerHTML==q,(!g.earliest||d.getTime()>=g.earliest)&&(!g.latest||c.getTime()<=g.latest)),c.setSeconds(c.getSeconds()+1),d.setSeconds(d.getSeconds()+1)}),this.oConv){this.oConv.setUtcFormatOffsetAlleged(this.offMin),this.oConv.setUtcFormatOffsetSubIndex(this.offSI);var r=this.oConv.format(this.time);this.oCur.html(r)}if(b&&this.setFocus(b),this.conv.setUtcFormatOffsetAlleged(this.offMin),this.conv.setUtcFormatOffsetSubIndex(this.offSI),this.updVal(this.conv.format(this.time)),this.div.show(),this.dO){this.oCur.css("width","0");var s=this.dT.width()-this.oMinW;40>s&&(s=40),this.oCur.css("width",String(s)+"px")}this.pop||this.ajax()},updODiv:function(b){var c=!1,d=null;this.oDiv.find(".AnyTime-off-off-btn").each(function(){this.AnyTime_offMin==g.offMin?this.AnyTime_offSI==g.offSI?a(this).AnyTime_current(c=!0,!0):(a(this).AnyTime_current(!1,!0),null==d&&(d=a(this))):a(this).AnyTime_current(!1,!0)}),c||null==d||d.AnyTime_current(!0,!0),this.conv.setUtcFormatOffsetAlleged(this.offMin),this.conv.setUtcFormatOffsetSubIndex(this.offSI),this.updVal(this.conv.format(this.time)),this.upd(b)},updYDiv:function(b){var c,d,e=1,f=this.time.getFullYear();0>f&&(e=-1,f=0-f),f=AnyTime.pad(f,4);var h=g.earliest&&new Date(g.earliest).getFullYear(),i=g.latest&&new Date(g.latest).getFullYear();c=0,this.yDiv.find(".AnyTime-mil-btn").each(function(){d=(!g.earliest||e*(c+(0>e?0:999))>=h)&&(!g.latest||i>=e*(c+(e>0?0:999))),a(this).AnyTime_current(this.innerHTML==f.substring(0,1),d),c+=1e3}),c=1e3*Math.floor(f/1e3),this.yDiv.find(".AnyTime-cent-btn").each(function(){d=(!g.earliest||e*(c+(0>e?0:99))>=h)&&(!g.latest||i>=e*(c+(e>0?0:99))),a(this).AnyTime_current(this.innerHTML==f.substring(1,2),d),c+=100}),c=100*Math.floor(f/100),this.yDiv.find(".AnyTime-dec-btn").each(function(){d=(!g.earliest||e*(c+(0>e?0:9))>=h)&&(!g.latest||i>=e*(c+(e>0?0:9))),a(this).AnyTime_current(this.innerHTML==f.substring(2,3),d),c+=10}),c=10*Math.floor(f/10),this.yDiv.find(".AnyTime-yr-btn").each(function(){d=(!g.earliest||e*c>=h)&&(!g.latest||i>=e*c),a(this).AnyTime_current(this.innerHTML==f.substring(3),d),c+=1}),this.yDiv.find(".AnyTime-bce-btn").each(function(){a(this).AnyTime_current(0>e,!g.earliest||g.earliest<0)}),this.yDiv.find(".AnyTime-ce-btn").each(function(){a(this).AnyTime_current(e>0,!g.latest||g.latest>0)}),this.conv.setUtcFormatOffsetAlleged(this.offMin),this.conv.setUtcFormatOffsetSubIndex(this.offSI),this.updVal(this.conv.format(this.time)),this.upd(b)},updVal:function(a){this.inp.val()!=a&&(this.inp.val(a),this.inp.change())}},d[e].initialize(e)},AnyTime.setEarliest=function(a,b){d[a].setEarliest(b)},AnyTime.setLatest=function(a,b){d[a].setLatest(b)}}(jQuery);
+/*!
+ * pickadate.js v3.5.3, 2014/07/12
+ * By Amsul, http://amsul.ca
+ * Hosted on http://amsul.github.io/pickadate.js
+ * Licensed under MIT
+ */
+
+(function ( factory ) {
+
+    // AMD.
+    if ( typeof define == 'function' && define.amd )
+        define( 'picker', ['jquery'], factory )
+
+    // Node.js/browserify.
+    else if ( typeof exports == 'object' )
+        module.exports = factory( require('jquery') )
+
+    // Browser globals.
+    else this.Picker = factory( jQuery )
+
+}(function( $ ) {
+
+var $window = $( window )
+var $document = $( document )
+var $html = $( document.documentElement )
+
+
+/**
+ * The picker constructor that creates a blank picker.
+ */
+function PickerConstructor( ELEMENT, NAME, COMPONENT, OPTIONS ) {
+
+    // If there’s no element, return the picker constructor.
+    if ( !ELEMENT ) return PickerConstructor
+
+
+    var
+        IS_DEFAULT_THEME = false,
+
+
+        // The state of the picker.
+        STATE = {
+            id: ELEMENT.id || 'P' + Math.abs( ~~(Math.random() * new Date()) )
+        },
+
+
+        // Merge the defaults and options passed.
+        SETTINGS = COMPONENT ? $.extend( true, {}, COMPONENT.defaults, OPTIONS ) : OPTIONS || {},
+
+
+        // Merge the default classes with the settings classes.
+        CLASSES = $.extend( {}, PickerConstructor.klasses(), SETTINGS.klass ),
+
+
+        // The element node wrapper into a jQuery object.
+        $ELEMENT = $( ELEMENT ),
+
+
+        // Pseudo picker constructor.
+        PickerInstance = function() {
+            return this.start()
+        },
+
+
+        // The picker prototype.
+        P = PickerInstance.prototype = {
+
+            constructor: PickerInstance,
+
+            $node: $ELEMENT,
+
+
+            /**
+             * Initialize everything
+             */
+            start: function() {
+
+                // If it’s already started, do nothing.
+                if ( STATE && STATE.start ) return P
+
+
+                // Update the picker states.
+                STATE.methods = {}
+                STATE.start = true
+                STATE.open = false
+                STATE.type = ELEMENT.type
+
+
+                // Confirm focus state, convert into text input to remove UA stylings,
+                // and set as readonly to prevent keyboard popup.
+                ELEMENT.autofocus = ELEMENT == document.activeElement
+                ELEMENT.readOnly = !SETTINGS.editable
+                ELEMENT.id = ELEMENT.id || STATE.id
+                if ( ELEMENT.type != 'text' ) {
+                    ELEMENT.type = 'text'
+                }
+
+
+                // Create a new picker component with the settings.
+                P.component = new COMPONENT(P, SETTINGS)
+
+
+                // Create the picker root with a holder and then prepare it.
+                P.$root = $( PickerConstructor._.node('div', createWrappedComponent(), CLASSES.picker, 'id="' + ELEMENT.id + '_root"') )
+                prepareElementRoot()
+
+
+                // If there’s a format for the hidden input element, create the element.
+                if ( SETTINGS.formatSubmit ) {
+                    prepareElementHidden()
+                }
+
+
+                // Prepare the input element.
+                prepareElement()
+
+
+                // Insert the root as specified in the settings.
+                if ( SETTINGS.container ) $( SETTINGS.container ).append( P.$root )
+                else $ELEMENT.after( P.$root )
+
+
+                // Bind the default component and settings events.
+                P.on({
+                    start: P.component.onStart,
+                    render: P.component.onRender,
+                    stop: P.component.onStop,
+                    open: P.component.onOpen,
+                    close: P.component.onClose,
+                    set: P.component.onSet
+                }).on({
+                    start: SETTINGS.onStart,
+                    render: SETTINGS.onRender,
+                    stop: SETTINGS.onStop,
+                    open: SETTINGS.onOpen,
+                    close: SETTINGS.onClose,
+                    set: SETTINGS.onSet
+                })
+
+
+                // Once we’re all set, check the theme in use.
+                IS_DEFAULT_THEME = isUsingDefaultTheme( P.$root.children()[ 0 ] )
+
+
+                // If the element has autofocus, open the picker.
+                if ( ELEMENT.autofocus ) {
+                    P.open()
+                }
+
+
+                // Trigger queued the “start” and “render” events.
+                return P.trigger( 'start' ).trigger( 'render' )
+            }, //start
+
+
+            /**
+             * Render a new picker
+             */
+            render: function( entireComponent ) {
+
+                // Insert a new component holder in the root or box.
+                if ( entireComponent ) P.$root.html( createWrappedComponent() )
+                else P.$root.find( '.' + CLASSES.box ).html( P.component.nodes( STATE.open ) )
+
+                // Trigger the queued “render” events.
+                return P.trigger( 'render' )
+            }, //render
+
+
+            /**
+             * Destroy everything
+             */
+            stop: function() {
+
+                // If it’s already stopped, do nothing.
+                if ( !STATE.start ) return P
+
+                // Then close the picker.
+                P.close()
+
+                // Remove the hidden field.
+                if ( P._hidden ) {
+                    P._hidden.parentNode.removeChild( P._hidden )
+                }
+
+                // Remove the root.
+                P.$root.remove()
+
+                // Remove the input class, remove the stored data, and unbind
+                // the events (after a tick for IE - see `P.close`).
+                $ELEMENT.removeClass( CLASSES.input ).removeData( NAME )
+                setTimeout( function() {
+                    $ELEMENT.off( '.' + STATE.id )
+                }, 0)
+
+                // Restore the element state
+                ELEMENT.type = STATE.type
+                ELEMENT.readOnly = false
+
+                // Trigger the queued “stop” events.
+                P.trigger( 'stop' )
+
+                // Reset the picker states.
+                STATE.methods = {}
+                STATE.start = false
+
+                return P
+            }, //stop
+
+
+            /**
+             * Open up the picker
+             */
+            open: function( dontGiveFocus ) {
+
+                // If it’s already open, do nothing.
+                if ( STATE.open ) return P
+
+                // Add the “active” class.
+                $ELEMENT.addClass( CLASSES.active )
+                aria( ELEMENT, 'expanded', true )
+
+                // * A Firefox bug, when `html` has `overflow:hidden`, results in
+                //   killing transitions :(. So add the “opened” state on the next tick.
+                //   Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=625289
+                setTimeout( function() {
+
+                    // Add the “opened” class to the picker root.
+                    P.$root.addClass( CLASSES.opened )
+                    aria( P.$root[0], 'hidden', false )
+
+                }, 0 )
+
+                // If we have to give focus, bind the element and doc events.
+                if ( dontGiveFocus !== false ) {
+
+                    // Set it as open.
+                    STATE.open = true
+
+                    // Prevent the page from scrolling.
+                    if ( IS_DEFAULT_THEME ) {
+                        $html.
+                            css( 'overflow', 'hidden' ).
+                            css( 'padding-right', '+=' + getScrollbarWidth() )
+                    }
+
+                    // Pass focus to the element’s jQuery object.
+                    $ELEMENT.trigger( 'focus' )
+
+                    // Bind the document events.
+                    $document.on( 'click.' + STATE.id + ' focusin.' + STATE.id, function( event ) {
+
+                        var target = event.target
+
+                        // If the target of the event is not the element, close the picker picker.
+                        // * Don’t worry about clicks or focusins on the root because those don’t bubble up.
+                        //   Also, for Firefox, a click on an `option` element bubbles up directly
+                        //   to the doc. So make sure the target wasn't the doc.
+                        // * In Firefox stopPropagation() doesn’t prevent right-click events from bubbling,
+                        //   which causes the picker to unexpectedly close when right-clicking it. So make
+                        //   sure the event wasn’t a right-click.
+                        if ( target != ELEMENT && target != document && event.which != 3 ) {
+
+                            // If the target was the holder that covers the screen,
+                            // keep the element focused to maintain tabindex.
+                            P.close( target === P.$root.children()[0] )
+                        }
+
+                    }).on( 'keydown.' + STATE.id, function( event ) {
+
+                        var
+                            // Get the keycode.
+                            keycode = event.keyCode,
+
+                            // Translate that to a selection change.
+                            keycodeToMove = P.component.key[ keycode ],
+
+                            // Grab the target.
+                            target = event.target
+
+
+                        // On escape, close the picker and give focus.
+                        if ( keycode == 27 ) {
+                            P.close( true )
+                        }
+
+
+                        // Check if there is a key movement or “enter” keypress on the element.
+                        else if ( target == ELEMENT && ( keycodeToMove || keycode == 13 ) ) {
+
+                            // Prevent the default action to stop page movement.
+                            event.preventDefault()
+
+                            // Trigger the key movement action.
+                            if ( keycodeToMove ) {
+                                PickerConstructor._.trigger( P.component.key.go, P, [ PickerConstructor._.trigger( keycodeToMove ) ] )
+                            }
+
+                            // On “enter”, if the highlighted item isn’t disabled, set the value and close.
+                            else if ( !P.$root.find( '.' + CLASSES.highlighted ).hasClass( CLASSES.disabled ) ) {
+                                P.set( 'select', P.component.item.highlight ).close()
+                            }
+                        }
+
+
+                        // If the target is within the root and “enter” is pressed,
+                        // prevent the default action and trigger a click on the target instead.
+                        else if ( $.contains( P.$root[0], target ) && keycode == 13 ) {
+                            event.preventDefault()
+                            target.click()
+                        }
+                    })
+                }
+
+                // Trigger the queued “open” events.
+                return P.trigger( 'open' )
+            }, //open
+
+
+            /**
+             * Close the picker
+             */
+            close: function( giveFocus ) {
+
+                // If we need to give focus, do it before changing states.
+                if ( giveFocus ) {
+                    // ....ah yes! It would’ve been incomplete without a crazy workaround for IE :|
+                    // The focus is triggered *after* the close has completed - causing it
+                    // to open again. So unbind and rebind the event at the next tick.
+                    $ELEMENT.off( 'focus.' + STATE.id ).trigger( 'focus' )
+                    setTimeout( function() {
+                        $ELEMENT.on( 'focus.' + STATE.id, focusToOpen )
+                    }, 0 )
+                }
+
+                // Remove the “active” class.
+                $ELEMENT.removeClass( CLASSES.active )
+                aria( ELEMENT, 'expanded', false )
+
+                // * A Firefox bug, when `html` has `overflow:hidden`, results in
+                //   killing transitions :(. So remove the “opened” state on the next tick.
+                //   Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=625289
+                setTimeout( function() {
+
+                    // Remove the “opened” and “focused” class from the picker root.
+                    P.$root.removeClass( CLASSES.opened + ' ' + CLASSES.focused )
+                    aria( P.$root[0], 'hidden', true )
+
+                }, 0 )
+
+                // If it’s already closed, do nothing more.
+                if ( !STATE.open ) return P
+
+                // Set it as closed.
+                STATE.open = false
+
+                // Allow the page to scroll.
+                if ( IS_DEFAULT_THEME ) {
+                    $html.
+                        css( 'overflow', '' ).
+                        css( 'padding-right', '-=' + getScrollbarWidth() )
+                }
+
+                // Unbind the document events.
+                $document.off( '.' + STATE.id )
+
+                // Trigger the queued “close” events.
+                return P.trigger( 'close' )
+            }, //close
+
+
+            /**
+             * Clear the values
+             */
+            clear: function( options ) {
+                return P.set( 'clear', null, options )
+            }, //clear
+
+
+            /**
+             * Set something
+             */
+            set: function( thing, value, options ) {
+
+                var thingItem, thingValue,
+                    thingIsObject = $.isPlainObject( thing ),
+                    thingObject = thingIsObject ? thing : {}
+
+                // Make sure we have usable options.
+                options = thingIsObject && $.isPlainObject( value ) ? value : options || {}
+
+                if ( thing ) {
+
+                    // If the thing isn’t an object, make it one.
+                    if ( !thingIsObject ) {
+                        thingObject[ thing ] = value
+                    }
+
+                    // Go through the things of items to set.
+                    for ( thingItem in thingObject ) {
+
+                        // Grab the value of the thing.
+                        thingValue = thingObject[ thingItem ]
+
+                        // First, if the item exists and there’s a value, set it.
+                        if ( thingItem in P.component.item ) {
+                            if ( thingValue === undefined ) thingValue = null
+                            P.component.set( thingItem, thingValue, options )
+                        }
+
+                        // Then, check to update the element value and broadcast a change.
+                        if ( thingItem == 'select' || thingItem == 'clear' ) {
+                            $ELEMENT.
+                                val( thingItem == 'clear' ? '' : P.get( thingItem, SETTINGS.format ) ).
+                                trigger( 'change' )
+                        }
+                    }
+
+                    // Render a new picker.
+                    P.render()
+                }
+
+                // When the method isn’t muted, trigger queued “set” events and pass the `thingObject`.
+                return options.muted ? P : P.trigger( 'set', thingObject )
+            }, //set
+
+
+            /**
+             * Get something
+             */
+            get: function( thing, format ) {
+
+                // Make sure there’s something to get.
+                thing = thing || 'value'
+
+                // If a picker state exists, return that.
+                if ( STATE[ thing ] != null ) {
+                    return STATE[ thing ]
+                }
+
+                // Return the value, if that.
+                if ( thing == 'value' ) {
+                    return ELEMENT.value
+                }
+
+                // Check if a component item exists, return that.
+                if ( thing in P.component.item ) {
+                    if ( typeof format == 'string' ) {
+                        var thingValue = P.component.get( thing )
+                        return thingValue ?
+                            PickerConstructor._.trigger(
+                                P.component.formats.toString,
+                                P.component,
+                                [ format, thingValue ]
+                            ) : ''
+                    }
+                    return P.component.get( thing )
+                }
+            }, //get
+
+
+
+            /**
+             * Bind events on the things.
+             */
+            on: function( thing, method, internal ) {
+
+                var thingName, thingMethod,
+                    thingIsObject = $.isPlainObject( thing ),
+                    thingObject = thingIsObject ? thing : {}
+
+                if ( thing ) {
+
+                    // If the thing isn’t an object, make it one.
+                    if ( !thingIsObject ) {
+                        thingObject[ thing ] = method
+                    }
+
+                    // Go through the things to bind to.
+                    for ( thingName in thingObject ) {
+
+                        // Grab the method of the thing.
+                        thingMethod = thingObject[ thingName ]
+
+                        // If it was an internal binding, prefix it.
+                        if ( internal ) {
+                            thingName = '_' + thingName
+                        }
+
+                        // Make sure the thing methods collection exists.
+                        STATE.methods[ thingName ] = STATE.methods[ thingName ] || []
+
+                        // Add the method to the relative method collection.
+                        STATE.methods[ thingName ].push( thingMethod )
+                    }
+                }
+
+                return P
+            }, //on
+
+
+
+            /**
+             * Unbind events on the things.
+             */
+            off: function() {
+                var i, thingName,
+                    names = arguments;
+                for ( i = 0, namesCount = names.length; i < namesCount; i += 1 ) {
+                    thingName = names[i]
+                    if ( thingName in STATE.methods ) {
+                        delete STATE.methods[thingName]
+                    }
+                }
+                return P
+            },
+
+
+            /**
+             * Fire off method events.
+             */
+            trigger: function( name, data ) {
+                var _trigger = function( name ) {
+                    var methodList = STATE.methods[ name ]
+                    if ( methodList ) {
+                        methodList.map( function( method ) {
+                            PickerConstructor._.trigger( method, P, [ data ] )
+                        })
+                    }
+                }
+                _trigger( '_' + name )
+                _trigger( name )
+                return P
+            } //trigger
+        } //PickerInstance.prototype
+
+
+    /**
+     * Wrap the picker holder components together.
+     */
+    function createWrappedComponent() {
+
+        // Create a picker wrapper holder
+        return PickerConstructor._.node( 'div',
+
+            // Create a picker wrapper node
+            PickerConstructor._.node( 'div',
+
+                // Create a picker frame
+                PickerConstructor._.node( 'div',
+
+                    // Create a picker box node
+                    PickerConstructor._.node( 'div',
+
+                        // Create the components nodes.
+                        P.component.nodes( STATE.open ),
+
+                        // The picker box class
+                        CLASSES.box
+                    ),
+
+                    // Picker wrap class
+                    CLASSES.wrap
+                ),
+
+                // Picker frame class
+                CLASSES.frame
+            ),
+
+            // Picker holder class
+            CLASSES.holder
+        ) //endreturn
+    } //createWrappedComponent
+
+
+
+    /**
+     * Prepare the input element with all bindings.
+     */
+    function prepareElement() {
+
+        $ELEMENT.
+
+            // Store the picker data by component name.
+            data(NAME, P).
+
+            // Add the “input” class name.
+            addClass(CLASSES.input).
+
+            // If there’s a `data-value`, update the value of the element.
+            val( $ELEMENT.data('value') ?
+                P.get('select', SETTINGS.format) :
+                ELEMENT.value
+            ).
+
+            // On focus/click, open the picker and adjust the root “focused” state.
+            on('focus.' + STATE.id + ' click.' + STATE.id, focusToOpen)
+
+
+        // Only bind keydown events if the element isn’t editable.
+        if ( !SETTINGS.editable ) {
+
+            // Handle keyboard event based on the picker being opened or not.
+            $ELEMENT.on('keydown.' + STATE.id, function(event) {
+
+                var keycode = event.keyCode,
+
+                    // Check if one of the delete keys was pressed.
+                    isKeycodeDelete = /^(8|46)$/.test(keycode)
+
+                // For some reason IE clears the input value on “escape”.
+                if ( keycode == 27 ) {
+                    P.close()
+                    return false
+                }
+
+                // Check if `space` or `delete` was pressed or the picker is closed with a key movement.
+                if ( keycode == 32 || isKeycodeDelete || !STATE.open && P.component.key[keycode] ) {
+
+                    // Prevent it from moving the page and bubbling to doc.
+                    event.preventDefault()
+                    event.stopPropagation()
+
+                    // If `delete` was pressed, clear the values and close the picker.
+                    // Otherwise open the picker.
+                    if ( isKeycodeDelete ) { P.clear().close() }
+                    else { P.open() }
+                }
+            })
+        }
+
+
+        // Update the aria attributes.
+        aria(ELEMENT, {
+            haspopup: true,
+            expanded: false,
+            readonly: false,
+            owns: ELEMENT.id + '_root' + (P._hidden ? ' ' + P._hidden.id : '')
+        })
+    }
+
+
+    /**
+     * Prepare the root picker element with all bindings.
+     */
+    function prepareElementRoot() {
+
+        P.$root.
+
+            on({
+
+                // When something within the root is focused, stop from bubbling
+                // to the doc and remove the “focused” state from the root.
+                focusin: function( event ) {
+                    P.$root.removeClass( CLASSES.focused )
+                    event.stopPropagation()
+                },
+
+                // When something within the root holder is clicked, stop it
+                // from bubbling to the doc.
+                'mousedown click': function( event ) {
+
+                    var target = event.target
+
+                    // Make sure the target isn’t the root holder so it can bubble up.
+                    if ( target != P.$root.children()[ 0 ] ) {
+
+                        event.stopPropagation()
+
+                        // * For mousedown events, cancel the default action in order to
+                        //   prevent cases where focus is shifted onto external elements
+                        //   when using things like jQuery mobile or MagnificPopup (ref: #249 & #120).
+                        //   Also, for Firefox, don’t prevent action on the `option` element.
+                        if ( event.type == 'mousedown' && !$( target ).is( ':input' ) && target.nodeName != 'OPTION' ) {
+
+                            event.preventDefault()
+
+                            // Re-focus onto the element so that users can click away
+                            // from elements focused within the picker.
+                            ELEMENT.focus()
+                        }
+                    }
+                }
+            }).
+
+            // If there’s a click on an actionable element, carry out the actions.
+            on( 'click', '[data-pick], [data-nav], [data-clear]', function() {
+
+                var $target = $( this ),
+                    targetData = $target.data(),
+                    targetDisabled = $target.hasClass( CLASSES.navDisabled ) || $target.hasClass( CLASSES.disabled ),
+
+                    // * For IE, non-focusable elements can be active elements as well
+                    //   (http://stackoverflow.com/a/2684561).
+                    activeElement = document.activeElement
+                    activeElement = activeElement && ( activeElement.type || activeElement.href ) && activeElement
+
+                // If it’s disabled or nothing inside is actively focused, re-focus the element.
+                if ( targetDisabled || activeElement && !$.contains( P.$root[0], activeElement ) ) {
+                    ELEMENT.focus()
+                }
+
+                // If something is superficially changed, update the `highlight` based on the `nav`.
+                if ( targetData.nav && !targetDisabled ) {
+                    P.set( 'highlight', P.component.item.highlight, { nav: targetData.nav } )
+                }
+
+                // If something is picked, set `select` then close with focus.
+                else if ( PickerConstructor._.isInteger( targetData.pick ) && !targetDisabled ) {
+                    P.set( 'select', targetData.pick ).close( true )
+                }
+
+                // If a “clear” button is pressed, empty the values and close with focus.
+                else if ( targetData.clear ) {
+                    P.clear().close( true )
+                }
+            })
+            .on('click', '[data-close]', function () {
+                P.close(true);
+            }) //P.$root
+
+        aria( P.$root[0], 'hidden', true )
+    }
+
+
+     /**
+      * Prepare the hidden input element along with all bindings.
+      */
+    function prepareElementHidden() {
+
+        var name
+
+        if ( SETTINGS.hiddenName === true ) {
+            name = ELEMENT.name
+            ELEMENT.name = ''
+        }
+        else {
+            name = [
+                typeof SETTINGS.hiddenPrefix == 'string' ? SETTINGS.hiddenPrefix : '',
+                typeof SETTINGS.hiddenSuffix == 'string' ? SETTINGS.hiddenSuffix : '_submit'
+            ]
+            name = name[0] + ELEMENT.name + name[1]
+        }
+
+        P._hidden = $(
+            '<input ' +
+            'type=hidden ' +
+
+            // Create the name using the original input’s with a prefix and suffix.
+            'name="' + name + '"' +
+
+            // Create the ID using the original input’s; only if it has one.
+            (ELEMENT.id ? 'id="' + ELEMENT.id + '_hidden"' : '') +
+
+            // If the element has a value, set the hidden value as well.
+            (
+                $ELEMENT.data('value') || ELEMENT.value ?
+                    ' value="' + P.get('select', SETTINGS.formatSubmit) + '"' :
+                    ''
+            ) +
+            '>'
+        )[0]
+
+        $ELEMENT.
+
+            // If the value changes, update the hidden input with the correct format.
+            on('change.' + STATE.id, function() {
+                P._hidden.value = ELEMENT.value ?
+                    P.get('select', SETTINGS.formatSubmit) :
+                    ''
+            }).
+
+            // Insert the hidden input after the element.
+            after(P._hidden)
+    }
+
+
+    // Separated for IE
+    function focusToOpen( event ) {
+
+        // Stop the event from propagating to the doc.
+        event.stopPropagation()
+
+        // If it’s a focus event, add the “focused” class to the root.
+        if ( event.type == 'focus' ) {
+            P.$root.addClass( CLASSES.focused )
+        }
+
+        // And then finally open the picker.
+        P.open()
+    }
+
+
+    // Return a new picker instance.
+    return new PickerInstance()
+} //PickerConstructor
+
+
+
+/**
+ * The default classes and prefix to use for the HTML classes.
+ */
+PickerConstructor.klasses = function( prefix ) {
+    prefix = prefix || 'picker'
+    return {
+
+        picker: prefix,
+        opened: prefix + '--opened',
+        focused: prefix + '--focused',
+
+        input: prefix + '__input',
+        active: prefix + '__input--active',
+
+        holder: prefix + '__holder',
+
+        frame: prefix + '__frame',
+        wrap: prefix + '__wrap',
+
+        box: prefix + '__box'
+    }
+} //PickerConstructor.klasses
+
+
+
+/**
+ * Check if the default theme is being used.
+ */
+function isUsingDefaultTheme( element ) {
+
+    var theme,
+        prop = 'position'
+
+    // For IE.
+    if ( element.currentStyle ) {
+        theme = element.currentStyle[prop]
+    }
+
+    // For normal browsers.
+    else if ( window.getComputedStyle ) {
+        theme = getComputedStyle( element )[prop]
+    }
+
+    return theme == 'fixed'
+}
+
+
+
+/**
+ * Get the width of the browser’s scrollbar.
+ * Taken from: https://github.com/VodkaBears/Remodal/blob/master/src/jquery.remodal.js
+ */
+function getScrollbarWidth() {
+
+    if ( $html.height() <= $window.height() ) {
+        return 0
+    }
+
+    var $outer = $( '<div style="visibility:hidden;width:100px" />' ).
+        appendTo( 'body' )
+
+    // Get the width without scrollbars.
+    var widthWithoutScroll = $outer[0].offsetWidth
+
+    // Force adding scrollbars.
+    $outer.css( 'overflow', 'scroll' )
+
+    // Add the inner div.
+    var $inner = $( '<div style="width:100%" />' ).appendTo( $outer )
+
+    // Get the width with scrollbars.
+    var widthWithScroll = $inner[0].offsetWidth
+
+    // Remove the divs.
+    $outer.remove()
+
+    // Return the difference between the widths.
+    return widthWithoutScroll - widthWithScroll
+}
+
+
+
+/**
+ * PickerConstructor helper methods.
+ */
+PickerConstructor._ = {
+
+    /**
+     * Create a group of nodes. Expects:
+     * `
+        {
+            min:    {Integer},
+            max:    {Integer},
+            i:      {Integer},
+            node:   {String},
+            item:   {Function}
+        }
+     * `
+     */
+    group: function( groupObject ) {
+
+        var
+            // Scope for the looped object
+            loopObjectScope,
+
+            // Create the nodes list
+            nodesList = '',
+
+            // The counter starts from the `min`
+            counter = PickerConstructor._.trigger( groupObject.min, groupObject )
+
+
+        // Loop from the `min` to `max`, incrementing by `i`
+        for ( ; counter <= PickerConstructor._.trigger( groupObject.max, groupObject, [ counter ] ); counter += groupObject.i ) {
+
+            // Trigger the `item` function within scope of the object
+            loopObjectScope = PickerConstructor._.trigger( groupObject.item, groupObject, [ counter ] )
+
+            // Splice the subgroup and create nodes out of the sub nodes
+            nodesList += PickerConstructor._.node(
+                groupObject.node,
+                loopObjectScope[ 0 ],   // the node
+                loopObjectScope[ 1 ],   // the classes
+                loopObjectScope[ 2 ]    // the attributes
+            )
+        }
+
+        // Return the list of nodes
+        return nodesList
+    }, //group
+
+
+    /**
+     * Create a dom node string
+     */
+    node: function( wrapper, item, klass, attribute ) {
+
+        // If the item is false-y, just return an empty string
+        if ( !item ) return ''
+
+        // If the item is an array, do a join
+        item = $.isArray( item ) ? item.join( '' ) : item
+
+        // Check for the class
+        klass = klass ? ' class="' + klass + '"' : ''
+
+        // Check for any attributes
+        attribute = attribute ? ' ' + attribute : ''
+
+        // Return the wrapped item
+        return '<' + wrapper + klass + attribute + '>' + item + '</' + wrapper + '>'
+    }, //node
+
+
+    /**
+     * Lead numbers below 10 with a zero.
+     */
+    lead: function( number ) {
+        return ( number < 10 ? '0': '' ) + number
+    },
+
+
+    /**
+     * Trigger a function otherwise return the value.
+     */
+    trigger: function( callback, scope, args ) {
+        return typeof callback == 'function' ? callback.apply( scope, args || [] ) : callback
+    },
+
+
+    /**
+     * If the second character is a digit, length is 2 otherwise 1.
+     */
+    digits: function( string ) {
+        return ( /\d/ ).test( string[ 1 ] ) ? 2 : 1
+    },
+
+
+    /**
+     * Tell if something is a date object.
+     */
+    isDate: function( value ) {
+        return {}.toString.call( value ).indexOf( 'Date' ) > -1 && this.isInteger( value.getDate() )
+    },
+
+
+    /**
+     * Tell if something is an integer.
+     */
+    isInteger: function( value ) {
+        return {}.toString.call( value ).indexOf( 'Number' ) > -1 && value % 1 === 0
+    },
+
+
+    /**
+     * Create ARIA attribute strings.
+     */
+    ariaAttr: ariaAttr
+} //PickerConstructor._
+
+
+
+/**
+ * Extend the picker with a component and defaults.
+ */
+PickerConstructor.extend = function( name, Component ) {
+
+    // Extend jQuery.
+    $.fn[ name ] = function( options, action ) {
+
+        // Grab the component data.
+        var componentData = this.data( name )
+
+        // If the picker is requested, return the data object.
+        if ( options == 'picker' ) {
+            return componentData
+        }
+
+        // If the component data exists and `options` is a string, carry out the action.
+        if ( componentData && typeof options == 'string' ) {
+            return PickerConstructor._.trigger( componentData[ options ], componentData, [ action ] )
+        }
+
+        // Otherwise go through each matched element and if the component
+        // doesn’t exist, create a new picker using `this` element
+        // and merging the defaults and options with a deep copy.
+        return this.each( function() {
+            var $this = $( this )
+            if ( !$this.data( name ) ) {
+                new PickerConstructor( this, name, Component, options )
+            }
+        })
+    }
+
+    // Set the defaults.
+    $.fn[ name ].defaults = Component.defaults
+} //PickerConstructor.extend
+
+
+
+function aria(element, attribute, value) {
+    if ( $.isPlainObject(attribute) ) {
+        for ( var key in attribute ) {
+            ariaSet(element, key, attribute[key])
+        }
+    }
+    else {
+        ariaSet(element, attribute, value)
+    }
+}
+function ariaSet(element, attribute, value) {
+    element.setAttribute(
+        (attribute == 'role' ? '' : 'aria-') + attribute,
+        value
+    )
+}
+function ariaAttr(attribute, data) {
+    if ( !$.isPlainObject(attribute) ) {
+        attribute = { attribute: data }
+    }
+    data = ''
+    for ( var key in attribute ) {
+        var attr = (key == 'role' ? '' : 'aria-') + key,
+            attrVal = attribute[key]
+        data += attrVal == null ? '' : attr + '="' + attribute[key] + '"'
+    }
+    return data
+}
+
+
+
+// Expose the picker constructor.
+return PickerConstructor
+
+
+}));
+
+
+
+
+
+/*!
+ * Date picker for pickadate.js v3.5.3
+ * http://amsul.github.io/pickadate.js/date.htm
+ */
+
+(function ( factory ) {
+
+    // AMD.
+    if ( typeof define == 'function' && define.amd )
+        define( ['picker','jquery'], factory )
+
+    // Node.js/browserify.
+    else if ( typeof exports == 'object' )
+        module.exports = factory( require('./picker.js'), require('jquery') )
+
+    // Browser globals.
+    else factory( Picker, jQuery )
+
+}(function( Picker, $ ) {
+
+
+/**
+ * Globals and constants
+ */
+var DAYS_IN_WEEK = 7,
+    WEEKS_IN_CALENDAR = 6,
+    _ = Picker._
+
+
+
+/**
+ * The date picker constructor
+ */
+function DatePicker( picker, settings ) {
+
+    var calendar = this,
+        element = picker.$node[ 0 ],
+        elementValue = element.value,
+        elementDataValue = picker.$node.data( 'value' ),
+        valueString = elementDataValue || elementValue,
+        formatString = elementDataValue ? settings.formatSubmit : settings.format,
+        isRTL = function() {
+
+            return element.currentStyle ?
+
+                // For IE.
+                element.currentStyle.direction == 'rtl' :
+
+                // For normal browsers.
+                getComputedStyle( picker.$root[0] ).direction == 'rtl'
+        }
+
+    calendar.settings = settings
+    calendar.$node = picker.$node
+
+    // The queue of methods that will be used to build item objects.
+    calendar.queue = {
+        min: 'measure create',
+        max: 'measure create',
+        now: 'now create',
+        select: 'parse create validate',
+        highlight: 'parse navigate create validate',
+        view: 'parse create validate viewset',
+        disable: 'deactivate',
+        enable: 'activate'
+    }
+
+    // The component's item object.
+    calendar.item = {}
+
+    calendar.item.clear = null
+    calendar.item.disable = ( settings.disable || [] ).slice( 0 )
+    calendar.item.enable = -(function( collectionDisabled ) {
+        return collectionDisabled[ 0 ] === true ? collectionDisabled.shift() : -1
+    })( calendar.item.disable )
+
+    calendar.
+        set( 'min', settings.min ).
+        set( 'max', settings.max ).
+        set( 'now' )
+
+    // When there’s a value, set the `select`, which in turn
+    // also sets the `highlight` and `view`.
+    if ( valueString ) {
+        calendar.set( 'select', valueString, { format: formatString })
+    }
+
+    // If there’s no value, default to highlighting “today”.
+    else {
+        calendar.
+            set( 'select', null ).
+            set( 'highlight', calendar.item.now )
+    }
+
+
+    // The keycode to movement mapping.
+    calendar.key = {
+        40: 7, // Down
+        38: -7, // Up
+        39: function() { return isRTL() ? -1 : 1 }, // Right
+        37: function() { return isRTL() ? 1 : -1 }, // Left
+        go: function( timeChange ) {
+            var highlightedObject = calendar.item.highlight,
+                targetDate = new Date( highlightedObject.year, highlightedObject.month, highlightedObject.date + timeChange )
+            calendar.set(
+                'highlight',
+                [ targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate() ],
+                { interval: timeChange }
+            )
+            this.render()
+        }
+    }
+
+
+    // Bind some picker events.
+    picker.
+        on( 'render', function() {
+            picker.$root.find( '.' + settings.klass.selectMonth ).on( 'change', function() {
+                var value = this.value
+                if ( value ) {
+                    picker.set( 'highlight', [ picker.get( 'view' ).year, value, picker.get( 'highlight' ).date ] )
+                    picker.$root.find( '.' + settings.klass.selectMonth ).trigger( 'focus' )
+                }
+            })
+            picker.$root.find( '.' + settings.klass.selectYear ).on( 'change', function() {
+                var value = this.value
+                if ( value ) {
+                    picker.set( 'highlight', [ value, picker.get( 'view' ).month, picker.get( 'highlight' ).date ] )
+                    picker.$root.find( '.' + settings.klass.selectYear ).trigger( 'focus' )
+                }
+            })
+        }, 1 ).
+        on( 'open', function() {
+            var includeToday = ''
+            if ( calendar.disabled( calendar.get('now') ) ) {
+                includeToday = ':not(.' + settings.klass.buttonToday + ')'
+            }
+            picker.$root.find( 'button' + includeToday + ', select' ).attr( 'disabled', false )
+        }, 1 ).
+        on( 'close', function() {
+            picker.$root.find( 'button, select' ).attr( 'disabled', true )
+        }, 1 )
+
+} //DatePicker
+
+
+/**
+ * Set a datepicker item object.
+ */
+DatePicker.prototype.set = function( type, value, options ) {
+
+    var calendar = this,
+        calendarItem = calendar.item
+
+    // If the value is `null` just set it immediately.
+    if ( value === null ) {
+        if ( type == 'clear' ) type = 'select'
+        calendarItem[ type ] = value
+        return calendar
+    }
+
+    // Otherwise go through the queue of methods, and invoke the functions.
+    // Update this as the time unit, and set the final value as this item.
+    // * In the case of `enable`, keep the queue but set `disable` instead.
+    //   And in the case of `flip`, keep the queue but set `enable` instead.
+    calendarItem[ ( type == 'enable' ? 'disable' : type == 'flip' ? 'enable' : type ) ] = calendar.queue[ type ].split( ' ' ).map( function( method ) {
+        value = calendar[ method ]( type, value, options )
+        return value
+    }).pop()
+
+    // Check if we need to cascade through more updates.
+    if ( type == 'select' ) {
+        calendar.set( 'highlight', calendarItem.select, options )
+    }
+    else if ( type == 'highlight' ) {
+        calendar.set( 'view', calendarItem.highlight, options )
+    }
+    else if ( type.match( /^(flip|min|max|disable|enable)$/ ) ) {
+        if ( calendarItem.select && calendar.disabled( calendarItem.select ) ) {
+            calendar.set( 'select', calendarItem.select, options )
+        }
+        if ( calendarItem.highlight && calendar.disabled( calendarItem.highlight ) ) {
+            calendar.set( 'highlight', calendarItem.highlight, options )
+        }
+    }
+
+    return calendar
+} //DatePicker.prototype.set
+
+
+/**
+ * Get a datepicker item object.
+ */
+DatePicker.prototype.get = function( type ) {
+    return this.item[ type ]
+} //DatePicker.prototype.get
+
+
+/**
+ * Create a picker date object.
+ */
+DatePicker.prototype.create = function( type, value, options ) {
+
+    var isInfiniteValue,
+        calendar = this
+
+    // If there’s no value, use the type as the value.
+    value = value === undefined ? type : value
+
+
+    // If it’s infinity, update the value.
+    if ( value == -Infinity || value == Infinity ) {
+        isInfiniteValue = value
+    }
+
+    // If it’s an object, use the native date object.
+    else if ( $.isPlainObject( value ) && _.isInteger( value.pick ) ) {
+        value = value.obj
+    }
+
+    // If it’s an array, convert it into a date and make sure
+    // that it’s a valid date – otherwise default to today.
+    else if ( $.isArray( value ) ) {
+        value = new Date( value[ 0 ], value[ 1 ], value[ 2 ] )
+        value = _.isDate( value ) ? value : calendar.create().obj
+    }
+
+    // If it’s a number or date object, make a normalized date.
+    else if ( _.isInteger( value ) || _.isDate( value ) ) {
+        value = calendar.normalize( new Date( value ), options )
+    }
+
+    // If it’s a literal true or any other case, set it to now.
+    else /*if ( value === true )*/ {
+        value = calendar.now( type, value, options )
+    }
+
+    // Return the compiled object.
+    return {
+        year: isInfiniteValue || value.getFullYear(),
+        month: isInfiniteValue || value.getMonth(),
+        date: isInfiniteValue || value.getDate(),
+        day: isInfiniteValue || value.getDay(),
+        obj: isInfiniteValue || value,
+        pick: isInfiniteValue || value.getTime()
+    }
+} //DatePicker.prototype.create
+
+
+/**
+ * Create a range limit object using an array, date object,
+ * literal “true”, or integer relative to another time.
+ */
+DatePicker.prototype.createRange = function( from, to ) {
+
+    var calendar = this,
+        createDate = function( date ) {
+            if ( date === true || $.isArray( date ) || _.isDate( date ) ) {
+                return calendar.create( date )
+            }
+            return date
+        }
+
+    // Create objects if possible.
+    if ( !_.isInteger( from ) ) {
+        from = createDate( from )
+    }
+    if ( !_.isInteger( to ) ) {
+        to = createDate( to )
+    }
+
+    // Create relative dates.
+    if ( _.isInteger( from ) && $.isPlainObject( to ) ) {
+        from = [ to.year, to.month, to.date + from ];
+    }
+    else if ( _.isInteger( to ) && $.isPlainObject( from ) ) {
+        to = [ from.year, from.month, from.date + to ];
+    }
+
+    return {
+        from: createDate( from ),
+        to: createDate( to )
+    }
+} //DatePicker.prototype.createRange
+
+
+/**
+ * Check if a date unit falls within a date range object.
+ */
+DatePicker.prototype.withinRange = function( range, dateUnit ) {
+    range = this.createRange(range.from, range.to)
+    return dateUnit.pick >= range.from.pick && dateUnit.pick <= range.to.pick
+}
+
+
+/**
+ * Check if two date range objects overlap.
+ */
+DatePicker.prototype.overlapRanges = function( one, two ) {
+
+    var calendar = this
+
+    // Convert the ranges into comparable dates.
+    one = calendar.createRange( one.from, one.to )
+    two = calendar.createRange( two.from, two.to )
+
+    return calendar.withinRange( one, two.from ) || calendar.withinRange( one, two.to ) ||
+        calendar.withinRange( two, one.from ) || calendar.withinRange( two, one.to )
+}
+
+
+/**
+ * Get the date today.
+ */
+DatePicker.prototype.now = function( type, value, options ) {
+    value = new Date()
+    if ( options && options.rel ) {
+        value.setDate( value.getDate() + options.rel )
+    }
+    return this.normalize( value, options )
+}
+
+
+/**
+ * Navigate to next/prev month.
+ */
+DatePicker.prototype.navigate = function( type, value, options ) {
+
+    var targetDateObject,
+        targetYear,
+        targetMonth,
+        targetDate,
+        isTargetArray = $.isArray( value ),
+        isTargetObject = $.isPlainObject( value ),
+        viewsetObject = this.item.view/*,
+        safety = 100*/
+
+
+    if ( isTargetArray || isTargetObject ) {
+
+        if ( isTargetObject ) {
+            targetYear = value.year
+            targetMonth = value.month
+            targetDate = value.date
+        }
+        else {
+            targetYear = +value[0]
+            targetMonth = +value[1]
+            targetDate = +value[2]
+        }
+
+        // If we’re navigating months but the view is in a different
+        // month, navigate to the view’s year and month.
+        if ( options && options.nav && viewsetObject && viewsetObject.month !== targetMonth ) {
+            targetYear = viewsetObject.year
+            targetMonth = viewsetObject.month
+        }
+
+        // Figure out the expected target year and month.
+        targetDateObject = new Date( targetYear, targetMonth + ( options && options.nav ? options.nav : 0 ), 1 )
+        targetYear = targetDateObject.getFullYear()
+        targetMonth = targetDateObject.getMonth()
+
+        // If the month we’re going to doesn’t have enough days,
+        // keep decreasing the date until we reach the month’s last date.
+        while ( /*safety &&*/ new Date( targetYear, targetMonth, targetDate ).getMonth() !== targetMonth ) {
+            targetDate -= 1
+            /*safety -= 1
+            if ( !safety ) {
+                throw 'Fell into an infinite loop while navigating to ' + new Date( targetYear, targetMonth, targetDate ) + '.'
+            }*/
+        }
+
+        value = [ targetYear, targetMonth, targetDate ]
+    }
+
+    return value
+} //DatePicker.prototype.navigate
+
+
+/**
+ * Normalize a date by setting the hours to midnight.
+ */
+DatePicker.prototype.normalize = function( value/*, options*/ ) {
+    value.setHours( 0, 0, 0, 0 )
+    return value
+}
+
+
+/**
+ * Measure the range of dates.
+ */
+DatePicker.prototype.measure = function( type, value/*, options*/ ) {
+
+    var calendar = this
+
+    // If it’s anything false-y, remove the limits.
+    if ( !value ) {
+        value = type == 'min' ? -Infinity : Infinity
+    }
+
+    // If it’s a string, parse it.
+    else if ( typeof value == 'string' ) {
+        value = calendar.parse( type, value )
+    }
+
+    // If it's an integer, get a date relative to today.
+    else if ( _.isInteger( value ) ) {
+        value = calendar.now( type, value, { rel: value } )
+    }
+
+    return value
+} ///DatePicker.prototype.measure
+
+
+/**
+ * Create a viewset object based on navigation.
+ */
+DatePicker.prototype.viewset = function( type, dateObject/*, options*/ ) {
+    return this.create([ dateObject.year, dateObject.month, 1 ])
+}
+
+
+/**
+ * Validate a date as enabled and shift if needed.
+ */
+DatePicker.prototype.validate = function( type, dateObject, options ) {
+
+    var calendar = this,
+
+        // Keep a reference to the original date.
+        originalDateObject = dateObject,
+
+        // Make sure we have an interval.
+        interval = options && options.interval ? options.interval : 1,
+
+        // Check if the calendar enabled dates are inverted.
+        isFlippedBase = calendar.item.enable === -1,
+
+        // Check if we have any enabled dates after/before now.
+        hasEnabledBeforeTarget, hasEnabledAfterTarget,
+
+        // The min & max limits.
+        minLimitObject = calendar.item.min,
+        maxLimitObject = calendar.item.max,
+
+        // Check if we’ve reached the limit during shifting.
+        reachedMin, reachedMax,
+
+        // Check if the calendar is inverted and at least one weekday is enabled.
+        hasEnabledWeekdays = isFlippedBase && calendar.item.disable.filter( function( value ) {
+
+            // If there’s a date, check where it is relative to the target.
+            if ( $.isArray( value ) ) {
+                var dateTime = calendar.create( value ).pick
+                if ( dateTime < dateObject.pick ) hasEnabledBeforeTarget = true
+                else if ( dateTime > dateObject.pick ) hasEnabledAfterTarget = true
+            }
+
+            // Return only integers for enabled weekdays.
+            return _.isInteger( value )
+        }).length/*,
+
+        safety = 100*/
+
+
+
+    // Cases to validate for:
+    // [1] Not inverted and date disabled.
+    // [2] Inverted and some dates enabled.
+    // [3] Not inverted and out of range.
+    //
+    // Cases to **not** validate for:
+    // • Navigating months.
+    // • Not inverted and date enabled.
+    // • Inverted and all dates disabled.
+    // • ..and anything else.
+    if ( !options || !options.nav ) if (
+        /* 1 */ ( !isFlippedBase && calendar.disabled( dateObject ) ) ||
+        /* 2 */ ( isFlippedBase && calendar.disabled( dateObject ) && ( hasEnabledWeekdays || hasEnabledBeforeTarget || hasEnabledAfterTarget ) ) ||
+        /* 3 */ ( !isFlippedBase && (dateObject.pick <= minLimitObject.pick || dateObject.pick >= maxLimitObject.pick) )
+    ) {
+
+
+        // When inverted, flip the direction if there aren’t any enabled weekdays
+        // and there are no enabled dates in the direction of the interval.
+        if ( isFlippedBase && !hasEnabledWeekdays && ( ( !hasEnabledAfterTarget && interval > 0 ) || ( !hasEnabledBeforeTarget && interval < 0 ) ) ) {
+            interval *= -1
+        }
+
+
+        // Keep looping until we reach an enabled date.
+        while ( /*safety &&*/ calendar.disabled( dateObject ) ) {
+
+            /*safety -= 1
+            if ( !safety ) {
+                throw 'Fell into an infinite loop while validating ' + dateObject.obj + '.'
+            }*/
+
+
+            // If we’ve looped into the next/prev month with a large interval, return to the original date and flatten the interval.
+            if ( Math.abs( interval ) > 1 && ( dateObject.month < originalDateObject.month || dateObject.month > originalDateObject.month ) ) {
+                dateObject = originalDateObject
+                interval = interval > 0 ? 1 : -1
+            }
+
+
+            // If we’ve reached the min/max limit, reverse the direction, flatten the interval and set it to the limit.
+            if ( dateObject.pick <= minLimitObject.pick ) {
+                reachedMin = true
+                interval = 1
+                dateObject = calendar.create([
+                    minLimitObject.year,
+                    minLimitObject.month,
+                    minLimitObject.date + (dateObject.pick === minLimitObject.pick ? 0 : -1)
+                ])
+            }
+            else if ( dateObject.pick >= maxLimitObject.pick ) {
+                reachedMax = true
+                interval = -1
+                dateObject = calendar.create([
+                    maxLimitObject.year,
+                    maxLimitObject.month,
+                    maxLimitObject.date + (dateObject.pick === maxLimitObject.pick ? 0 : 1)
+                ])
+            }
+
+
+            // If we’ve reached both limits, just break out of the loop.
+            if ( reachedMin && reachedMax ) {
+                break
+            }
+
+
+            // Finally, create the shifted date using the interval and keep looping.
+            dateObject = calendar.create([ dateObject.year, dateObject.month, dateObject.date + interval ])
+        }
+
+    } //endif
+
+
+    // Return the date object settled on.
+    return dateObject
+} //DatePicker.prototype.validate
+
+
+/**
+ * Check if a date is disabled.
+ */
+DatePicker.prototype.disabled = function( dateToVerify ) {
+
+    var
+        calendar = this,
+
+        // Filter through the disabled dates to check if this is one.
+        isDisabledMatch = calendar.item.disable.filter( function( dateToDisable ) {
+
+            // If the date is a number, match the weekday with 0index and `firstDay` check.
+            if ( _.isInteger( dateToDisable ) ) {
+                return dateToVerify.day === ( calendar.settings.firstDay ? dateToDisable : dateToDisable - 1 ) % 7
+            }
+
+            // If it’s an array or a native JS date, create and match the exact date.
+            if ( $.isArray( dateToDisable ) || _.isDate( dateToDisable ) ) {
+                return dateToVerify.pick === calendar.create( dateToDisable ).pick
+            }
+
+            // If it’s an object, match a date within the “from” and “to” range.
+            if ( $.isPlainObject( dateToDisable ) ) {
+                return calendar.withinRange( dateToDisable, dateToVerify )
+            }
+        })
+
+    // If this date matches a disabled date, confirm it’s not inverted.
+    isDisabledMatch = isDisabledMatch.length && !isDisabledMatch.filter(function( dateToDisable ) {
+        return $.isArray( dateToDisable ) && dateToDisable[3] == 'inverted' ||
+            $.isPlainObject( dateToDisable ) && dateToDisable.inverted
+    }).length
+
+    // Check the calendar “enabled” flag and respectively flip the
+    // disabled state. Then also check if it’s beyond the min/max limits.
+    return calendar.item.enable === -1 ? !isDisabledMatch : isDisabledMatch ||
+        dateToVerify.pick < calendar.item.min.pick ||
+        dateToVerify.pick > calendar.item.max.pick
+
+} //DatePicker.prototype.disabled
+
+
+/**
+ * Parse a string into a usable type.
+ */
+DatePicker.prototype.parse = function( type, value, options ) {
+
+    var calendar = this,
+        parsingObject = {}
+
+    // If it’s already parsed, we’re good.
+    if ( !value || typeof value != 'string' ) {
+        return value
+    }
+
+    // We need a `.format` to parse the value with.
+    if ( !( options && options.format ) ) {
+        options = options || {}
+        options.format = calendar.settings.format
+    }
+
+    // Convert the format into an array and then map through it.
+    calendar.formats.toArray( options.format ).map( function( label ) {
+
+        var
+            // Grab the formatting label.
+            formattingLabel = calendar.formats[ label ],
+
+            // The format length is from the formatting label function or the
+            // label length without the escaping exclamation (!) mark.
+            formatLength = formattingLabel ? _.trigger( formattingLabel, calendar, [ value, parsingObject ] ) : label.replace( /^!/, '' ).length
+
+        // If there's a format label, split the value up to the format length.
+        // Then add it to the parsing object with appropriate label.
+        if ( formattingLabel ) {
+            parsingObject[ label ] = value.substr( 0, formatLength )
+        }
+
+        // Update the value as the substring from format length to end.
+        value = value.substr( formatLength )
+    })
+
+    // Compensate for month 0index.
+    return [
+        parsingObject.yyyy || parsingObject.yy,
+        +( parsingObject.mm || parsingObject.m ) - 1,
+        parsingObject.dd || parsingObject.d
+    ]
+} //DatePicker.prototype.parse
+
+
+/**
+ * Various formats to display the object in.
+ */
+DatePicker.prototype.formats = (function() {
+
+    // Return the length of the first word in a collection.
+    function getWordLengthFromCollection( string, collection, dateObject ) {
+
+        // Grab the first word from the string.
+        var word = string.match( /\w+/ )[ 0 ]
+
+        // If there's no month index, add it to the date object
+        if ( !dateObject.mm && !dateObject.m ) {
+            dateObject.m = collection.indexOf( word ) + 1
+        }
+
+        // Return the length of the word.
+        return word.length
+    }
+
+    // Get the length of the first word in a string.
+    function getFirstWordLength( string ) {
+        return string.match( /\w+/ )[ 0 ].length
+    }
+
+    return {
+
+        d: function( string, dateObject ) {
+
+            // If there's string, then get the digits length.
+            // Otherwise return the selected date.
+            return string ? _.digits( string ) : dateObject.date
+        },
+        dd: function( string, dateObject ) {
+
+            // If there's a string, then the length is always 2.
+            // Otherwise return the selected date with a leading zero.
+            return string ? 2 : _.lead( dateObject.date )
+        },
+        ddd: function( string, dateObject ) {
+
+            // If there's a string, then get the length of the first word.
+            // Otherwise return the short selected weekday.
+            return string ? getFirstWordLength( string ) : this.settings.weekdaysShort[ dateObject.day ]
+        },
+        dddd: function( string, dateObject ) {
+
+            // If there's a string, then get the length of the first word.
+            // Otherwise return the full selected weekday.
+            return string ? getFirstWordLength( string ) : this.settings.weekdaysFull[ dateObject.day ]
+        },
+        m: function( string, dateObject ) {
+
+            // If there's a string, then get the length of the digits
+            // Otherwise return the selected month with 0index compensation.
+            return string ? _.digits( string ) : dateObject.month + 1
+        },
+        mm: function( string, dateObject ) {
+
+            // If there's a string, then the length is always 2.
+            // Otherwise return the selected month with 0index and leading zero.
+            return string ? 2 : _.lead( dateObject.month + 1 )
+        },
+        mmm: function( string, dateObject ) {
+
+            var collection = this.settings.monthsShort
+
+            // If there's a string, get length of the relevant month from the short
+            // months collection. Otherwise return the selected month from that collection.
+            return string ? getWordLengthFromCollection( string, collection, dateObject ) : collection[ dateObject.month ]
+        },
+        mmmm: function( string, dateObject ) {
+
+            var collection = this.settings.monthsFull
+
+            // If there's a string, get length of the relevant month from the full
+            // months collection. Otherwise return the selected month from that collection.
+            return string ? getWordLengthFromCollection( string, collection, dateObject ) : collection[ dateObject.month ]
+        },
+        yy: function( string, dateObject ) {
+
+            // If there's a string, then the length is always 2.
+            // Otherwise return the selected year by slicing out the first 2 digits.
+            return string ? 2 : ( '' + dateObject.year ).slice( 2 )
+        },
+        yyyy: function( string, dateObject ) {
+
+            // If there's a string, then the length is always 4.
+            // Otherwise return the selected year.
+            return string ? 4 : dateObject.year
+        },
+
+        // Create an array by splitting the formatting string passed.
+        toArray: function( formatString ) { return formatString.split( /(d{1,4}|m{1,4}|y{4}|yy|!.)/g ) },
+
+        // Format an object into a string using the formatting options.
+        toString: function ( formatString, itemObject ) {
+            var calendar = this
+            return calendar.formats.toArray( formatString ).map( function( label ) {
+                return _.trigger( calendar.formats[ label ], calendar, [ 0, itemObject ] ) || label.replace( /^!/, '' )
+            }).join( '' )
+        }
+    }
+})() //DatePicker.prototype.formats
+
+
+
+
+/**
+ * Check if two date units are the exact.
+ */
+DatePicker.prototype.isDateExact = function( one, two ) {
+
+    var calendar = this
+
+    // When we’re working with weekdays, do a direct comparison.
+    if (
+        ( _.isInteger( one ) && _.isInteger( two ) ) ||
+        ( typeof one == 'boolean' && typeof two == 'boolean' )
+     ) {
+        return one === two
+    }
+
+    // When we’re working with date representations, compare the “pick” value.
+    if (
+        ( _.isDate( one ) || $.isArray( one ) ) &&
+        ( _.isDate( two ) || $.isArray( two ) )
+    ) {
+        return calendar.create( one ).pick === calendar.create( two ).pick
+    }
+
+    // When we’re working with range objects, compare the “from” and “to”.
+    if ( $.isPlainObject( one ) && $.isPlainObject( two ) ) {
+        return calendar.isDateExact( one.from, two.from ) && calendar.isDateExact( one.to, two.to )
+    }
+
+    return false
+}
+
+
+/**
+ * Check if two date units overlap.
+ */
+DatePicker.prototype.isDateOverlap = function( one, two ) {
+
+    var calendar = this,
+        firstDay = calendar.settings.firstDay ? 1 : 0
+
+    // When we’re working with a weekday index, compare the days.
+    if ( _.isInteger( one ) && ( _.isDate( two ) || $.isArray( two ) ) ) {
+        one = one % 7 + firstDay
+        return one === calendar.create( two ).day + 1
+    }
+    if ( _.isInteger( two ) && ( _.isDate( one ) || $.isArray( one ) ) ) {
+        two = two % 7 + firstDay
+        return two === calendar.create( one ).day + 1
+    }
+
+    // When we’re working with range objects, check if the ranges overlap.
+    if ( $.isPlainObject( one ) && $.isPlainObject( two ) ) {
+        return calendar.overlapRanges( one, two )
+    }
+
+    return false
+}
+
+
+/**
+ * Flip the “enabled” state.
+ */
+DatePicker.prototype.flipEnable = function(val) {
+    var itemObject = this.item
+    itemObject.enable = val || (itemObject.enable == -1 ? 1 : -1)
+}
+
+
+/**
+ * Mark a collection of dates as “disabled”.
+ */
+DatePicker.prototype.deactivate = function( type, datesToDisable ) {
+
+    var calendar = this,
+        disabledItems = calendar.item.disable.slice(0)
+
+
+    // If we’re flipping, that’s all we need to do.
+    if ( datesToDisable == 'flip' ) {
+        calendar.flipEnable()
+    }
+
+    else if ( datesToDisable === false ) {
+        calendar.flipEnable(1)
+        disabledItems = []
+    }
+
+    else if ( datesToDisable === true ) {
+        calendar.flipEnable(-1)
+        disabledItems = []
+    }
+
+    // Otherwise go through the dates to disable.
+    else {
+
+        datesToDisable.map(function( unitToDisable ) {
+
+            var matchFound
+
+            // When we have disabled items, check for matches.
+            // If something is matched, immediately break out.
+            for ( var index = 0; index < disabledItems.length; index += 1 ) {
+                if ( calendar.isDateExact( unitToDisable, disabledItems[index] ) ) {
+                    matchFound = true
+                    break
+                }
+            }
+
+            // If nothing was found, add the validated unit to the collection.
+            if ( !matchFound ) {
+                if (
+                    _.isInteger( unitToDisable ) ||
+                    _.isDate( unitToDisable ) ||
+                    $.isArray( unitToDisable ) ||
+                    ( $.isPlainObject( unitToDisable ) && unitToDisable.from && unitToDisable.to )
+                ) {
+                    disabledItems.push( unitToDisable )
+                }
+            }
+        })
+    }
+
+    // Return the updated collection.
+    return disabledItems
+} //DatePicker.prototype.deactivate
+
+
+/**
+ * Mark a collection of dates as “enabled”.
+ */
+DatePicker.prototype.activate = function( type, datesToEnable ) {
+
+    var calendar = this,
+        disabledItems = calendar.item.disable,
+        disabledItemsCount = disabledItems.length
+
+    // If we’re flipping, that’s all we need to do.
+    if ( datesToEnable == 'flip' ) {
+        calendar.flipEnable()
+    }
+
+    else if ( datesToEnable === true ) {
+        calendar.flipEnable(1)
+        disabledItems = []
+    }
+
+    else if ( datesToEnable === false ) {
+        calendar.flipEnable(-1)
+        disabledItems = []
+    }
+
+    // Otherwise go through the disabled dates.
+    else {
+
+        datesToEnable.map(function( unitToEnable ) {
+
+            var matchFound,
+                disabledUnit,
+                index,
+                isExactRange
+
+            // Go through the disabled items and try to find a match.
+            for ( index = 0; index < disabledItemsCount; index += 1 ) {
+
+                disabledUnit = disabledItems[index]
+
+                // When an exact match is found, remove it from the collection.
+                if ( calendar.isDateExact( disabledUnit, unitToEnable ) ) {
+                    matchFound = disabledItems[index] = null
+                    isExactRange = true
+                    break
+                }
+
+                // When an overlapped match is found, add the “inverted” state to it.
+                else if ( calendar.isDateOverlap( disabledUnit, unitToEnable ) ) {
+                    if ( $.isPlainObject( unitToEnable ) ) {
+                        unitToEnable.inverted = true
+                        matchFound = unitToEnable
+                    }
+                    else if ( $.isArray( unitToEnable ) ) {
+                        matchFound = unitToEnable
+                        if ( !matchFound[3] ) matchFound.push( 'inverted' )
+                    }
+                    else if ( _.isDate( unitToEnable ) ) {
+                        matchFound = [ unitToEnable.getFullYear(), unitToEnable.getMonth(), unitToEnable.getDate(), 'inverted' ]
+                    }
+                    break
+                }
+            }
+
+            // If a match was found, remove a previous duplicate entry.
+            if ( matchFound ) for ( index = 0; index < disabledItemsCount; index += 1 ) {
+                if ( calendar.isDateExact( disabledItems[index], unitToEnable ) ) {
+                    disabledItems[index] = null
+                    break
+                }
+            }
+
+            // In the event that we’re dealing with an exact range of dates,
+            // make sure there are no “inverted” dates because of it.
+            if ( isExactRange ) for ( index = 0; index < disabledItemsCount; index += 1 ) {
+                if ( calendar.isDateOverlap( disabledItems[index], unitToEnable ) ) {
+                    disabledItems[index] = null
+                    break
+                }
+            }
+
+            // If something is still matched, add it into the collection.
+            if ( matchFound ) {
+                disabledItems.push( matchFound )
+            }
+        })
+    }
+
+    // Return the updated collection.
+    return disabledItems.filter(function( val ) { return val != null })
+} //DatePicker.prototype.activate
+
+
+/**
+ * Create a string for the nodes in the picker.
+ */
+DatePicker.prototype.nodes = function( isOpen ) {
+
+    var
+        calendar = this,
+        settings = calendar.settings,
+        calendarItem = calendar.item,
+        nowObject = calendarItem.now,
+        selectedObject = calendarItem.select,
+        highlightedObject = calendarItem.highlight,
+        viewsetObject = calendarItem.view,
+        disabledCollection = calendarItem.disable,
+        minLimitObject = calendarItem.min,
+        maxLimitObject = calendarItem.max,
+
+
+        // Create the calendar table head using a copy of weekday labels collection.
+        // * We do a copy so we don't mutate the original array.
+        tableHead = (function( collection, fullCollection ) {
+
+            // If the first day should be Monday, move Sunday to the end.
+            if ( settings.firstDay ) {
+                collection.push( collection.shift() )
+                fullCollection.push( fullCollection.shift() )
+            }
+
+            // Create and return the table head group.
+            return _.node(
+                'thead',
+                _.node(
+                    'tr',
+                    _.group({
+                        min: 0,
+                        max: DAYS_IN_WEEK - 1,
+                        i: 1,
+                        node: 'th',
+                        item: function( counter ) {
+                            return [
+                                collection[ counter ],
+                                settings.klass.weekdays,
+                                'scope=col title="' + fullCollection[ counter ] + '"'
+                            ]
+                        }
+                    })
+                )
+            ) //endreturn
+        })( ( settings.showWeekdaysFull ? settings.weekdaysFull : settings.weekdaysShort ).slice( 0 ), settings.weekdaysFull.slice( 0 ) ), //tableHead
+
+
+        // Create the nav for next/prev month.
+        createMonthNav = function( next ) {
+
+            // Otherwise, return the created month tag.
+            return _.node(
+                'div',
+                ' ',
+                settings.klass[ 'nav' + ( next ? 'Next' : 'Prev' ) ] + (
+
+                    // If the focused month is outside the range, disabled the button.
+                    ( next && viewsetObject.year >= maxLimitObject.year && viewsetObject.month >= maxLimitObject.month ) ||
+                    ( !next && viewsetObject.year <= minLimitObject.year && viewsetObject.month <= minLimitObject.month ) ?
+                    ' ' + settings.klass.navDisabled : ''
+                ),
+                'data-nav=' + ( next || -1 ) + ' ' +
+                _.ariaAttr({
+                    role: 'button',
+                    controls: calendar.$node[0].id + '_table'
+                }) + ' ' +
+                'title="' + (next ? settings.labelMonthNext : settings.labelMonthPrev ) + '"'
+            ) //endreturn
+        }, //createMonthNav
+
+
+        // Create the month label.
+        createMonthLabel = function() {
+
+            var monthsCollection = settings.showMonthsShort ? settings.monthsShort : settings.monthsFull
+
+            // If there are months to select, add a dropdown menu.
+            if ( settings.selectMonths ) {
+
+                return _.node( 'select',
+                    _.group({
+                        min: 0,
+                        max: 11,
+                        i: 1,
+                        node: 'option',
+                        item: function( loopedMonth ) {
+
+                            return [
+
+                                // The looped month and no classes.
+                                monthsCollection[ loopedMonth ], 0,
+
+                                // Set the value and selected index.
+                                'value=' + loopedMonth +
+                                ( viewsetObject.month == loopedMonth ? ' selected' : '' ) +
+                                (
+                                    (
+                                        ( viewsetObject.year == minLimitObject.year && loopedMonth < minLimitObject.month ) ||
+                                        ( viewsetObject.year == maxLimitObject.year && loopedMonth > maxLimitObject.month )
+                                    ) ?
+                                    ' disabled' : ''
+                                )
+                            ]
+                        }
+                    }),
+                    settings.klass.selectMonth,
+                    ( isOpen ? '' : 'disabled' ) + ' ' +
+                    _.ariaAttr({ controls: calendar.$node[0].id + '_table' }) + ' ' +
+                    'title="' + settings.labelMonthSelect + '"'
+                )
+            }
+
+            // If there's a need for a month selector
+            return _.node( 'div', monthsCollection[ viewsetObject.month ], settings.klass.month )
+        }, //createMonthLabel
+
+
+        // Create the year label.
+        createYearLabel = function() {
+
+            var focusedYear = viewsetObject.year,
+
+            // If years selector is set to a literal "true", set it to 5. Otherwise
+            // divide in half to get half before and half after focused year.
+            numberYears = settings.selectYears === true ? 5 : ~~( settings.selectYears / 2 )
+
+            // If there are years to select, add a dropdown menu.
+            if ( numberYears ) {
+
+                var
+                    minYear = minLimitObject.year,
+                    maxYear = maxLimitObject.year,
+                    lowestYear = focusedYear - numberYears,
+                    highestYear = focusedYear + numberYears
+
+                // If the min year is greater than the lowest year, increase the highest year
+                // by the difference and set the lowest year to the min year.
+                if ( minYear > lowestYear ) {
+                    highestYear += minYear - lowestYear
+                    lowestYear = minYear
+                }
+
+                // If the max year is less than the highest year, decrease the lowest year
+                // by the lower of the two: available and needed years. Then set the
+                // highest year to the max year.
+                if ( maxYear < highestYear ) {
+
+                    var availableYears = lowestYear - minYear,
+                        neededYears = highestYear - maxYear
+
+                    lowestYear -= availableYears > neededYears ? neededYears : availableYears
+                    highestYear = maxYear
+                }
+
+                return _.node( 'select',
+                    _.group({
+                        min: lowestYear,
+                        max: highestYear,
+                        i: 1,
+                        node: 'option',
+                        item: function( loopedYear ) {
+                            return [
+
+                                // The looped year and no classes.
+                                loopedYear, 0,
+
+                                // Set the value and selected index.
+                                'value=' + loopedYear + ( focusedYear == loopedYear ? ' selected' : '' )
+                            ]
+                        }
+                    }),
+                    settings.klass.selectYear,
+                    ( isOpen ? '' : 'disabled' ) + ' ' + _.ariaAttr({ controls: calendar.$node[0].id + '_table' }) + ' ' +
+                    'title="' + settings.labelYearSelect + '"'
+                )
+            }
+
+            // Otherwise just return the year focused
+            return _.node( 'div', focusedYear, settings.klass.year )
+        } //createYearLabel
+
+
+    // Create and return the entire calendar.
+    return _.node(
+        'div',
+        ( settings.selectYears ? createYearLabel() + createMonthLabel() : createMonthLabel() + createYearLabel() ) +
+        createMonthNav() + createMonthNav( 1 ),
+        settings.klass.header
+    ) + _.node(
+        'table',
+        tableHead +
+        _.node(
+            'tbody',
+            _.group({
+                min: 0,
+                max: WEEKS_IN_CALENDAR - 1,
+                i: 1,
+                node: 'tr',
+                item: function( rowCounter ) {
+
+                    // If Monday is the first day and the month starts on Sunday, shift the date back a week.
+                    var shiftDateBy = settings.firstDay && calendar.create([ viewsetObject.year, viewsetObject.month, 1 ]).day === 0 ? -7 : 0
+
+                    return [
+                        _.group({
+                            min: DAYS_IN_WEEK * rowCounter - viewsetObject.day + shiftDateBy + 1, // Add 1 for weekday 0index
+                            max: function() {
+                                return this.min + DAYS_IN_WEEK - 1
+                            },
+                            i: 1,
+                            node: 'td',
+                            item: function( targetDate ) {
+
+                                // Convert the time date from a relative date to a target date.
+                                targetDate = calendar.create([ viewsetObject.year, viewsetObject.month, targetDate + ( settings.firstDay ? 1 : 0 ) ])
+
+                                var isSelected = selectedObject && selectedObject.pick == targetDate.pick,
+                                    isHighlighted = highlightedObject && highlightedObject.pick == targetDate.pick,
+                                    isDisabled = disabledCollection && calendar.disabled( targetDate ) || targetDate.pick < minLimitObject.pick || targetDate.pick > maxLimitObject.pick
+
+                                return [
+                                    _.node(
+                                        'div',
+                                        targetDate.date,
+                                        (function( klasses ) {
+
+                                            // Add the `infocus` or `outfocus` classes based on month in view.
+                                            klasses.push( viewsetObject.month == targetDate.month ? settings.klass.infocus : settings.klass.outfocus )
+
+                                            // Add the `today` class if needed.
+                                            if ( nowObject.pick == targetDate.pick ) {
+                                                klasses.push( settings.klass.now )
+                                            }
+
+                                            // Add the `selected` class if something's selected and the time matches.
+                                            if ( isSelected ) {
+                                                klasses.push( settings.klass.selected )
+                                            }
+
+                                            // Add the `highlighted` class if something's highlighted and the time matches.
+                                            if ( isHighlighted ) {
+                                                klasses.push( settings.klass.highlighted )
+                                            }
+
+                                            // Add the `disabled` class if something's disabled and the object matches.
+                                            if ( isDisabled ) {
+                                                klasses.push( settings.klass.disabled )
+                                            }
+
+                                            return klasses.join( ' ' )
+                                        })([ settings.klass.day ]),
+                                        'data-pick=' + targetDate.pick + ' ' + _.ariaAttr({
+                                            role: 'gridcell',
+                                            selected: isSelected && calendar.$node.val() === _.trigger(
+                                                    calendar.formats.toString,
+                                                    calendar,
+                                                    [ settings.format, targetDate ]
+                                                ) ? true : null,
+                                            activedescendant: isHighlighted ? true : null,
+                                            disabled: isDisabled ? true : null
+                                        })
+                                    ),
+                                    '',
+                                    _.ariaAttr({ role: 'presentation' })
+                                ] //endreturn
+                            }
+                        })
+                    ] //endreturn
+                }
+            })
+        ),
+        settings.klass.table,
+        'id="' + calendar.$node[0].id + '_table' + '" ' + _.ariaAttr({
+            role: 'grid',
+            controls: calendar.$node[0].id,
+            readonly: true
+        })
+    ) +
+
+    // * For Firefox forms to submit, make sure to set the buttons’ `type` attributes as “button”.
+    _.node(
+        'div',
+        _.node( 'button', settings.today, settings.klass.buttonToday,
+            'type=button data-pick=' + nowObject.pick +
+            ( isOpen && !calendar.disabled(nowObject) ? '' : ' disabled' ) + ' ' +
+            _.ariaAttr({ controls: calendar.$node[0].id }) ) +
+        _.node( 'button', settings.clear, settings.klass.buttonClear,
+            'type=button data-clear=1' +
+            ( isOpen ? '' : ' disabled' ) + ' ' +
+            _.ariaAttr({ controls: calendar.$node[0].id }) ) +
+        _.node('button', settings.close, settings.klass.buttonClose,
+            'type=button data-close=true ' +
+            ( isOpen ? '' : ' disabled' ) + ' ' +
+            _.ariaAttr({ controls: calendar.$node[0].id }) ),
+        settings.klass.footer
+    ) //endreturn
+} //DatePicker.prototype.nodes
+
+
+
+
+/**
+ * The date picker defaults.
+ */
+DatePicker.defaults = (function( prefix ) {
+
+    return {
+
+        // The title label to use for the month nav buttons
+        labelMonthNext: 'Next month',
+        labelMonthPrev: 'Previous month',
+
+        // The title label to use for the dropdown selectors
+        labelMonthSelect: 'Select a month',
+        labelYearSelect: 'Select a year',
+
+        // Months and weekdays
+        monthsFull: [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ],
+        monthsShort: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ],
+        weekdaysFull: [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ],
+        weekdaysShort: [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ],
+
+        // Today and clear
+        today: 'Today',
+        clear: 'Clear',
+        close: 'Close',
+
+        // The format to show on the `input` element
+        format: 'd mmmm, yyyy',
+
+        // Classes
+        klass: {
+
+            table: prefix + 'table',
+
+            header: prefix + 'header',
+
+            navPrev: prefix + 'nav--prev',
+            navNext: prefix + 'nav--next',
+            navDisabled: prefix + 'nav--disabled',
+
+            month: prefix + 'month',
+            year: prefix + 'year',
+
+            selectMonth: prefix + 'select--month',
+            selectYear: prefix + 'select--year',
+
+            weekdays: prefix + 'weekday',
+
+            day: prefix + 'day',
+            disabled: prefix + 'day--disabled',
+            selected: prefix + 'day--selected',
+            highlighted: prefix + 'day--highlighted',
+            now: prefix + 'day--today',
+            infocus: prefix + 'day--infocus',
+            outfocus: prefix + 'day--outfocus',
+
+            footer: prefix + 'footer',
+
+            buttonClear: prefix + 'button--clear',
+            buttonToday: prefix + 'button--today',
+            buttonClose: prefix + 'button--close'
+        }
+    }
+})( Picker.klasses().picker + '__' )
+
+
+
+
+
+/**
+ * Extend the picker to add the date picker.
+ */
+Picker.extend( 'pickadate', DatePicker )
+
+
+}));
+
+
+
+
+
+/*!
+ * Time picker for pickadate.js v3.5.3
+ * http://amsul.github.io/pickadate.js/time.htm
+ */
+
+(function ( factory ) {
+
+    // AMD.
+    if ( typeof define == 'function' && define.amd )
+        define( ['picker','jquery'], factory )
+
+    // Node.js/browserify.
+    else if ( typeof exports == 'object' )
+        module.exports = factory( require('./picker.js'), require('jquery') )
+
+    // Browser globals.
+    else factory( Picker, jQuery )
+
+}(function( Picker, $ ) {
+
+
+/**
+ * Globals and constants
+ */
+var HOURS_IN_DAY = 24,
+    MINUTES_IN_HOUR = 60,
+    HOURS_TO_NOON = 12,
+    MINUTES_IN_DAY = HOURS_IN_DAY * MINUTES_IN_HOUR,
+    _ = Picker._
+
+
+
+/**
+ * The time picker constructor
+ */
+function TimePicker( picker, settings ) {
+
+    var clock = this,
+        elementValue = picker.$node[ 0 ].value,
+        elementDataValue = picker.$node.data( 'value' ),
+        valueString = elementDataValue || elementValue,
+        formatString = elementDataValue ? settings.formatSubmit : settings.format
+
+    clock.settings = settings
+    clock.$node = picker.$node
+
+    // The queue of methods that will be used to build item objects.
+    clock.queue = {
+        interval: 'i',
+        min: 'measure create',
+        max: 'measure create',
+        now: 'now create',
+        select: 'parse create validate',
+        highlight: 'parse create validate',
+        view: 'parse create validate',
+        disable: 'deactivate',
+        enable: 'activate'
+    }
+
+    // The component's item object.
+    clock.item = {}
+
+    clock.item.clear = null
+    clock.item.interval = settings.interval || 30
+    clock.item.disable = ( settings.disable || [] ).slice( 0 )
+    clock.item.enable = -(function( collectionDisabled ) {
+        return collectionDisabled[ 0 ] === true ? collectionDisabled.shift() : -1
+    })( clock.item.disable )
+
+    clock.
+        set( 'min', settings.min ).
+        set( 'max', settings.max ).
+        set( 'now' )
+
+    // When there’s a value, set the `select`, which in turn
+    // also sets the `highlight` and `view`.
+    if ( valueString ) {
+        clock.set( 'select', valueString, {
+            format: formatString,
+            fromValue: !!elementValue
+        })
+    }
+
+    // If there’s no value, default to highlighting “today”.
+    else {
+        clock.
+            set( 'select', null ).
+            set( 'highlight', clock.item.now )
+    }
+
+    // The keycode to movement mapping.
+    clock.key = {
+        40: 1, // Down
+        38: -1, // Up
+        39: 1, // Right
+        37: -1, // Left
+        go: function( timeChange ) {
+            clock.set(
+                'highlight',
+                clock.item.highlight.pick + timeChange * clock.item.interval,
+                { interval: timeChange * clock.item.interval }
+            )
+            this.render()
+        }
+    }
+
+
+    // Bind some picker events.
+    picker.
+        on( 'render', function() {
+            var $pickerHolder = picker.$root.children(),
+                $viewset = $pickerHolder.find( '.' + settings.klass.viewset ),
+                vendors = function( prop ) {
+                    return ['webkit', 'moz', 'ms', 'o', ''].map(function( vendor ) {
+                        return ( vendor ? '-' + vendor + '-' : '' ) + prop
+                    })
+                },
+                animations = function( $el, state ) {
+                    vendors( 'transform' ).map(function( prop ) {
+                        $el.css( prop, state )
+                    })
+                    vendors( 'transition' ).map(function( prop ) {
+                        $el.css( prop, state )
+                    })
+                }
+            if ( $viewset.length ) {
+                animations( $pickerHolder, 'none' )
+                $pickerHolder[ 0 ].scrollTop = ~~$viewset.position().top - ( $viewset[ 0 ].clientHeight * 2 )
+                animations( $pickerHolder, '' )
+            }
+        }, 1 ).
+        on( 'open', function() {
+            picker.$root.find( 'button' ).attr( 'disabled', false )
+        }, 1 ).
+        on( 'close', function() {
+            picker.$root.find( 'button' ).attr( 'disabled', true )
+        }, 1 )
+
+} //TimePicker
+
+
+/**
+ * Set a timepicker item object.
+ */
+TimePicker.prototype.set = function( type, value, options ) {
+
+    var clock = this,
+        clockItem = clock.item
+
+    // If the value is `null` just set it immediately.
+    if ( value === null ) {
+        if ( type == 'clear' ) type = 'select'
+        clockItem[ type ] = value
+        return clock
+    }
+
+    // Otherwise go through the queue of methods, and invoke the functions.
+    // Update this as the time unit, and set the final value as this item.
+    // * In the case of `enable`, keep the queue but set `disable` instead.
+    //   And in the case of `flip`, keep the queue but set `enable` instead.
+    clockItem[ ( type == 'enable' ? 'disable' : type == 'flip' ? 'enable' : type ) ] = clock.queue[ type ].split( ' ' ).map( function( method ) {
+        value = clock[ method ]( type, value, options )
+        return value
+    }).pop()
+
+    // Check if we need to cascade through more updates.
+    if ( type == 'select' ) {
+        clock.set( 'highlight', clockItem.select, options )
+    }
+    else if ( type == 'highlight' ) {
+        clock.set( 'view', clockItem.highlight, options )
+    }
+    else if ( type == 'interval' ) {
+        clock.
+            set( 'min', clockItem.min, options ).
+            set( 'max', clockItem.max, options )
+    }
+    else if ( type.match( /^(flip|min|max|disable|enable)$/ ) ) {
+        if ( type == 'min' ) {
+            clock.set( 'max', clockItem.max, options )
+        }
+        if ( clockItem.select && clock.disabled( clockItem.select ) ) {
+            clock.set( 'select', clockItem.select, options )
+        }
+        if ( clockItem.highlight && clock.disabled( clockItem.highlight ) ) {
+            clock.set( 'highlight', clockItem.highlight, options )
+        }
+    }
+
+    return clock
+} //TimePicker.prototype.set
+
+
+/**
+ * Get a timepicker item object.
+ */
+TimePicker.prototype.get = function( type ) {
+    return this.item[ type ]
+} //TimePicker.prototype.get
+
+
+/**
+ * Create a picker time object.
+ */
+TimePicker.prototype.create = function( type, value, options ) {
+
+    var clock = this
+
+    // If there’s no value, use the type as the value.
+    value = value === undefined ? type : value
+
+    // If it’s a date object, convert it into an array.
+    if ( _.isDate( value ) ) {
+        value = [ value.getHours(), value.getMinutes() ]
+    }
+
+    // If it’s an object, use the “pick” value.
+    if ( $.isPlainObject( value ) && _.isInteger( value.pick ) ) {
+        value = value.pick
+    }
+
+    // If it’s an array, convert it into minutes.
+    else if ( $.isArray( value ) ) {
+        value = +value[ 0 ] * MINUTES_IN_HOUR + (+value[ 1 ])
+    }
+
+    // If no valid value is passed, set it to “now”.
+    else if ( !_.isInteger( value ) ) {
+        value = clock.now( type, value, options )
+    }
+
+    // If we’re setting the max, make sure it’s greater than the min.
+    if ( type == 'max' && value < clock.item.min.pick ) {
+        value += MINUTES_IN_DAY
+    }
+
+    // If the value doesn’t fall directly on the interval,
+    // add one interval to indicate it as “passed”.
+    if ( type != 'min' && type != 'max' && (value - clock.item.min.pick) % clock.item.interval !== 0 ) {
+        value += clock.item.interval
+    }
+
+    // Normalize it into a “reachable” interval.
+    value = clock.normalize( type, value, options )
+
+    // Return the compiled object.
+    return {
+
+        // Divide to get hours from minutes.
+        hour: ~~( HOURS_IN_DAY + value / MINUTES_IN_HOUR ) % HOURS_IN_DAY,
+
+        // The remainder is the minutes.
+        mins: ( MINUTES_IN_HOUR + value % MINUTES_IN_HOUR ) % MINUTES_IN_HOUR,
+
+        // The time in total minutes.
+        time: ( MINUTES_IN_DAY + value ) % MINUTES_IN_DAY,
+
+        // Reference to the “relative” value to pick.
+        pick: value
+    }
+} //TimePicker.prototype.create
+
+
+/**
+ * Create a range limit object using an array, date object,
+ * literal “true”, or integer relative to another time.
+ */
+TimePicker.prototype.createRange = function( from, to ) {
+
+    var clock = this,
+        createTime = function( time ) {
+            if ( time === true || $.isArray( time ) || _.isDate( time ) ) {
+                return clock.create( time )
+            }
+            return time
+        }
+
+    // Create objects if possible.
+    if ( !_.isInteger( from ) ) {
+        from = createTime( from )
+    }
+    if ( !_.isInteger( to ) ) {
+        to = createTime( to )
+    }
+
+    // Create relative times.
+    if ( _.isInteger( from ) && $.isPlainObject( to ) ) {
+        from = [ to.hour, to.mins + ( from * clock.settings.interval ) ];
+    }
+    else if ( _.isInteger( to ) && $.isPlainObject( from ) ) {
+        to = [ from.hour, from.mins + ( to * clock.settings.interval ) ];
+    }
+
+    return {
+        from: createTime( from ),
+        to: createTime( to )
+    }
+} //TimePicker.prototype.createRange
+
+
+/**
+ * Check if a time unit falls within a time range object.
+ */
+TimePicker.prototype.withinRange = function( range, timeUnit ) {
+    range = this.createRange(range.from, range.to)
+    return timeUnit.pick >= range.from.pick && timeUnit.pick <= range.to.pick
+}
+
+
+/**
+ * Check if two time range objects overlap.
+ */
+TimePicker.prototype.overlapRanges = function( one, two ) {
+
+    var clock = this
+
+    // Convert the ranges into comparable times.
+    one = clock.createRange( one.from, one.to )
+    two = clock.createRange( two.from, two.to )
+
+    return clock.withinRange( one, two.from ) || clock.withinRange( one, two.to ) ||
+        clock.withinRange( two, one.from ) || clock.withinRange( two, one.to )
+}
+
+
+/**
+ * Get the time relative to now.
+ */
+TimePicker.prototype.now = function( type, value/*, options*/ ) {
+
+    var interval = this.item.interval,
+        date = new Date(),
+        nowMinutes = date.getHours() * MINUTES_IN_HOUR + date.getMinutes(),
+        isValueInteger = _.isInteger( value ),
+        isBelowInterval
+
+    // Make sure “now” falls within the interval range.
+    nowMinutes -= nowMinutes % interval
+
+    // Check if the difference is less than the interval itself.
+    isBelowInterval = value < 0 && interval * value + nowMinutes <= -interval
+
+    // Add an interval because the time has “passed”.
+    nowMinutes += type == 'min' && isBelowInterval ? 0 : interval
+
+    // If the value is a number, adjust by that many intervals.
+    if ( isValueInteger ) {
+        nowMinutes += interval * (
+            isBelowInterval && type != 'max' ?
+                value + 1 :
+                value
+            )
+    }
+
+    // Return the final calculation.
+    return nowMinutes
+} //TimePicker.prototype.now
+
+
+/**
+ * Normalize minutes to be “reachable” based on the min and interval.
+ */
+TimePicker.prototype.normalize = function( type, value/*, options*/ ) {
+
+    var interval = this.item.interval,
+        minTime = this.item.min && this.item.min.pick || 0
+
+    // If setting min time, don’t shift anything.
+    // Otherwise get the value and min difference and then
+    // normalize the difference with the interval.
+    value -= type == 'min' ? 0 : ( value - minTime ) % interval
+
+    // Return the adjusted value.
+    return value
+} //TimePicker.prototype.normalize
+
+
+/**
+ * Measure the range of minutes.
+ */
+TimePicker.prototype.measure = function( type, value, options ) {
+
+    var clock = this
+
+    // If it’s anything false-y, set it to the default.
+    if ( !value ) {
+        value = type == 'min' ? [ 0, 0 ] : [ HOURS_IN_DAY - 1, MINUTES_IN_HOUR - 1 ]
+    }
+
+    // If it’s a string, parse it.
+    if ( typeof value == 'string' ) {
+        value = clock.parse( type, value )
+    }
+
+    // If it’s a literal true, or an integer, make it relative to now.
+    else if ( value === true || _.isInteger( value ) ) {
+        value = clock.now( type, value, options )
+    }
+
+    // If it’s an object already, just normalize it.
+    else if ( $.isPlainObject( value ) && _.isInteger( value.pick ) ) {
+        value = clock.normalize( type, value.pick, options )
+    }
+
+    return value
+} ///TimePicker.prototype.measure
+
+
+/**
+ * Validate an object as enabled.
+ */
+TimePicker.prototype.validate = function( type, timeObject, options ) {
+
+    var clock = this,
+        interval = options && options.interval ? options.interval : clock.item.interval
+
+    // Check if the object is disabled.
+    if ( clock.disabled( timeObject ) ) {
+
+        // Shift with the interval until we reach an enabled time.
+        timeObject = clock.shift( timeObject, interval )
+    }
+
+    // Scope the object into range.
+    timeObject = clock.scope( timeObject )
+
+    // Do a second check to see if we landed on a disabled min/max.
+    // In that case, shift using the opposite interval as before.
+    if ( clock.disabled( timeObject ) ) {
+        timeObject = clock.shift( timeObject, interval * -1 )
+    }
+
+    // Return the final object.
+    return timeObject
+} //TimePicker.prototype.validate
+
+
+/**
+ * Check if an object is disabled.
+ */
+TimePicker.prototype.disabled = function( timeToVerify ) {
+
+    var clock = this,
+
+        // Filter through the disabled times to check if this is one.
+        isDisabledMatch = clock.item.disable.filter( function( timeToDisable ) {
+
+            // If the time is a number, match the hours.
+            if ( _.isInteger( timeToDisable ) ) {
+                return timeToVerify.hour == timeToDisable
+            }
+
+            // If it’s an array, create the object and match the times.
+            if ( $.isArray( timeToDisable ) || _.isDate( timeToDisable ) ) {
+                return timeToVerify.pick == clock.create( timeToDisable ).pick
+            }
+
+            // If it’s an object, match a time within the “from” and “to” range.
+            if ( $.isPlainObject( timeToDisable ) ) {
+                return clock.withinRange( timeToDisable, timeToVerify )
+            }
+        })
+
+    // If this time matches a disabled time, confirm it’s not inverted.
+    isDisabledMatch = isDisabledMatch.length && !isDisabledMatch.filter(function( timeToDisable ) {
+        return $.isArray( timeToDisable ) && timeToDisable[2] == 'inverted' ||
+            $.isPlainObject( timeToDisable ) && timeToDisable.inverted
+    }).length
+
+    // If the clock is "enabled" flag is flipped, flip the condition.
+    return clock.item.enable === -1 ? !isDisabledMatch : isDisabledMatch ||
+        timeToVerify.pick < clock.item.min.pick ||
+        timeToVerify.pick > clock.item.max.pick
+} //TimePicker.prototype.disabled
+
+
+/**
+ * Shift an object by an interval until we reach an enabled object.
+ */
+TimePicker.prototype.shift = function( timeObject, interval ) {
+
+    var clock = this,
+        minLimit = clock.item.min.pick,
+        maxLimit = clock.item.max.pick/*,
+        safety = 1000*/
+
+    interval = interval || clock.item.interval
+
+    // Keep looping as long as the time is disabled.
+    while ( /*safety &&*/ clock.disabled( timeObject ) ) {
+
+        /*safety -= 1
+        if ( !safety ) {
+            throw 'Fell into an infinite loop while shifting to ' + timeObject.hour + ':' + timeObject.mins + '.'
+        }*/
+
+        // Increase/decrease the time by the interval and keep looping.
+        timeObject = clock.create( timeObject.pick += interval )
+
+        // If we've looped beyond the limits, break out of the loop.
+        if ( timeObject.pick <= minLimit || timeObject.pick >= maxLimit ) {
+            break
+        }
+    }
+
+    // Return the final object.
+    return timeObject
+} //TimePicker.prototype.shift
+
+
+/**
+ * Scope an object to be within range of min and max.
+ */
+TimePicker.prototype.scope = function( timeObject ) {
+    var minLimit = this.item.min.pick,
+        maxLimit = this.item.max.pick
+    return this.create( timeObject.pick > maxLimit ? maxLimit : timeObject.pick < minLimit ? minLimit : timeObject )
+} //TimePicker.prototype.scope
+
+
+/**
+ * Parse a string into a usable type.
+ */
+TimePicker.prototype.parse = function( type, value, options ) {
+
+    var hour, minutes, isPM, item, parseValue,
+        clock = this,
+        parsingObject = {}
+
+    // If it’s already parsed, we’re good.
+    if ( !value || typeof value != 'string' ) {
+        return value
+    }
+
+    // We need a `.format` to parse the value with.
+    if ( !( options && options.format ) ) {
+        options = options || {}
+        options.format = clock.settings.format
+    }
+
+    // Convert the format into an array and then map through it.
+    clock.formats.toArray( options.format ).map( function( label ) {
+
+        var
+            substring,
+
+            // Grab the formatting label.
+            formattingLabel = clock.formats[ label ],
+
+            // The format length is from the formatting label function or the
+            // label length without the escaping exclamation (!) mark.
+            formatLength = formattingLabel ?
+                _.trigger( formattingLabel, clock, [ value, parsingObject ] ) :
+                label.replace( /^!/, '' ).length
+
+        // If there's a format label, split the value up to the format length.
+        // Then add it to the parsing object with appropriate label.
+        if ( formattingLabel ) {
+            substring = value.substr( 0, formatLength )
+            parsingObject[ label ] = substring.match(/^\d+$/) ? +substring : substring
+        }
+
+        // Update the time value as the substring from format length to end.
+        value = value.substr( formatLength )
+    })
+
+    // Grab the hour and minutes from the parsing object.
+    for ( item in parsingObject ) {
+        parseValue = parsingObject[item]
+        if ( _.isInteger(parseValue) ) {
+            if ( item.match(/^(h|hh)$/i) ) {
+                hour = parseValue
+                if ( item == 'h' || item == 'hh' ) {
+                    hour %= 12
+                }
+            }
+            else if ( item == 'i' ) {
+                minutes = parseValue
+            }
+        }
+        else if ( item.match(/^a$/i) && parseValue.match(/^p/i) && ('h' in parsingObject || 'hh' in parsingObject) ) {
+            isPM = true
+        }
+    }
+
+    // Calculate it in minutes and return.
+    return (isPM ? hour + 12 : hour) * MINUTES_IN_HOUR + minutes
+} //TimePicker.prototype.parse
+
+
+/**
+ * Various formats to display the object in.
+ */
+TimePicker.prototype.formats = {
+
+    h: function( string, timeObject ) {
+
+        // If there's string, then get the digits length.
+        // Otherwise return the selected hour in "standard" format.
+        return string ? _.digits( string ) : timeObject.hour % HOURS_TO_NOON || HOURS_TO_NOON
+    },
+    hh: function( string, timeObject ) {
+
+        // If there's a string, then the length is always 2.
+        // Otherwise return the selected hour in "standard" format with a leading zero.
+        return string ? 2 : _.lead( timeObject.hour % HOURS_TO_NOON || HOURS_TO_NOON )
+    },
+    H: function( string, timeObject ) {
+
+        // If there's string, then get the digits length.
+        // Otherwise return the selected hour in "military" format as a string.
+        return string ? _.digits( string ) : '' + ( timeObject.hour % 24 )
+    },
+    HH: function( string, timeObject ) {
+
+        // If there's string, then get the digits length.
+        // Otherwise return the selected hour in "military" format with a leading zero.
+        return string ? _.digits( string ) : _.lead( timeObject.hour % 24 )
+    },
+    i: function( string, timeObject ) {
+
+        // If there's a string, then the length is always 2.
+        // Otherwise return the selected minutes.
+        return string ? 2 : _.lead( timeObject.mins )
+    },
+    a: function( string, timeObject ) {
+
+        // If there's a string, then the length is always 4.
+        // Otherwise check if it's more than "noon" and return either am/pm.
+        return string ? 4 : MINUTES_IN_DAY / 2 > timeObject.time % MINUTES_IN_DAY ? 'a.m.' : 'p.m.'
+    },
+    A: function( string, timeObject ) {
+
+        // If there's a string, then the length is always 2.
+        // Otherwise check if it's more than "noon" and return either am/pm.
+        return string ? 2 : MINUTES_IN_DAY / 2 > timeObject.time % MINUTES_IN_DAY ? 'AM' : 'PM'
+    },
+
+    // Create an array by splitting the formatting string passed.
+    toArray: function( formatString ) { return formatString.split( /(h{1,2}|H{1,2}|i|a|A|!.)/g ) },
+
+    // Format an object into a string using the formatting options.
+    toString: function ( formatString, itemObject ) {
+        var clock = this
+        return clock.formats.toArray( formatString ).map( function( label ) {
+            return _.trigger( clock.formats[ label ], clock, [ 0, itemObject ] ) || label.replace( /^!/, '' )
+        }).join( '' )
+    }
+} //TimePicker.prototype.formats
+
+
+
+
+/**
+ * Check if two time units are the exact.
+ */
+TimePicker.prototype.isTimeExact = function( one, two ) {
+
+    var clock = this
+
+    // When we’re working with minutes, do a direct comparison.
+    if (
+        ( _.isInteger( one ) && _.isInteger( two ) ) ||
+        ( typeof one == 'boolean' && typeof two == 'boolean' )
+     ) {
+        return one === two
+    }
+
+    // When we’re working with time representations, compare the “pick” value.
+    if (
+        ( _.isDate( one ) || $.isArray( one ) ) &&
+        ( _.isDate( two ) || $.isArray( two ) )
+    ) {
+        return clock.create( one ).pick === clock.create( two ).pick
+    }
+
+    // When we’re working with range objects, compare the “from” and “to”.
+    if ( $.isPlainObject( one ) && $.isPlainObject( two ) ) {
+        return clock.isTimeExact( one.from, two.from ) && clock.isTimeExact( one.to, two.to )
+    }
+
+    return false
+}
+
+
+/**
+ * Check if two time units overlap.
+ */
+TimePicker.prototype.isTimeOverlap = function( one, two ) {
+
+    var clock = this
+
+    // When we’re working with an integer, compare the hours.
+    if ( _.isInteger( one ) && ( _.isDate( two ) || $.isArray( two ) ) ) {
+        return one === clock.create( two ).hour
+    }
+    if ( _.isInteger( two ) && ( _.isDate( one ) || $.isArray( one ) ) ) {
+        return two === clock.create( one ).hour
+    }
+
+    // When we’re working with range objects, check if the ranges overlap.
+    if ( $.isPlainObject( one ) && $.isPlainObject( two ) ) {
+        return clock.overlapRanges( one, two )
+    }
+
+    return false
+}
+
+
+/**
+ * Flip the “enabled” state.
+ */
+TimePicker.prototype.flipEnable = function(val) {
+    var itemObject = this.item
+    itemObject.enable = val || (itemObject.enable == -1 ? 1 : -1)
+}
+
+
+/**
+ * Mark a collection of times as “disabled”.
+ */
+TimePicker.prototype.deactivate = function( type, timesToDisable ) {
+
+    var clock = this,
+        disabledItems = clock.item.disable.slice(0)
+
+
+    // If we’re flipping, that’s all we need to do.
+    if ( timesToDisable == 'flip' ) {
+        clock.flipEnable()
+    }
+
+    else if ( timesToDisable === false ) {
+        clock.flipEnable(1)
+        disabledItems = []
+    }
+
+    else if ( timesToDisable === true ) {
+        clock.flipEnable(-1)
+        disabledItems = []
+    }
+
+    // Otherwise go through the times to disable.
+    else {
+
+        timesToDisable.map(function( unitToDisable ) {
+
+            var matchFound
+
+            // When we have disabled items, check for matches.
+            // If something is matched, immediately break out.
+            for ( var index = 0; index < disabledItems.length; index += 1 ) {
+                if ( clock.isTimeExact( unitToDisable, disabledItems[index] ) ) {
+                    matchFound = true
+                    break
+                }
+            }
+
+            // If nothing was found, add the validated unit to the collection.
+            if ( !matchFound ) {
+                if (
+                    _.isInteger( unitToDisable ) ||
+                    _.isDate( unitToDisable ) ||
+                    $.isArray( unitToDisable ) ||
+                    ( $.isPlainObject( unitToDisable ) && unitToDisable.from && unitToDisable.to )
+                ) {
+                    disabledItems.push( unitToDisable )
+                }
+            }
+        })
+    }
+
+    // Return the updated collection.
+    return disabledItems
+} //TimePicker.prototype.deactivate
+
+
+/**
+ * Mark a collection of times as “enabled”.
+ */
+TimePicker.prototype.activate = function( type, timesToEnable ) {
+
+    var clock = this,
+        disabledItems = clock.item.disable,
+        disabledItemsCount = disabledItems.length
+
+    // If we’re flipping, that’s all we need to do.
+    if ( timesToEnable == 'flip' ) {
+        clock.flipEnable()
+    }
+
+    else if ( timesToEnable === true ) {
+        clock.flipEnable(1)
+        disabledItems = []
+    }
+
+    else if ( timesToEnable === false ) {
+        clock.flipEnable(-1)
+        disabledItems = []
+    }
+
+    // Otherwise go through the disabled times.
+    else {
+
+        timesToEnable.map(function( unitToEnable ) {
+
+            var matchFound,
+                disabledUnit,
+                index,
+                isRangeMatched
+
+            // Go through the disabled items and try to find a match.
+            for ( index = 0; index < disabledItemsCount; index += 1 ) {
+
+                disabledUnit = disabledItems[index]
+
+                // When an exact match is found, remove it from the collection.
+                if ( clock.isTimeExact( disabledUnit, unitToEnable ) ) {
+                    matchFound = disabledItems[index] = null
+                    isRangeMatched = true
+                    break
+                }
+
+                // When an overlapped match is found, add the “inverted” state to it.
+                else if ( clock.isTimeOverlap( disabledUnit, unitToEnable ) ) {
+                    if ( $.isPlainObject( unitToEnable ) ) {
+                        unitToEnable.inverted = true
+                        matchFound = unitToEnable
+                    }
+                    else if ( $.isArray( unitToEnable ) ) {
+                        matchFound = unitToEnable
+                        if ( !matchFound[2] ) matchFound.push( 'inverted' )
+                    }
+                    else if ( _.isDate( unitToEnable ) ) {
+                        matchFound = [ unitToEnable.getFullYear(), unitToEnable.getMonth(), unitToEnable.getDate(), 'inverted' ]
+                    }
+                    break
+                }
+            }
+
+            // If a match was found, remove a previous duplicate entry.
+            if ( matchFound ) for ( index = 0; index < disabledItemsCount; index += 1 ) {
+                if ( clock.isTimeExact( disabledItems[index], unitToEnable ) ) {
+                    disabledItems[index] = null
+                    break
+                }
+            }
+
+            // In the event that we’re dealing with an overlap of range times,
+            // make sure there are no “inverted” times because of it.
+            if ( isRangeMatched ) for ( index = 0; index < disabledItemsCount; index += 1 ) {
+                if ( clock.isTimeOverlap( disabledItems[index], unitToEnable ) ) {
+                    disabledItems[index] = null
+                    break
+                }
+            }
+
+            // If something is still matched, add it into the collection.
+            if ( matchFound ) {
+                disabledItems.push( matchFound )
+            }
+        })
+    }
+
+    // Return the updated collection.
+    return disabledItems.filter(function( val ) { return val != null })
+} //TimePicker.prototype.activate
+
+
+/**
+ * The division to use for the range intervals.
+ */
+TimePicker.prototype.i = function( type, value/*, options*/ ) {
+    return _.isInteger( value ) && value > 0 ? value : this.item.interval
+}
+
+
+/**
+ * Create a string for the nodes in the picker.
+ */
+TimePicker.prototype.nodes = function( isOpen ) {
+
+    var
+        clock = this,
+        settings = clock.settings,
+        selectedObject = clock.item.select,
+        highlightedObject = clock.item.highlight,
+        viewsetObject = clock.item.view,
+        disabledCollection = clock.item.disable
+
+    return _.node(
+        'ul',
+        _.group({
+            min: clock.item.min.pick,
+            max: clock.item.max.pick,
+            i: clock.item.interval,
+            node: 'li',
+            item: function( loopedTime ) {
+                loopedTime = clock.create( loopedTime )
+                var timeMinutes = loopedTime.pick,
+                    isSelected = selectedObject && selectedObject.pick == timeMinutes,
+                    isHighlighted = highlightedObject && highlightedObject.pick == timeMinutes,
+                    isDisabled = disabledCollection && clock.disabled( loopedTime )
+                return [
+                    _.trigger( clock.formats.toString, clock, [ _.trigger( settings.formatLabel, clock, [ loopedTime ] ) || settings.format, loopedTime ] ),
+                    (function( klasses ) {
+
+                        if ( isSelected ) {
+                            klasses.push( settings.klass.selected )
+                        }
+
+                        if ( isHighlighted ) {
+                            klasses.push( settings.klass.highlighted )
+                        }
+
+                        if ( viewsetObject && viewsetObject.pick == timeMinutes ) {
+                            klasses.push( settings.klass.viewset )
+                        }
+
+                        if ( isDisabled ) {
+                            klasses.push( settings.klass.disabled )
+                        }
+
+                        return klasses.join( ' ' )
+                    })( [ settings.klass.listItem ] ),
+                    'data-pick=' + loopedTime.pick + ' ' + _.ariaAttr({
+                        role: 'option',
+                        selected: isSelected && clock.$node.val() === _.trigger(
+                                clock.formats.toString,
+                                clock,
+                                [ settings.format, loopedTime ]
+                            ) ? true : null,
+                        activedescendant: isHighlighted ? true : null,
+                        disabled: isDisabled ? true : null
+                    })
+                ]
+            }
+        }) +
+
+        // * For Firefox forms to submit, make sure to set the button’s `type` attribute as “button”.
+        _.node(
+            'li',
+            _.node(
+                'button',
+                settings.clear,
+                settings.klass.buttonClear,
+                'type=button data-clear=1' + ( isOpen ? '' : ' disabled' ) + ' ' +
+                _.ariaAttr({ controls: clock.$node[0].id })
+            ),
+            '', _.ariaAttr({ role: 'presentation' })
+        ),
+        settings.klass.list,
+        _.ariaAttr({ role: 'listbox', controls: clock.$node[0].id })
+    )
+} //TimePicker.prototype.nodes
+
+
+
+
+
+
+
+/* ==========================================================================
+   Extend the picker to add the component with the defaults.
+   ========================================================================== */
+
+TimePicker.defaults = (function( prefix ) {
+
+    return {
+
+        // Clear
+        clear: 'Clear',
+
+        // The format to show on the `input` element
+        format: 'h:i A',
+
+        // The interval between each time
+        interval: 30,
+
+        // Classes
+        klass: {
+
+            picker: prefix + ' ' + prefix + '--time',
+            holder: prefix + '__holder',
+
+            list: prefix + '__list',
+            listItem: prefix + '__list-item',
+
+            disabled: prefix + '__list-item--disabled',
+            selected: prefix + '__list-item--selected',
+            highlighted: prefix + '__list-item--highlighted',
+            viewset: prefix + '__list-item--viewset',
+            now: prefix + '__list-item--now',
+
+            buttonClear: prefix + '__button--clear'
+        }
+    }
+})( Picker.klasses().picker )
+
+
+
+
+
+/**
+ * Extend the picker to add the time picker.
+ */
+Picker.extend( 'pickatime', TimePicker )
+
+
+}));
+
+
+
+
+
+/*jshint
+   asi: true,
+   unused: true,
+   boss: true,
+   loopfunc: true,
+   eqnull: true
+ */
+
+
+/*!
+ * Legacy browser support
+ */
+
+
+// Map array support
+if ( ![].map ) {
+    Array.prototype.map = function ( callback, self ) {
+        var array = this, len = array.length, newArray = new Array( len )
+        for ( var i = 0; i < len; i++ ) {
+            if ( i in array ) {
+                newArray[ i ] = callback.call( self, array[ i ], i, array )
+            }
+        }
+        return newArray
+    }
+}
+
+
+// Filter array support
+if ( ![].filter ) {
+    Array.prototype.filter = function( callback ) {
+        if ( this == null ) throw new TypeError()
+        var t = Object( this ), len = t.length >>> 0
+        if ( typeof callback != 'function' ) throw new TypeError()
+        var newArray = [], thisp = arguments[ 1 ]
+        for ( var i = 0; i < len; i++ ) {
+          if ( i in t ) {
+            var val = t[ i ]
+            if ( callback.call( thisp, val, i, t ) ) newArray.push( val )
+          }
+        }
+        return newArray
+    }
+}
+
+
+// Index of array support
+if ( ![].indexOf ) {
+    Array.prototype.indexOf = function( searchElement ) {
+        if ( this == null ) throw new TypeError()
+        var t = Object( this ), len = t.length >>> 0
+        if ( len === 0 ) return -1
+        var n = 0
+        if ( arguments.length > 1 ) {
+            n = Number( arguments[ 1 ] )
+            if ( n != n ) {
+                n = 0
+            }
+            else if ( n !== 0 && n != Infinity && n != -Infinity ) {
+                n = ( n > 0 || -1 ) * Math.floor( Math.abs( n ) )
+            }
+        }
+        if ( n >= len ) return -1
+        var k = n >= 0 ? n : Math.max( len - Math.abs( n ), 0 )
+        for ( ; k < len; k++ ) {
+            if ( k in t && t[ k ] === searchElement ) return k
+        }
+        return -1
+    }
+}
+
+
+/*!
+ * Cross-Browser Split 1.1.1
+ * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
+ * Available under the MIT License
+ * http://blog.stevenlevithan.com/archives/cross-browser-split
+ */
+var nativeSplit = String.prototype.split, compliantExecNpcg = /()??/.exec('')[1] === undefined
+String.prototype.split = function(separator, limit) {
+    var str = this
+    if (Object.prototype.toString.call(separator) !== '[object RegExp]') {
+        return nativeSplit.call(str, separator, limit)
+    }
+    var output = [],
+        flags = (separator.ignoreCase ? 'i' : '') +
+                (separator.multiline  ? 'm' : '') +
+                (separator.extended   ? 'x' : '') +
+                (separator.sticky     ? 'y' : ''),
+        lastLastIndex = 0,
+        separator2, match, lastIndex, lastLength
+    separator = new RegExp(separator.source, flags + 'g')
+    str += ''
+    if (!compliantExecNpcg) {
+        separator2 = new RegExp('^' + separator.source + '$(?!\\s)', flags)
+    }
+    limit = limit === undefined ? -1 >>> 0 : limit >>> 0
+    while (match = separator.exec(str)) {
+        lastIndex = match.index + match[0].length
+        if (lastIndex > lastLastIndex) {
+            output.push(str.slice(lastLastIndex, match.index))
+            if (!compliantExecNpcg && match.length > 1) {
+                match[0].replace(separator2, function () {
+                    for (var i = 1; i < arguments.length - 2; i++) {
+                        if (arguments[i] === undefined) {
+                            match[i] = undefined
+                        }
+                    }
+                })
+            }
+            if (match.length > 1 && match.index < str.length) {
+                Array.prototype.push.apply(output, match.slice(1))
+            }
+            lastLength = match[0].length
+            lastLastIndex = lastIndex
+            if (output.length >= limit) {
+                break
+            }
+        }
+        if (separator.lastIndex === match.index) {
+            separator.lastIndex++
+        }
+    }
+    if (lastLastIndex === str.length) {
+        if (lastLength || !separator.test('')) {
+            output.push('')
+        }
+    } else {
+        output.push(str.slice(lastLastIndex))
+    }
+    return output.length > limit ? output.slice(0, limit) : output
+};
+
+/*! 
+ * jQuery Steps v1.1.0 - 09/04/2014
+ * Copyright (c) 2014 Rafael Staib (http://www.jquery-steps.com)
+ * Licensed under MIT http://www.opensource.org/licenses/MIT
+ */
+!function(a,b){function c(a,b){o(a).push(b)}function d(d,e,f){var g=d.children(e.headerTag),h=d.children(e.bodyTag);g.length>h.length?R(Z,"contents"):g.length<h.length&&R(Z,"titles");var i=e.startIndex;if(f.stepCount=g.length,e.saveState&&a.cookie){var j=a.cookie(U+q(d)),k=parseInt(j,0);!isNaN(k)&&k<f.stepCount&&(i=k)}f.currentIndex=i,g.each(function(e){var f=a(this),g=h.eq(e),i=g.data("mode"),j=null==i?$.html:r($,/^\s*$/.test(i)||isNaN(i)?i:parseInt(i,0)),k=j===$.html||g.data("url")===b?"":g.data("url"),l=j!==$.html&&"1"===g.data("loaded"),m=a.extend({},bb,{title:f.html(),content:j===$.html?g.html():"",contentUrl:k,contentMode:j,contentLoaded:l});c(d,m)})}function e(a){a.triggerHandler("canceled")}function f(a,b){return a.currentIndex-b}function g(b,c){var d=i(b);b.unbind(d).removeData("uid").removeData("options").removeData("state").removeData("steps").removeData("eventNamespace").find(".actions a").unbind(d),b.removeClass(c.clearFixCssClass+" vertical");var e=b.find(".content > *");e.removeData("loaded").removeData("mode").removeData("url"),e.removeAttr("id").removeAttr("role").removeAttr("tabindex").removeAttr("class").removeAttr("style")._removeAria("labelledby")._removeAria("hidden"),b.find(".content > [data-mode='async'],.content > [data-mode='iframe']").empty();var f=a('<{0} class="{1}"></{0}>'.format(b.get(0).tagName,b.attr("class"))),g=b._id();return null!=g&&""!==g&&f._id(g),f.html(b.find(".content").html()),b.after(f),b.remove(),f}function h(a,b){var c=a.find(".steps li").eq(b.currentIndex);a.triggerHandler("finishing",[b.currentIndex])?(c.addClass("done").removeClass("error"),a.triggerHandler("finished",[b.currentIndex])):c.addClass("error")}function i(a){var b=a.data("eventNamespace");return null==b&&(b="."+q(a),a.data("eventNamespace",b)),b}function j(a,b){var c=q(a);return a.find("#"+c+V+b)}function k(a,b){var c=q(a);return a.find("#"+c+W+b)}function l(a,b){var c=q(a);return a.find("#"+c+X+b)}function m(a){return a.data("options")}function n(a){return a.data("state")}function o(a){return a.data("steps")}function p(a,b){var c=o(a);return(0>b||b>=c.length)&&R(Y),c[b]}function q(a){var b=a.data("uid");return null==b&&(b=a._id(),null==b&&(b="steps-uid-".concat(T),a._id(b)),T++,a.data("uid",b)),b}function r(a,c){if(S("enumType",a),S("keyOrValue",c),"string"==typeof c){var d=a[c];return d===b&&R("The enum key '{0}' does not exist.",c),d}if("number"==typeof c){for(var e in a)if(a[e]===c)return c;R("Invalid enum value '{0}'.",c)}else R("Invalid key or value type.")}function s(a,b,c){return B(a,b,c,v(c,1))}function t(a,b,c){return B(a,b,c,f(c,1))}function u(a,b,c,d){if((0>d||d>=c.stepCount)&&R(Y),!(b.forceMoveForward&&d<c.currentIndex)){var e=c.currentIndex;return a.triggerHandler("stepChanging",[c.currentIndex,d])?(c.currentIndex=d,O(a,b,c),E(a,b,c,e),D(a,b,c),A(a,b,c),P(a,b,c,d,e,function(){a.triggerHandler("stepChanged",[d,e])})):a.find(".steps li").eq(e).addClass("error"),!0}}function v(a,b){return a.currentIndex+b}function w(b){var c=a.extend(!0,{},cb,b);return this.each(function(){var b=a(this),e={currentIndex:c.startIndex,currentStep:null,stepCount:0,transitionElement:null};b.data("options",c),b.data("state",e),b.data("steps",[]),d(b,c,e),J(b,c,e),G(b,c),c.autoFocus&&0===T&&j(b,c.startIndex).focus(),b.triggerHandler("init",[c.startIndex])})}function x(b,c,d,e,f){(0>e||e>d.stepCount)&&R(Y),f=a.extend({},bb,f),y(b,e,f),d.currentIndex!==d.stepCount&&d.currentIndex>=e&&(d.currentIndex++,O(b,c,d)),d.stepCount++;var g=b.find(".content"),h=a("<{0}>{1}</{0}>".format(c.headerTag,f.title)),i=a("<{0}></{0}>".format(c.bodyTag));return(null==f.contentMode||f.contentMode===$.html)&&i.html(f.content),0===e?g.prepend(i).prepend(h):k(b,e-1).after(i).after(h),K(b,d,i,e),N(b,c,d,h,e),F(b,c,d,e),e===d.currentIndex&&E(b,c,d),D(b,c,d),b}function y(a,b,c){o(a).splice(b,0,c)}function z(b){var c=a(this),d=m(c),e=n(c);if(d.suppressPaginationOnFocus&&c.find(":focus").is(":input"))return b.preventDefault(),!1;var f={left:37,right:39};b.keyCode===f.left?(b.preventDefault(),t(c,d,e)):b.keyCode===f.right&&(b.preventDefault(),s(c,d,e))}function A(b,c,d){if(d.stepCount>0){var e=d.currentIndex,f=p(b,e);if(!c.enableContentCache||!f.contentLoaded)switch(r($,f.contentMode)){case $.iframe:b.find(".content > .body").eq(d.currentIndex).empty().html('<iframe src="'+f.contentUrl+'" frameborder="0" scrolling="no" />').data("loaded","1");break;case $.async:var g=k(b,e)._aria("busy","true").empty().append(M(c.loadingTemplate,{text:c.labels.loading}));a.ajax({url:f.contentUrl,cache:!1}).done(function(a){g.empty().html(a)._aria("busy","false").data("loaded","1"),b.triggerHandler("contentLoaded",[e])})}}}function B(a,b,c,d){var e=c.currentIndex;if(d>=0&&d<c.stepCount&&!(b.forceMoveForward&&d<c.currentIndex)){var f=j(a,d),g=f.parent(),h=g.hasClass("disabled");return g._enableAria(),f.click(),e===c.currentIndex&&h?(g._enableAria(!1),!1):!0}return!1}function C(b){b.preventDefault();var c=a(this),d=c.parent().parent().parent().parent(),f=m(d),g=n(d),i=c.attr("href");switch(i.substring(i.lastIndexOf("#")+1)){case"cancel":e(d);break;case"finish":h(d,g);break;case"next":s(d,f,g);break;case"previous":t(d,f,g)}}function D(a,b,c){if(b.enablePagination){var d=a.find(".actions a[href$='#finish']").parent(),e=a.find(".actions a[href$='#next']").parent();if(!b.forceMoveForward){var f=a.find(".actions a[href$='#previous']").parent();f._enableAria(c.currentIndex>0)}b.enableFinishButton&&b.showFinishButtonAlways?(d._enableAria(c.stepCount>0),e._enableAria(c.stepCount>1&&c.stepCount>c.currentIndex+1)):(d._showAria(b.enableFinishButton&&c.stepCount===c.currentIndex+1),e._showAria(0===c.stepCount||c.stepCount>c.currentIndex+1)._enableAria(c.stepCount>c.currentIndex+1||!b.enableFinishButton))}}function E(b,c,d,e){var f=j(b,d.currentIndex),g=a('<span class="current-info audible">'+c.labels.current+" </span>"),h=b.find(".content > .title");if(null!=e){var i=j(b,e);i.parent().addClass("done").removeClass("error")._selectAria(!1),h.eq(e).removeClass("current").next(".body").removeClass("current"),g=i.find(".current-info"),f.focus()}f.prepend(g).parent()._selectAria().removeClass("done")._enableAria(),h.eq(d.currentIndex).addClass("current").next(".body").addClass("current")}function F(a,b,c,d){for(var e=q(a),f=d;f<c.stepCount;f++){var g=e+V+f,h=e+W+f,i=e+X+f,j=a.find(".title").eq(f)._id(i);a.find(".steps a").eq(f)._id(g)._aria("controls",h).attr("href","#"+i).html(M(b.titleTemplate,{index:f+1,title:j.html()})),a.find(".body").eq(f)._id(h)._aria("labelledby",i)}}function G(a,b){var c=i(a);a.bind("canceled"+c,b.onCanceled),a.bind("contentLoaded"+c,b.onContentLoaded),a.bind("finishing"+c,b.onFinishing),a.bind("finished"+c,b.onFinished),a.bind("init"+c,b.onInit),a.bind("stepChanging"+c,b.onStepChanging),a.bind("stepChanged"+c,b.onStepChanged),b.enableKeyNavigation&&a.bind("keyup"+c,z),a.find(".actions a").bind("click"+c,C)}function H(a,b,c,d){return 0>d||d>=c.stepCount||c.currentIndex===d?!1:(I(a,d),c.currentIndex>d&&(c.currentIndex--,O(a,b,c)),c.stepCount--,l(a,d).remove(),k(a,d).remove(),j(a,d).parent().remove(),0===d&&a.find(".steps li").first().addClass("first"),d===c.stepCount&&a.find(".steps li").eq(d).addClass("last"),F(a,b,c,d),D(a,b,c),!0)}function I(a,b){o(a).splice(b,1)}function J(b,c,d){var e='<{0} class="{1}">{2}</{0}>',f=r(_,c.stepsOrientation),g=f===_.vertical?" vertical":"",h=a(e.format(c.contentContainerTag,"content "+c.clearFixCssClass,b.html())),i=a(e.format(c.stepsContainerTag,"steps "+c.clearFixCssClass,'<ul role="tablist"></ul>')),j=h.children(c.headerTag),k=h.children(c.bodyTag);b.attr("role","application").empty().append(i).append(h).addClass(c.cssClass+" "+c.clearFixCssClass+g),k.each(function(c){K(b,d,a(this),c)}),j.each(function(e){N(b,c,d,a(this),e)}),E(b,c,d),L(b,c,d)}function K(a,b,c,d){var e=q(a),f=e+W+d,g=e+X+d;c._id(f).attr("role","tabpanel")._aria("labelledby",g).addClass("body")._showAria(b.currentIndex===d)}function L(a,b,c){if(b.enablePagination){var d='<{0} class="actions {1}"><ul role="menu" aria-label="{2}">{3}</ul></{0}>',e='<li><a href="#{0}" role="menuitem">{1}</a></li>',f="";b.forceMoveForward||(f+=e.format("previous",b.labels.previous)),f+=e.format("next",b.labels.next),b.enableFinishButton&&(f+=e.format("finish",b.labels.finish)),b.enableCancelButton&&(f+=e.format("cancel",b.labels.cancel)),a.append(d.format(b.actionContainerTag,b.clearFixCssClass,b.labels.pagination,f)),D(a,b,c),A(a,b,c)}}function M(a,c){for(var d=a.match(/#([a-z]*)#/gi),e=0;e<d.length;e++){var f=d[e],g=f.substring(1,f.length-1);c[g]===b&&R("The key '{0}' does not exist in the substitute collection!",g),a=a.replace(f,c[g])}return a}function N(b,c,d,e,f){var g=q(b),h=g+V+f,j=g+W+f,k=g+X+f,l=b.find(".steps > ul"),m=M(c.titleTemplate,{index:f+1,title:e.html()}),n=a('<li role="tab"><a id="'+h+'" href="#'+k+'" aria-controls="'+j+'">'+m+"</a></li>");n._enableAria(c.enableAllSteps||d.currentIndex>f),d.currentIndex>f&&n.addClass("done"),e._id(k).attr("tabindex","-1").addClass("title"),0===f?l.prepend(n):l.find("li").eq(f-1).after(n),0===f&&l.find("li").removeClass("first").eq(f).addClass("first"),f===d.stepCount-1&&l.find("li").removeClass("last").eq(f).addClass("last"),n.children("a").bind("click"+i(b),Q)}function O(b,c,d){c.saveState&&a.cookie&&a.cookie(U+q(b),d.currentIndex)}function P(b,c,d,e,f,g){var h=b.find(".content > .body"),i=r(ab,c.transitionEffect),j=c.transitionEffectSpeed,k=h.eq(e),l=h.eq(f);switch(i){case ab.fade:case ab.slide:var m=i===ab.fade?"fadeOut":"slideUp",o=i===ab.fade?"fadeIn":"slideDown";d.transitionElement=k,l[m](j,function(){var b=a(this)._showAria(!1).parent().parent(),c=n(b);c.transitionElement&&(c.transitionElement[o](j,function(){a(this)._showAria()}).promise().done(g),c.transitionElement=null)});break;case ab.slideLeft:var p=l.outerWidth(!0),q=e>f?-p:p,s=e>f?p:-p;a.when(l.animate({left:q},j,function(){a(this)._showAria(!1)}),k.css("left",s+"px")._showAria().animate({left:0},j)).done(g);break;default:a.when(l._showAria(!1),k._showAria()).done(g)}}function Q(b){b.preventDefault();var c=a(this),d=c.parent().parent().parent().parent(),e=m(d),f=n(d),g=f.currentIndex;if(c.parent().is(":not(.disabled):not(.current)")){var h=c.attr("href"),i=parseInt(h.substring(h.lastIndexOf("-")+1),0);u(d,e,f,i)}return g===f.currentIndex?(j(d,g).focus(),!1):void 0}function R(a){throw arguments.length>1&&(a=a.format(Array.prototype.slice.call(arguments,1))),new Error(a)}function S(a,b){null==b&&R("The argument '{0}' is null or undefined.",a)}a.fn.extend({_aria:function(a,b){return this.attr("aria-"+a,b)},_removeAria:function(a){return this.removeAttr("aria-"+a)},_enableAria:function(a){return null==a||a?this.removeClass("disabled")._aria("disabled","false"):this.addClass("disabled")._aria("disabled","true")},_showAria:function(a){return null==a||a?this.show()._aria("hidden","false"):this.hide()._aria("hidden","true")},_selectAria:function(a){return null==a||a?this.addClass("current")._aria("selected","true"):this.removeClass("current")._aria("selected","false")},_id:function(a){return a?this.attr("id",a):this.attr("id")}}),String.prototype.format||(String.prototype.format=function(){for(var b=1===arguments.length&&a.isArray(arguments[0])?arguments[0]:arguments,c=this,d=0;d<b.length;d++){var e=new RegExp("\\{"+d+"\\}","gm");c=c.replace(e,b[d])}return c});var T=0,U="jQu3ry_5teps_St@te_",V="-t-",W="-p-",X="-h-",Y="Index out of range.",Z="One or more corresponding step {0} are missing.";a.fn.steps=function(b){return a.fn.steps[b]?a.fn.steps[b].apply(this,Array.prototype.slice.call(arguments,1)):"object"!=typeof b&&b?void a.error("Method "+b+" does not exist on jQuery.steps"):w.apply(this,arguments)},a.fn.steps.add=function(a){var b=n(this);return x(this,m(this),b,b.stepCount,a)},a.fn.steps.destroy=function(){return g(this,m(this))},a.fn.steps.finish=function(){h(this,n(this))},a.fn.steps.getCurrentIndex=function(){return n(this).currentIndex},a.fn.steps.getCurrentStep=function(){return p(this,n(this).currentIndex)},a.fn.steps.getStep=function(a){return p(this,a)},a.fn.steps.insert=function(a,b){return x(this,m(this),n(this),a,b)},a.fn.steps.next=function(){return s(this,m(this),n(this))},a.fn.steps.previous=function(){return t(this,m(this),n(this))},a.fn.steps.remove=function(a){return H(this,m(this),n(this),a)},a.fn.steps.setStep=function(){throw new Error("Not yet implemented!")},a.fn.steps.skip=function(){throw new Error("Not yet implemented!")};var $=a.fn.steps.contentMode={html:0,iframe:1,async:2},_=a.fn.steps.stepsOrientation={horizontal:0,vertical:1},ab=a.fn.steps.transitionEffect={none:0,fade:1,slide:2,slideLeft:3},bb=a.fn.steps.stepModel={title:"",content:"",contentUrl:"",contentMode:$.html,contentLoaded:!1},cb=a.fn.steps.defaults={headerTag:"h1",bodyTag:"div",contentContainerTag:"div",actionContainerTag:"div",stepsContainerTag:"div",cssClass:"wizard",clearFixCssClass:"clearfix",stepsOrientation:_.horizontal,titleTemplate:'<span class="number">#index#.</span> #title#',loadingTemplate:'<span class="spinner"></span> #text#',autoFocus:!1,enableAllSteps:!1,enableKeyNavigation:!0,enablePagination:!0,suppressPaginationOnFocus:!0,enableContentCache:!0,enableCancelButton:!1,enableFinishButton:!0,preloadContent:!1,showFinishButtonAlways:!1,forceMoveForward:!1,saveState:!1,startIndex:0,transitionEffect:ab.none,transitionEffectSpeed:200,onStepChanging:function(){return!0},onStepChanged:function(){},onCanceled:function(){},onFinishing:function(){return!0},onFinished:function(){},onContentLoaded:function(){},onInit:function(){},labels:{cancel:"Cancel",current:"current step:",pagination:"Pagination",finish:"Finish",next:"Next",previous:"Previous",loading:"Loading ..."}}}(jQuery);
+/*! jQuery Validation Plugin - v1.15.0 - 2/24/2016
+ * http://jqueryvalidation.org/
+ * Copyright (c) 2016 Jörn Zaefferer; Licensed MIT */
+!function(a){"function"==typeof define&&define.amd?define(["jquery"],a):"object"==typeof module&&module.exports?module.exports=a(require("jquery")):a(jQuery)}(function(a){a.extend(a.fn,{validate:function(b){if(!this.length)return void(b&&b.debug&&window.console&&console.warn("Nothing selected, can't validate, returning nothing."));var c=a.data(this[0],"validator");return c?c:(this.attr("novalidate","novalidate"),c=new a.validator(b,this[0]),a.data(this[0],"validator",c),c.settings.onsubmit&&(this.on("click.validate",":submit",function(b){c.settings.submitHandler&&(c.submitButton=b.target),a(this).hasClass("cancel")&&(c.cancelSubmit=!0),void 0!==a(this).attr("formnovalidate")&&(c.cancelSubmit=!0)}),this.on("submit.validate",function(b){function d(){var d,e;return c.settings.submitHandler?(c.submitButton&&(d=a("<input type='hidden'/>").attr("name",c.submitButton.name).val(a(c.submitButton).val()).appendTo(c.currentForm)),e=c.settings.submitHandler.call(c,c.currentForm,b),c.submitButton&&d.remove(),void 0!==e?e:!1):!0}return c.settings.debug&&b.preventDefault(),c.cancelSubmit?(c.cancelSubmit=!1,d()):c.form()?c.pendingRequest?(c.formSubmitted=!0,!1):d():(c.focusInvalid(),!1)})),c)},valid:function(){var b,c,d;return a(this[0]).is("form")?b=this.validate().form():(d=[],b=!0,c=a(this[0].form).validate(),this.each(function(){b=c.element(this)&&b,b||(d=d.concat(c.errorList))}),c.errorList=d),b},rules:function(b,c){if(this.length){var d,e,f,g,h,i,j=this[0];if(b)switch(d=a.data(j.form,"validator").settings,e=d.rules,f=a.validator.staticRules(j),b){case"add":a.extend(f,a.validator.normalizeRule(c)),delete f.messages,e[j.name]=f,c.messages&&(d.messages[j.name]=a.extend(d.messages[j.name],c.messages));break;case"remove":return c?(i={},a.each(c.split(/\s/),function(b,c){i[c]=f[c],delete f[c],"required"===c&&a(j).removeAttr("aria-required")}),i):(delete e[j.name],f)}return g=a.validator.normalizeRules(a.extend({},a.validator.classRules(j),a.validator.attributeRules(j),a.validator.dataRules(j),a.validator.staticRules(j)),j),g.required&&(h=g.required,delete g.required,g=a.extend({required:h},g),a(j).attr("aria-required","true")),g.remote&&(h=g.remote,delete g.remote,g=a.extend(g,{remote:h})),g}}}),a.extend(a.expr[":"],{blank:function(b){return!a.trim(""+a(b).val())},filled:function(b){var c=a(b).val();return null!==c&&!!a.trim(""+c)},unchecked:function(b){return!a(b).prop("checked")}}),a.validator=function(b,c){this.settings=a.extend(!0,{},a.validator.defaults,b),this.currentForm=c,this.init()},a.validator.format=function(b,c){return 1===arguments.length?function(){var c=a.makeArray(arguments);return c.unshift(b),a.validator.format.apply(this,c)}:void 0===c?b:(arguments.length>2&&c.constructor!==Array&&(c=a.makeArray(arguments).slice(1)),c.constructor!==Array&&(c=[c]),a.each(c,function(a,c){b=b.replace(new RegExp("\\{"+a+"\\}","g"),function(){return c})}),b)},a.extend(a.validator,{defaults:{messages:{},groups:{},rules:{},errorClass:"error",pendingClass:"pending",validClass:"valid",errorElement:"label",focusCleanup:!1,focusInvalid:!0,errorContainer:a([]),errorLabelContainer:a([]),onsubmit:!0,ignore:":hidden",ignoreTitle:!1,onfocusin:function(a){this.lastActive=a,this.settings.focusCleanup&&(this.settings.unhighlight&&this.settings.unhighlight.call(this,a,this.settings.errorClass,this.settings.validClass),this.hideThese(this.errorsFor(a)))},onfocusout:function(a){this.checkable(a)||!(a.name in this.submitted)&&this.optional(a)||this.element(a)},onkeyup:function(b,c){var d=[16,17,18,20,35,36,37,38,39,40,45,144,225];9===c.which&&""===this.elementValue(b)||-1!==a.inArray(c.keyCode,d)||(b.name in this.submitted||b.name in this.invalid)&&this.element(b)},onclick:function(a){a.name in this.submitted?this.element(a):a.parentNode.name in this.submitted&&this.element(a.parentNode)},highlight:function(b,c,d){"radio"===b.type?this.findByName(b.name).addClass(c).removeClass(d):a(b).addClass(c).removeClass(d)},unhighlight:function(b,c,d){"radio"===b.type?this.findByName(b.name).removeClass(c).addClass(d):a(b).removeClass(c).addClass(d)}},setDefaults:function(b){a.extend(a.validator.defaults,b)},messages:{required:"This field is required.",remote:"Please fix this field.",email:"Please enter a valid email address.",url:"Please enter a valid URL.",date:"Please enter a valid date.",dateISO:"Please enter a valid date ( ISO ).",number:"Please enter a valid number.",digits:"Please enter only digits.",equalTo:"Please enter the same value again.",maxlength:a.validator.format("Please enter no more than {0} characters."),minlength:a.validator.format("Please enter at least {0} characters."),rangelength:a.validator.format("Please enter a value between {0} and {1} characters long."),range:a.validator.format("Please enter a value between {0} and {1}."),max:a.validator.format("Please enter a value less than or equal to {0}."),min:a.validator.format("Please enter a value greater than or equal to {0}."),step:a.validator.format("Please enter a multiple of {0}.")},autoCreateRanges:!1,prototype:{init:function(){function b(b){var c=a.data(this.form,"validator"),d="on"+b.type.replace(/^validate/,""),e=c.settings;e[d]&&!a(this).is(e.ignore)&&e[d].call(c,this,b)}this.labelContainer=a(this.settings.errorLabelContainer),this.errorContext=this.labelContainer.length&&this.labelContainer||a(this.currentForm),this.containers=a(this.settings.errorContainer).add(this.settings.errorLabelContainer),this.submitted={},this.valueCache={},this.pendingRequest=0,this.pending={},this.invalid={},this.reset();var c,d=this.groups={};a.each(this.settings.groups,function(b,c){"string"==typeof c&&(c=c.split(/\s/)),a.each(c,function(a,c){d[c]=b})}),c=this.settings.rules,a.each(c,function(b,d){c[b]=a.validator.normalizeRule(d)}),a(this.currentForm).on("focusin.validate focusout.validate keyup.validate",":text, [type='password'], [type='file'], select, textarea, [type='number'], [type='search'], [type='tel'], [type='url'], [type='email'], [type='datetime'], [type='date'], [type='month'], [type='week'], [type='time'], [type='datetime-local'], [type='range'], [type='color'], [type='radio'], [type='checkbox'], [contenteditable]",b).on("click.validate","select, option, [type='radio'], [type='checkbox']",b),this.settings.invalidHandler&&a(this.currentForm).on("invalid-form.validate",this.settings.invalidHandler),a(this.currentForm).find("[required], [data-rule-required], .required").attr("aria-required","true")},form:function(){return this.checkForm(),a.extend(this.submitted,this.errorMap),this.invalid=a.extend({},this.errorMap),this.valid()||a(this.currentForm).triggerHandler("invalid-form",[this]),this.showErrors(),this.valid()},checkForm:function(){this.prepareForm();for(var a=0,b=this.currentElements=this.elements();b[a];a++)this.check(b[a]);return this.valid()},element:function(b){var c,d,e=this.clean(b),f=this.validationTargetFor(e),g=this,h=!0;return void 0===f?delete this.invalid[e.name]:(this.prepareElement(f),this.currentElements=a(f),d=this.groups[f.name],d&&a.each(this.groups,function(a,b){b===d&&a!==f.name&&(e=g.validationTargetFor(g.clean(g.findByName(a))),e&&e.name in g.invalid&&(g.currentElements.push(e),h=h&&g.check(e)))}),c=this.check(f)!==!1,h=h&&c,c?this.invalid[f.name]=!1:this.invalid[f.name]=!0,this.numberOfInvalids()||(this.toHide=this.toHide.add(this.containers)),this.showErrors(),a(b).attr("aria-invalid",!c)),h},showErrors:function(b){if(b){var c=this;a.extend(this.errorMap,b),this.errorList=a.map(this.errorMap,function(a,b){return{message:a,element:c.findByName(b)[0]}}),this.successList=a.grep(this.successList,function(a){return!(a.name in b)})}this.settings.showErrors?this.settings.showErrors.call(this,this.errorMap,this.errorList):this.defaultShowErrors()},resetForm:function(){a.fn.resetForm&&a(this.currentForm).resetForm(),this.invalid={},this.submitted={},this.prepareForm(),this.hideErrors();var b=this.elements().removeData("previousValue").removeAttr("aria-invalid");this.resetElements(b)},resetElements:function(a){var b;if(this.settings.unhighlight)for(b=0;a[b];b++)this.settings.unhighlight.call(this,a[b],this.settings.errorClass,""),this.findByName(a[b].name).removeClass(this.settings.validClass);else a.removeClass(this.settings.errorClass).removeClass(this.settings.validClass)},numberOfInvalids:function(){return this.objectLength(this.invalid)},objectLength:function(a){var b,c=0;for(b in a)a[b]&&c++;return c},hideErrors:function(){this.hideThese(this.toHide)},hideThese:function(a){a.not(this.containers).text(""),this.addWrapper(a).hide()},valid:function(){return 0===this.size()},size:function(){return this.errorList.length},focusInvalid:function(){if(this.settings.focusInvalid)try{a(this.findLastActive()||this.errorList.length&&this.errorList[0].element||[]).filter(":visible").focus().trigger("focusin")}catch(b){}},findLastActive:function(){var b=this.lastActive;return b&&1===a.grep(this.errorList,function(a){return a.element.name===b.name}).length&&b},elements:function(){var b=this,c={};return a(this.currentForm).find("input, select, textarea, [contenteditable]").not(":submit, :reset, :image, :disabled").not(this.settings.ignore).filter(function(){var d=this.name||a(this).attr("name");return!d&&b.settings.debug&&window.console&&console.error("%o has no name assigned",this),this.hasAttribute("contenteditable")&&(this.form=a(this).closest("form")[0]),d in c||!b.objectLength(a(this).rules())?!1:(c[d]=!0,!0)})},clean:function(b){return a(b)[0]},errors:function(){var b=this.settings.errorClass.split(" ").join(".");return a(this.settings.errorElement+"."+b,this.errorContext)},resetInternals:function(){this.successList=[],this.errorList=[],this.errorMap={},this.toShow=a([]),this.toHide=a([])},reset:function(){this.resetInternals(),this.currentElements=a([])},prepareForm:function(){this.reset(),this.toHide=this.errors().add(this.containers)},prepareElement:function(a){this.reset(),this.toHide=this.errorsFor(a)},elementValue:function(b){var c,d,e=a(b),f=b.type;return"radio"===f||"checkbox"===f?this.findByName(b.name).filter(":checked").val():"number"===f&&"undefined"!=typeof b.validity?b.validity.badInput?"NaN":e.val():(c=b.hasAttribute("contenteditable")?e.text():e.val(),"file"===f?"C:\\fakepath\\"===c.substr(0,12)?c.substr(12):(d=c.lastIndexOf("/"),d>=0?c.substr(d+1):(d=c.lastIndexOf("\\"),d>=0?c.substr(d+1):c)):"string"==typeof c?c.replace(/\r/g,""):c)},check:function(b){b=this.validationTargetFor(this.clean(b));var c,d,e,f=a(b).rules(),g=a.map(f,function(a,b){return b}).length,h=!1,i=this.elementValue(b);if("function"==typeof f.normalizer){if(i=f.normalizer.call(b,i),"string"!=typeof i)throw new TypeError("The normalizer should return a string value.");delete f.normalizer}for(d in f){e={method:d,parameters:f[d]};try{if(c=a.validator.methods[d].call(this,i,b,e.parameters),"dependency-mismatch"===c&&1===g){h=!0;continue}if(h=!1,"pending"===c)return void(this.toHide=this.toHide.not(this.errorsFor(b)));if(!c)return this.formatAndAdd(b,e),!1}catch(j){throw this.settings.debug&&window.console&&console.log("Exception occurred when checking element "+b.id+", check the '"+e.method+"' method.",j),j instanceof TypeError&&(j.message+=".  Exception occurred when checking element "+b.id+", check the '"+e.method+"' method."),j}}if(!h)return this.objectLength(f)&&this.successList.push(b),!0},customDataMessage:function(b,c){return a(b).data("msg"+c.charAt(0).toUpperCase()+c.substring(1).toLowerCase())||a(b).data("msg")},customMessage:function(a,b){var c=this.settings.messages[a];return c&&(c.constructor===String?c:c[b])},findDefined:function(){for(var a=0;a<arguments.length;a++)if(void 0!==arguments[a])return arguments[a]},defaultMessage:function(b,c){var d=this.findDefined(this.customMessage(b.name,c.method),this.customDataMessage(b,c.method),!this.settings.ignoreTitle&&b.title||void 0,a.validator.messages[c.method],"<strong>Warning: No message defined for "+b.name+"</strong>"),e=/\$?\{(\d+)\}/g;return"function"==typeof d?d=d.call(this,c.parameters,b):e.test(d)&&(d=a.validator.format(d.replace(e,"{$1}"),c.parameters)),d},formatAndAdd:function(a,b){var c=this.defaultMessage(a,b);this.errorList.push({message:c,element:a,method:b.method}),this.errorMap[a.name]=c,this.submitted[a.name]=c},addWrapper:function(a){return this.settings.wrapper&&(a=a.add(a.parent(this.settings.wrapper))),a},defaultShowErrors:function(){var a,b,c;for(a=0;this.errorList[a];a++)c=this.errorList[a],this.settings.highlight&&this.settings.highlight.call(this,c.element,this.settings.errorClass,this.settings.validClass),this.showLabel(c.element,c.message);if(this.errorList.length&&(this.toShow=this.toShow.add(this.containers)),this.settings.success)for(a=0;this.successList[a];a++)this.showLabel(this.successList[a]);if(this.settings.unhighlight)for(a=0,b=this.validElements();b[a];a++)this.settings.unhighlight.call(this,b[a],this.settings.errorClass,this.settings.validClass);this.toHide=this.toHide.not(this.toShow),this.hideErrors(),this.addWrapper(this.toShow).show()},validElements:function(){return this.currentElements.not(this.invalidElements())},invalidElements:function(){return a(this.errorList).map(function(){return this.element})},showLabel:function(b,c){var d,e,f,g,h=this.errorsFor(b),i=this.idOrName(b),j=a(b).attr("aria-describedby");h.length?(h.removeClass(this.settings.validClass).addClass(this.settings.errorClass),h.html(c)):(h=a("<"+this.settings.errorElement+">").attr("id",i+"-error").addClass(this.settings.errorClass).html(c||""),d=h,this.settings.wrapper&&(d=h.hide().show().wrap("<"+this.settings.wrapper+"/>").parent()),this.labelContainer.length?this.labelContainer.append(d):this.settings.errorPlacement?this.settings.errorPlacement(d,a(b)):d.insertAfter(b),h.is("label")?h.attr("for",i):0===h.parents("label[for='"+this.escapeCssMeta(i)+"']").length&&(f=h.attr("id"),j?j.match(new RegExp("\\b"+this.escapeCssMeta(f)+"\\b"))||(j+=" "+f):j=f,a(b).attr("aria-describedby",j),e=this.groups[b.name],e&&(g=this,a.each(g.groups,function(b,c){c===e&&a("[name='"+g.escapeCssMeta(b)+"']",g.currentForm).attr("aria-describedby",h.attr("id"))})))),!c&&this.settings.success&&(h.text(""),"string"==typeof this.settings.success?h.addClass(this.settings.success):this.settings.success(h,b)),this.toShow=this.toShow.add(h)},errorsFor:function(b){var c=this.escapeCssMeta(this.idOrName(b)),d=a(b).attr("aria-describedby"),e="label[for='"+c+"'], label[for='"+c+"'] *";return d&&(e=e+", #"+this.escapeCssMeta(d).replace(/\s+/g,", #")),this.errors().filter(e)},escapeCssMeta:function(a){return a.replace(/([\\!"#$%&'()*+,./:;<=>?@\[\]^`{|}~])/g,"\\$1")},idOrName:function(a){return this.groups[a.name]||(this.checkable(a)?a.name:a.id||a.name)},validationTargetFor:function(b){return this.checkable(b)&&(b=this.findByName(b.name)),a(b).not(this.settings.ignore)[0]},checkable:function(a){return/radio|checkbox/i.test(a.type)},findByName:function(b){return a(this.currentForm).find("[name='"+this.escapeCssMeta(b)+"']")},getLength:function(b,c){switch(c.nodeName.toLowerCase()){case"select":return a("option:selected",c).length;case"input":if(this.checkable(c))return this.findByName(c.name).filter(":checked").length}return b.length},depend:function(a,b){return this.dependTypes[typeof a]?this.dependTypes[typeof a](a,b):!0},dependTypes:{"boolean":function(a){return a},string:function(b,c){return!!a(b,c.form).length},"function":function(a,b){return a(b)}},optional:function(b){var c=this.elementValue(b);return!a.validator.methods.required.call(this,c,b)&&"dependency-mismatch"},startRequest:function(b){this.pending[b.name]||(this.pendingRequest++,a(b).addClass(this.settings.pendingClass),this.pending[b.name]=!0)},stopRequest:function(b,c){this.pendingRequest--,this.pendingRequest<0&&(this.pendingRequest=0),delete this.pending[b.name],a(b).removeClass(this.settings.pendingClass),c&&0===this.pendingRequest&&this.formSubmitted&&this.form()?(a(this.currentForm).submit(),this.formSubmitted=!1):!c&&0===this.pendingRequest&&this.formSubmitted&&(a(this.currentForm).triggerHandler("invalid-form",[this]),this.formSubmitted=!1)},previousValue:function(b,c){return a.data(b,"previousValue")||a.data(b,"previousValue",{old:null,valid:!0,message:this.defaultMessage(b,{method:c})})},destroy:function(){this.resetForm(),a(this.currentForm).off(".validate").removeData("validator").find(".validate-equalTo-blur").off(".validate-equalTo").removeClass("validate-equalTo-blur")}},classRuleSettings:{required:{required:!0},email:{email:!0},url:{url:!0},date:{date:!0},dateISO:{dateISO:!0},number:{number:!0},digits:{digits:!0},creditcard:{creditcard:!0}},addClassRules:function(b,c){b.constructor===String?this.classRuleSettings[b]=c:a.extend(this.classRuleSettings,b)},classRules:function(b){var c={},d=a(b).attr("class");return d&&a.each(d.split(" "),function(){this in a.validator.classRuleSettings&&a.extend(c,a.validator.classRuleSettings[this])}),c},normalizeAttributeRule:function(a,b,c,d){/min|max|step/.test(c)&&(null===b||/number|range|text/.test(b))&&(d=Number(d),isNaN(d)&&(d=void 0)),d||0===d?a[c]=d:b===c&&"range"!==b&&(a[c]=!0)},attributeRules:function(b){var c,d,e={},f=a(b),g=b.getAttribute("type");for(c in a.validator.methods)"required"===c?(d=b.getAttribute(c),""===d&&(d=!0),d=!!d):d=f.attr(c),this.normalizeAttributeRule(e,g,c,d);return e.maxlength&&/-1|2147483647|524288/.test(e.maxlength)&&delete e.maxlength,e},dataRules:function(b){var c,d,e={},f=a(b),g=b.getAttribute("type");for(c in a.validator.methods)d=f.data("rule"+c.charAt(0).toUpperCase()+c.substring(1).toLowerCase()),this.normalizeAttributeRule(e,g,c,d);return e},staticRules:function(b){var c={},d=a.data(b.form,"validator");return d.settings.rules&&(c=a.validator.normalizeRule(d.settings.rules[b.name])||{}),c},normalizeRules:function(b,c){return a.each(b,function(d,e){if(e===!1)return void delete b[d];if(e.param||e.depends){var f=!0;switch(typeof e.depends){case"string":f=!!a(e.depends,c.form).length;break;case"function":f=e.depends.call(c,c)}f?b[d]=void 0!==e.param?e.param:!0:(a.data(c.form,"validator").resetElements(a(c)),delete b[d])}}),a.each(b,function(d,e){b[d]=a.isFunction(e)&&"normalizer"!==d?e(c):e}),a.each(["minlength","maxlength"],function(){b[this]&&(b[this]=Number(b[this]))}),a.each(["rangelength","range"],function(){var c;b[this]&&(a.isArray(b[this])?b[this]=[Number(b[this][0]),Number(b[this][1])]:"string"==typeof b[this]&&(c=b[this].replace(/[\[\]]/g,"").split(/[\s,]+/),b[this]=[Number(c[0]),Number(c[1])]))}),a.validator.autoCreateRanges&&(null!=b.min&&null!=b.max&&(b.range=[b.min,b.max],delete b.min,delete b.max),null!=b.minlength&&null!=b.maxlength&&(b.rangelength=[b.minlength,b.maxlength],delete b.minlength,delete b.maxlength)),b},normalizeRule:function(b){if("string"==typeof b){var c={};a.each(b.split(/\s/),function(){c[this]=!0}),b=c}return b},addMethod:function(b,c,d){a.validator.methods[b]=c,a.validator.messages[b]=void 0!==d?d:a.validator.messages[b],c.length<3&&a.validator.addClassRules(b,a.validator.normalizeRule(b))},methods:{required:function(b,c,d){if(!this.depend(d,c))return"dependency-mismatch";if("select"===c.nodeName.toLowerCase()){var e=a(c).val();return e&&e.length>0}return this.checkable(c)?this.getLength(b,c)>0:b.length>0},email:function(a,b){return this.optional(b)||/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(a)},url:function(a,b){return this.optional(b)||/^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(a)},date:function(a,b){return this.optional(b)||!/Invalid|NaN/.test(new Date(a).toString())},dateISO:function(a,b){return this.optional(b)||/^\d{4}[\/\-](0?[1-9]|1[012])[\/\-](0?[1-9]|[12][0-9]|3[01])$/.test(a)},number:function(a,b){return this.optional(b)||/^(?:-?\d+|-?\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(a)},digits:function(a,b){return this.optional(b)||/^\d+$/.test(a)},minlength:function(b,c,d){var e=a.isArray(b)?b.length:this.getLength(b,c);return this.optional(c)||e>=d},maxlength:function(b,c,d){var e=a.isArray(b)?b.length:this.getLength(b,c);return this.optional(c)||d>=e},rangelength:function(b,c,d){var e=a.isArray(b)?b.length:this.getLength(b,c);return this.optional(c)||e>=d[0]&&e<=d[1]},min:function(a,b,c){return this.optional(b)||a>=c},max:function(a,b,c){return this.optional(b)||c>=a},range:function(a,b,c){return this.optional(b)||a>=c[0]&&a<=c[1]},step:function(b,c,d){var e=a(c).attr("type"),f="Step attribute on input type "+e+" is not supported.",g=["text","number","range"],h=new RegExp("\\b"+e+"\\b"),i=e&&!h.test(g.join());if(i)throw new Error(f);return this.optional(c)||b%d===0},equalTo:function(b,c,d){var e=a(d);return this.settings.onfocusout&&e.not(".validate-equalTo-blur").length&&e.addClass("validate-equalTo-blur").on("blur.validate-equalTo",function(){a(c).valid()}),b===e.val()},remote:function(b,c,d,e){if(this.optional(c))return"dependency-mismatch";e="string"==typeof e&&e||"remote";var f,g,h,i=this.previousValue(c,e);return this.settings.messages[c.name]||(this.settings.messages[c.name]={}),i.originalMessage=i.originalMessage||this.settings.messages[c.name][e],this.settings.messages[c.name][e]=i.message,d="string"==typeof d&&{url:d}||d,h=a.param(a.extend({data:b},d.data)),i.old===h?i.valid:(i.old=h,f=this,this.startRequest(c),g={},g[c.name]=b,a.ajax(a.extend(!0,{mode:"abort",port:"validate"+c.name,dataType:"json",data:g,context:f.currentForm,success:function(a){var d,g,h,j=a===!0||"true"===a;f.settings.messages[c.name][e]=i.originalMessage,j?(h=f.formSubmitted,f.resetInternals(),f.toHide=f.errorsFor(c),f.formSubmitted=h,f.successList.push(c),f.invalid[c.name]=!1,f.showErrors()):(d={},g=a||f.defaultMessage(c,{method:e,parameters:b}),d[c.name]=i.message=g,f.invalid[c.name]=!0,f.showErrors(d)),i.valid=j,f.stopRequest(c,j)}},d)),"pending")}}});var b,c={};a.ajaxPrefilter?a.ajaxPrefilter(function(a,b,d){var e=a.port;"abort"===a.mode&&(c[e]&&c[e].abort(),c[e]=d)}):(b=a.ajax,a.ajax=function(d){var e=("mode"in d?d:a.ajaxSettings).mode,f=("port"in d?d:a.ajaxSettings).port;return"abort"===e?(c[f]&&c[f].abort(),c[f]=b.apply(this,arguments),c[f]):b.apply(this,arguments)})});
+/*!
+ * jQuery Cookie Plugin v1.4.1
+ * https://github.com/carhartl/jquery-cookie
+ *
+ * Copyright 2006, 2014 Klaus Hartl
+ * Released under the MIT license
+ */
+(function (factory) {
+	if (typeof define === 'function' && define.amd) {
+		// AMD
+		define(['jquery'], factory);
+	} else if (typeof exports === 'object') {
+		// CommonJS
+		factory(require('jquery'));
+	} else {
+		// Browser globals
+		factory(jQuery);
+	}
+}(function ($) {
+
+	var pluses = /\+/g;
+
+	function encode(s) {
+		return config.raw ? s : encodeURIComponent(s);
+	}
+
+	function decode(s) {
+		return config.raw ? s : decodeURIComponent(s);
+	}
+
+	function stringifyCookieValue(value) {
+		return encode(config.json ? JSON.stringify(value) : String(value));
+	}
+
+	function parseCookieValue(s) {
+		if (s.indexOf('"') === 0) {
+			// This is a quoted cookie as according to RFC2068, unescape...
+			s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+		}
+
+		try {
+			// Replace server-side written pluses with spaces.
+			// If we can't decode the cookie, ignore it, it's unusable.
+			// If we can't parse the cookie, ignore it, it's unusable.
+			s = decodeURIComponent(s.replace(pluses, ' '));
+			return config.json ? JSON.parse(s) : s;
+		} catch(e) {}
+	}
+
+	function read(s, converter) {
+		var value = config.raw ? s : parseCookieValue(s);
+		return $.isFunction(converter) ? converter(value) : value;
+	}
+
+	var config = $.cookie = function (key, value, options) {
+
+		// Write
+
+		if (arguments.length > 1 && !$.isFunction(value)) {
+			options = $.extend({}, config.defaults, options);
+
+			if (typeof options.expires === 'number') {
+				var days = options.expires, t = options.expires = new Date();
+				t.setTime(+t + days * 864e+5);
+			}
+
+			return (document.cookie = [
+				encode(key), '=', stringifyCookieValue(value),
+				options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
+				options.path    ? '; path=' + options.path : '',
+				options.domain  ? '; domain=' + options.domain : '',
+				options.secure  ? '; secure' : ''
+			].join(''));
+		}
+
+		// Read
+
+		var result = key ? undefined : {};
+
+		// To prevent the for loop in the first place assign an empty array
+		// in case there are no cookies at all. Also prevents odd result when
+		// calling $.cookie().
+		var cookies = document.cookie ? document.cookie.split('; ') : [];
+
+		for (var i = 0, l = cookies.length; i < l; i++) {
+			var parts = cookies[i].split('=');
+			var name = decode(parts.shift());
+			var cookie = parts.join('=');
+
+			if (key && key === name) {
+				// If second argument (value) is a function it's a converter...
+				result = read(cookie, value);
+				break;
+			}
+
+			// Prevent storing a cookie that we couldn't decode.
+			if (!key && (cookie = read(cookie)) !== undefined) {
+				result[name] = cookie;
+			}
+		}
+
+		return result;
+	};
+
+	config.defaults = {};
+
+	$.removeCookie = function (key, options) {
+		if ($.cookie(key) === undefined) {
+			return false;
+		}
+
+		// Must not alter options, thus extending a fresh object...
+		$.cookie(key, '', $.extend({}, options, { expires: -1 }));
+		return !$.cookie(key);
+	};
+
+}));
+
 !function(){"use strict";function e(e){function t(t,n){var s,h,k=t==window,y=n&&void 0!==n.message?n.message:void 0;if(n=e.extend({},e.blockUI.defaults,n||{}),!n.ignoreIfBlocked||!e(t).data("blockUI.isBlocked")){if(n.overlayCSS=e.extend({},e.blockUI.defaults.overlayCSS,n.overlayCSS||{}),s=e.extend({},e.blockUI.defaults.css,n.css||{}),n.onOverlayClick&&(n.overlayCSS.cursor="pointer"),h=e.extend({},e.blockUI.defaults.themedCSS,n.themedCSS||{}),y=void 0===y?n.message:y,k&&p&&o(window,{fadeOut:0}),y&&"string"!=typeof y&&(y.parentNode||y.jquery)){var m=y.jquery?y[0]:y,v={};e(t).data("blockUI.history",v),v.el=m,v.parent=m.parentNode,v.display=m.style.display,v.position=m.style.position,v.parent&&v.parent.removeChild(m)}e(t).data("blockUI.onUnblock",n.onUnblock);var g,I,w,U,x=n.baseZ;g=e(r||n.forceIframe?'<iframe class="blockUI" style="z-index:'+x++ +';display:none;border:none;margin:0;padding:0;position:absolute;width:100%;height:100%;top:0;left:0" src="'+n.iframeSrc+'"></iframe>':'<div class="blockUI" style="display:none"></div>'),I=e(n.theme?'<div class="blockUI blockOverlay ui-widget-overlay" style="z-index:'+x++ +';display:none"></div>':'<div class="blockUI blockOverlay" style="z-index:'+x++ +';display:none;border:none;margin:0;padding:0;width:100%;height:100%;top:0;left:0"></div>'),n.theme&&k?(U='<div class="blockUI '+n.blockMsgClass+' blockPage ui-dialog ui-widget ui-corner-all" style="z-index:'+(x+10)+';display:none;position:fixed">',n.title&&(U+='<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(n.title||"&nbsp;")+"</div>"),U+='<div class="ui-widget-content ui-dialog-content"></div>',U+="</div>"):n.theme?(U='<div class="blockUI '+n.blockMsgClass+' blockElement ui-dialog ui-widget ui-corner-all" style="z-index:'+(x+10)+';display:none;position:absolute">',n.title&&(U+='<div class="ui-widget-header ui-dialog-titlebar ui-corner-all blockTitle">'+(n.title||"&nbsp;")+"</div>"),U+='<div class="ui-widget-content ui-dialog-content"></div>',U+="</div>"):U=k?'<div class="blockUI '+n.blockMsgClass+' blockPage" style="z-index:'+(x+10)+';display:none;position:fixed"></div>':'<div class="blockUI '+n.blockMsgClass+' blockElement" style="z-index:'+(x+10)+';display:none;position:absolute"></div>',w=e(U),y&&(n.theme?(w.css(h),w.addClass("ui-widget-content")):w.css(s)),n.theme||I.css(n.overlayCSS),I.css("position",k?"fixed":"absolute"),(r||n.forceIframe)&&g.css("opacity",0);var C=[g,I,w],S=e(k?"body":t);e.each(C,function(){this.appendTo(S)}),n.theme&&n.draggable&&e.fn.draggable&&w.draggable({handle:".ui-dialog-titlebar",cancel:"li"});var O=f&&(!e.support.boxModel||e("object,embed",k?null:t).length>0);if(u||O){if(k&&n.allowBodyStretch&&e.support.boxModel&&e("html,body").css("height","100%"),(u||!e.support.boxModel)&&!k)var E=d(t,"borderTopWidth"),T=d(t,"borderLeftWidth"),M=E?"(0 - "+E+")":0,B=T?"(0 - "+T+")":0;e.each(C,function(e,t){var o=t[0].style;if(o.position="absolute",2>e)k?o.setExpression("height","Math.max(document.body.scrollHeight, document.body.offsetHeight) - (jQuery.support.boxModel?0:"+n.quirksmodeOffsetHack+') + "px"'):o.setExpression("height",'this.parentNode.offsetHeight + "px"'),k?o.setExpression("width",'jQuery.support.boxModel && document.documentElement.clientWidth || document.body.clientWidth + "px"'):o.setExpression("width",'this.parentNode.offsetWidth + "px"'),B&&o.setExpression("left",B),M&&o.setExpression("top",M);else if(n.centerY)k&&o.setExpression("top",'(document.documentElement.clientHeight || document.body.clientHeight) / 2 - (this.offsetHeight / 2) + (blah = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "px"'),o.marginTop=0;else if(!n.centerY&&k){var i=n.css&&n.css.top?parseInt(n.css.top,10):0,s="((document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop) + "+i+') + "px"';o.setExpression("top",s)}})}if(y&&(n.theme?w.find(".ui-widget-content").append(y):w.append(y),(y.jquery||y.nodeType)&&e(y).show()),(r||n.forceIframe)&&n.showOverlay&&g.show(),n.fadeIn){var j=n.onBlock?n.onBlock:c,H=n.showOverlay&&!y?j:c,z=y?j:c;n.showOverlay&&I._fadeIn(n.fadeIn,H),y&&w._fadeIn(n.fadeIn,z)}else n.showOverlay&&I.show(),y&&w.show(),n.onBlock&&n.onBlock.bind(w)();if(i(1,t,n),k?(p=w[0],b=e(n.focusableElements,p),n.focusInput&&setTimeout(l,20)):a(w[0],n.centerX,n.centerY),n.timeout){var W=setTimeout(function(){k?e.unblockUI(n):e(t).unblock(n)},n.timeout);e(t).data("blockUI.timeout",W)}}}function o(t,o){var s,l=t==window,a=e(t),d=a.data("blockUI.history"),c=a.data("blockUI.timeout");c&&(clearTimeout(c),a.removeData("blockUI.timeout")),o=e.extend({},e.blockUI.defaults,o||{}),i(0,t,o),null===o.onUnblock&&(o.onUnblock=a.data("blockUI.onUnblock"),a.removeData("blockUI.onUnblock"));var r;r=l?e("body").children().filter(".blockUI").add("body > .blockUI"):a.find(">.blockUI"),o.cursorReset&&(r.length>1&&(r[1].style.cursor=o.cursorReset),r.length>2&&(r[2].style.cursor=o.cursorReset)),l&&(p=b=null),o.fadeOut?(s=r.length,r.stop().fadeOut(o.fadeOut,function(){0===--s&&n(r,d,o,t)})):n(r,d,o,t)}function n(t,o,n,i){var s=e(i);if(!s.data("blockUI.isBlocked")){t.each(function(e,t){this.parentNode&&this.parentNode.removeChild(this)}),o&&o.el&&(o.el.style.display=o.display,o.el.style.position=o.position,o.el.style.cursor="default",o.parent&&o.parent.appendChild(o.el),s.removeData("blockUI.history")),s.data("blockUI.static")&&s.css("position","static"),"function"==typeof n.onUnblock&&n.onUnblock(i,n);var l=e(document.body),a=l.width(),d=l[0].style.width;l.width(a-1).width(a),l[0].style.width=d}}function i(t,o,n){var i=o==window,l=e(o);if((t||(!i||p)&&(i||l.data("blockUI.isBlocked")))&&(l.data("blockUI.isBlocked",t),i&&n.bindEvents&&(!t||n.showOverlay))){var a="mousedown mouseup keydown keypress keyup touchstart touchend touchmove";t?e(document).bind(a,n,s):e(document).unbind(a,s)}}function s(t){if("keydown"===t.type&&t.keyCode&&9==t.keyCode&&p&&t.data.constrainTabKey){var o=b,n=!t.shiftKey&&t.target===o[o.length-1],i=t.shiftKey&&t.target===o[0];if(n||i)return setTimeout(function(){l(i)},10),!1}var s=t.data,a=e(t.target);return a.hasClass("blockOverlay")&&s.onOverlayClick&&s.onOverlayClick(t),a.parents("div."+s.blockMsgClass).length>0?!0:0===a.parents().children().filter("div.blockUI").length}function l(e){if(b){var t=b[e===!0?b.length-1:0];t&&t.focus()}}function a(e,t,o){var n=e.parentNode,i=e.style,s=(n.offsetWidth-e.offsetWidth)/2-d(n,"borderLeftWidth"),l=(n.offsetHeight-e.offsetHeight)/2-d(n,"borderTopWidth");t&&(i.left=s>0?s+"px":"0"),o&&(i.top=l>0?l+"px":"0")}function d(t,o){return parseInt(e.css(t,o),10)||0}e.fn._fadeIn=e.fn.fadeIn;var c=e.noop||function(){},r=/MSIE/.test(navigator.userAgent),u=/MSIE 6.0/.test(navigator.userAgent)&&!/MSIE 8.0/.test(navigator.userAgent),f=(document.documentMode||0,e.isFunction(document.createElement("div").style.setExpression));e.blockUI=function(e){t(window,e)},e.unblockUI=function(e){o(window,e)},e.growlUI=function(t,o,n,i){var s=e('<div class="growlUI"></div>');t&&s.append("<h1>"+t+"</h1>"),o&&s.append("<h2>"+o+"</h2>"),void 0===n&&(n=3e3);var l=function(t){t=t||{},e.blockUI({message:s,fadeIn:"undefined"!=typeof t.fadeIn?t.fadeIn:700,fadeOut:"undefined"!=typeof t.fadeOut?t.fadeOut:1e3,timeout:"undefined"!=typeof t.timeout?t.timeout:n,centerY:!1,showOverlay:!1,onUnblock:i,css:e.blockUI.defaults.growlCSS})};l();s.css("opacity");s.mouseover(function(){l({fadeIn:0,timeout:3e4});var t=e(".blockMsg");t.stop(),t.fadeTo(300,1)}).mouseout(function(){e(".blockMsg").fadeOut(1e3)})},e.fn.block=function(o){if(this[0]===window)return e.blockUI(o),this;var n=e.extend({},e.blockUI.defaults,o||{});return this.each(function(){var t=e(this);n.ignoreIfBlocked&&t.data("blockUI.isBlocked")||t.unblock({fadeOut:0})}),this.each(function(){"static"==e.css(this,"position")&&(this.style.position="relative",e(this).data("blockUI.static",!0)),this.style.zoom=1,t(this,o)})},e.fn.unblock=function(t){return this[0]===window?(e.unblockUI(t),this):this.each(function(){o(this,t)})},e.blockUI.version=2.7,e.blockUI.defaults={message:"<h1>Please wait...</h1>",title:null,draggable:!0,theme:!1,css:{padding:0,margin:0,width:"30%",top:"40%",left:"35%",textAlign:"center",color:"#000",border:"3px solid #aaa",backgroundColor:"#fff",cursor:"wait"},themedCSS:{width:"30%",top:"40%",left:"35%"},overlayCSS:{backgroundColor:"#000",opacity:.6,cursor:"wait"},cursorReset:"default",growlCSS:{width:"350px",top:"10px",left:"",right:"10px",border:"none",padding:"5px",opacity:.6,cursor:"default",color:"#fff",backgroundColor:"#000","-webkit-border-radius":"10px","-moz-border-radius":"10px","border-radius":"10px"},iframeSrc:/^https/i.test(window.location.href||"")?"javascript:false":"about:blank",forceIframe:!1,baseZ:1e3,centerX:!0,centerY:!0,allowBodyStretch:!0,bindEvents:!0,constrainTabKey:!0,fadeIn:200,fadeOut:400,timeout:0,showOverlay:!0,focusInput:!0,focusableElements:":input:enabled:visible",onBlock:null,onUnblock:null,onOverlayClick:null,quirksmodeOffsetHack:4,blockMsgClass:"blockMsg",ignoreIfBlocked:!1};var p=null,b=[]}"function"==typeof define&&define.amd&&define.amd.jQuery?define(["jquery"],e):e(jQuery)}();
 /*! jQuery UI - v1.11.4 - 2015-11-17
 * http://jqueryui.com

@@ -1,5 +1,5 @@
 var elixir = require('laravel-elixir');
-
+						 require('laravel-elixir-vueify');
 /*
  |--------------------------------------------------------------------------
  | Elixir Asset Management
@@ -22,6 +22,15 @@ elixir(function (mix) {
 			'plugins/loaders/pace.min.js',
 			'core/libraries/jquery.min.js',
 			'core/libraries/bootstrap.min.js',
+			'core/libraries/jasny_bootstrap.min.js',
+			'plugins/pickers/anytime.min.js',
+			'plugins/pickers/pickadate/picker.js',
+			'plugins/pickers/pickadate/picker.date.js',
+			'plugins/pickers/pickadate/picker.time.js',
+			'plugins/pickers/pickadate/legacy.js',
+			'plugins/forms/wizards/steps.min.js',
+			'plugins/forms/validation/validate.min.js',
+			'plugins/extensions/cookie.js',
 			'plugins/loaders/blockui.min.js',
 			'core/libraries/jquery_ui/widgets.min.js',
 			'core/libraries/jquery_ui/interactions.min.js',
@@ -54,11 +63,6 @@ elixir(function (mix) {
 			],
 			'./public/js/admin.js'
 		)
-		.scripts(
-			[
-				'page/home.js',
-				'app.js'
-			],
-			'./public/js/all.js'
-		);
+		.copy('js/page/', 'public/js/page')
+		.browserify('app.js');
 });

@@ -19,9 +19,13 @@
 			@yield('content')
 		</div>
 		<!-- /page container -->
+
 		@include ('utils.scripts')
+
 		<!-- Core JS files -->
 		<script type="text/javascript" src="/js/all.js"></script>
+		@yield('vendor-scripts')
+		<script type="text/javascript" src="/js/app.js"></script>
 		<!-- /core JS files -->
 
 		@yield('page-scripts')

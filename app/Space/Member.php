@@ -2,10 +2,14 @@
 
 namespace App\Space;
 
+use App\Bookings\Booking;
 use App\Events\Space\MemberFilledData;
 use App\Events\Space\MemberRegistered;
 use App\User\User;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Cashier\Billable;
+use Laravel\Cashier\Contracts\Billable as BillableContract;
+use Laravel\Cashier\StripeGateway;
 
 /**
  * @property mixed is_company
@@ -13,9 +17,20 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed company_identity
  * @property mixed company_name
  * @property mixed name
+ * @property mixed address_line1
+ * @property mixed address_line2
+ * @property mixed lastname
+ * @property mixed zip
+ * @property mixed city
+ * @property mixed state
+ * @property mixed phone
+ * @property mixed mobile
+ * @property mixed isCompany
  */
 class Member extends Model
 {
+	use Billable;
+
 	/**
 	 * Fillable fields
 	 */
@@ -53,11 +68,16 @@ class Member extends Model
 	 */
 	public function needsFillData()
 	{
-		if(!$this->hasIdentity()) return true;
-		if(!$this->hasName()) return true;
+		if (!$this->hasIdentity()) {
+			return true;
+		}
+		if (!$this->hasName()) {
+			return true;
+		}
 
 		return false;
 	}
+
 	public function fullName()
 	{
 		return $this->name . ' ' . $this->lastname;
@@ -66,6 +86,7 @@ class Member extends Model
 	/**
 	 * Returns whether the company name or the person name depending
 	 * if its a company or not.
+	 *
 	 * @return mixed
 	 */
 	public function companyName()
@@ -80,6 +101,7 @@ class Member extends Model
 	/**
 	 * Returns whether the company name or the person name depending
 	 * if its a company or not.
+	 *
 	 * @return mixed
 	 */
 	public function companyIdentity()
@@ -105,13 +127,13 @@ class Member extends Model
 
 	/**
 	 * Whether the member has Identity already assigned or not
+	 *
 	 * @return bool
 	 */
 	protected function hasIdentity()
 	{
-		if($this->isCompany())
-		{
-			return $this->company_identity?:false;
+		if ($this->isCompany()) {
+			return $this->company_identity ?: false;
 		}
 
 		return $this->identity ?: false;
@@ -119,6 +141,7 @@ class Member extends Model
 
 	/**
 	 * Whether the member is a company or not
+	 *
 	 * @return mixed
 	 */
 	public function isCompany()
@@ -135,8 +158,19 @@ class Member extends Model
 		return $this->hasMany(User::class);
 	}
 
+
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function bookings()
+	{
+		return $this->hasMany(Booking::class);
+	}
+
 	/**
 	 * The main user for this member
+	 *
 	 * @return mixed
 	 */
 	public function mainUser()
@@ -146,11 +180,12 @@ class Member extends Model
 
 	/**
 	 * Whether this member has users assigned or not
+	 *
 	 * @return mixed
 	 */
 	public function hasNoUsers()
 	{
-		return ! $this->mainUser();
+		return !$this->mainUser();
 	}
 
 	/**
@@ -166,7 +201,7 @@ class Member extends Model
 
 		if ($member && $member->hasNoUsers()) {
 			// Call event
-			list($user , $profile) = event(
+			list($user, $profile) = event(
 				new MemberRegistered($member)
 			);
 		}
@@ -193,4 +228,29 @@ class Member extends Model
 
 		return $entity;
 	}
+
+	public function getCurrency()
+	{
+		return "eur";
+	}
+
+//	public function createStripeCustomer($token, $properties = [])
+//	{
+//		$customer = (new StripeGateway($this))->createStripeCustomer($token, $properties);
+//
+//		$this->stripe_id = $customer->id;
+//
+//
+//
+//		// Next we will add the credit card to the user's account on Stripe using this
+//		// token that was provided to this method. This will allow us to bill users
+//		// when they subscribe to plans or we need to do one-off charges on them.
+//		if (!is_null($token)) {
+//			$this->updateCard($token);
+//		}
+//
+//		$this->save();
+//
+//		return $customer;
+//	}
 }

@@ -33,7 +33,7 @@ class BookablesController extends AdminController
 		$bookables = Bookable::all();
 
 		return view('admin.bookables.index', [
-			'current'       => $this->current,
+			'current'   => $this->current,
 			'bookables' => $bookables
 		]);
 	}
@@ -49,7 +49,7 @@ class BookablesController extends AdminController
 		$bookable = new Bookable;
 
 		return view('admin.bookables.create', [
-			'current'      => $this->current,
+			'current'  => $this->current,
 			'bookable' => $bookable
 		]);
 	}
@@ -97,7 +97,7 @@ class BookablesController extends AdminController
 		$this->current['action'] = 'Actualizar';
 
 		return view('admin.bookables.edit', [
-			'current'      => $this->current,
+			'current'  => $this->current,
 			'bookable' => $bookables
 		]);
 	}
@@ -112,13 +112,15 @@ class BookablesController extends AdminController
 	 */
 	public function update(CreateBookableForm $request, Bookable $bookables)
 	{
-		$images = $request->get('images');
-
 		$bookables->update(
 			$request->all()
 		);
 
-		$bookables->images()->sync($images);
+		if($request->has('images'))
+		{
+			$bookables->images()->sync($request->get('images'));
+		}
+
 
 		return redirect()->route('admin.bookables.index')->with(
 			'success', 'La entidad se ha guardado correctamente'

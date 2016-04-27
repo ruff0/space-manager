@@ -2,8 +2,12 @@
 
 namespace App\Bookables;
 
+use App\Bookings\Booking;
 use App\Files\Image;
+use App\Resources\Models\ClassRoom;
+use App\Resources\Models\MeetingRoom;
 use App\Resources\Models\Resource;
+use App\Resources\Models\Spot;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -67,11 +71,11 @@ class Bookable extends Model implements SluggableInterface
 	}
 
 	/**
-	 * Get all of the tags for the post.
+	 * Get all of the resources for the post.
 	 */
 	public function resources()
 	{
-		return $this->morphToMany(Resource::class, 'resourceable');
+		return $this->morphToMany(Resource::class, 'resourceable')->withPivot('settings');
 	}
 
 	/**
@@ -81,6 +85,25 @@ class Bookable extends Model implements SluggableInterface
 	{
 		return $this->morphToMany(Image::class, 'imageable');
 	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function bookings()
+	{
+		return $this->hasMany(Booking::class);
+	}
+
+
+	public function roomResources()
+	{
+		return $this->resources()
+		             ->where('resources.resourceable_type', MeetingRoom::class)
+		             ->orWhere('resources.resourceable_type', ClassRoom::class)
+		             ->orWhere('resources.resourceable_type', Spot::class);
+	}
+
+
 	/**
 	 * Update the model in the database.
 	 *
@@ -104,7 +127,6 @@ class Bookable extends Model implements SluggableInterface
 
 				$resources[$key] = $resource;
 			}
-
 			$this->resources()->sync($resources);
 		}
 

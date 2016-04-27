@@ -31,7 +31,7 @@
 
 								<div class="col-sm-4 col-sm-offset-4 text-center mt-20">
 									{{--<a href="/plans" class="btn btn-small btn-warning btn-block">Contratar una subscripción mensual</a>--}}
-									<a href="/bookables" class="mt-20 mb-20  pb-20 pt-20 btn btn-small btn-info btn-block">Alquilar una sala</a>
+									<a href="/bookings/create" class="mt-20 mb-20  pb-20 pt-20 btn btn-small btn-info btn-block">Alquilar una sala</a>
 								</div>
 							</div>
 						</div>

@@ -35217,5 +35217,17 @@ label.display-block {
 body.home {
   background-image: url("/images/backgrounds/ulab-background.jpg");
 }
+.steps-basic .thumb {
+  min-height: 180px;
+}
+label.thumb-label input[type=radio] {
+  display: none;
+}
+.thumbnail {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 1px 5px rgba(0, 0, 0, 0.2) !important;
+}
+.thumbnail.selected {
+  box-shadow: 0 1px 5px #00838F, 0 1px 5px #00838F !important;
+}
 
 /*# sourceMappingURL=app.css.map */
