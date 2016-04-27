@@ -6,6 +6,7 @@ use App\Space\Member;
 use App\User\Profile;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+
 /**
  * @property mixed profile
  * @property mixed id

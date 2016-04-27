@@ -2,6 +2,7 @@
 
 namespace App\Resources\Models;
 
+use App\Bookings\Booking;
 use Cviebrock\EloquentSluggable\SluggableInterface;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Illuminate\Database\Eloquent\Model;
@@ -55,6 +56,14 @@ class AbstractResource extends Model implements SluggableInterface
 	public function resourceables()
 	{
 		return $this->morphMany(Resource::class, 'resourceable');
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function bookings()
+	{
+		return $this->hasMany(Booking::class);
 	}
 
 	/**

@@ -11,6 +11,9 @@
 	<div class="navbar-collapse collapse" id="navbar-filter">
 		<div class="navbar-right">
 			<ul class="nav navbar-nav">
+				<li>
+					<a href="/home">Panel</a>
+				</li>
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 						<i class="icon-gear"></i>
