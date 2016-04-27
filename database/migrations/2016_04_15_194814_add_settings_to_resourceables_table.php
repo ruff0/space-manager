@@ -13,7 +13,7 @@ class AddSettingsToResourceablesTable extends Migration
 	public function up()
 	{
 		Schema::table('resourceables', function (Blueprint $table) {
-			$table->json('settings')->nullable();
+			$table->text('settings')->nullable();
 		});
 	}
 
