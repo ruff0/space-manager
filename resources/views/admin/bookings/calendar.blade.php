@@ -11,9 +11,12 @@
 	@include('admin.common.sidebar')
 	<div class="content-wrapper">
 		@include('admin.common.header')
+
 		<div class="content pb-20">
 			<div class="panel panel-white">
-				<scheduler></scheduler>
+				<scheduler :events="{{ $bookings->toJson() }}"
+				:resources="{{ $resources->toJson() }}"
+				></scheduler>
 			</div>
 		</div>
 	</div>

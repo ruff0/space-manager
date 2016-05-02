@@ -50,9 +50,9 @@ elixir(function (mix) {
 			'pages/login.js',
 			'plugins/ui/ripple.min.js',
 
-			"./vendor/bower_components/moment/moment.js",
-			"./vendor/bower_components/fullcalendar/dist/fullcalendar.min.js",
-			"./vendor/bower_components/fullcalendar-scheduler/dist/scheduler.min.js",
+			"./bower_components/moment/moment.js",
+			"./bower_components/fullcalendar/dist/fullcalendar.min.js",
+			"./bower_components/fullcalendar-scheduler/dist/scheduler.min.js",
 		])
 		.scripts(
 			[

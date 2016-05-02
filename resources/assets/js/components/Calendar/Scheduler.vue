@@ -3,23 +3,13 @@
 		<div class="Calendar--List">
 		</div>
 		<div class="Calendar--Calendar">
-			<div id="calendar"></div>
+			<div id="scheduler"></div>
 		</div>
 	</div>
 
 </template>
 
 <script>
-	store = {
-		state : {
-			bookables : {
-				collection : []
-			},
-			bookings : {
-				collection: []
-			},
-		}
-	}
 
 export default {
 	name: "Scheduler",
@@ -30,7 +20,7 @@ export default {
 	},
 	props : {
 		bookables : [],
-		bookings : [],
+		events : [],
 		resources : [],
 	},
 	watch : {
@@ -39,23 +29,24 @@ export default {
 	},
 	ready(){
 		var me = this;
-		$('#calendar').fullCalendar({
+		$('#scheduler').fullCalendar({
 		 	dayClick: function(date, jsEvent, view) {
 		 		if(view.name == 'month')
 		 		{
-		 			$('#calendar').fullCalendar( 'changeView', "timelineDay" )
-		 			$('#calendar').fullCalendar( 'gotoDate', date )
+		 			$('#scheduler').fullCalendar( 'changeView', "timelineDay" )
+		 			$('#scheduler').fullCalendar( 'gotoDate', date )
 		 		}
     	},
 			eventClick: function (calEvent, jsEvent, view) {
-				me.$router.go({ name : "bookings::bookings::edit", params : { id : calEvent.id}})
+				console.log(view)
 			},
+			eventLimit: true,
 			editable: true,
-			weekends: false,
+			weekends: true,
 			aspectRatio: 3,
 			scrollTime: '09:00',
 			minTime: "09:00",
-			maxTime: "22:00",
+			maxTime: "21:00",
 			eventOverlap : false,
 			header: {
 				left: 'today prev,next',
@@ -86,26 +77,27 @@ export default {
 			resourceColumns: [
 				{
 					group: true,
-					labelText: 'Type',
+					labelText: 'Tipo',
 					field: 'type'
 				},
 				{
-					labelText: 'Rooms',
+					labelText: 'Sala',
 					field: 'name'
 				},
 			],
 			resources(callback)
 			{
-				var resources = [];
-				for(bookable of me.resources) resources.push(bookable.resource);
+//				var resources = [];
+//				for(bookable of me.resources) resources.push(bookable.resource);
 
-				callback(resources)
+				callback(me.resources)
 			},
 			events: function(start, end, timezone, callback) {
-				var events = [];
-				for(booking of me.events) events.push(booking.event);
+//				var events = [];
+//				console.log(me.bookings)
+//				for(booking of me.bookings) events.push(booking.event);
 
-        callback(events);
+        callback(me.events);
     	}
 		})
 	}
@@ -115,10 +107,10 @@ export default {
 </script>
 
 <style lang="stylus">
+
 .Calendar
 	display flex
 	flex-direction column
-
 	&--List
 		flex 1 0 0
 	&--Calendar
@@ -127,5 +119,8 @@ export default {
 
 .fc-license-message{
 	display: none !important
+}
+.fc-head .fc-scroller{
+	min-height: auto !important;
 }
 </style>
