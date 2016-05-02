@@ -12,6 +12,8 @@ class Booking extends Model
 	protected $table = 'bookings';
 
 	protected $fillable = ['time_from', 'time_to'];
+	
+	protected $dates = ['time_from', 'time_to'];
 
 	/**
 	 * Get all of the owning bookable models.

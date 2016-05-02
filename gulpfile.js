@@ -48,10 +48,15 @@ elixir(function (mix) {
 			'core/app.js',
 			'pages/form_checkboxes_radios.js',
 			'pages/login.js',
-			'plugins/ui/ripple.min.js'
+			'plugins/ui/ripple.min.js',
+
+			"./bower_components/moment/moment.js",
+			"./bower_components/fullcalendar/dist/fullcalendar.min.js",
+			"./bower_components/fullcalendar-scheduler/dist/scheduler.min.js",
 		])
 		.scripts(
 			[
+				'page/admin/bookings.js',
 				'page/admin/bookables.js',
 				'page/admin/meetingrooms.js',
 				'page/admin/classrooms.js',
@@ -59,10 +64,12 @@ elixir(function (mix) {
 				'page/admin/bookabletypes.js',
 				'page/admin/members.js',
 				'page/admin/plans.js',
-				'admin.js'
+				'page/admin/plans.js',
+				'main.js'
 			],
-			'./public/js/admin.js'
+			'./public/js/pages.js'
 		)
 		.copy('js/page/', 'public/js/page')
-		.browserify('app.js');
+		.browserify('app.js')
+		.browserify('admin.js');
 });

@@ -4955,4 +4955,4061 @@ $(function(){
 	});
 });
 
+//! moment.js
+//! version : 2.13.0
+//! authors : Tim Wood, Iskren Chernev, Moment.js contributors
+//! license : MIT
+//! momentjs.com
+
+;(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    global.moment = factory()
+}(this, function () { 'use strict';
+
+    var hookCallback;
+
+    function utils_hooks__hooks () {
+        return hookCallback.apply(null, arguments);
+    }
+
+    // This is done to register the method called with moment()
+    // without creating circular dependencies.
+    function setHookCallback (callback) {
+        hookCallback = callback;
+    }
+
+    function isArray(input) {
+        return input instanceof Array || Object.prototype.toString.call(input) === '[object Array]';
+    }
+
+    function isDate(input) {
+        return input instanceof Date || Object.prototype.toString.call(input) === '[object Date]';
+    }
+
+    function map(arr, fn) {
+        var res = [], i;
+        for (i = 0; i < arr.length; ++i) {
+            res.push(fn(arr[i], i));
+        }
+        return res;
+    }
+
+    function hasOwnProp(a, b) {
+        return Object.prototype.hasOwnProperty.call(a, b);
+    }
+
+    function extend(a, b) {
+        for (var i in b) {
+            if (hasOwnProp(b, i)) {
+                a[i] = b[i];
+            }
+        }
+
+        if (hasOwnProp(b, 'toString')) {
+            a.toString = b.toString;
+        }
+
+        if (hasOwnProp(b, 'valueOf')) {
+            a.valueOf = b.valueOf;
+        }
+
+        return a;
+    }
+
+    function create_utc__createUTC (input, format, locale, strict) {
+        return createLocalOrUTC(input, format, locale, strict, true).utc();
+    }
+
+    function defaultParsingFlags() {
+        // We need to deep clone this object.
+        return {
+            empty           : false,
+            unusedTokens    : [],
+            unusedInput     : [],
+            overflow        : -2,
+            charsLeftOver   : 0,
+            nullInput       : false,
+            invalidMonth    : null,
+            invalidFormat   : false,
+            userInvalidated : false,
+            iso             : false,
+            parsedDateParts : [],
+            meridiem        : null
+        };
+    }
+
+    function getParsingFlags(m) {
+        if (m._pf == null) {
+            m._pf = defaultParsingFlags();
+        }
+        return m._pf;
+    }
+
+    var some;
+    if (Array.prototype.some) {
+        some = Array.prototype.some;
+    } else {
+        some = function (fun) {
+            var t = Object(this);
+            var len = t.length >>> 0;
+
+            for (var i = 0; i < len; i++) {
+                if (i in t && fun.call(this, t[i], i, t)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
+    function valid__isValid(m) {
+        if (m._isValid == null) {
+            var flags = getParsingFlags(m);
+            var parsedParts = some.call(flags.parsedDateParts, function (i) {
+                return i != null;
+            });
+            m._isValid = !isNaN(m._d.getTime()) &&
+                flags.overflow < 0 &&
+                !flags.empty &&
+                !flags.invalidMonth &&
+                !flags.invalidWeekday &&
+                !flags.nullInput &&
+                !flags.invalidFormat &&
+                !flags.userInvalidated &&
+                (!flags.meridiem || (flags.meridiem && parsedParts));
+
+            if (m._strict) {
+                m._isValid = m._isValid &&
+                    flags.charsLeftOver === 0 &&
+                    flags.unusedTokens.length === 0 &&
+                    flags.bigHour === undefined;
+            }
+        }
+        return m._isValid;
+    }
+
+    function valid__createInvalid (flags) {
+        var m = create_utc__createUTC(NaN);
+        if (flags != null) {
+            extend(getParsingFlags(m), flags);
+        }
+        else {
+            getParsingFlags(m).userInvalidated = true;
+        }
+
+        return m;
+    }
+
+    function isUndefined(input) {
+        return input === void 0;
+    }
+
+    // Plugins that add properties should also add the key here (null value),
+    // so we can properly clone ourselves.
+    var momentProperties = utils_hooks__hooks.momentProperties = [];
+
+    function copyConfig(to, from) {
+        var i, prop, val;
+
+        if (!isUndefined(from._isAMomentObject)) {
+            to._isAMomentObject = from._isAMomentObject;
+        }
+        if (!isUndefined(from._i)) {
+            to._i = from._i;
+        }
+        if (!isUndefined(from._f)) {
+            to._f = from._f;
+        }
+        if (!isUndefined(from._l)) {
+            to._l = from._l;
+        }
+        if (!isUndefined(from._strict)) {
+            to._strict = from._strict;
+        }
+        if (!isUndefined(from._tzm)) {
+            to._tzm = from._tzm;
+        }
+        if (!isUndefined(from._isUTC)) {
+            to._isUTC = from._isUTC;
+        }
+        if (!isUndefined(from._offset)) {
+            to._offset = from._offset;
+        }
+        if (!isUndefined(from._pf)) {
+            to._pf = getParsingFlags(from);
+        }
+        if (!isUndefined(from._locale)) {
+            to._locale = from._locale;
+        }
+
+        if (momentProperties.length > 0) {
+            for (i in momentProperties) {
+                prop = momentProperties[i];
+                val = from[prop];
+                if (!isUndefined(val)) {
+                    to[prop] = val;
+                }
+            }
+        }
+
+        return to;
+    }
+
+    var updateInProgress = false;
+
+    // Moment prototype object
+    function Moment(config) {
+        copyConfig(this, config);
+        this._d = new Date(config._d != null ? config._d.getTime() : NaN);
+        // Prevent infinite loop in case updateOffset creates new moment
+        // objects.
+        if (updateInProgress === false) {
+            updateInProgress = true;
+            utils_hooks__hooks.updateOffset(this);
+            updateInProgress = false;
+        }
+    }
+
+    function isMoment (obj) {
+        return obj instanceof Moment || (obj != null && obj._isAMomentObject != null);
+    }
+
+    function absFloor (number) {
+        if (number < 0) {
+            return Math.ceil(number);
+        } else {
+            return Math.floor(number);
+        }
+    }
+
+    function toInt(argumentForCoercion) {
+        var coercedNumber = +argumentForCoercion,
+            value = 0;
+
+        if (coercedNumber !== 0 && isFinite(coercedNumber)) {
+            value = absFloor(coercedNumber);
+        }
+
+        return value;
+    }
+
+    // compare two arrays, return the number of differences
+    function compareArrays(array1, array2, dontConvert) {
+        var len = Math.min(array1.length, array2.length),
+            lengthDiff = Math.abs(array1.length - array2.length),
+            diffs = 0,
+            i;
+        for (i = 0; i < len; i++) {
+            if ((dontConvert && array1[i] !== array2[i]) ||
+                (!dontConvert && toInt(array1[i]) !== toInt(array2[i]))) {
+                diffs++;
+            }
+        }
+        return diffs + lengthDiff;
+    }
+
+    function warn(msg) {
+        if (utils_hooks__hooks.suppressDeprecationWarnings === false &&
+                (typeof console !==  'undefined') && console.warn) {
+            console.warn('Deprecation warning: ' + msg);
+        }
+    }
+
+    function deprecate(msg, fn) {
+        var firstTime = true;
+
+        return extend(function () {
+            if (utils_hooks__hooks.deprecationHandler != null) {
+                utils_hooks__hooks.deprecationHandler(null, msg);
+            }
+            if (firstTime) {
+                warn(msg + '\nArguments: ' + Array.prototype.slice.call(arguments).join(', ') + '\n' + (new Error()).stack);
+                firstTime = false;
+            }
+            return fn.apply(this, arguments);
+        }, fn);
+    }
+
+    var deprecations = {};
+
+    function deprecateSimple(name, msg) {
+        if (utils_hooks__hooks.deprecationHandler != null) {
+            utils_hooks__hooks.deprecationHandler(name, msg);
+        }
+        if (!deprecations[name]) {
+            warn(msg);
+            deprecations[name] = true;
+        }
+    }
+
+    utils_hooks__hooks.suppressDeprecationWarnings = false;
+    utils_hooks__hooks.deprecationHandler = null;
+
+    function isFunction(input) {
+        return input instanceof Function || Object.prototype.toString.call(input) === '[object Function]';
+    }
+
+    function isObject(input) {
+        return Object.prototype.toString.call(input) === '[object Object]';
+    }
+
+    function locale_set__set (config) {
+        var prop, i;
+        for (i in config) {
+            prop = config[i];
+            if (isFunction(prop)) {
+                this[i] = prop;
+            } else {
+                this['_' + i] = prop;
+            }
+        }
+        this._config = config;
+        // Lenient ordinal parsing accepts just a number in addition to
+        // number + (possibly) stuff coming from _ordinalParseLenient.
+        this._ordinalParseLenient = new RegExp(this._ordinalParse.source + '|' + (/\d{1,2}/).source);
+    }
+
+    function mergeConfigs(parentConfig, childConfig) {
+        var res = extend({}, parentConfig), prop;
+        for (prop in childConfig) {
+            if (hasOwnProp(childConfig, prop)) {
+                if (isObject(parentConfig[prop]) && isObject(childConfig[prop])) {
+                    res[prop] = {};
+                    extend(res[prop], parentConfig[prop]);
+                    extend(res[prop], childConfig[prop]);
+                } else if (childConfig[prop] != null) {
+                    res[prop] = childConfig[prop];
+                } else {
+                    delete res[prop];
+                }
+            }
+        }
+        return res;
+    }
+
+    function Locale(config) {
+        if (config != null) {
+            this.set(config);
+        }
+    }
+
+    var keys;
+
+    if (Object.keys) {
+        keys = Object.keys;
+    } else {
+        keys = function (obj) {
+            var i, res = [];
+            for (i in obj) {
+                if (hasOwnProp(obj, i)) {
+                    res.push(i);
+                }
+            }
+            return res;
+        };
+    }
+
+    // internal storage for locale config files
+    var locales = {};
+    var globalLocale;
+
+    function normalizeLocale(key) {
+        return key ? key.toLowerCase().replace('_', '-') : key;
+    }
+
+    // pick the locale from the array
+    // try ['en-au', 'en-gb'] as 'en-au', 'en-gb', 'en', as in move through the list trying each
+    // substring from most specific to least, but move to the next array item if it's a more specific variant than the current root
+    function chooseLocale(names) {
+        var i = 0, j, next, locale, split;
+
+        while (i < names.length) {
+            split = normalizeLocale(names[i]).split('-');
+            j = split.length;
+            next = normalizeLocale(names[i + 1]);
+            next = next ? next.split('-') : null;
+            while (j > 0) {
+                locale = loadLocale(split.slice(0, j).join('-'));
+                if (locale) {
+                    return locale;
+                }
+                if (next && next.length >= j && compareArrays(split, next, true) >= j - 1) {
+                    //the next array item is better than a shallower substring of this one
+                    break;
+                }
+                j--;
+            }
+            i++;
+        }
+        return null;
+    }
+
+    function loadLocale(name) {
+        var oldLocale = null;
+        // TODO: Find a better way to register and load all the locales in Node
+        if (!locales[name] && (typeof module !== 'undefined') &&
+                module && module.exports) {
+            try {
+                oldLocale = globalLocale._abbr;
+                require('./locale/' + name);
+                // because defineLocale currently also sets the global locale, we
+                // want to undo that for lazy loaded locales
+                locale_locales__getSetGlobalLocale(oldLocale);
+            } catch (e) { }
+        }
+        return locales[name];
+    }
+
+    // This function will load locale and then set the global locale.  If
+    // no arguments are passed in, it will simply return the current global
+    // locale key.
+    function locale_locales__getSetGlobalLocale (key, values) {
+        var data;
+        if (key) {
+            if (isUndefined(values)) {
+                data = locale_locales__getLocale(key);
+            }
+            else {
+                data = defineLocale(key, values);
+            }
+
+            if (data) {
+                // moment.duration._locale = moment._locale = data;
+                globalLocale = data;
+            }
+        }
+
+        return globalLocale._abbr;
+    }
+
+    function defineLocale (name, config) {
+        if (config !== null) {
+            config.abbr = name;
+            if (locales[name] != null) {
+                deprecateSimple('defineLocaleOverride',
+                        'use moment.updateLocale(localeName, config) to change ' +
+                        'an existing locale. moment.defineLocale(localeName, ' +
+                        'config) should only be used for creating a new locale');
+                config = mergeConfigs(locales[name]._config, config);
+            } else if (config.parentLocale != null) {
+                if (locales[config.parentLocale] != null) {
+                    config = mergeConfigs(locales[config.parentLocale]._config, config);
+                } else {
+                    // treat as if there is no base config
+                    deprecateSimple('parentLocaleUndefined',
+                            'specified parentLocale is not defined yet');
+                }
+            }
+            locales[name] = new Locale(config);
+
+            // backwards compat for now: also set the locale
+            locale_locales__getSetGlobalLocale(name);
+
+            return locales[name];
+        } else {
+            // useful for testing
+            delete locales[name];
+            return null;
+        }
+    }
+
+    function updateLocale(name, config) {
+        if (config != null) {
+            var locale;
+            if (locales[name] != null) {
+                config = mergeConfigs(locales[name]._config, config);
+            }
+            locale = new Locale(config);
+            locale.parentLocale = locales[name];
+            locales[name] = locale;
+
+            // backwards compat for now: also set the locale
+            locale_locales__getSetGlobalLocale(name);
+        } else {
+            // pass null for config to unupdate, useful for tests
+            if (locales[name] != null) {
+                if (locales[name].parentLocale != null) {
+                    locales[name] = locales[name].parentLocale;
+                } else if (locales[name] != null) {
+                    delete locales[name];
+                }
+            }
+        }
+        return locales[name];
+    }
+
+    // returns locale data
+    function locale_locales__getLocale (key) {
+        var locale;
+
+        if (key && key._locale && key._locale._abbr) {
+            key = key._locale._abbr;
+        }
+
+        if (!key) {
+            return globalLocale;
+        }
+
+        if (!isArray(key)) {
+            //short-circuit everything else
+            locale = loadLocale(key);
+            if (locale) {
+                return locale;
+            }
+            key = [key];
+        }
+
+        return chooseLocale(key);
+    }
+
+    function locale_locales__listLocales() {
+        return keys(locales);
+    }
+
+    var aliases = {};
+
+    function addUnitAlias (unit, shorthand) {
+        var lowerCase = unit.toLowerCase();
+        aliases[lowerCase] = aliases[lowerCase + 's'] = aliases[shorthand] = unit;
+    }
+
+    function normalizeUnits(units) {
+        return typeof units === 'string' ? aliases[units] || aliases[units.toLowerCase()] : undefined;
+    }
+
+    function normalizeObjectUnits(inputObject) {
+        var normalizedInput = {},
+            normalizedProp,
+            prop;
+
+        for (prop in inputObject) {
+            if (hasOwnProp(inputObject, prop)) {
+                normalizedProp = normalizeUnits(prop);
+                if (normalizedProp) {
+                    normalizedInput[normalizedProp] = inputObject[prop];
+                }
+            }
+        }
+
+        return normalizedInput;
+    }
+
+    function makeGetSet (unit, keepTime) {
+        return function (value) {
+            if (value != null) {
+                get_set__set(this, unit, value);
+                utils_hooks__hooks.updateOffset(this, keepTime);
+                return this;
+            } else {
+                return get_set__get(this, unit);
+            }
+        };
+    }
+
+    function get_set__get (mom, unit) {
+        return mom.isValid() ?
+            mom._d['get' + (mom._isUTC ? 'UTC' : '') + unit]() : NaN;
+    }
+
+    function get_set__set (mom, unit, value) {
+        if (mom.isValid()) {
+            mom._d['set' + (mom._isUTC ? 'UTC' : '') + unit](value);
+        }
+    }
+
+    // MOMENTS
+
+    function getSet (units, value) {
+        var unit;
+        if (typeof units === 'object') {
+            for (unit in units) {
+                this.set(unit, units[unit]);
+            }
+        } else {
+            units = normalizeUnits(units);
+            if (isFunction(this[units])) {
+                return this[units](value);
+            }
+        }
+        return this;
+    }
+
+    function zeroFill(number, targetLength, forceSign) {
+        var absNumber = '' + Math.abs(number),
+            zerosToFill = targetLength - absNumber.length,
+            sign = number >= 0;
+        return (sign ? (forceSign ? '+' : '') : '-') +
+            Math.pow(10, Math.max(0, zerosToFill)).toString().substr(1) + absNumber;
+    }
+
+    var formattingTokens = /(\[[^\[]*\])|(\\)?([Hh]mm(ss)?|Mo|MM?M?M?|Do|DDDo|DD?D?D?|ddd?d?|do?|w[o|w]?|W[o|W]?|Qo?|YYYYYY|YYYYY|YYYY|YY|gg(ggg?)?|GG(GGG?)?|e|E|a|A|hh?|HH?|kk?|mm?|ss?|S{1,9}|x|X|zz?|ZZ?|.)/g;
+
+    var localFormattingTokens = /(\[[^\[]*\])|(\\)?(LTS|LT|LL?L?L?|l{1,4})/g;
+
+    var formatFunctions = {};
+
+    var formatTokenFunctions = {};
+
+    // token:    'M'
+    // padded:   ['MM', 2]
+    // ordinal:  'Mo'
+    // callback: function () { this.month() + 1 }
+    function addFormatToken (token, padded, ordinal, callback) {
+        var func = callback;
+        if (typeof callback === 'string') {
+            func = function () {
+                return this[callback]();
+            };
+        }
+        if (token) {
+            formatTokenFunctions[token] = func;
+        }
+        if (padded) {
+            formatTokenFunctions[padded[0]] = function () {
+                return zeroFill(func.apply(this, arguments), padded[1], padded[2]);
+            };
+        }
+        if (ordinal) {
+            formatTokenFunctions[ordinal] = function () {
+                return this.localeData().ordinal(func.apply(this, arguments), token);
+            };
+        }
+    }
+
+    function removeFormattingTokens(input) {
+        if (input.match(/\[[\s\S]/)) {
+            return input.replace(/^\[|\]$/g, '');
+        }
+        return input.replace(/\\/g, '');
+    }
+
+    function makeFormatFunction(format) {
+        var array = format.match(formattingTokens), i, length;
+
+        for (i = 0, length = array.length; i < length; i++) {
+            if (formatTokenFunctions[array[i]]) {
+                array[i] = formatTokenFunctions[array[i]];
+            } else {
+                array[i] = removeFormattingTokens(array[i]);
+            }
+        }
+
+        return function (mom) {
+            var output = '', i;
+            for (i = 0; i < length; i++) {
+                output += array[i] instanceof Function ? array[i].call(mom, format) : array[i];
+            }
+            return output;
+        };
+    }
+
+    // format date using native date object
+    function formatMoment(m, format) {
+        if (!m.isValid()) {
+            return m.localeData().invalidDate();
+        }
+
+        format = expandFormat(format, m.localeData());
+        formatFunctions[format] = formatFunctions[format] || makeFormatFunction(format);
+
+        return formatFunctions[format](m);
+    }
+
+    function expandFormat(format, locale) {
+        var i = 5;
+
+        function replaceLongDateFormatTokens(input) {
+            return locale.longDateFormat(input) || input;
+        }
+
+        localFormattingTokens.lastIndex = 0;
+        while (i >= 0 && localFormattingTokens.test(format)) {
+            format = format.replace(localFormattingTokens, replaceLongDateFormatTokens);
+            localFormattingTokens.lastIndex = 0;
+            i -= 1;
+        }
+
+        return format;
+    }
+
+    var match1         = /\d/;            //       0 - 9
+    var match2         = /\d\d/;          //      00 - 99
+    var match3         = /\d{3}/;         //     000 - 999
+    var match4         = /\d{4}/;         //    0000 - 9999
+    var match6         = /[+-]?\d{6}/;    // -999999 - 999999
+    var match1to2      = /\d\d?/;         //       0 - 99
+    var match3to4      = /\d\d\d\d?/;     //     999 - 9999
+    var match5to6      = /\d\d\d\d\d\d?/; //   99999 - 999999
+    var match1to3      = /\d{1,3}/;       //       0 - 999
+    var match1to4      = /\d{1,4}/;       //       0 - 9999
+    var match1to6      = /[+-]?\d{1,6}/;  // -999999 - 999999
+
+    var matchUnsigned  = /\d+/;           //       0 - inf
+    var matchSigned    = /[+-]?\d+/;      //    -inf - inf
+
+    var matchOffset    = /Z|[+-]\d\d:?\d\d/gi; // +00:00 -00:00 +0000 -0000 or Z
+    var matchShortOffset = /Z|[+-]\d\d(?::?\d\d)?/gi; // +00 -00 +00:00 -00:00 +0000 -0000 or Z
+
+    var matchTimestamp = /[+-]?\d+(\.\d{1,3})?/; // 123456789 123456789.123
+
+    // any word (or two) characters or numbers including two/three word month in arabic.
+    // includes scottish gaelic two word and hyphenated months
+    var matchWord = /[0-9]*['a-z\u00A0-\u05FF\u0700-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+|[\u0600-\u06FF\/]+(\s*?[\u0600-\u06FF]+){1,2}/i;
+
+
+    var regexes = {};
+
+    function addRegexToken (token, regex, strictRegex) {
+        regexes[token] = isFunction(regex) ? regex : function (isStrict, localeData) {
+            return (isStrict && strictRegex) ? strictRegex : regex;
+        };
+    }
+
+    function getParseRegexForToken (token, config) {
+        if (!hasOwnProp(regexes, token)) {
+            return new RegExp(unescapeFormat(token));
+        }
+
+        return regexes[token](config._strict, config._locale);
+    }
+
+    // Code from http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+    function unescapeFormat(s) {
+        return regexEscape(s.replace('\\', '').replace(/\\(\[)|\\(\])|\[([^\]\[]*)\]|\\(.)/g, function (matched, p1, p2, p3, p4) {
+            return p1 || p2 || p3 || p4;
+        }));
+    }
+
+    function regexEscape(s) {
+        return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    }
+
+    var tokens = {};
+
+    function addParseToken (token, callback) {
+        var i, func = callback;
+        if (typeof token === 'string') {
+            token = [token];
+        }
+        if (typeof callback === 'number') {
+            func = function (input, array) {
+                array[callback] = toInt(input);
+            };
+        }
+        for (i = 0; i < token.length; i++) {
+            tokens[token[i]] = func;
+        }
+    }
+
+    function addWeekParseToken (token, callback) {
+        addParseToken(token, function (input, array, config, token) {
+            config._w = config._w || {};
+            callback(input, config._w, config, token);
+        });
+    }
+
+    function addTimeToArrayFromToken(token, input, config) {
+        if (input != null && hasOwnProp(tokens, token)) {
+            tokens[token](input, config._a, config, token);
+        }
+    }
+
+    var YEAR = 0;
+    var MONTH = 1;
+    var DATE = 2;
+    var HOUR = 3;
+    var MINUTE = 4;
+    var SECOND = 5;
+    var MILLISECOND = 6;
+    var WEEK = 7;
+    var WEEKDAY = 8;
+
+    var indexOf;
+
+    if (Array.prototype.indexOf) {
+        indexOf = Array.prototype.indexOf;
+    } else {
+        indexOf = function (o) {
+            // I know
+            var i;
+            for (i = 0; i < this.length; ++i) {
+                if (this[i] === o) {
+                    return i;
+                }
+            }
+            return -1;
+        };
+    }
+
+    function daysInMonth(year, month) {
+        return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+    }
+
+    // FORMATTING
+
+    addFormatToken('M', ['MM', 2], 'Mo', function () {
+        return this.month() + 1;
+    });
+
+    addFormatToken('MMM', 0, 0, function (format) {
+        return this.localeData().monthsShort(this, format);
+    });
+
+    addFormatToken('MMMM', 0, 0, function (format) {
+        return this.localeData().months(this, format);
+    });
+
+    // ALIASES
+
+    addUnitAlias('month', 'M');
+
+    // PARSING
+
+    addRegexToken('M',    match1to2);
+    addRegexToken('MM',   match1to2, match2);
+    addRegexToken('MMM',  function (isStrict, locale) {
+        return locale.monthsShortRegex(isStrict);
+    });
+    addRegexToken('MMMM', function (isStrict, locale) {
+        return locale.monthsRegex(isStrict);
+    });
+
+    addParseToken(['M', 'MM'], function (input, array) {
+        array[MONTH] = toInt(input) - 1;
+    });
+
+    addParseToken(['MMM', 'MMMM'], function (input, array, config, token) {
+        var month = config._locale.monthsParse(input, token, config._strict);
+        // if we didn't find a month name, mark the date as invalid.
+        if (month != null) {
+            array[MONTH] = month;
+        } else {
+            getParsingFlags(config).invalidMonth = input;
+        }
+    });
+
+    // LOCALES
+
+    var MONTHS_IN_FORMAT = /D[oD]?(\[[^\[\]]*\]|\s+)+MMMM?/;
+    var defaultLocaleMonths = 'January_February_March_April_May_June_July_August_September_October_November_December'.split('_');
+    function localeMonths (m, format) {
+        return isArray(this._months) ? this._months[m.month()] :
+            this._months[MONTHS_IN_FORMAT.test(format) ? 'format' : 'standalone'][m.month()];
+    }
+
+    var defaultLocaleMonthsShort = 'Jan_Feb_Mar_Apr_May_Jun_Jul_Aug_Sep_Oct_Nov_Dec'.split('_');
+    function localeMonthsShort (m, format) {
+        return isArray(this._monthsShort) ? this._monthsShort[m.month()] :
+            this._monthsShort[MONTHS_IN_FORMAT.test(format) ? 'format' : 'standalone'][m.month()];
+    }
+
+    function units_month__handleStrictParse(monthName, format, strict) {
+        var i, ii, mom, llc = monthName.toLocaleLowerCase();
+        if (!this._monthsParse) {
+            // this is not used
+            this._monthsParse = [];
+            this._longMonthsParse = [];
+            this._shortMonthsParse = [];
+            for (i = 0; i < 12; ++i) {
+                mom = create_utc__createUTC([2000, i]);
+                this._shortMonthsParse[i] = this.monthsShort(mom, '').toLocaleLowerCase();
+                this._longMonthsParse[i] = this.months(mom, '').toLocaleLowerCase();
+            }
+        }
+
+        if (strict) {
+            if (format === 'MMM') {
+                ii = indexOf.call(this._shortMonthsParse, llc);
+                return ii !== -1 ? ii : null;
+            } else {
+                ii = indexOf.call(this._longMonthsParse, llc);
+                return ii !== -1 ? ii : null;
+            }
+        } else {
+            if (format === 'MMM') {
+                ii = indexOf.call(this._shortMonthsParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._longMonthsParse, llc);
+                return ii !== -1 ? ii : null;
+            } else {
+                ii = indexOf.call(this._longMonthsParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._shortMonthsParse, llc);
+                return ii !== -1 ? ii : null;
+            }
+        }
+    }
+
+    function localeMonthsParse (monthName, format, strict) {
+        var i, mom, regex;
+
+        if (this._monthsParseExact) {
+            return units_month__handleStrictParse.call(this, monthName, format, strict);
+        }
+
+        if (!this._monthsParse) {
+            this._monthsParse = [];
+            this._longMonthsParse = [];
+            this._shortMonthsParse = [];
+        }
+
+        // TODO: add sorting
+        // Sorting makes sure if one month (or abbr) is a prefix of another
+        // see sorting in computeMonthsParse
+        for (i = 0; i < 12; i++) {
+            // make the regex if we don't have it already
+            mom = create_utc__createUTC([2000, i]);
+            if (strict && !this._longMonthsParse[i]) {
+                this._longMonthsParse[i] = new RegExp('^' + this.months(mom, '').replace('.', '') + '$', 'i');
+                this._shortMonthsParse[i] = new RegExp('^' + this.monthsShort(mom, '').replace('.', '') + '$', 'i');
+            }
+            if (!strict && !this._monthsParse[i]) {
+                regex = '^' + this.months(mom, '') + '|^' + this.monthsShort(mom, '');
+                this._monthsParse[i] = new RegExp(regex.replace('.', ''), 'i');
+            }
+            // test the regex
+            if (strict && format === 'MMMM' && this._longMonthsParse[i].test(monthName)) {
+                return i;
+            } else if (strict && format === 'MMM' && this._shortMonthsParse[i].test(monthName)) {
+                return i;
+            } else if (!strict && this._monthsParse[i].test(monthName)) {
+                return i;
+            }
+        }
+    }
+
+    // MOMENTS
+
+    function setMonth (mom, value) {
+        var dayOfMonth;
+
+        if (!mom.isValid()) {
+            // No op
+            return mom;
+        }
+
+        if (typeof value === 'string') {
+            if (/^\d+$/.test(value)) {
+                value = toInt(value);
+            } else {
+                value = mom.localeData().monthsParse(value);
+                // TODO: Another silent failure?
+                if (typeof value !== 'number') {
+                    return mom;
+                }
+            }
+        }
+
+        dayOfMonth = Math.min(mom.date(), daysInMonth(mom.year(), value));
+        mom._d['set' + (mom._isUTC ? 'UTC' : '') + 'Month'](value, dayOfMonth);
+        return mom;
+    }
+
+    function getSetMonth (value) {
+        if (value != null) {
+            setMonth(this, value);
+            utils_hooks__hooks.updateOffset(this, true);
+            return this;
+        } else {
+            return get_set__get(this, 'Month');
+        }
+    }
+
+    function getDaysInMonth () {
+        return daysInMonth(this.year(), this.month());
+    }
+
+    var defaultMonthsShortRegex = matchWord;
+    function monthsShortRegex (isStrict) {
+        if (this._monthsParseExact) {
+            if (!hasOwnProp(this, '_monthsRegex')) {
+                computeMonthsParse.call(this);
+            }
+            if (isStrict) {
+                return this._monthsShortStrictRegex;
+            } else {
+                return this._monthsShortRegex;
+            }
+        } else {
+            return this._monthsShortStrictRegex && isStrict ?
+                this._monthsShortStrictRegex : this._monthsShortRegex;
+        }
+    }
+
+    var defaultMonthsRegex = matchWord;
+    function monthsRegex (isStrict) {
+        if (this._monthsParseExact) {
+            if (!hasOwnProp(this, '_monthsRegex')) {
+                computeMonthsParse.call(this);
+            }
+            if (isStrict) {
+                return this._monthsStrictRegex;
+            } else {
+                return this._monthsRegex;
+            }
+        } else {
+            return this._monthsStrictRegex && isStrict ?
+                this._monthsStrictRegex : this._monthsRegex;
+        }
+    }
+
+    function computeMonthsParse () {
+        function cmpLenRev(a, b) {
+            return b.length - a.length;
+        }
+
+        var shortPieces = [], longPieces = [], mixedPieces = [],
+            i, mom;
+        for (i = 0; i < 12; i++) {
+            // make the regex if we don't have it already
+            mom = create_utc__createUTC([2000, i]);
+            shortPieces.push(this.monthsShort(mom, ''));
+            longPieces.push(this.months(mom, ''));
+            mixedPieces.push(this.months(mom, ''));
+            mixedPieces.push(this.monthsShort(mom, ''));
+        }
+        // Sorting makes sure if one month (or abbr) is a prefix of another it
+        // will match the longer piece.
+        shortPieces.sort(cmpLenRev);
+        longPieces.sort(cmpLenRev);
+        mixedPieces.sort(cmpLenRev);
+        for (i = 0; i < 12; i++) {
+            shortPieces[i] = regexEscape(shortPieces[i]);
+            longPieces[i] = regexEscape(longPieces[i]);
+            mixedPieces[i] = regexEscape(mixedPieces[i]);
+        }
+
+        this._monthsRegex = new RegExp('^(' + mixedPieces.join('|') + ')', 'i');
+        this._monthsShortRegex = this._monthsRegex;
+        this._monthsStrictRegex = new RegExp('^(' + longPieces.join('|') + ')', 'i');
+        this._monthsShortStrictRegex = new RegExp('^(' + shortPieces.join('|') + ')', 'i');
+    }
+
+    function checkOverflow (m) {
+        var overflow;
+        var a = m._a;
+
+        if (a && getParsingFlags(m).overflow === -2) {
+            overflow =
+                a[MONTH]       < 0 || a[MONTH]       > 11  ? MONTH :
+                a[DATE]        < 1 || a[DATE]        > daysInMonth(a[YEAR], a[MONTH]) ? DATE :
+                a[HOUR]        < 0 || a[HOUR]        > 24 || (a[HOUR] === 24 && (a[MINUTE] !== 0 || a[SECOND] !== 0 || a[MILLISECOND] !== 0)) ? HOUR :
+                a[MINUTE]      < 0 || a[MINUTE]      > 59  ? MINUTE :
+                a[SECOND]      < 0 || a[SECOND]      > 59  ? SECOND :
+                a[MILLISECOND] < 0 || a[MILLISECOND] > 999 ? MILLISECOND :
+                -1;
+
+            if (getParsingFlags(m)._overflowDayOfYear && (overflow < YEAR || overflow > DATE)) {
+                overflow = DATE;
+            }
+            if (getParsingFlags(m)._overflowWeeks && overflow === -1) {
+                overflow = WEEK;
+            }
+            if (getParsingFlags(m)._overflowWeekday && overflow === -1) {
+                overflow = WEEKDAY;
+            }
+
+            getParsingFlags(m).overflow = overflow;
+        }
+
+        return m;
+    }
+
+    // iso 8601 regex
+    // 0000-00-00 0000-W00 or 0000-W00-0 + T + 00 or 00:00 or 00:00:00 or 00:00:00.000 + +00:00 or +0000 or +00)
+    var extendedIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})-(?:\d\d-\d\d|W\d\d-\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?::\d\d(?::\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?/;
+    var basicIsoRegex = /^\s*((?:[+-]\d{6}|\d{4})(?:\d\d\d\d|W\d\d\d|W\d\d|\d\d\d|\d\d))(?:(T| )(\d\d(?:\d\d(?:\d\d(?:[.,]\d+)?)?)?)([\+\-]\d\d(?::?\d\d)?|\s*Z)?)?/;
+
+    var tzRegex = /Z|[+-]\d\d(?::?\d\d)?/;
+
+    var isoDates = [
+        ['YYYYYY-MM-DD', /[+-]\d{6}-\d\d-\d\d/],
+        ['YYYY-MM-DD', /\d{4}-\d\d-\d\d/],
+        ['GGGG-[W]WW-E', /\d{4}-W\d\d-\d/],
+        ['GGGG-[W]WW', /\d{4}-W\d\d/, false],
+        ['YYYY-DDD', /\d{4}-\d{3}/],
+        ['YYYY-MM', /\d{4}-\d\d/, false],
+        ['YYYYYYMMDD', /[+-]\d{10}/],
+        ['YYYYMMDD', /\d{8}/],
+        // YYYYMM is NOT allowed by the standard
+        ['GGGG[W]WWE', /\d{4}W\d{3}/],
+        ['GGGG[W]WW', /\d{4}W\d{2}/, false],
+        ['YYYYDDD', /\d{7}/]
+    ];
+
+    // iso time formats and regexes
+    var isoTimes = [
+        ['HH:mm:ss.SSSS', /\d\d:\d\d:\d\d\.\d+/],
+        ['HH:mm:ss,SSSS', /\d\d:\d\d:\d\d,\d+/],
+        ['HH:mm:ss', /\d\d:\d\d:\d\d/],
+        ['HH:mm', /\d\d:\d\d/],
+        ['HHmmss.SSSS', /\d\d\d\d\d\d\.\d+/],
+        ['HHmmss,SSSS', /\d\d\d\d\d\d,\d+/],
+        ['HHmmss', /\d\d\d\d\d\d/],
+        ['HHmm', /\d\d\d\d/],
+        ['HH', /\d\d/]
+    ];
+
+    var aspNetJsonRegex = /^\/?Date\((\-?\d+)/i;
+
+    // date from iso format
+    function configFromISO(config) {
+        var i, l,
+            string = config._i,
+            match = extendedIsoRegex.exec(string) || basicIsoRegex.exec(string),
+            allowTime, dateFormat, timeFormat, tzFormat;
+
+        if (match) {
+            getParsingFlags(config).iso = true;
+
+            for (i = 0, l = isoDates.length; i < l; i++) {
+                if (isoDates[i][1].exec(match[1])) {
+                    dateFormat = isoDates[i][0];
+                    allowTime = isoDates[i][2] !== false;
+                    break;
+                }
+            }
+            if (dateFormat == null) {
+                config._isValid = false;
+                return;
+            }
+            if (match[3]) {
+                for (i = 0, l = isoTimes.length; i < l; i++) {
+                    if (isoTimes[i][1].exec(match[3])) {
+                        // match[2] should be 'T' or space
+                        timeFormat = (match[2] || ' ') + isoTimes[i][0];
+                        break;
+                    }
+                }
+                if (timeFormat == null) {
+                    config._isValid = false;
+                    return;
+                }
+            }
+            if (!allowTime && timeFormat != null) {
+                config._isValid = false;
+                return;
+            }
+            if (match[4]) {
+                if (tzRegex.exec(match[4])) {
+                    tzFormat = 'Z';
+                } else {
+                    config._isValid = false;
+                    return;
+                }
+            }
+            config._f = dateFormat + (timeFormat || '') + (tzFormat || '');
+            configFromStringAndFormat(config);
+        } else {
+            config._isValid = false;
+        }
+    }
+
+    // date from iso format or fallback
+    function configFromString(config) {
+        var matched = aspNetJsonRegex.exec(config._i);
+
+        if (matched !== null) {
+            config._d = new Date(+matched[1]);
+            return;
+        }
+
+        configFromISO(config);
+        if (config._isValid === false) {
+            delete config._isValid;
+            utils_hooks__hooks.createFromInputFallback(config);
+        }
+    }
+
+    utils_hooks__hooks.createFromInputFallback = deprecate(
+        'moment construction falls back to js Date. This is ' +
+        'discouraged and will be removed in upcoming major ' +
+        'release. Please refer to ' +
+        'https://github.com/moment/moment/issues/1407 for more info.',
+        function (config) {
+            config._d = new Date(config._i + (config._useUTC ? ' UTC' : ''));
+        }
+    );
+
+    function createDate (y, m, d, h, M, s, ms) {
+        //can't just apply() to create a date:
+        //http://stackoverflow.com/questions/181348/instantiating-a-javascript-object-by-calling-prototype-constructor-apply
+        var date = new Date(y, m, d, h, M, s, ms);
+
+        //the date constructor remaps years 0-99 to 1900-1999
+        if (y < 100 && y >= 0 && isFinite(date.getFullYear())) {
+            date.setFullYear(y);
+        }
+        return date;
+    }
+
+    function createUTCDate (y) {
+        var date = new Date(Date.UTC.apply(null, arguments));
+
+        //the Date.UTC function remaps years 0-99 to 1900-1999
+        if (y < 100 && y >= 0 && isFinite(date.getUTCFullYear())) {
+            date.setUTCFullYear(y);
+        }
+        return date;
+    }
+
+    // FORMATTING
+
+    addFormatToken('Y', 0, 0, function () {
+        var y = this.year();
+        return y <= 9999 ? '' + y : '+' + y;
+    });
+
+    addFormatToken(0, ['YY', 2], 0, function () {
+        return this.year() % 100;
+    });
+
+    addFormatToken(0, ['YYYY',   4],       0, 'year');
+    addFormatToken(0, ['YYYYY',  5],       0, 'year');
+    addFormatToken(0, ['YYYYYY', 6, true], 0, 'year');
+
+    // ALIASES
+
+    addUnitAlias('year', 'y');
+
+    // PARSING
+
+    addRegexToken('Y',      matchSigned);
+    addRegexToken('YY',     match1to2, match2);
+    addRegexToken('YYYY',   match1to4, match4);
+    addRegexToken('YYYYY',  match1to6, match6);
+    addRegexToken('YYYYYY', match1to6, match6);
+
+    addParseToken(['YYYYY', 'YYYYYY'], YEAR);
+    addParseToken('YYYY', function (input, array) {
+        array[YEAR] = input.length === 2 ? utils_hooks__hooks.parseTwoDigitYear(input) : toInt(input);
+    });
+    addParseToken('YY', function (input, array) {
+        array[YEAR] = utils_hooks__hooks.parseTwoDigitYear(input);
+    });
+    addParseToken('Y', function (input, array) {
+        array[YEAR] = parseInt(input, 10);
+    });
+
+    // HELPERS
+
+    function daysInYear(year) {
+        return isLeapYear(year) ? 366 : 365;
+    }
+
+    function isLeapYear(year) {
+        return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    }
+
+    // HOOKS
+
+    utils_hooks__hooks.parseTwoDigitYear = function (input) {
+        return toInt(input) + (toInt(input) > 68 ? 1900 : 2000);
+    };
+
+    // MOMENTS
+
+    var getSetYear = makeGetSet('FullYear', true);
+
+    function getIsLeapYear () {
+        return isLeapYear(this.year());
+    }
+
+    // start-of-first-week - start-of-year
+    function firstWeekOffset(year, dow, doy) {
+        var // first-week day -- which january is always in the first week (4 for iso, 1 for other)
+            fwd = 7 + dow - doy,
+            // first-week day local weekday -- which local weekday is fwd
+            fwdlw = (7 + createUTCDate(year, 0, fwd).getUTCDay() - dow) % 7;
+
+        return -fwdlw + fwd - 1;
+    }
+
+    //http://en.wikipedia.org/wiki/ISO_week_date#Calculating_a_date_given_the_year.2C_week_number_and_weekday
+    function dayOfYearFromWeeks(year, week, weekday, dow, doy) {
+        var localWeekday = (7 + weekday - dow) % 7,
+            weekOffset = firstWeekOffset(year, dow, doy),
+            dayOfYear = 1 + 7 * (week - 1) + localWeekday + weekOffset,
+            resYear, resDayOfYear;
+
+        if (dayOfYear <= 0) {
+            resYear = year - 1;
+            resDayOfYear = daysInYear(resYear) + dayOfYear;
+        } else if (dayOfYear > daysInYear(year)) {
+            resYear = year + 1;
+            resDayOfYear = dayOfYear - daysInYear(year);
+        } else {
+            resYear = year;
+            resDayOfYear = dayOfYear;
+        }
+
+        return {
+            year: resYear,
+            dayOfYear: resDayOfYear
+        };
+    }
+
+    function weekOfYear(mom, dow, doy) {
+        var weekOffset = firstWeekOffset(mom.year(), dow, doy),
+            week = Math.floor((mom.dayOfYear() - weekOffset - 1) / 7) + 1,
+            resWeek, resYear;
+
+        if (week < 1) {
+            resYear = mom.year() - 1;
+            resWeek = week + weeksInYear(resYear, dow, doy);
+        } else if (week > weeksInYear(mom.year(), dow, doy)) {
+            resWeek = week - weeksInYear(mom.year(), dow, doy);
+            resYear = mom.year() + 1;
+        } else {
+            resYear = mom.year();
+            resWeek = week;
+        }
+
+        return {
+            week: resWeek,
+            year: resYear
+        };
+    }
+
+    function weeksInYear(year, dow, doy) {
+        var weekOffset = firstWeekOffset(year, dow, doy),
+            weekOffsetNext = firstWeekOffset(year + 1, dow, doy);
+        return (daysInYear(year) - weekOffset + weekOffsetNext) / 7;
+    }
+
+    // Pick the first defined of two or three arguments.
+    function defaults(a, b, c) {
+        if (a != null) {
+            return a;
+        }
+        if (b != null) {
+            return b;
+        }
+        return c;
+    }
+
+    function currentDateArray(config) {
+        // hooks is actually the exported moment object
+        var nowValue = new Date(utils_hooks__hooks.now());
+        if (config._useUTC) {
+            return [nowValue.getUTCFullYear(), nowValue.getUTCMonth(), nowValue.getUTCDate()];
+        }
+        return [nowValue.getFullYear(), nowValue.getMonth(), nowValue.getDate()];
+    }
+
+    // convert an array to a date.
+    // the array should mirror the parameters below
+    // note: all values past the year are optional and will default to the lowest possible value.
+    // [year, month, day , hour, minute, second, millisecond]
+    function configFromArray (config) {
+        var i, date, input = [], currentDate, yearToUse;
+
+        if (config._d) {
+            return;
+        }
+
+        currentDate = currentDateArray(config);
+
+        //compute day of the year from weeks and weekdays
+        if (config._w && config._a[DATE] == null && config._a[MONTH] == null) {
+            dayOfYearFromWeekInfo(config);
+        }
+
+        //if the day of the year is set, figure out what it is
+        if (config._dayOfYear) {
+            yearToUse = defaults(config._a[YEAR], currentDate[YEAR]);
+
+            if (config._dayOfYear > daysInYear(yearToUse)) {
+                getParsingFlags(config)._overflowDayOfYear = true;
+            }
+
+            date = createUTCDate(yearToUse, 0, config._dayOfYear);
+            config._a[MONTH] = date.getUTCMonth();
+            config._a[DATE] = date.getUTCDate();
+        }
+
+        // Default to current date.
+        // * if no year, month, day of month are given, default to today
+        // * if day of month is given, default month and year
+        // * if month is given, default only year
+        // * if year is given, don't default anything
+        for (i = 0; i < 3 && config._a[i] == null; ++i) {
+            config._a[i] = input[i] = currentDate[i];
+        }
+
+        // Zero out whatever was not defaulted, including time
+        for (; i < 7; i++) {
+            config._a[i] = input[i] = (config._a[i] == null) ? (i === 2 ? 1 : 0) : config._a[i];
+        }
+
+        // Check for 24:00:00.000
+        if (config._a[HOUR] === 24 &&
+                config._a[MINUTE] === 0 &&
+                config._a[SECOND] === 0 &&
+                config._a[MILLISECOND] === 0) {
+            config._nextDay = true;
+            config._a[HOUR] = 0;
+        }
+
+        config._d = (config._useUTC ? createUTCDate : createDate).apply(null, input);
+        // Apply timezone offset from input. The actual utcOffset can be changed
+        // with parseZone.
+        if (config._tzm != null) {
+            config._d.setUTCMinutes(config._d.getUTCMinutes() - config._tzm);
+        }
+
+        if (config._nextDay) {
+            config._a[HOUR] = 24;
+        }
+    }
+
+    function dayOfYearFromWeekInfo(config) {
+        var w, weekYear, week, weekday, dow, doy, temp, weekdayOverflow;
+
+        w = config._w;
+        if (w.GG != null || w.W != null || w.E != null) {
+            dow = 1;
+            doy = 4;
+
+            // TODO: We need to take the current isoWeekYear, but that depends on
+            // how we interpret now (local, utc, fixed offset). So create
+            // a now version of current config (take local/utc/offset flags, and
+            // create now).
+            weekYear = defaults(w.GG, config._a[YEAR], weekOfYear(local__createLocal(), 1, 4).year);
+            week = defaults(w.W, 1);
+            weekday = defaults(w.E, 1);
+            if (weekday < 1 || weekday > 7) {
+                weekdayOverflow = true;
+            }
+        } else {
+            dow = config._locale._week.dow;
+            doy = config._locale._week.doy;
+
+            weekYear = defaults(w.gg, config._a[YEAR], weekOfYear(local__createLocal(), dow, doy).year);
+            week = defaults(w.w, 1);
+
+            if (w.d != null) {
+                // weekday -- low day numbers are considered next week
+                weekday = w.d;
+                if (weekday < 0 || weekday > 6) {
+                    weekdayOverflow = true;
+                }
+            } else if (w.e != null) {
+                // local weekday -- counting starts from begining of week
+                weekday = w.e + dow;
+                if (w.e < 0 || w.e > 6) {
+                    weekdayOverflow = true;
+                }
+            } else {
+                // default to begining of week
+                weekday = dow;
+            }
+        }
+        if (week < 1 || week > weeksInYear(weekYear, dow, doy)) {
+            getParsingFlags(config)._overflowWeeks = true;
+        } else if (weekdayOverflow != null) {
+            getParsingFlags(config)._overflowWeekday = true;
+        } else {
+            temp = dayOfYearFromWeeks(weekYear, week, weekday, dow, doy);
+            config._a[YEAR] = temp.year;
+            config._dayOfYear = temp.dayOfYear;
+        }
+    }
+
+    // constant that refers to the ISO standard
+    utils_hooks__hooks.ISO_8601 = function () {};
+
+    // date from string and format string
+    function configFromStringAndFormat(config) {
+        // TODO: Move this to another part of the creation flow to prevent circular deps
+        if (config._f === utils_hooks__hooks.ISO_8601) {
+            configFromISO(config);
+            return;
+        }
+
+        config._a = [];
+        getParsingFlags(config).empty = true;
+
+        // This array is used to make a Date, either with `new Date` or `Date.UTC`
+        var string = '' + config._i,
+            i, parsedInput, tokens, token, skipped,
+            stringLength = string.length,
+            totalParsedInputLength = 0;
+
+        tokens = expandFormat(config._f, config._locale).match(formattingTokens) || [];
+
+        for (i = 0; i < tokens.length; i++) {
+            token = tokens[i];
+            parsedInput = (string.match(getParseRegexForToken(token, config)) || [])[0];
+            // console.log('token', token, 'parsedInput', parsedInput,
+            //         'regex', getParseRegexForToken(token, config));
+            if (parsedInput) {
+                skipped = string.substr(0, string.indexOf(parsedInput));
+                if (skipped.length > 0) {
+                    getParsingFlags(config).unusedInput.push(skipped);
+                }
+                string = string.slice(string.indexOf(parsedInput) + parsedInput.length);
+                totalParsedInputLength += parsedInput.length;
+            }
+            // don't parse if it's not a known token
+            if (formatTokenFunctions[token]) {
+                if (parsedInput) {
+                    getParsingFlags(config).empty = false;
+                }
+                else {
+                    getParsingFlags(config).unusedTokens.push(token);
+                }
+                addTimeToArrayFromToken(token, parsedInput, config);
+            }
+            else if (config._strict && !parsedInput) {
+                getParsingFlags(config).unusedTokens.push(token);
+            }
+        }
+
+        // add remaining unparsed input length to the string
+        getParsingFlags(config).charsLeftOver = stringLength - totalParsedInputLength;
+        if (string.length > 0) {
+            getParsingFlags(config).unusedInput.push(string);
+        }
+
+        // clear _12h flag if hour is <= 12
+        if (getParsingFlags(config).bigHour === true &&
+                config._a[HOUR] <= 12 &&
+                config._a[HOUR] > 0) {
+            getParsingFlags(config).bigHour = undefined;
+        }
+
+        getParsingFlags(config).parsedDateParts = config._a.slice(0);
+        getParsingFlags(config).meridiem = config._meridiem;
+        // handle meridiem
+        config._a[HOUR] = meridiemFixWrap(config._locale, config._a[HOUR], config._meridiem);
+
+        configFromArray(config);
+        checkOverflow(config);
+    }
+
+
+    function meridiemFixWrap (locale, hour, meridiem) {
+        var isPm;
+
+        if (meridiem == null) {
+            // nothing to do
+            return hour;
+        }
+        if (locale.meridiemHour != null) {
+            return locale.meridiemHour(hour, meridiem);
+        } else if (locale.isPM != null) {
+            // Fallback
+            isPm = locale.isPM(meridiem);
+            if (isPm && hour < 12) {
+                hour += 12;
+            }
+            if (!isPm && hour === 12) {
+                hour = 0;
+            }
+            return hour;
+        } else {
+            // this is not supposed to happen
+            return hour;
+        }
+    }
+
+    // date from string and array of format strings
+    function configFromStringAndArray(config) {
+        var tempConfig,
+            bestMoment,
+
+            scoreToBeat,
+            i,
+            currentScore;
+
+        if (config._f.length === 0) {
+            getParsingFlags(config).invalidFormat = true;
+            config._d = new Date(NaN);
+            return;
+        }
+
+        for (i = 0; i < config._f.length; i++) {
+            currentScore = 0;
+            tempConfig = copyConfig({}, config);
+            if (config._useUTC != null) {
+                tempConfig._useUTC = config._useUTC;
+            }
+            tempConfig._f = config._f[i];
+            configFromStringAndFormat(tempConfig);
+
+            if (!valid__isValid(tempConfig)) {
+                continue;
+            }
+
+            // if there is any input that was not parsed add a penalty for that format
+            currentScore += getParsingFlags(tempConfig).charsLeftOver;
+
+            //or tokens
+            currentScore += getParsingFlags(tempConfig).unusedTokens.length * 10;
+
+            getParsingFlags(tempConfig).score = currentScore;
+
+            if (scoreToBeat == null || currentScore < scoreToBeat) {
+                scoreToBeat = currentScore;
+                bestMoment = tempConfig;
+            }
+        }
+
+        extend(config, bestMoment || tempConfig);
+    }
+
+    function configFromObject(config) {
+        if (config._d) {
+            return;
+        }
+
+        var i = normalizeObjectUnits(config._i);
+        config._a = map([i.year, i.month, i.day || i.date, i.hour, i.minute, i.second, i.millisecond], function (obj) {
+            return obj && parseInt(obj, 10);
+        });
+
+        configFromArray(config);
+    }
+
+    function createFromConfig (config) {
+        var res = new Moment(checkOverflow(prepareConfig(config)));
+        if (res._nextDay) {
+            // Adding is smart enough around DST
+            res.add(1, 'd');
+            res._nextDay = undefined;
+        }
+
+        return res;
+    }
+
+    function prepareConfig (config) {
+        var input = config._i,
+            format = config._f;
+
+        config._locale = config._locale || locale_locales__getLocale(config._l);
+
+        if (input === null || (format === undefined && input === '')) {
+            return valid__createInvalid({nullInput: true});
+        }
+
+        if (typeof input === 'string') {
+            config._i = input = config._locale.preparse(input);
+        }
+
+        if (isMoment(input)) {
+            return new Moment(checkOverflow(input));
+        } else if (isArray(format)) {
+            configFromStringAndArray(config);
+        } else if (format) {
+            configFromStringAndFormat(config);
+        } else if (isDate(input)) {
+            config._d = input;
+        } else {
+            configFromInput(config);
+        }
+
+        if (!valid__isValid(config)) {
+            config._d = null;
+        }
+
+        return config;
+    }
+
+    function configFromInput(config) {
+        var input = config._i;
+        if (input === undefined) {
+            config._d = new Date(utils_hooks__hooks.now());
+        } else if (isDate(input)) {
+            config._d = new Date(input.valueOf());
+        } else if (typeof input === 'string') {
+            configFromString(config);
+        } else if (isArray(input)) {
+            config._a = map(input.slice(0), function (obj) {
+                return parseInt(obj, 10);
+            });
+            configFromArray(config);
+        } else if (typeof(input) === 'object') {
+            configFromObject(config);
+        } else if (typeof(input) === 'number') {
+            // from milliseconds
+            config._d = new Date(input);
+        } else {
+            utils_hooks__hooks.createFromInputFallback(config);
+        }
+    }
+
+    function createLocalOrUTC (input, format, locale, strict, isUTC) {
+        var c = {};
+
+        if (typeof(locale) === 'boolean') {
+            strict = locale;
+            locale = undefined;
+        }
+        // object construction must be done this way.
+        // https://github.com/moment/moment/issues/1423
+        c._isAMomentObject = true;
+        c._useUTC = c._isUTC = isUTC;
+        c._l = locale;
+        c._i = input;
+        c._f = format;
+        c._strict = strict;
+
+        return createFromConfig(c);
+    }
+
+    function local__createLocal (input, format, locale, strict) {
+        return createLocalOrUTC(input, format, locale, strict, false);
+    }
+
+    var prototypeMin = deprecate(
+         'moment().min is deprecated, use moment.max instead. https://github.com/moment/moment/issues/1548',
+         function () {
+             var other = local__createLocal.apply(null, arguments);
+             if (this.isValid() && other.isValid()) {
+                 return other < this ? this : other;
+             } else {
+                 return valid__createInvalid();
+             }
+         }
+     );
+
+    var prototypeMax = deprecate(
+        'moment().max is deprecated, use moment.min instead. https://github.com/moment/moment/issues/1548',
+        function () {
+            var other = local__createLocal.apply(null, arguments);
+            if (this.isValid() && other.isValid()) {
+                return other > this ? this : other;
+            } else {
+                return valid__createInvalid();
+            }
+        }
+    );
+
+    // Pick a moment m from moments so that m[fn](other) is true for all
+    // other. This relies on the function fn to be transitive.
+    //
+    // moments should either be an array of moment objects or an array, whose
+    // first element is an array of moment objects.
+    function pickBy(fn, moments) {
+        var res, i;
+        if (moments.length === 1 && isArray(moments[0])) {
+            moments = moments[0];
+        }
+        if (!moments.length) {
+            return local__createLocal();
+        }
+        res = moments[0];
+        for (i = 1; i < moments.length; ++i) {
+            if (!moments[i].isValid() || moments[i][fn](res)) {
+                res = moments[i];
+            }
+        }
+        return res;
+    }
+
+    // TODO: Use [].sort instead?
+    function min () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isBefore', args);
+    }
+
+    function max () {
+        var args = [].slice.call(arguments, 0);
+
+        return pickBy('isAfter', args);
+    }
+
+    var now = function () {
+        return Date.now ? Date.now() : +(new Date());
+    };
+
+    function Duration (duration) {
+        var normalizedInput = normalizeObjectUnits(duration),
+            years = normalizedInput.year || 0,
+            quarters = normalizedInput.quarter || 0,
+            months = normalizedInput.month || 0,
+            weeks = normalizedInput.week || 0,
+            days = normalizedInput.day || 0,
+            hours = normalizedInput.hour || 0,
+            minutes = normalizedInput.minute || 0,
+            seconds = normalizedInput.second || 0,
+            milliseconds = normalizedInput.millisecond || 0;
+
+        // representation for dateAddRemove
+        this._milliseconds = +milliseconds +
+            seconds * 1e3 + // 1000
+            minutes * 6e4 + // 1000 * 60
+            hours * 1000 * 60 * 60; //using 1000 * 60 * 60 instead of 36e5 to avoid floating point rounding errors https://github.com/moment/moment/issues/2978
+        // Because of dateAddRemove treats 24 hours as different from a
+        // day when working around DST, we need to store them separately
+        this._days = +days +
+            weeks * 7;
+        // It is impossible translate months into days without knowing
+        // which months you are are talking about, so we have to store
+        // it separately.
+        this._months = +months +
+            quarters * 3 +
+            years * 12;
+
+        this._data = {};
+
+        this._locale = locale_locales__getLocale();
+
+        this._bubble();
+    }
+
+    function isDuration (obj) {
+        return obj instanceof Duration;
+    }
+
+    // FORMATTING
+
+    function offset (token, separator) {
+        addFormatToken(token, 0, 0, function () {
+            var offset = this.utcOffset();
+            var sign = '+';
+            if (offset < 0) {
+                offset = -offset;
+                sign = '-';
+            }
+            return sign + zeroFill(~~(offset / 60), 2) + separator + zeroFill(~~(offset) % 60, 2);
+        });
+    }
+
+    offset('Z', ':');
+    offset('ZZ', '');
+
+    // PARSING
+
+    addRegexToken('Z',  matchShortOffset);
+    addRegexToken('ZZ', matchShortOffset);
+    addParseToken(['Z', 'ZZ'], function (input, array, config) {
+        config._useUTC = true;
+        config._tzm = offsetFromString(matchShortOffset, input);
+    });
+
+    // HELPERS
+
+    // timezone chunker
+    // '+10:00' > ['10',  '00']
+    // '-1530'  > ['-15', '30']
+    var chunkOffset = /([\+\-]|\d\d)/gi;
+
+    function offsetFromString(matcher, string) {
+        var matches = ((string || '').match(matcher) || []);
+        var chunk   = matches[matches.length - 1] || [];
+        var parts   = (chunk + '').match(chunkOffset) || ['-', 0, 0];
+        var minutes = +(parts[1] * 60) + toInt(parts[2]);
+
+        return parts[0] === '+' ? minutes : -minutes;
+    }
+
+    // Return a moment from input, that is local/utc/zone equivalent to model.
+    function cloneWithOffset(input, model) {
+        var res, diff;
+        if (model._isUTC) {
+            res = model.clone();
+            diff = (isMoment(input) || isDate(input) ? input.valueOf() : local__createLocal(input).valueOf()) - res.valueOf();
+            // Use low-level api, because this fn is low-level api.
+            res._d.setTime(res._d.valueOf() + diff);
+            utils_hooks__hooks.updateOffset(res, false);
+            return res;
+        } else {
+            return local__createLocal(input).local();
+        }
+    }
+
+    function getDateOffset (m) {
+        // On Firefox.24 Date#getTimezoneOffset returns a floating point.
+        // https://github.com/moment/moment/pull/1871
+        return -Math.round(m._d.getTimezoneOffset() / 15) * 15;
+    }
+
+    // HOOKS
+
+    // This function will be called whenever a moment is mutated.
+    // It is intended to keep the offset in sync with the timezone.
+    utils_hooks__hooks.updateOffset = function () {};
+
+    // MOMENTS
+
+    // keepLocalTime = true means only change the timezone, without
+    // affecting the local hour. So 5:31:26 +0300 --[utcOffset(2, true)]-->
+    // 5:31:26 +0200 It is possible that 5:31:26 doesn't exist with offset
+    // +0200, so we adjust the time as needed, to be valid.
+    //
+    // Keeping the time actually adds/subtracts (one hour)
+    // from the actual represented time. That is why we call updateOffset
+    // a second time. In case it wants us to change the offset again
+    // _changeInProgress == true case, then we have to adjust, because
+    // there is no such time in the given timezone.
+    function getSetOffset (input, keepLocalTime) {
+        var offset = this._offset || 0,
+            localAdjust;
+        if (!this.isValid()) {
+            return input != null ? this : NaN;
+        }
+        if (input != null) {
+            if (typeof input === 'string') {
+                input = offsetFromString(matchShortOffset, input);
+            } else if (Math.abs(input) < 16) {
+                input = input * 60;
+            }
+            if (!this._isUTC && keepLocalTime) {
+                localAdjust = getDateOffset(this);
+            }
+            this._offset = input;
+            this._isUTC = true;
+            if (localAdjust != null) {
+                this.add(localAdjust, 'm');
+            }
+            if (offset !== input) {
+                if (!keepLocalTime || this._changeInProgress) {
+                    add_subtract__addSubtract(this, create__createDuration(input - offset, 'm'), 1, false);
+                } else if (!this._changeInProgress) {
+                    this._changeInProgress = true;
+                    utils_hooks__hooks.updateOffset(this, true);
+                    this._changeInProgress = null;
+                }
+            }
+            return this;
+        } else {
+            return this._isUTC ? offset : getDateOffset(this);
+        }
+    }
+
+    function getSetZone (input, keepLocalTime) {
+        if (input != null) {
+            if (typeof input !== 'string') {
+                input = -input;
+            }
+
+            this.utcOffset(input, keepLocalTime);
+
+            return this;
+        } else {
+            return -this.utcOffset();
+        }
+    }
+
+    function setOffsetToUTC (keepLocalTime) {
+        return this.utcOffset(0, keepLocalTime);
+    }
+
+    function setOffsetToLocal (keepLocalTime) {
+        if (this._isUTC) {
+            this.utcOffset(0, keepLocalTime);
+            this._isUTC = false;
+
+            if (keepLocalTime) {
+                this.subtract(getDateOffset(this), 'm');
+            }
+        }
+        return this;
+    }
+
+    function setOffsetToParsedOffset () {
+        if (this._tzm) {
+            this.utcOffset(this._tzm);
+        } else if (typeof this._i === 'string') {
+            this.utcOffset(offsetFromString(matchOffset, this._i));
+        }
+        return this;
+    }
+
+    function hasAlignedHourOffset (input) {
+        if (!this.isValid()) {
+            return false;
+        }
+        input = input ? local__createLocal(input).utcOffset() : 0;
+
+        return (this.utcOffset() - input) % 60 === 0;
+    }
+
+    function isDaylightSavingTime () {
+        return (
+            this.utcOffset() > this.clone().month(0).utcOffset() ||
+            this.utcOffset() > this.clone().month(5).utcOffset()
+        );
+    }
+
+    function isDaylightSavingTimeShifted () {
+        if (!isUndefined(this._isDSTShifted)) {
+            return this._isDSTShifted;
+        }
+
+        var c = {};
+
+        copyConfig(c, this);
+        c = prepareConfig(c);
+
+        if (c._a) {
+            var other = c._isUTC ? create_utc__createUTC(c._a) : local__createLocal(c._a);
+            this._isDSTShifted = this.isValid() &&
+                compareArrays(c._a, other.toArray()) > 0;
+        } else {
+            this._isDSTShifted = false;
+        }
+
+        return this._isDSTShifted;
+    }
+
+    function isLocal () {
+        return this.isValid() ? !this._isUTC : false;
+    }
+
+    function isUtcOffset () {
+        return this.isValid() ? this._isUTC : false;
+    }
+
+    function isUtc () {
+        return this.isValid() ? this._isUTC && this._offset === 0 : false;
+    }
+
+    // ASP.NET json date format regex
+    var aspNetRegex = /^(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?\d*)?$/;
+
+    // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
+    // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
+    // and further modified to allow for strings containing both week and day
+    var isoRegex = /^(-)?P(?:(-?[0-9,.]*)Y)?(?:(-?[0-9,.]*)M)?(?:(-?[0-9,.]*)W)?(?:(-?[0-9,.]*)D)?(?:T(?:(-?[0-9,.]*)H)?(?:(-?[0-9,.]*)M)?(?:(-?[0-9,.]*)S)?)?$/;
+
+    function create__createDuration (input, key) {
+        var duration = input,
+            // matching against regexp is expensive, do it on demand
+            match = null,
+            sign,
+            ret,
+            diffRes;
+
+        if (isDuration(input)) {
+            duration = {
+                ms : input._milliseconds,
+                d  : input._days,
+                M  : input._months
+            };
+        } else if (typeof input === 'number') {
+            duration = {};
+            if (key) {
+                duration[key] = input;
+            } else {
+                duration.milliseconds = input;
+            }
+        } else if (!!(match = aspNetRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            duration = {
+                y  : 0,
+                d  : toInt(match[DATE])        * sign,
+                h  : toInt(match[HOUR])        * sign,
+                m  : toInt(match[MINUTE])      * sign,
+                s  : toInt(match[SECOND])      * sign,
+                ms : toInt(match[MILLISECOND]) * sign
+            };
+        } else if (!!(match = isoRegex.exec(input))) {
+            sign = (match[1] === '-') ? -1 : 1;
+            duration = {
+                y : parseIso(match[2], sign),
+                M : parseIso(match[3], sign),
+                w : parseIso(match[4], sign),
+                d : parseIso(match[5], sign),
+                h : parseIso(match[6], sign),
+                m : parseIso(match[7], sign),
+                s : parseIso(match[8], sign)
+            };
+        } else if (duration == null) {// checks for null or undefined
+            duration = {};
+        } else if (typeof duration === 'object' && ('from' in duration || 'to' in duration)) {
+            diffRes = momentsDifference(local__createLocal(duration.from), local__createLocal(duration.to));
+
+            duration = {};
+            duration.ms = diffRes.milliseconds;
+            duration.M = diffRes.months;
+        }
+
+        ret = new Duration(duration);
+
+        if (isDuration(input) && hasOwnProp(input, '_locale')) {
+            ret._locale = input._locale;
+        }
+
+        return ret;
+    }
+
+    create__createDuration.fn = Duration.prototype;
+
+    function parseIso (inp, sign) {
+        // We'd normally use ~~inp for this, but unfortunately it also
+        // converts floats to ints.
+        // inp may be undefined, so careful calling replace on it.
+        var res = inp && parseFloat(inp.replace(',', '.'));
+        // apply sign while we're at it
+        return (isNaN(res) ? 0 : res) * sign;
+    }
+
+    function positiveMomentsDifference(base, other) {
+        var res = {milliseconds: 0, months: 0};
+
+        res.months = other.month() - base.month() +
+            (other.year() - base.year()) * 12;
+        if (base.clone().add(res.months, 'M').isAfter(other)) {
+            --res.months;
+        }
+
+        res.milliseconds = +other - +(base.clone().add(res.months, 'M'));
+
+        return res;
+    }
+
+    function momentsDifference(base, other) {
+        var res;
+        if (!(base.isValid() && other.isValid())) {
+            return {milliseconds: 0, months: 0};
+        }
+
+        other = cloneWithOffset(other, base);
+        if (base.isBefore(other)) {
+            res = positiveMomentsDifference(base, other);
+        } else {
+            res = positiveMomentsDifference(other, base);
+            res.milliseconds = -res.milliseconds;
+            res.months = -res.months;
+        }
+
+        return res;
+    }
+
+    function absRound (number) {
+        if (number < 0) {
+            return Math.round(-1 * number) * -1;
+        } else {
+            return Math.round(number);
+        }
+    }
+
+    // TODO: remove 'name' arg after deprecation is removed
+    function createAdder(direction, name) {
+        return function (val, period) {
+            var dur, tmp;
+            //invert the arguments, but complain about it
+            if (period !== null && !isNaN(+period)) {
+                deprecateSimple(name, 'moment().' + name  + '(period, number) is deprecated. Please use moment().' + name + '(number, period).');
+                tmp = val; val = period; period = tmp;
+            }
+
+            val = typeof val === 'string' ? +val : val;
+            dur = create__createDuration(val, period);
+            add_subtract__addSubtract(this, dur, direction);
+            return this;
+        };
+    }
+
+    function add_subtract__addSubtract (mom, duration, isAdding, updateOffset) {
+        var milliseconds = duration._milliseconds,
+            days = absRound(duration._days),
+            months = absRound(duration._months);
+
+        if (!mom.isValid()) {
+            // No op
+            return;
+        }
+
+        updateOffset = updateOffset == null ? true : updateOffset;
+
+        if (milliseconds) {
+            mom._d.setTime(mom._d.valueOf() + milliseconds * isAdding);
+        }
+        if (days) {
+            get_set__set(mom, 'Date', get_set__get(mom, 'Date') + days * isAdding);
+        }
+        if (months) {
+            setMonth(mom, get_set__get(mom, 'Month') + months * isAdding);
+        }
+        if (updateOffset) {
+            utils_hooks__hooks.updateOffset(mom, days || months);
+        }
+    }
+
+    var add_subtract__add      = createAdder(1, 'add');
+    var add_subtract__subtract = createAdder(-1, 'subtract');
+
+    function moment_calendar__calendar (time, formats) {
+        // We want to compare the start of today, vs this.
+        // Getting start-of-today depends on whether we're local/utc/offset or not.
+        var now = time || local__createLocal(),
+            sod = cloneWithOffset(now, this).startOf('day'),
+            diff = this.diff(sod, 'days', true),
+            format = diff < -6 ? 'sameElse' :
+                diff < -1 ? 'lastWeek' :
+                diff < 0 ? 'lastDay' :
+                diff < 1 ? 'sameDay' :
+                diff < 2 ? 'nextDay' :
+                diff < 7 ? 'nextWeek' : 'sameElse';
+
+        var output = formats && (isFunction(formats[format]) ? formats[format]() : formats[format]);
+
+        return this.format(output || this.localeData().calendar(format, this, local__createLocal(now)));
+    }
+
+    function clone () {
+        return new Moment(this);
+    }
+
+    function isAfter (input, units) {
+        var localInput = isMoment(input) ? input : local__createLocal(input);
+        if (!(this.isValid() && localInput.isValid())) {
+            return false;
+        }
+        units = normalizeUnits(!isUndefined(units) ? units : 'millisecond');
+        if (units === 'millisecond') {
+            return this.valueOf() > localInput.valueOf();
+        } else {
+            return localInput.valueOf() < this.clone().startOf(units).valueOf();
+        }
+    }
+
+    function isBefore (input, units) {
+        var localInput = isMoment(input) ? input : local__createLocal(input);
+        if (!(this.isValid() && localInput.isValid())) {
+            return false;
+        }
+        units = normalizeUnits(!isUndefined(units) ? units : 'millisecond');
+        if (units === 'millisecond') {
+            return this.valueOf() < localInput.valueOf();
+        } else {
+            return this.clone().endOf(units).valueOf() < localInput.valueOf();
+        }
+    }
+
+    function isBetween (from, to, units, inclusivity) {
+        inclusivity = inclusivity || '()';
+        return (inclusivity[0] === '(' ? this.isAfter(from, units) : !this.isBefore(from, units)) &&
+            (inclusivity[1] === ')' ? this.isBefore(to, units) : !this.isAfter(to, units));
+    }
+
+    function isSame (input, units) {
+        var localInput = isMoment(input) ? input : local__createLocal(input),
+            inputMs;
+        if (!(this.isValid() && localInput.isValid())) {
+            return false;
+        }
+        units = normalizeUnits(units || 'millisecond');
+        if (units === 'millisecond') {
+            return this.valueOf() === localInput.valueOf();
+        } else {
+            inputMs = localInput.valueOf();
+            return this.clone().startOf(units).valueOf() <= inputMs && inputMs <= this.clone().endOf(units).valueOf();
+        }
+    }
+
+    function isSameOrAfter (input, units) {
+        return this.isSame(input, units) || this.isAfter(input,units);
+    }
+
+    function isSameOrBefore (input, units) {
+        return this.isSame(input, units) || this.isBefore(input,units);
+    }
+
+    function diff (input, units, asFloat) {
+        var that,
+            zoneDelta,
+            delta, output;
+
+        if (!this.isValid()) {
+            return NaN;
+        }
+
+        that = cloneWithOffset(input, this);
+
+        if (!that.isValid()) {
+            return NaN;
+        }
+
+        zoneDelta = (that.utcOffset() - this.utcOffset()) * 6e4;
+
+        units = normalizeUnits(units);
+
+        if (units === 'year' || units === 'month' || units === 'quarter') {
+            output = monthDiff(this, that);
+            if (units === 'quarter') {
+                output = output / 3;
+            } else if (units === 'year') {
+                output = output / 12;
+            }
+        } else {
+            delta = this - that;
+            output = units === 'second' ? delta / 1e3 : // 1000
+                units === 'minute' ? delta / 6e4 : // 1000 * 60
+                units === 'hour' ? delta / 36e5 : // 1000 * 60 * 60
+                units === 'day' ? (delta - zoneDelta) / 864e5 : // 1000 * 60 * 60 * 24, negate dst
+                units === 'week' ? (delta - zoneDelta) / 6048e5 : // 1000 * 60 * 60 * 24 * 7, negate dst
+                delta;
+        }
+        return asFloat ? output : absFloor(output);
+    }
+
+    function monthDiff (a, b) {
+        // difference in months
+        var wholeMonthDiff = ((b.year() - a.year()) * 12) + (b.month() - a.month()),
+            // b is in (anchor - 1 month, anchor + 1 month)
+            anchor = a.clone().add(wholeMonthDiff, 'months'),
+            anchor2, adjust;
+
+        if (b - anchor < 0) {
+            anchor2 = a.clone().add(wholeMonthDiff - 1, 'months');
+            // linear across the month
+            adjust = (b - anchor) / (anchor - anchor2);
+        } else {
+            anchor2 = a.clone().add(wholeMonthDiff + 1, 'months');
+            // linear across the month
+            adjust = (b - anchor) / (anchor2 - anchor);
+        }
+
+        //check for negative zero, return zero if negative zero
+        return -(wholeMonthDiff + adjust) || 0;
+    }
+
+    utils_hooks__hooks.defaultFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+    utils_hooks__hooks.defaultFormatUtc = 'YYYY-MM-DDTHH:mm:ss[Z]';
+
+    function toString () {
+        return this.clone().locale('en').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ');
+    }
+
+    function moment_format__toISOString () {
+        var m = this.clone().utc();
+        if (0 < m.year() && m.year() <= 9999) {
+            if (isFunction(Date.prototype.toISOString)) {
+                // native implementation is ~50x faster, use it when we can
+                return this.toDate().toISOString();
+            } else {
+                return formatMoment(m, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+            }
+        } else {
+            return formatMoment(m, 'YYYYYY-MM-DD[T]HH:mm:ss.SSS[Z]');
+        }
+    }
+
+    function format (inputString) {
+        if (!inputString) {
+            inputString = this.isUtc() ? utils_hooks__hooks.defaultFormatUtc : utils_hooks__hooks.defaultFormat;
+        }
+        var output = formatMoment(this, inputString);
+        return this.localeData().postformat(output);
+    }
+
+    function from (time, withoutSuffix) {
+        if (this.isValid() &&
+                ((isMoment(time) && time.isValid()) ||
+                 local__createLocal(time).isValid())) {
+            return create__createDuration({to: this, from: time}).locale(this.locale()).humanize(!withoutSuffix);
+        } else {
+            return this.localeData().invalidDate();
+        }
+    }
+
+    function fromNow (withoutSuffix) {
+        return this.from(local__createLocal(), withoutSuffix);
+    }
+
+    function to (time, withoutSuffix) {
+        if (this.isValid() &&
+                ((isMoment(time) && time.isValid()) ||
+                 local__createLocal(time).isValid())) {
+            return create__createDuration({from: this, to: time}).locale(this.locale()).humanize(!withoutSuffix);
+        } else {
+            return this.localeData().invalidDate();
+        }
+    }
+
+    function toNow (withoutSuffix) {
+        return this.to(local__createLocal(), withoutSuffix);
+    }
+
+    // If passed a locale key, it will set the locale for this
+    // instance.  Otherwise, it will return the locale configuration
+    // variables for this instance.
+    function locale (key) {
+        var newLocaleData;
+
+        if (key === undefined) {
+            return this._locale._abbr;
+        } else {
+            newLocaleData = locale_locales__getLocale(key);
+            if (newLocaleData != null) {
+                this._locale = newLocaleData;
+            }
+            return this;
+        }
+    }
+
+    var lang = deprecate(
+        'moment().lang() is deprecated. Instead, use moment().localeData() to get the language configuration. Use moment().locale() to change languages.',
+        function (key) {
+            if (key === undefined) {
+                return this.localeData();
+            } else {
+                return this.locale(key);
+            }
+        }
+    );
+
+    function localeData () {
+        return this._locale;
+    }
+
+    function startOf (units) {
+        units = normalizeUnits(units);
+        // the following switch intentionally omits break keywords
+        // to utilize falling through the cases.
+        switch (units) {
+        case 'year':
+            this.month(0);
+            /* falls through */
+        case 'quarter':
+        case 'month':
+            this.date(1);
+            /* falls through */
+        case 'week':
+        case 'isoWeek':
+        case 'day':
+        case 'date':
+            this.hours(0);
+            /* falls through */
+        case 'hour':
+            this.minutes(0);
+            /* falls through */
+        case 'minute':
+            this.seconds(0);
+            /* falls through */
+        case 'second':
+            this.milliseconds(0);
+        }
+
+        // weeks are a special case
+        if (units === 'week') {
+            this.weekday(0);
+        }
+        if (units === 'isoWeek') {
+            this.isoWeekday(1);
+        }
+
+        // quarters are also special
+        if (units === 'quarter') {
+            this.month(Math.floor(this.month() / 3) * 3);
+        }
+
+        return this;
+    }
+
+    function endOf (units) {
+        units = normalizeUnits(units);
+        if (units === undefined || units === 'millisecond') {
+            return this;
+        }
+
+        // 'date' is an alias for 'day', so it should be considered as such.
+        if (units === 'date') {
+            units = 'day';
+        }
+
+        return this.startOf(units).add(1, (units === 'isoWeek' ? 'week' : units)).subtract(1, 'ms');
+    }
+
+    function to_type__valueOf () {
+        return this._d.valueOf() - ((this._offset || 0) * 60000);
+    }
+
+    function unix () {
+        return Math.floor(this.valueOf() / 1000);
+    }
+
+    function toDate () {
+        return this._offset ? new Date(this.valueOf()) : this._d;
+    }
+
+    function toArray () {
+        var m = this;
+        return [m.year(), m.month(), m.date(), m.hour(), m.minute(), m.second(), m.millisecond()];
+    }
+
+    function toObject () {
+        var m = this;
+        return {
+            years: m.year(),
+            months: m.month(),
+            date: m.date(),
+            hours: m.hours(),
+            minutes: m.minutes(),
+            seconds: m.seconds(),
+            milliseconds: m.milliseconds()
+        };
+    }
+
+    function toJSON () {
+        // new Date(NaN).toJSON() === null
+        return this.isValid() ? this.toISOString() : null;
+    }
+
+    function moment_valid__isValid () {
+        return valid__isValid(this);
+    }
+
+    function parsingFlags () {
+        return extend({}, getParsingFlags(this));
+    }
+
+    function invalidAt () {
+        return getParsingFlags(this).overflow;
+    }
+
+    function creationData() {
+        return {
+            input: this._i,
+            format: this._f,
+            locale: this._locale,
+            isUTC: this._isUTC,
+            strict: this._strict
+        };
+    }
+
+    // FORMATTING
+
+    addFormatToken(0, ['gg', 2], 0, function () {
+        return this.weekYear() % 100;
+    });
+
+    addFormatToken(0, ['GG', 2], 0, function () {
+        return this.isoWeekYear() % 100;
+    });
+
+    function addWeekYearFormatToken (token, getter) {
+        addFormatToken(0, [token, token.length], 0, getter);
+    }
+
+    addWeekYearFormatToken('gggg',     'weekYear');
+    addWeekYearFormatToken('ggggg',    'weekYear');
+    addWeekYearFormatToken('GGGG',  'isoWeekYear');
+    addWeekYearFormatToken('GGGGG', 'isoWeekYear');
+
+    // ALIASES
+
+    addUnitAlias('weekYear', 'gg');
+    addUnitAlias('isoWeekYear', 'GG');
+
+    // PARSING
+
+    addRegexToken('G',      matchSigned);
+    addRegexToken('g',      matchSigned);
+    addRegexToken('GG',     match1to2, match2);
+    addRegexToken('gg',     match1to2, match2);
+    addRegexToken('GGGG',   match1to4, match4);
+    addRegexToken('gggg',   match1to4, match4);
+    addRegexToken('GGGGG',  match1to6, match6);
+    addRegexToken('ggggg',  match1to6, match6);
+
+    addWeekParseToken(['gggg', 'ggggg', 'GGGG', 'GGGGG'], function (input, week, config, token) {
+        week[token.substr(0, 2)] = toInt(input);
+    });
+
+    addWeekParseToken(['gg', 'GG'], function (input, week, config, token) {
+        week[token] = utils_hooks__hooks.parseTwoDigitYear(input);
+    });
+
+    // MOMENTS
+
+    function getSetWeekYear (input) {
+        return getSetWeekYearHelper.call(this,
+                input,
+                this.week(),
+                this.weekday(),
+                this.localeData()._week.dow,
+                this.localeData()._week.doy);
+    }
+
+    function getSetISOWeekYear (input) {
+        return getSetWeekYearHelper.call(this,
+                input, this.isoWeek(), this.isoWeekday(), 1, 4);
+    }
+
+    function getISOWeeksInYear () {
+        return weeksInYear(this.year(), 1, 4);
+    }
+
+    function getWeeksInYear () {
+        var weekInfo = this.localeData()._week;
+        return weeksInYear(this.year(), weekInfo.dow, weekInfo.doy);
+    }
+
+    function getSetWeekYearHelper(input, week, weekday, dow, doy) {
+        var weeksTarget;
+        if (input == null) {
+            return weekOfYear(this, dow, doy).year;
+        } else {
+            weeksTarget = weeksInYear(input, dow, doy);
+            if (week > weeksTarget) {
+                week = weeksTarget;
+            }
+            return setWeekAll.call(this, input, week, weekday, dow, doy);
+        }
+    }
+
+    function setWeekAll(weekYear, week, weekday, dow, doy) {
+        var dayOfYearData = dayOfYearFromWeeks(weekYear, week, weekday, dow, doy),
+            date = createUTCDate(dayOfYearData.year, 0, dayOfYearData.dayOfYear);
+
+        this.year(date.getUTCFullYear());
+        this.month(date.getUTCMonth());
+        this.date(date.getUTCDate());
+        return this;
+    }
+
+    // FORMATTING
+
+    addFormatToken('Q', 0, 'Qo', 'quarter');
+
+    // ALIASES
+
+    addUnitAlias('quarter', 'Q');
+
+    // PARSING
+
+    addRegexToken('Q', match1);
+    addParseToken('Q', function (input, array) {
+        array[MONTH] = (toInt(input) - 1) * 3;
+    });
+
+    // MOMENTS
+
+    function getSetQuarter (input) {
+        return input == null ? Math.ceil((this.month() + 1) / 3) : this.month((input - 1) * 3 + this.month() % 3);
+    }
+
+    // FORMATTING
+
+    addFormatToken('w', ['ww', 2], 'wo', 'week');
+    addFormatToken('W', ['WW', 2], 'Wo', 'isoWeek');
+
+    // ALIASES
+
+    addUnitAlias('week', 'w');
+    addUnitAlias('isoWeek', 'W');
+
+    // PARSING
+
+    addRegexToken('w',  match1to2);
+    addRegexToken('ww', match1to2, match2);
+    addRegexToken('W',  match1to2);
+    addRegexToken('WW', match1to2, match2);
+
+    addWeekParseToken(['w', 'ww', 'W', 'WW'], function (input, week, config, token) {
+        week[token.substr(0, 1)] = toInt(input);
+    });
+
+    // HELPERS
+
+    // LOCALES
+
+    function localeWeek (mom) {
+        return weekOfYear(mom, this._week.dow, this._week.doy).week;
+    }
+
+    var defaultLocaleWeek = {
+        dow : 0, // Sunday is the first day of the week.
+        doy : 6  // The week that contains Jan 1st is the first week of the year.
+    };
+
+    function localeFirstDayOfWeek () {
+        return this._week.dow;
+    }
+
+    function localeFirstDayOfYear () {
+        return this._week.doy;
+    }
+
+    // MOMENTS
+
+    function getSetWeek (input) {
+        var week = this.localeData().week(this);
+        return input == null ? week : this.add((input - week) * 7, 'd');
+    }
+
+    function getSetISOWeek (input) {
+        var week = weekOfYear(this, 1, 4).week;
+        return input == null ? week : this.add((input - week) * 7, 'd');
+    }
+
+    // FORMATTING
+
+    addFormatToken('D', ['DD', 2], 'Do', 'date');
+
+    // ALIASES
+
+    addUnitAlias('date', 'D');
+
+    // PARSING
+
+    addRegexToken('D',  match1to2);
+    addRegexToken('DD', match1to2, match2);
+    addRegexToken('Do', function (isStrict, locale) {
+        return isStrict ? locale._ordinalParse : locale._ordinalParseLenient;
+    });
+
+    addParseToken(['D', 'DD'], DATE);
+    addParseToken('Do', function (input, array) {
+        array[DATE] = toInt(input.match(match1to2)[0], 10);
+    });
+
+    // MOMENTS
+
+    var getSetDayOfMonth = makeGetSet('Date', true);
+
+    // FORMATTING
+
+    addFormatToken('d', 0, 'do', 'day');
+
+    addFormatToken('dd', 0, 0, function (format) {
+        return this.localeData().weekdaysMin(this, format);
+    });
+
+    addFormatToken('ddd', 0, 0, function (format) {
+        return this.localeData().weekdaysShort(this, format);
+    });
+
+    addFormatToken('dddd', 0, 0, function (format) {
+        return this.localeData().weekdays(this, format);
+    });
+
+    addFormatToken('e', 0, 0, 'weekday');
+    addFormatToken('E', 0, 0, 'isoWeekday');
+
+    // ALIASES
+
+    addUnitAlias('day', 'd');
+    addUnitAlias('weekday', 'e');
+    addUnitAlias('isoWeekday', 'E');
+
+    // PARSING
+
+    addRegexToken('d',    match1to2);
+    addRegexToken('e',    match1to2);
+    addRegexToken('E',    match1to2);
+    addRegexToken('dd',   function (isStrict, locale) {
+        return locale.weekdaysMinRegex(isStrict);
+    });
+    addRegexToken('ddd',   function (isStrict, locale) {
+        return locale.weekdaysShortRegex(isStrict);
+    });
+    addRegexToken('dddd',   function (isStrict, locale) {
+        return locale.weekdaysRegex(isStrict);
+    });
+
+    addWeekParseToken(['dd', 'ddd', 'dddd'], function (input, week, config, token) {
+        var weekday = config._locale.weekdaysParse(input, token, config._strict);
+        // if we didn't get a weekday name, mark the date as invalid
+        if (weekday != null) {
+            week.d = weekday;
+        } else {
+            getParsingFlags(config).invalidWeekday = input;
+        }
+    });
+
+    addWeekParseToken(['d', 'e', 'E'], function (input, week, config, token) {
+        week[token] = toInt(input);
+    });
+
+    // HELPERS
+
+    function parseWeekday(input, locale) {
+        if (typeof input !== 'string') {
+            return input;
+        }
+
+        if (!isNaN(input)) {
+            return parseInt(input, 10);
+        }
+
+        input = locale.weekdaysParse(input);
+        if (typeof input === 'number') {
+            return input;
+        }
+
+        return null;
+    }
+
+    // LOCALES
+
+    var defaultLocaleWeekdays = 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_');
+    function localeWeekdays (m, format) {
+        return isArray(this._weekdays) ? this._weekdays[m.day()] :
+            this._weekdays[this._weekdays.isFormat.test(format) ? 'format' : 'standalone'][m.day()];
+    }
+
+    var defaultLocaleWeekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_');
+    function localeWeekdaysShort (m) {
+        return this._weekdaysShort[m.day()];
+    }
+
+    var defaultLocaleWeekdaysMin = 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_');
+    function localeWeekdaysMin (m) {
+        return this._weekdaysMin[m.day()];
+    }
+
+    function day_of_week__handleStrictParse(weekdayName, format, strict) {
+        var i, ii, mom, llc = weekdayName.toLocaleLowerCase();
+        if (!this._weekdaysParse) {
+            this._weekdaysParse = [];
+            this._shortWeekdaysParse = [];
+            this._minWeekdaysParse = [];
+
+            for (i = 0; i < 7; ++i) {
+                mom = create_utc__createUTC([2000, 1]).day(i);
+                this._minWeekdaysParse[i] = this.weekdaysMin(mom, '').toLocaleLowerCase();
+                this._shortWeekdaysParse[i] = this.weekdaysShort(mom, '').toLocaleLowerCase();
+                this._weekdaysParse[i] = this.weekdays(mom, '').toLocaleLowerCase();
+            }
+        }
+
+        if (strict) {
+            if (format === 'dddd') {
+                ii = indexOf.call(this._weekdaysParse, llc);
+                return ii !== -1 ? ii : null;
+            } else if (format === 'ddd') {
+                ii = indexOf.call(this._shortWeekdaysParse, llc);
+                return ii !== -1 ? ii : null;
+            } else {
+                ii = indexOf.call(this._minWeekdaysParse, llc);
+                return ii !== -1 ? ii : null;
+            }
+        } else {
+            if (format === 'dddd') {
+                ii = indexOf.call(this._weekdaysParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._shortWeekdaysParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._minWeekdaysParse, llc);
+                return ii !== -1 ? ii : null;
+            } else if (format === 'ddd') {
+                ii = indexOf.call(this._shortWeekdaysParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._weekdaysParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._minWeekdaysParse, llc);
+                return ii !== -1 ? ii : null;
+            } else {
+                ii = indexOf.call(this._minWeekdaysParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._weekdaysParse, llc);
+                if (ii !== -1) {
+                    return ii;
+                }
+                ii = indexOf.call(this._shortWeekdaysParse, llc);
+                return ii !== -1 ? ii : null;
+            }
+        }
+    }
+
+    function localeWeekdaysParse (weekdayName, format, strict) {
+        var i, mom, regex;
+
+        if (this._weekdaysParseExact) {
+            return day_of_week__handleStrictParse.call(this, weekdayName, format, strict);
+        }
+
+        if (!this._weekdaysParse) {
+            this._weekdaysParse = [];
+            this._minWeekdaysParse = [];
+            this._shortWeekdaysParse = [];
+            this._fullWeekdaysParse = [];
+        }
+
+        for (i = 0; i < 7; i++) {
+            // make the regex if we don't have it already
+
+            mom = create_utc__createUTC([2000, 1]).day(i);
+            if (strict && !this._fullWeekdaysParse[i]) {
+                this._fullWeekdaysParse[i] = new RegExp('^' + this.weekdays(mom, '').replace('.', '\.?') + '$', 'i');
+                this._shortWeekdaysParse[i] = new RegExp('^' + this.weekdaysShort(mom, '').replace('.', '\.?') + '$', 'i');
+                this._minWeekdaysParse[i] = new RegExp('^' + this.weekdaysMin(mom, '').replace('.', '\.?') + '$', 'i');
+            }
+            if (!this._weekdaysParse[i]) {
+                regex = '^' + this.weekdays(mom, '') + '|^' + this.weekdaysShort(mom, '') + '|^' + this.weekdaysMin(mom, '');
+                this._weekdaysParse[i] = new RegExp(regex.replace('.', ''), 'i');
+            }
+            // test the regex
+            if (strict && format === 'dddd' && this._fullWeekdaysParse[i].test(weekdayName)) {
+                return i;
+            } else if (strict && format === 'ddd' && this._shortWeekdaysParse[i].test(weekdayName)) {
+                return i;
+            } else if (strict && format === 'dd' && this._minWeekdaysParse[i].test(weekdayName)) {
+                return i;
+            } else if (!strict && this._weekdaysParse[i].test(weekdayName)) {
+                return i;
+            }
+        }
+    }
+
+    // MOMENTS
+
+    function getSetDayOfWeek (input) {
+        if (!this.isValid()) {
+            return input != null ? this : NaN;
+        }
+        var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
+        if (input != null) {
+            input = parseWeekday(input, this.localeData());
+            return this.add(input - day, 'd');
+        } else {
+            return day;
+        }
+    }
+
+    function getSetLocaleDayOfWeek (input) {
+        if (!this.isValid()) {
+            return input != null ? this : NaN;
+        }
+        var weekday = (this.day() + 7 - this.localeData()._week.dow) % 7;
+        return input == null ? weekday : this.add(input - weekday, 'd');
+    }
+
+    function getSetISODayOfWeek (input) {
+        if (!this.isValid()) {
+            return input != null ? this : NaN;
+        }
+        // behaves the same as moment#day except
+        // as a getter, returns 7 instead of 0 (1-7 range instead of 0-6)
+        // as a setter, sunday should belong to the previous week.
+        return input == null ? this.day() || 7 : this.day(this.day() % 7 ? input : input - 7);
+    }
+
+    var defaultWeekdaysRegex = matchWord;
+    function weekdaysRegex (isStrict) {
+        if (this._weekdaysParseExact) {
+            if (!hasOwnProp(this, '_weekdaysRegex')) {
+                computeWeekdaysParse.call(this);
+            }
+            if (isStrict) {
+                return this._weekdaysStrictRegex;
+            } else {
+                return this._weekdaysRegex;
+            }
+        } else {
+            return this._weekdaysStrictRegex && isStrict ?
+                this._weekdaysStrictRegex : this._weekdaysRegex;
+        }
+    }
+
+    var defaultWeekdaysShortRegex = matchWord;
+    function weekdaysShortRegex (isStrict) {
+        if (this._weekdaysParseExact) {
+            if (!hasOwnProp(this, '_weekdaysRegex')) {
+                computeWeekdaysParse.call(this);
+            }
+            if (isStrict) {
+                return this._weekdaysShortStrictRegex;
+            } else {
+                return this._weekdaysShortRegex;
+            }
+        } else {
+            return this._weekdaysShortStrictRegex && isStrict ?
+                this._weekdaysShortStrictRegex : this._weekdaysShortRegex;
+        }
+    }
+
+    var defaultWeekdaysMinRegex = matchWord;
+    function weekdaysMinRegex (isStrict) {
+        if (this._weekdaysParseExact) {
+            if (!hasOwnProp(this, '_weekdaysRegex')) {
+                computeWeekdaysParse.call(this);
+            }
+            if (isStrict) {
+                return this._weekdaysMinStrictRegex;
+            } else {
+                return this._weekdaysMinRegex;
+            }
+        } else {
+            return this._weekdaysMinStrictRegex && isStrict ?
+                this._weekdaysMinStrictRegex : this._weekdaysMinRegex;
+        }
+    }
+
+
+    function computeWeekdaysParse () {
+        function cmpLenRev(a, b) {
+            return b.length - a.length;
+        }
+
+        var minPieces = [], shortPieces = [], longPieces = [], mixedPieces = [],
+            i, mom, minp, shortp, longp;
+        for (i = 0; i < 7; i++) {
+            // make the regex if we don't have it already
+            mom = create_utc__createUTC([2000, 1]).day(i);
+            minp = this.weekdaysMin(mom, '');
+            shortp = this.weekdaysShort(mom, '');
+            longp = this.weekdays(mom, '');
+            minPieces.push(minp);
+            shortPieces.push(shortp);
+            longPieces.push(longp);
+            mixedPieces.push(minp);
+            mixedPieces.push(shortp);
+            mixedPieces.push(longp);
+        }
+        // Sorting makes sure if one weekday (or abbr) is a prefix of another it
+        // will match the longer piece.
+        minPieces.sort(cmpLenRev);
+        shortPieces.sort(cmpLenRev);
+        longPieces.sort(cmpLenRev);
+        mixedPieces.sort(cmpLenRev);
+        for (i = 0; i < 7; i++) {
+            shortPieces[i] = regexEscape(shortPieces[i]);
+            longPieces[i] = regexEscape(longPieces[i]);
+            mixedPieces[i] = regexEscape(mixedPieces[i]);
+        }
+
+        this._weekdaysRegex = new RegExp('^(' + mixedPieces.join('|') + ')', 'i');
+        this._weekdaysShortRegex = this._weekdaysRegex;
+        this._weekdaysMinRegex = this._weekdaysRegex;
+
+        this._weekdaysStrictRegex = new RegExp('^(' + longPieces.join('|') + ')', 'i');
+        this._weekdaysShortStrictRegex = new RegExp('^(' + shortPieces.join('|') + ')', 'i');
+        this._weekdaysMinStrictRegex = new RegExp('^(' + minPieces.join('|') + ')', 'i');
+    }
+
+    // FORMATTING
+
+    addFormatToken('DDD', ['DDDD', 3], 'DDDo', 'dayOfYear');
+
+    // ALIASES
+
+    addUnitAlias('dayOfYear', 'DDD');
+
+    // PARSING
+
+    addRegexToken('DDD',  match1to3);
+    addRegexToken('DDDD', match3);
+    addParseToken(['DDD', 'DDDD'], function (input, array, config) {
+        config._dayOfYear = toInt(input);
+    });
+
+    // HELPERS
+
+    // MOMENTS
+
+    function getSetDayOfYear (input) {
+        var dayOfYear = Math.round((this.clone().startOf('day') - this.clone().startOf('year')) / 864e5) + 1;
+        return input == null ? dayOfYear : this.add((input - dayOfYear), 'd');
+    }
+
+    // FORMATTING
+
+    function hFormat() {
+        return this.hours() % 12 || 12;
+    }
+
+    function kFormat() {
+        return this.hours() || 24;
+    }
+
+    addFormatToken('H', ['HH', 2], 0, 'hour');
+    addFormatToken('h', ['hh', 2], 0, hFormat);
+    addFormatToken('k', ['kk', 2], 0, kFormat);
+
+    addFormatToken('hmm', 0, 0, function () {
+        return '' + hFormat.apply(this) + zeroFill(this.minutes(), 2);
+    });
+
+    addFormatToken('hmmss', 0, 0, function () {
+        return '' + hFormat.apply(this) + zeroFill(this.minutes(), 2) +
+            zeroFill(this.seconds(), 2);
+    });
+
+    addFormatToken('Hmm', 0, 0, function () {
+        return '' + this.hours() + zeroFill(this.minutes(), 2);
+    });
+
+    addFormatToken('Hmmss', 0, 0, function () {
+        return '' + this.hours() + zeroFill(this.minutes(), 2) +
+            zeroFill(this.seconds(), 2);
+    });
+
+    function meridiem (token, lowercase) {
+        addFormatToken(token, 0, 0, function () {
+            return this.localeData().meridiem(this.hours(), this.minutes(), lowercase);
+        });
+    }
+
+    meridiem('a', true);
+    meridiem('A', false);
+
+    // ALIASES
+
+    addUnitAlias('hour', 'h');
+
+    // PARSING
+
+    function matchMeridiem (isStrict, locale) {
+        return locale._meridiemParse;
+    }
+
+    addRegexToken('a',  matchMeridiem);
+    addRegexToken('A',  matchMeridiem);
+    addRegexToken('H',  match1to2);
+    addRegexToken('h',  match1to2);
+    addRegexToken('HH', match1to2, match2);
+    addRegexToken('hh', match1to2, match2);
+
+    addRegexToken('hmm', match3to4);
+    addRegexToken('hmmss', match5to6);
+    addRegexToken('Hmm', match3to4);
+    addRegexToken('Hmmss', match5to6);
+
+    addParseToken(['H', 'HH'], HOUR);
+    addParseToken(['a', 'A'], function (input, array, config) {
+        config._isPm = config._locale.isPM(input);
+        config._meridiem = input;
+    });
+    addParseToken(['h', 'hh'], function (input, array, config) {
+        array[HOUR] = toInt(input);
+        getParsingFlags(config).bigHour = true;
+    });
+    addParseToken('hmm', function (input, array, config) {
+        var pos = input.length - 2;
+        array[HOUR] = toInt(input.substr(0, pos));
+        array[MINUTE] = toInt(input.substr(pos));
+        getParsingFlags(config).bigHour = true;
+    });
+    addParseToken('hmmss', function (input, array, config) {
+        var pos1 = input.length - 4;
+        var pos2 = input.length - 2;
+        array[HOUR] = toInt(input.substr(0, pos1));
+        array[MINUTE] = toInt(input.substr(pos1, 2));
+        array[SECOND] = toInt(input.substr(pos2));
+        getParsingFlags(config).bigHour = true;
+    });
+    addParseToken('Hmm', function (input, array, config) {
+        var pos = input.length - 2;
+        array[HOUR] = toInt(input.substr(0, pos));
+        array[MINUTE] = toInt(input.substr(pos));
+    });
+    addParseToken('Hmmss', function (input, array, config) {
+        var pos1 = input.length - 4;
+        var pos2 = input.length - 2;
+        array[HOUR] = toInt(input.substr(0, pos1));
+        array[MINUTE] = toInt(input.substr(pos1, 2));
+        array[SECOND] = toInt(input.substr(pos2));
+    });
+
+    // LOCALES
+
+    function localeIsPM (input) {
+        // IE8 Quirks Mode & IE7 Standards Mode do not allow accessing strings like arrays
+        // Using charAt should be more compatible.
+        return ((input + '').toLowerCase().charAt(0) === 'p');
+    }
+
+    var defaultLocaleMeridiemParse = /[ap]\.?m?\.?/i;
+    function localeMeridiem (hours, minutes, isLower) {
+        if (hours > 11) {
+            return isLower ? 'pm' : 'PM';
+        } else {
+            return isLower ? 'am' : 'AM';
+        }
+    }
+
+
+    // MOMENTS
+
+    // Setting the hour should keep the time, because the user explicitly
+    // specified which hour he wants. So trying to maintain the same hour (in
+    // a new timezone) makes sense. Adding/subtracting hours does not follow
+    // this rule.
+    var getSetHour = makeGetSet('Hours', true);
+
+    // FORMATTING
+
+    addFormatToken('m', ['mm', 2], 0, 'minute');
+
+    // ALIASES
+
+    addUnitAlias('minute', 'm');
+
+    // PARSING
+
+    addRegexToken('m',  match1to2);
+    addRegexToken('mm', match1to2, match2);
+    addParseToken(['m', 'mm'], MINUTE);
+
+    // MOMENTS
+
+    var getSetMinute = makeGetSet('Minutes', false);
+
+    // FORMATTING
+
+    addFormatToken('s', ['ss', 2], 0, 'second');
+
+    // ALIASES
+
+    addUnitAlias('second', 's');
+
+    // PARSING
+
+    addRegexToken('s',  match1to2);
+    addRegexToken('ss', match1to2, match2);
+    addParseToken(['s', 'ss'], SECOND);
+
+    // MOMENTS
+
+    var getSetSecond = makeGetSet('Seconds', false);
+
+    // FORMATTING
+
+    addFormatToken('S', 0, 0, function () {
+        return ~~(this.millisecond() / 100);
+    });
+
+    addFormatToken(0, ['SS', 2], 0, function () {
+        return ~~(this.millisecond() / 10);
+    });
+
+    addFormatToken(0, ['SSS', 3], 0, 'millisecond');
+    addFormatToken(0, ['SSSS', 4], 0, function () {
+        return this.millisecond() * 10;
+    });
+    addFormatToken(0, ['SSSSS', 5], 0, function () {
+        return this.millisecond() * 100;
+    });
+    addFormatToken(0, ['SSSSSS', 6], 0, function () {
+        return this.millisecond() * 1000;
+    });
+    addFormatToken(0, ['SSSSSSS', 7], 0, function () {
+        return this.millisecond() * 10000;
+    });
+    addFormatToken(0, ['SSSSSSSS', 8], 0, function () {
+        return this.millisecond() * 100000;
+    });
+    addFormatToken(0, ['SSSSSSSSS', 9], 0, function () {
+        return this.millisecond() * 1000000;
+    });
+
+
+    // ALIASES
+
+    addUnitAlias('millisecond', 'ms');
+
+    // PARSING
+
+    addRegexToken('S',    match1to3, match1);
+    addRegexToken('SS',   match1to3, match2);
+    addRegexToken('SSS',  match1to3, match3);
+
+    var token;
+    for (token = 'SSSS'; token.length <= 9; token += 'S') {
+        addRegexToken(token, matchUnsigned);
+    }
+
+    function parseMs(input, array) {
+        array[MILLISECOND] = toInt(('0.' + input) * 1000);
+    }
+
+    for (token = 'S'; token.length <= 9; token += 'S') {
+        addParseToken(token, parseMs);
+    }
+    // MOMENTS
+
+    var getSetMillisecond = makeGetSet('Milliseconds', false);
+
+    // FORMATTING
+
+    addFormatToken('z',  0, 0, 'zoneAbbr');
+    addFormatToken('zz', 0, 0, 'zoneName');
+
+    // MOMENTS
+
+    function getZoneAbbr () {
+        return this._isUTC ? 'UTC' : '';
+    }
+
+    function getZoneName () {
+        return this._isUTC ? 'Coordinated Universal Time' : '';
+    }
+
+    var momentPrototype__proto = Moment.prototype;
+
+    momentPrototype__proto.add               = add_subtract__add;
+    momentPrototype__proto.calendar          = moment_calendar__calendar;
+    momentPrototype__proto.clone             = clone;
+    momentPrototype__proto.diff              = diff;
+    momentPrototype__proto.endOf             = endOf;
+    momentPrototype__proto.format            = format;
+    momentPrototype__proto.from              = from;
+    momentPrototype__proto.fromNow           = fromNow;
+    momentPrototype__proto.to                = to;
+    momentPrototype__proto.toNow             = toNow;
+    momentPrototype__proto.get               = getSet;
+    momentPrototype__proto.invalidAt         = invalidAt;
+    momentPrototype__proto.isAfter           = isAfter;
+    momentPrototype__proto.isBefore          = isBefore;
+    momentPrototype__proto.isBetween         = isBetween;
+    momentPrototype__proto.isSame            = isSame;
+    momentPrototype__proto.isSameOrAfter     = isSameOrAfter;
+    momentPrototype__proto.isSameOrBefore    = isSameOrBefore;
+    momentPrototype__proto.isValid           = moment_valid__isValid;
+    momentPrototype__proto.lang              = lang;
+    momentPrototype__proto.locale            = locale;
+    momentPrototype__proto.localeData        = localeData;
+    momentPrototype__proto.max               = prototypeMax;
+    momentPrototype__proto.min               = prototypeMin;
+    momentPrototype__proto.parsingFlags      = parsingFlags;
+    momentPrototype__proto.set               = getSet;
+    momentPrototype__proto.startOf           = startOf;
+    momentPrototype__proto.subtract          = add_subtract__subtract;
+    momentPrototype__proto.toArray           = toArray;
+    momentPrototype__proto.toObject          = toObject;
+    momentPrototype__proto.toDate            = toDate;
+    momentPrototype__proto.toISOString       = moment_format__toISOString;
+    momentPrototype__proto.toJSON            = toJSON;
+    momentPrototype__proto.toString          = toString;
+    momentPrototype__proto.unix              = unix;
+    momentPrototype__proto.valueOf           = to_type__valueOf;
+    momentPrototype__proto.creationData      = creationData;
+
+    // Year
+    momentPrototype__proto.year       = getSetYear;
+    momentPrototype__proto.isLeapYear = getIsLeapYear;
+
+    // Week Year
+    momentPrototype__proto.weekYear    = getSetWeekYear;
+    momentPrototype__proto.isoWeekYear = getSetISOWeekYear;
+
+    // Quarter
+    momentPrototype__proto.quarter = momentPrototype__proto.quarters = getSetQuarter;
+
+    // Month
+    momentPrototype__proto.month       = getSetMonth;
+    momentPrototype__proto.daysInMonth = getDaysInMonth;
+
+    // Week
+    momentPrototype__proto.week           = momentPrototype__proto.weeks        = getSetWeek;
+    momentPrototype__proto.isoWeek        = momentPrototype__proto.isoWeeks     = getSetISOWeek;
+    momentPrototype__proto.weeksInYear    = getWeeksInYear;
+    momentPrototype__proto.isoWeeksInYear = getISOWeeksInYear;
+
+    // Day
+    momentPrototype__proto.date       = getSetDayOfMonth;
+    momentPrototype__proto.day        = momentPrototype__proto.days             = getSetDayOfWeek;
+    momentPrototype__proto.weekday    = getSetLocaleDayOfWeek;
+    momentPrototype__proto.isoWeekday = getSetISODayOfWeek;
+    momentPrototype__proto.dayOfYear  = getSetDayOfYear;
+
+    // Hour
+    momentPrototype__proto.hour = momentPrototype__proto.hours = getSetHour;
+
+    // Minute
+    momentPrototype__proto.minute = momentPrototype__proto.minutes = getSetMinute;
+
+    // Second
+    momentPrototype__proto.second = momentPrototype__proto.seconds = getSetSecond;
+
+    // Millisecond
+    momentPrototype__proto.millisecond = momentPrototype__proto.milliseconds = getSetMillisecond;
+
+    // Offset
+    momentPrototype__proto.utcOffset            = getSetOffset;
+    momentPrototype__proto.utc                  = setOffsetToUTC;
+    momentPrototype__proto.local                = setOffsetToLocal;
+    momentPrototype__proto.parseZone            = setOffsetToParsedOffset;
+    momentPrototype__proto.hasAlignedHourOffset = hasAlignedHourOffset;
+    momentPrototype__proto.isDST                = isDaylightSavingTime;
+    momentPrototype__proto.isDSTShifted         = isDaylightSavingTimeShifted;
+    momentPrototype__proto.isLocal              = isLocal;
+    momentPrototype__proto.isUtcOffset          = isUtcOffset;
+    momentPrototype__proto.isUtc                = isUtc;
+    momentPrototype__proto.isUTC                = isUtc;
+
+    // Timezone
+    momentPrototype__proto.zoneAbbr = getZoneAbbr;
+    momentPrototype__proto.zoneName = getZoneName;
+
+    // Deprecations
+    momentPrototype__proto.dates  = deprecate('dates accessor is deprecated. Use date instead.', getSetDayOfMonth);
+    momentPrototype__proto.months = deprecate('months accessor is deprecated. Use month instead', getSetMonth);
+    momentPrototype__proto.years  = deprecate('years accessor is deprecated. Use year instead', getSetYear);
+    momentPrototype__proto.zone   = deprecate('moment().zone is deprecated, use moment().utcOffset instead. https://github.com/moment/moment/issues/1779', getSetZone);
+
+    var momentPrototype = momentPrototype__proto;
+
+    function moment__createUnix (input) {
+        return local__createLocal(input * 1000);
+    }
+
+    function moment__createInZone () {
+        return local__createLocal.apply(null, arguments).parseZone();
+    }
+
+    var defaultCalendar = {
+        sameDay : '[Today at] LT',
+        nextDay : '[Tomorrow at] LT',
+        nextWeek : 'dddd [at] LT',
+        lastDay : '[Yesterday at] LT',
+        lastWeek : '[Last] dddd [at] LT',
+        sameElse : 'L'
+    };
+
+    function locale_calendar__calendar (key, mom, now) {
+        var output = this._calendar[key];
+        return isFunction(output) ? output.call(mom, now) : output;
+    }
+
+    var defaultLongDateFormat = {
+        LTS  : 'h:mm:ss A',
+        LT   : 'h:mm A',
+        L    : 'MM/DD/YYYY',
+        LL   : 'MMMM D, YYYY',
+        LLL  : 'MMMM D, YYYY h:mm A',
+        LLLL : 'dddd, MMMM D, YYYY h:mm A'
+    };
+
+    function longDateFormat (key) {
+        var format = this._longDateFormat[key],
+            formatUpper = this._longDateFormat[key.toUpperCase()];
+
+        if (format || !formatUpper) {
+            return format;
+        }
+
+        this._longDateFormat[key] = formatUpper.replace(/MMMM|MM|DD|dddd/g, function (val) {
+            return val.slice(1);
+        });
+
+        return this._longDateFormat[key];
+    }
+
+    var defaultInvalidDate = 'Invalid date';
+
+    function invalidDate () {
+        return this._invalidDate;
+    }
+
+    var defaultOrdinal = '%d';
+    var defaultOrdinalParse = /\d{1,2}/;
+
+    function ordinal (number) {
+        return this._ordinal.replace('%d', number);
+    }
+
+    function preParsePostFormat (string) {
+        return string;
+    }
+
+    var defaultRelativeTime = {
+        future : 'in %s',
+        past   : '%s ago',
+        s  : 'a few seconds',
+        m  : 'a minute',
+        mm : '%d minutes',
+        h  : 'an hour',
+        hh : '%d hours',
+        d  : 'a day',
+        dd : '%d days',
+        M  : 'a month',
+        MM : '%d months',
+        y  : 'a year',
+        yy : '%d years'
+    };
+
+    function relative__relativeTime (number, withoutSuffix, string, isFuture) {
+        var output = this._relativeTime[string];
+        return (isFunction(output)) ?
+            output(number, withoutSuffix, string, isFuture) :
+            output.replace(/%d/i, number);
+    }
+
+    function pastFuture (diff, output) {
+        var format = this._relativeTime[diff > 0 ? 'future' : 'past'];
+        return isFunction(format) ? format(output) : format.replace(/%s/i, output);
+    }
+
+    var prototype__proto = Locale.prototype;
+
+    prototype__proto._calendar       = defaultCalendar;
+    prototype__proto.calendar        = locale_calendar__calendar;
+    prototype__proto._longDateFormat = defaultLongDateFormat;
+    prototype__proto.longDateFormat  = longDateFormat;
+    prototype__proto._invalidDate    = defaultInvalidDate;
+    prototype__proto.invalidDate     = invalidDate;
+    prototype__proto._ordinal        = defaultOrdinal;
+    prototype__proto.ordinal         = ordinal;
+    prototype__proto._ordinalParse   = defaultOrdinalParse;
+    prototype__proto.preparse        = preParsePostFormat;
+    prototype__proto.postformat      = preParsePostFormat;
+    prototype__proto._relativeTime   = defaultRelativeTime;
+    prototype__proto.relativeTime    = relative__relativeTime;
+    prototype__proto.pastFuture      = pastFuture;
+    prototype__proto.set             = locale_set__set;
+
+    // Month
+    prototype__proto.months            =        localeMonths;
+    prototype__proto._months           = defaultLocaleMonths;
+    prototype__proto.monthsShort       =        localeMonthsShort;
+    prototype__proto._monthsShort      = defaultLocaleMonthsShort;
+    prototype__proto.monthsParse       =        localeMonthsParse;
+    prototype__proto._monthsRegex      = defaultMonthsRegex;
+    prototype__proto.monthsRegex       = monthsRegex;
+    prototype__proto._monthsShortRegex = defaultMonthsShortRegex;
+    prototype__proto.monthsShortRegex  = monthsShortRegex;
+
+    // Week
+    prototype__proto.week = localeWeek;
+    prototype__proto._week = defaultLocaleWeek;
+    prototype__proto.firstDayOfYear = localeFirstDayOfYear;
+    prototype__proto.firstDayOfWeek = localeFirstDayOfWeek;
+
+    // Day of Week
+    prototype__proto.weekdays       =        localeWeekdays;
+    prototype__proto._weekdays      = defaultLocaleWeekdays;
+    prototype__proto.weekdaysMin    =        localeWeekdaysMin;
+    prototype__proto._weekdaysMin   = defaultLocaleWeekdaysMin;
+    prototype__proto.weekdaysShort  =        localeWeekdaysShort;
+    prototype__proto._weekdaysShort = defaultLocaleWeekdaysShort;
+    prototype__proto.weekdaysParse  =        localeWeekdaysParse;
+
+    prototype__proto._weekdaysRegex      = defaultWeekdaysRegex;
+    prototype__proto.weekdaysRegex       =        weekdaysRegex;
+    prototype__proto._weekdaysShortRegex = defaultWeekdaysShortRegex;
+    prototype__proto.weekdaysShortRegex  =        weekdaysShortRegex;
+    prototype__proto._weekdaysMinRegex   = defaultWeekdaysMinRegex;
+    prototype__proto.weekdaysMinRegex    =        weekdaysMinRegex;
+
+    // Hours
+    prototype__proto.isPM = localeIsPM;
+    prototype__proto._meridiemParse = defaultLocaleMeridiemParse;
+    prototype__proto.meridiem = localeMeridiem;
+
+    function lists__get (format, index, field, setter) {
+        var locale = locale_locales__getLocale();
+        var utc = create_utc__createUTC().set(setter, index);
+        return locale[field](utc, format);
+    }
+
+    function listMonthsImpl (format, index, field) {
+        if (typeof format === 'number') {
+            index = format;
+            format = undefined;
+        }
+
+        format = format || '';
+
+        if (index != null) {
+            return lists__get(format, index, field, 'month');
+        }
+
+        var i;
+        var out = [];
+        for (i = 0; i < 12; i++) {
+            out[i] = lists__get(format, i, field, 'month');
+        }
+        return out;
+    }
+
+    // ()
+    // (5)
+    // (fmt, 5)
+    // (fmt)
+    // (true)
+    // (true, 5)
+    // (true, fmt, 5)
+    // (true, fmt)
+    function listWeekdaysImpl (localeSorted, format, index, field) {
+        if (typeof localeSorted === 'boolean') {
+            if (typeof format === 'number') {
+                index = format;
+                format = undefined;
+            }
+
+            format = format || '';
+        } else {
+            format = localeSorted;
+            index = format;
+            localeSorted = false;
+
+            if (typeof format === 'number') {
+                index = format;
+                format = undefined;
+            }
+
+            format = format || '';
+        }
+
+        var locale = locale_locales__getLocale(),
+            shift = localeSorted ? locale._week.dow : 0;
+
+        if (index != null) {
+            return lists__get(format, (index + shift) % 7, field, 'day');
+        }
+
+        var i;
+        var out = [];
+        for (i = 0; i < 7; i++) {
+            out[i] = lists__get(format, (i + shift) % 7, field, 'day');
+        }
+        return out;
+    }
+
+    function lists__listMonths (format, index) {
+        return listMonthsImpl(format, index, 'months');
+    }
+
+    function lists__listMonthsShort (format, index) {
+        return listMonthsImpl(format, index, 'monthsShort');
+    }
+
+    function lists__listWeekdays (localeSorted, format, index) {
+        return listWeekdaysImpl(localeSorted, format, index, 'weekdays');
+    }
+
+    function lists__listWeekdaysShort (localeSorted, format, index) {
+        return listWeekdaysImpl(localeSorted, format, index, 'weekdaysShort');
+    }
+
+    function lists__listWeekdaysMin (localeSorted, format, index) {
+        return listWeekdaysImpl(localeSorted, format, index, 'weekdaysMin');
+    }
+
+    locale_locales__getSetGlobalLocale('en', {
+        ordinalParse: /\d{1,2}(th|st|nd|rd)/,
+        ordinal : function (number) {
+            var b = number % 10,
+                output = (toInt(number % 100 / 10) === 1) ? 'th' :
+                (b === 1) ? 'st' :
+                (b === 2) ? 'nd' :
+                (b === 3) ? 'rd' : 'th';
+            return number + output;
+        }
+    });
+
+    // Side effect imports
+    utils_hooks__hooks.lang = deprecate('moment.lang is deprecated. Use moment.locale instead.', locale_locales__getSetGlobalLocale);
+    utils_hooks__hooks.langData = deprecate('moment.langData is deprecated. Use moment.localeData instead.', locale_locales__getLocale);
+
+    var mathAbs = Math.abs;
+
+    function duration_abs__abs () {
+        var data           = this._data;
+
+        this._milliseconds = mathAbs(this._milliseconds);
+        this._days         = mathAbs(this._days);
+        this._months       = mathAbs(this._months);
+
+        data.milliseconds  = mathAbs(data.milliseconds);
+        data.seconds       = mathAbs(data.seconds);
+        data.minutes       = mathAbs(data.minutes);
+        data.hours         = mathAbs(data.hours);
+        data.months        = mathAbs(data.months);
+        data.years         = mathAbs(data.years);
+
+        return this;
+    }
+
+    function duration_add_subtract__addSubtract (duration, input, value, direction) {
+        var other = create__createDuration(input, value);
+
+        duration._milliseconds += direction * other._milliseconds;
+        duration._days         += direction * other._days;
+        duration._months       += direction * other._months;
+
+        return duration._bubble();
+    }
+
+    // supports only 2.0-style add(1, 's') or add(duration)
+    function duration_add_subtract__add (input, value) {
+        return duration_add_subtract__addSubtract(this, input, value, 1);
+    }
+
+    // supports only 2.0-style subtract(1, 's') or subtract(duration)
+    function duration_add_subtract__subtract (input, value) {
+        return duration_add_subtract__addSubtract(this, input, value, -1);
+    }
+
+    function absCeil (number) {
+        if (number < 0) {
+            return Math.floor(number);
+        } else {
+            return Math.ceil(number);
+        }
+    }
+
+    function bubble () {
+        var milliseconds = this._milliseconds;
+        var days         = this._days;
+        var months       = this._months;
+        var data         = this._data;
+        var seconds, minutes, hours, years, monthsFromDays;
+
+        // if we have a mix of positive and negative values, bubble down first
+        // check: https://github.com/moment/moment/issues/2166
+        if (!((milliseconds >= 0 && days >= 0 && months >= 0) ||
+                (milliseconds <= 0 && days <= 0 && months <= 0))) {
+            milliseconds += absCeil(monthsToDays(months) + days) * 864e5;
+            days = 0;
+            months = 0;
+        }
+
+        // The following code bubbles up values, see the tests for
+        // examples of what that means.
+        data.milliseconds = milliseconds % 1000;
+
+        seconds           = absFloor(milliseconds / 1000);
+        data.seconds      = seconds % 60;
+
+        minutes           = absFloor(seconds / 60);
+        data.minutes      = minutes % 60;
+
+        hours             = absFloor(minutes / 60);
+        data.hours        = hours % 24;
+
+        days += absFloor(hours / 24);
+
+        // convert days to months
+        monthsFromDays = absFloor(daysToMonths(days));
+        months += monthsFromDays;
+        days -= absCeil(monthsToDays(monthsFromDays));
+
+        // 12 months -> 1 year
+        years = absFloor(months / 12);
+        months %= 12;
+
+        data.days   = days;
+        data.months = months;
+        data.years  = years;
+
+        return this;
+    }
+
+    function daysToMonths (days) {
+        // 400 years have 146097 days (taking into account leap year rules)
+        // 400 years have 12 months === 4800
+        return days * 4800 / 146097;
+    }
+
+    function monthsToDays (months) {
+        // the reverse of daysToMonths
+        return months * 146097 / 4800;
+    }
+
+    function as (units) {
+        var days;
+        var months;
+        var milliseconds = this._milliseconds;
+
+        units = normalizeUnits(units);
+
+        if (units === 'month' || units === 'year') {
+            days   = this._days   + milliseconds / 864e5;
+            months = this._months + daysToMonths(days);
+            return units === 'month' ? months : months / 12;
+        } else {
+            // handle milliseconds separately because of floating point math errors (issue #1867)
+            days = this._days + Math.round(monthsToDays(this._months));
+            switch (units) {
+                case 'week'   : return days / 7     + milliseconds / 6048e5;
+                case 'day'    : return days         + milliseconds / 864e5;
+                case 'hour'   : return days * 24    + milliseconds / 36e5;
+                case 'minute' : return days * 1440  + milliseconds / 6e4;
+                case 'second' : return days * 86400 + milliseconds / 1000;
+                // Math.floor prevents floating point math errors here
+                case 'millisecond': return Math.floor(days * 864e5) + milliseconds;
+                default: throw new Error('Unknown unit ' + units);
+            }
+        }
+    }
+
+    // TODO: Use this.as('ms')?
+    function duration_as__valueOf () {
+        return (
+            this._milliseconds +
+            this._days * 864e5 +
+            (this._months % 12) * 2592e6 +
+            toInt(this._months / 12) * 31536e6
+        );
+    }
+
+    function makeAs (alias) {
+        return function () {
+            return this.as(alias);
+        };
+    }
+
+    var asMilliseconds = makeAs('ms');
+    var asSeconds      = makeAs('s');
+    var asMinutes      = makeAs('m');
+    var asHours        = makeAs('h');
+    var asDays         = makeAs('d');
+    var asWeeks        = makeAs('w');
+    var asMonths       = makeAs('M');
+    var asYears        = makeAs('y');
+
+    function duration_get__get (units) {
+        units = normalizeUnits(units);
+        return this[units + 's']();
+    }
+
+    function makeGetter(name) {
+        return function () {
+            return this._data[name];
+        };
+    }
+
+    var milliseconds = makeGetter('milliseconds');
+    var seconds      = makeGetter('seconds');
+    var minutes      = makeGetter('minutes');
+    var hours        = makeGetter('hours');
+    var days         = makeGetter('days');
+    var months       = makeGetter('months');
+    var years        = makeGetter('years');
+
+    function weeks () {
+        return absFloor(this.days() / 7);
+    }
+
+    var round = Math.round;
+    var thresholds = {
+        s: 45,  // seconds to minute
+        m: 45,  // minutes to hour
+        h: 22,  // hours to day
+        d: 26,  // days to month
+        M: 11   // months to year
+    };
+
+    // helper function for moment.fn.from, moment.fn.fromNow, and moment.duration.fn.humanize
+    function substituteTimeAgo(string, number, withoutSuffix, isFuture, locale) {
+        return locale.relativeTime(number || 1, !!withoutSuffix, string, isFuture);
+    }
+
+    function duration_humanize__relativeTime (posNegDuration, withoutSuffix, locale) {
+        var duration = create__createDuration(posNegDuration).abs();
+        var seconds  = round(duration.as('s'));
+        var minutes  = round(duration.as('m'));
+        var hours    = round(duration.as('h'));
+        var days     = round(duration.as('d'));
+        var months   = round(duration.as('M'));
+        var years    = round(duration.as('y'));
+
+        var a = seconds < thresholds.s && ['s', seconds]  ||
+                minutes <= 1           && ['m']           ||
+                minutes < thresholds.m && ['mm', minutes] ||
+                hours   <= 1           && ['h']           ||
+                hours   < thresholds.h && ['hh', hours]   ||
+                days    <= 1           && ['d']           ||
+                days    < thresholds.d && ['dd', days]    ||
+                months  <= 1           && ['M']           ||
+                months  < thresholds.M && ['MM', months]  ||
+                years   <= 1           && ['y']           || ['yy', years];
+
+        a[2] = withoutSuffix;
+        a[3] = +posNegDuration > 0;
+        a[4] = locale;
+        return substituteTimeAgo.apply(null, a);
+    }
+
+    // This function allows you to set a threshold for relative time strings
+    function duration_humanize__getSetRelativeTimeThreshold (threshold, limit) {
+        if (thresholds[threshold] === undefined) {
+            return false;
+        }
+        if (limit === undefined) {
+            return thresholds[threshold];
+        }
+        thresholds[threshold] = limit;
+        return true;
+    }
+
+    function humanize (withSuffix) {
+        var locale = this.localeData();
+        var output = duration_humanize__relativeTime(this, !withSuffix, locale);
+
+        if (withSuffix) {
+            output = locale.pastFuture(+this, output);
+        }
+
+        return locale.postformat(output);
+    }
+
+    var iso_string__abs = Math.abs;
+
+    function iso_string__toISOString() {
+        // for ISO strings we do not use the normal bubbling rules:
+        //  * milliseconds bubble up until they become hours
+        //  * days do not bubble at all
+        //  * months bubble up until they become years
+        // This is because there is no context-free conversion between hours and days
+        // (think of clock changes)
+        // and also not between days and months (28-31 days per month)
+        var seconds = iso_string__abs(this._milliseconds) / 1000;
+        var days         = iso_string__abs(this._days);
+        var months       = iso_string__abs(this._months);
+        var minutes, hours, years;
+
+        // 3600 seconds -> 60 minutes -> 1 hour
+        minutes           = absFloor(seconds / 60);
+        hours             = absFloor(minutes / 60);
+        seconds %= 60;
+        minutes %= 60;
+
+        // 12 months -> 1 year
+        years  = absFloor(months / 12);
+        months %= 12;
+
+
+        // inspired by https://github.com/dordille/moment-isoduration/blob/master/moment.isoduration.js
+        var Y = years;
+        var M = months;
+        var D = days;
+        var h = hours;
+        var m = minutes;
+        var s = seconds;
+        var total = this.asSeconds();
+
+        if (!total) {
+            // this is the same as C#'s (Noda) and python (isodate)...
+            // but not other JS (goog.date)
+            return 'P0D';
+        }
+
+        return (total < 0 ? '-' : '') +
+            'P' +
+            (Y ? Y + 'Y' : '') +
+            (M ? M + 'M' : '') +
+            (D ? D + 'D' : '') +
+            ((h || m || s) ? 'T' : '') +
+            (h ? h + 'H' : '') +
+            (m ? m + 'M' : '') +
+            (s ? s + 'S' : '');
+    }
+
+    var duration_prototype__proto = Duration.prototype;
+
+    duration_prototype__proto.abs            = duration_abs__abs;
+    duration_prototype__proto.add            = duration_add_subtract__add;
+    duration_prototype__proto.subtract       = duration_add_subtract__subtract;
+    duration_prototype__proto.as             = as;
+    duration_prototype__proto.asMilliseconds = asMilliseconds;
+    duration_prototype__proto.asSeconds      = asSeconds;
+    duration_prototype__proto.asMinutes      = asMinutes;
+    duration_prototype__proto.asHours        = asHours;
+    duration_prototype__proto.asDays         = asDays;
+    duration_prototype__proto.asWeeks        = asWeeks;
+    duration_prototype__proto.asMonths       = asMonths;
+    duration_prototype__proto.asYears        = asYears;
+    duration_prototype__proto.valueOf        = duration_as__valueOf;
+    duration_prototype__proto._bubble        = bubble;
+    duration_prototype__proto.get            = duration_get__get;
+    duration_prototype__proto.milliseconds   = milliseconds;
+    duration_prototype__proto.seconds        = seconds;
+    duration_prototype__proto.minutes        = minutes;
+    duration_prototype__proto.hours          = hours;
+    duration_prototype__proto.days           = days;
+    duration_prototype__proto.weeks          = weeks;
+    duration_prototype__proto.months         = months;
+    duration_prototype__proto.years          = years;
+    duration_prototype__proto.humanize       = humanize;
+    duration_prototype__proto.toISOString    = iso_string__toISOString;
+    duration_prototype__proto.toString       = iso_string__toISOString;
+    duration_prototype__proto.toJSON         = iso_string__toISOString;
+    duration_prototype__proto.locale         = locale;
+    duration_prototype__proto.localeData     = localeData;
+
+    // Deprecations
+    duration_prototype__proto.toIsoString = deprecate('toIsoString() is deprecated. Please use toISOString() instead (notice the capitals)', iso_string__toISOString);
+    duration_prototype__proto.lang = lang;
+
+    // Side effect imports
+
+    // FORMATTING
+
+    addFormatToken('X', 0, 0, 'unix');
+    addFormatToken('x', 0, 0, 'valueOf');
+
+    // PARSING
+
+    addRegexToken('x', matchSigned);
+    addRegexToken('X', matchTimestamp);
+    addParseToken('X', function (input, array, config) {
+        config._d = new Date(parseFloat(input, 10) * 1000);
+    });
+    addParseToken('x', function (input, array, config) {
+        config._d = new Date(toInt(input));
+    });
+
+    // Side effect imports
+
+
+    utils_hooks__hooks.version = '2.13.0';
+
+    setHookCallback(local__createLocal);
+
+    utils_hooks__hooks.fn                    = momentPrototype;
+    utils_hooks__hooks.min                   = min;
+    utils_hooks__hooks.max                   = max;
+    utils_hooks__hooks.now                   = now;
+    utils_hooks__hooks.utc                   = create_utc__createUTC;
+    utils_hooks__hooks.unix                  = moment__createUnix;
+    utils_hooks__hooks.months                = lists__listMonths;
+    utils_hooks__hooks.isDate                = isDate;
+    utils_hooks__hooks.locale                = locale_locales__getSetGlobalLocale;
+    utils_hooks__hooks.invalid               = valid__createInvalid;
+    utils_hooks__hooks.duration              = create__createDuration;
+    utils_hooks__hooks.isMoment              = isMoment;
+    utils_hooks__hooks.weekdays              = lists__listWeekdays;
+    utils_hooks__hooks.parseZone             = moment__createInZone;
+    utils_hooks__hooks.localeData            = locale_locales__getLocale;
+    utils_hooks__hooks.isDuration            = isDuration;
+    utils_hooks__hooks.monthsShort           = lists__listMonthsShort;
+    utils_hooks__hooks.weekdaysMin           = lists__listWeekdaysMin;
+    utils_hooks__hooks.defineLocale          = defineLocale;
+    utils_hooks__hooks.updateLocale          = updateLocale;
+    utils_hooks__hooks.locales               = locale_locales__listLocales;
+    utils_hooks__hooks.weekdaysShort         = lists__listWeekdaysShort;
+    utils_hooks__hooks.normalizeUnits        = normalizeUnits;
+    utils_hooks__hooks.relativeTimeThreshold = duration_humanize__getSetRelativeTimeThreshold;
+    utils_hooks__hooks.prototype             = momentPrototype;
+
+    var _moment = utils_hooks__hooks;
+
+    return _moment;
+
+}));
+/*!
+ * FullCalendar v2.7.0
+ * Docs & License: http://fullcalendar.io/
+ * (c) 2015 Adam Shaw
+ */
+!function(a){"function"==typeof define&&define.amd?define(["jquery","moment"],a):"object"==typeof exports?module.exports=a(require("jquery"),require("moment")):a(jQuery,moment)}(function(a,b){function c(a){return U(a,Va)}function d(b){var c,d={views:b.views||{}};return a.each(b,function(b,e){"views"!=b&&(a.isPlainObject(e)&&!/(time|duration|interval)$/i.test(b)&&-1==a.inArray(b,Va)?(c=null,a.each(e,function(a,e){/^(month|week|day|default|basic(Week|Day)?|agenda(Week|Day)?)$/.test(a)?(d.views[a]||(d.views[a]={}),d.views[a][b]=e):(c||(c={}),c[a]=e)}),c&&(d[b]=c)):d[b]=e)}),d}function e(a,b){b.left&&a.css({"border-left-width":1,"margin-left":b.left-1}),b.right&&a.css({"border-right-width":1,"margin-right":b.right-1})}function f(a){a.css({"margin-left":"","margin-right":"","border-left-width":"","border-right-width":""})}function g(){a("body").addClass("fc-not-allowed")}function h(){a("body").removeClass("fc-not-allowed")}function i(b,c,d){var e=Math.floor(c/b.length),f=Math.floor(c-e*(b.length-1)),g=[],h=[],i=[],k=0;j(b),b.each(function(c,d){var j=c===b.length-1?f:e,l=a(d).outerHeight(!0);j>l?(g.push(d),h.push(l),i.push(a(d).height())):k+=l}),d&&(c-=k,e=Math.floor(c/g.length),f=Math.floor(c-e*(g.length-1))),a(g).each(function(b,c){var d=b===g.length-1?f:e,j=h[b],k=i[b],l=d-(j-k);d>j&&a(c).height(l)})}function j(a){a.height("")}function k(b){var c=0;return b.find("> span").each(function(b,d){var e=a(d).outerWidth();e>c&&(c=e)}),c++,b.width(c),c}function l(a,b){var c,d=a.add(b);return d.css({position:"relative",left:-1}),c=a.outerHeight()-b.outerHeight(),d.css({position:"",left:""}),c}function m(b){var c=b.css("position"),d=b.parents().filter(function(){var b=a(this);return/(auto|scroll)/.test(b.css("overflow")+b.css("overflow-y")+b.css("overflow-x"))}).eq(0);return"fixed"!==c&&d.length?d:a(b[0].ownerDocument||document)}function n(a,b){var c=a.offset(),d=c.left-(b?b.left:0),e=c.top-(b?b.top:0);return{left:d,right:d+a.outerWidth(),top:e,bottom:e+a.outerHeight()}}function o(a,b){var c=a.offset(),d=q(a),e=c.left+t(a,"border-left-width")+d.left-(b?b.left:0),f=c.top+t(a,"border-top-width")+d.top-(b?b.top:0);return{left:e,right:e+a[0].clientWidth,top:f,bottom:f+a[0].clientHeight}}function p(a,b){var c=a.offset(),d=c.left+t(a,"border-left-width")+t(a,"padding-left")-(b?b.left:0),e=c.top+t(a,"border-top-width")+t(a,"padding-top")-(b?b.top:0);return{left:d,right:d+a.width(),top:e,bottom:e+a.height()}}function q(a){var b=a.innerWidth()-a[0].clientWidth,c={left:0,right:0,top:0,bottom:a.innerHeight()-a[0].clientHeight};return r()&&"rtl"==a.css("direction")?c.left=b:c.right=b,c}function r(){return null===Wa&&(Wa=s()),Wa}function s(){var b=a("<div><div/></div>").css({position:"absolute",top:-1e3,left:0,border:0,padding:0,overflow:"scroll",direction:"rtl"}).appendTo("body"),c=b.children(),d=c.offset().left>b.offset().left;return b.remove(),d}function t(a,b){return parseFloat(a.css(b))||0}function u(a){return 1==a.which&&!a.ctrlKey}function v(a){if(void 0!==a.pageX)return a.pageX;var b=a.originalEvent.touches;return b?b[0].pageX:void 0}function w(a){if(void 0!==a.pageY)return a.pageY;var b=a.originalEvent.touches;return b?b[0].pageY:void 0}function x(a){return/^touch/.test(a.type)}function y(a){a.addClass("fc-unselectable").on("selectstart",z)}function z(a){a.preventDefault()}function A(a,b){var c={left:Math.max(a.left,b.left),right:Math.min(a.right,b.right),top:Math.max(a.top,b.top),bottom:Math.min(a.bottom,b.bottom)};return c.left<c.right&&c.top<c.bottom?c:!1}function B(a,b){return{left:Math.min(Math.max(a.left,b.left),b.right),top:Math.min(Math.max(a.top,b.top),b.bottom)}}function C(a){return{left:(a.left+a.right)/2,top:(a.top+a.bottom)/2}}function D(a,b){return{left:a.left-b.left,top:a.top-b.top}}function E(b){var c,d,e=[],f=[];for("string"==typeof b?f=b.split(/\s*,\s*/):"function"==typeof b?f=[b]:a.isArray(b)&&(f=b),c=0;c<f.length;c++)d=f[c],"string"==typeof d?e.push("-"==d.charAt(0)?{field:d.substring(1),order:-1}:{field:d,order:1}):"function"==typeof d&&e.push({func:d});return e}function F(a,b,c){var d,e;for(d=0;d<c.length;d++)if(e=G(a,b,c[d]))return e;return 0}function G(a,b,c){return c.func?c.func(a,b):H(a[c.field],b[c.field])*(c.order||1)}function H(b,c){return b||c?null==c?-1:null==b?1:"string"===a.type(b)||"string"===a.type(c)?String(b).localeCompare(String(c)):b-c:0}function I(a,b){var c,d,e,f,g=a.start,h=a.end,i=b.start,j=b.end;return h>i&&j>g?(g>=i?(c=g.clone(),e=!0):(c=i.clone(),e=!1),j>=h?(d=h.clone(),f=!0):(d=j.clone(),f=!1),{start:c,end:d,isStart:e,isEnd:f}):void 0}function J(a,c){return b.duration({days:a.clone().stripTime().diff(c.clone().stripTime(),"days"),ms:a.time()-c.time()})}function K(a,c){return b.duration({days:a.clone().stripTime().diff(c.clone().stripTime(),"days")})}function L(a,c,d){return b.duration(Math.round(a.diff(c,d,!0)),d)}function M(a,b){var c,d,e;for(c=0;c<Ya.length&&(d=Ya[c],e=N(d,a,b),!(e>=1&&fa(e)));c++);return d}function N(a,c,d){return null!=d?d.diff(c,a,!0):b.isDuration(c)?c.as(a):c.end.diff(c.start,a,!0)}function O(a,b,c){var d;return R(c)?(b-a)/c:(d=c.asMonths(),Math.abs(d)>=1&&fa(d)?b.diff(a,"months",!0)/d:b.diff(a,"days",!0)/c.asDays())}function P(a,b){var c,d;return R(a)||R(b)?a/b:(c=a.asMonths(),d=b.asMonths(),Math.abs(c)>=1&&fa(c)&&Math.abs(d)>=1&&fa(d)?c/d:a.asDays()/b.asDays())}function Q(a,c){var d;return R(a)?b.duration(a*c):(d=a.asMonths(),Math.abs(d)>=1&&fa(d)?b.duration({months:d*c}):b.duration({days:a.asDays()*c}))}function R(a){return Boolean(a.hours()||a.minutes()||a.seconds()||a.milliseconds())}function S(a){return"[object Date]"===Object.prototype.toString.call(a)||a instanceof Date}function T(a){return/^\d+\:\d+(?:\:\d+\.?(?:\d{3})?)?$/.test(a)}function U(a,b){var c,d,e,f,g,h,i={};if(b)for(c=0;c<b.length;c++){for(d=b[c],e=[],f=a.length-1;f>=0;f--)if(g=a[f][d],"object"==typeof g)e.unshift(g);else if(void 0!==g){i[d]=g;break}e.length&&(i[d]=U(e))}for(c=a.length-1;c>=0;c--){h=a[c];for(d in h)d in i||(i[d]=h[d])}return i}function V(a){var b=function(){};return b.prototype=a,new b}function W(a,b){for(var c in a)Y(a,c)&&(b[c]=a[c])}function X(a,b){var c,d,e=["constructor","toString","valueOf"];for(c=0;c<e.length;c++)d=e[c],a[d]!==Object.prototype[d]&&(b[d]=a[d])}function Y(a,b){return ab.call(a,b)}function Z(b){return/undefined|null|boolean|number|string/.test(a.type(b))}function $(b,c,d){if(a.isFunction(b)&&(b=[b]),b){var e,f;for(e=0;e<b.length;e++)f=b[e].apply(c,d)||f;return f}}function _(){for(var a=0;a<arguments.length;a++)if(void 0!==arguments[a])return arguments[a]}function aa(a){return(a+"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/'/g,"&#039;").replace(/"/g,"&quot;").replace(/\n/g,"<br />")}function ba(a){return a.replace(/&.*?;/g,"")}function ca(b){var c=[];return a.each(b,function(a,b){null!=b&&c.push(a+":"+b)}),c.join(";")}function da(a){return a.charAt(0).toUpperCase()+a.slice(1)}function ea(a,b){return a-b}function fa(a){return a%1===0}function ga(a,b){var c=a[b];return function(){return c.apply(a,arguments)}}function ha(a,b,c){var d,e,f,g,h,i=function(){var j=+new Date-g;b>j?d=setTimeout(i,b-j):(d=null,c||(h=a.apply(f,e),f=e=null))};return function(){f=this,e=arguments,g=+new Date;var j=c&&!d;return d||(d=setTimeout(i,b)),j&&(h=a.apply(f,e),f=e=null),h}}function ia(c,d,e){var f,g,h,i,j=c[0],k=1==c.length&&"string"==typeof j;return b.isMoment(j)?(i=b.apply(null,c),ka(j,i)):S(j)||void 0===j?i=b.apply(null,c):(f=!1,g=!1,k?bb.test(j)?(j+="-01",c=[j],f=!0,g=!0):(h=cb.exec(j))&&(f=!h[5],g=!0):a.isArray(j)&&(g=!0),i=d||f?b.utc.apply(b,c):b.apply(null,c),f?(i._ambigTime=!0,i._ambigZone=!0):e&&(g?i._ambigZone=!0:k&&(i.utcOffset?i.utcOffset(j):i.zone(j)))),i._fullCalendar=!0,i}function ja(a,c){var d,e,f=!1,g=!1,h=a.length,i=[];for(d=0;h>d;d++)e=a[d],b.isMoment(e)||(e=Ta.moment.parseZone(e)),f=f||e._ambigTime,g=g||e._ambigZone,i.push(e);for(d=0;h>d;d++)e=i[d],c||!f||e._ambigTime?g&&!e._ambigZone&&(i[d]=e.clone().stripZone()):i[d]=e.clone().stripTime();return i}function ka(a,b){a._ambigTime?b._ambigTime=!0:b._ambigTime&&(b._ambigTime=!1),a._ambigZone?b._ambigZone=!0:b._ambigZone&&(b._ambigZone=!1)}function la(a,b){a.year(b[0]||0).month(b[1]||0).date(b[2]||0).hours(b[3]||0).minutes(b[4]||0).seconds(b[5]||0).milliseconds(b[6]||0)}function ma(a,b){return eb.format.call(a,b)}function na(a,b){return oa(a,ta(b))}function oa(a,b){var c,d="";for(c=0;c<b.length;c++)d+=pa(a,b[c]);return d}function pa(a,b){var c,d;return"string"==typeof b?b:(c=b.token)?fb[c]?fb[c](a):ma(a,c):b.maybe&&(d=oa(a,b.maybe),d.match(/[1-9]/))?d:""}function qa(a,b,c,d,e){var f;return a=Ta.moment.parseZone(a),b=Ta.moment.parseZone(b),f=(a.localeData||a.lang).call(a),c=f.longDateFormat(c)||c,d=d||" - ",ra(a,b,ta(c),d,e)}function ra(a,b,c,d,e){var f,g,h,i,j=a.clone().stripZone(),k=b.clone().stripZone(),l="",m="",n="",o="",p="";for(g=0;g<c.length&&(f=sa(a,b,j,k,c[g]),f!==!1);g++)l+=f;for(h=c.length-1;h>g&&(f=sa(a,b,j,k,c[h]),f!==!1);h--)m=f+m;for(i=g;h>=i;i++)n+=pa(a,c[i]),o+=pa(b,c[i]);return(n||o)&&(p=e?o+d+n:n+d+o),l+p+m}function sa(a,b,c,d,e){var f,g;return"string"==typeof e?e:(f=e.token)&&(g=gb[f.charAt(0)],g&&c.isSame(d,g))?ma(a,f):!1}function ta(a){return a in hb?hb[a]:hb[a]=ua(a)}function ua(a){for(var b,c=[],d=/\[([^\]]*)\]|\(([^\)]*)\)|(LTS|LT|(\w)\4*o?)|([^\w\[\(]+)/g;b=d.exec(a);)b[1]?c.push(b[1]):b[2]?c.push({maybe:ua(b[2])}):b[3]?c.push({token:b[3]}):b[5]&&c.push(b[5]);return c}function va(){}function wa(a,b){var c;return Y(b,"constructor")&&(c=b.constructor),"function"!=typeof c&&(c=b.constructor=function(){a.apply(this,arguments)}),c.prototype=V(a.prototype),W(b,c.prototype),X(b,c.prototype),W(a,c),c}function xa(a,b){W(b,a.prototype)}function ya(a,b){return a||b?a&&b?a.component===b.component&&za(a,b)&&za(b,a):!1:!0}function za(a,b){for(var c in a)if(!/^(component|left|right|top|bottom)$/.test(c)&&a[c]!==b[c])return!1;return!0}function Aa(a){var b=Ca(a);return"background"===b||"inverse-background"===b}function Ba(a){return"inverse-background"===Ca(a)}function Ca(a){return _((a.source||{}).rendering,a.rendering)}function Da(a){var b,c,d={};for(b=0;b<a.length;b++)c=a[b],(d[c._id]||(d[c._id]=[])).push(c);return d}function Ea(a,b){return a.start-b.start}function Fa(c){var d,e,f,g,h=Ta.dataAttrPrefix;return h&&(h+="-"),d=c.data(h+"event")||null,d&&(d="object"==typeof d?a.extend({},d):{},e=d.start,null==e&&(e=d.time),f=d.duration,g=d.stick,delete d.start,delete d.time,delete d.duration,delete d.stick),null==e&&(e=c.data(h+"start")),null==e&&(e=c.data(h+"time")),null==f&&(f=c.data(h+"duration")),null==g&&(g=c.data(h+"stick")),e=null!=e?b.duration(e):null,f=null!=f?b.duration(f):null,g=Boolean(g),{eventProps:d,startTime:e,duration:f,stick:g}}function Ga(a,b){var c,d;for(c=0;c<b.length;c++)if(d=b[c],d.leftCol<=a.rightCol&&d.rightCol>=a.leftCol)return!0;return!1}function Ha(a,b){return a.leftCol-b.leftCol}function Ia(a){var b,c,d,e=[];for(b=0;b<a.length;b++){for(c=a[b],d=0;d<e.length&&La(c,e[d]).length;d++);c.level=d,(e[d]||(e[d]=[])).push(c)}return e}function Ja(a){var b,c,d,e,f;for(b=0;b<a.length;b++)for(c=a[b],d=0;d<c.length;d++)for(e=c[d],e.forwardSegs=[],f=b+1;f<a.length;f++)La(e,a[f],e.forwardSegs)}function Ka(a){var b,c,d=a.forwardSegs,e=0;if(void 0===a.forwardPressure){for(b=0;b<d.length;b++)c=d[b],Ka(c),e=Math.max(e,1+c.forwardPressure);a.forwardPressure=e}}function La(a,b,c){c=c||[];for(var d=0;d<b.length;d++)Ma(a,b[d])&&c.push(b[d]);return c}function Ma(a,b){return a.bottom>b.top&&a.top<b.bottom}function Na(c,d){function e(){T?h()&&(k(),i()):f()}function f(){U=O.theme?"ui":"fc",c.addClass("fc"),c.addClass(N.isTouch?"fc-touch":"fc-cursor"),O.isRTL?c.addClass("fc-rtl"):c.addClass("fc-ltr"),O.theme?c.addClass("ui-widget"):c.addClass("fc-unthemed"),T=a("<div class='fc-view-container'/>").prependTo(c),R=N.header=new Qa(N,O),S=R.render(),S&&c.prepend(S),i(O.defaultView),O.handleWindowResize&&(Y=ha(m,O.windowResizeDelay),a(window).resize(Y))}function g(){W&&W.removeElement(),R.removeElement(),T.remove(),c.removeClass("fc fc-touch fc-cursor fc-ltr fc-rtl fc-unthemed ui-widget"),Y&&a(window).unbind("resize",Y)}function h(){return c.is(":visible")}function i(b){ca++,W&&b&&W.type!==b&&(R.deactivateButton(W.type),H(),W.removeElement(),W=N.view=null),!W&&b&&(W=N.view=ba[b]||(ba[b]=N.instantiateView(b)),W.setElement(a("<div class='fc-view fc-"+b+"-view' />").appendTo(T)),R.activateButton(b)),W&&(Z=W.massageCurrentDate(Z),W.displaying&&Z.isWithin(W.intervalStart,W.intervalEnd)||h()&&(W.display(Z),I(),u(),v(),q())),I(),ca--}function j(a){return h()?(a&&l(),ca++,W.updateSize(!0),ca--,!0):void 0}function k(){h()&&l()}function l(){X="number"==typeof O.contentHeight?O.contentHeight:"number"==typeof O.height?O.height-(S?S.outerHeight(!0):0):Math.round(T.width()/Math.max(O.aspectRatio,.5))}function m(a){!ca&&a.target===window&&W.start&&j(!0)&&W.trigger("windowResize",aa)}function n(){p(),r()}function o(){h()&&(H(),W.displayEvents(da),I())}function p(){H(),W.clearEvents(),I()}function q(){!O.lazyFetching||$(W.start,W.end)?r():o()}function r(){_(W.start,W.end)}function s(a){da=a,o()}function t(){o()}function u(){R.updateTitle(W.title)}function v(){var a=N.getNow();a.isWithin(W.intervalStart,W.intervalEnd)?R.disableButton("today"):R.enableButton("today")}function w(a,b){W.select(N.buildSelectSpan.apply(N,arguments))}function x(){W&&W.unselect()}function y(){Z=W.computePrevDate(Z),i()}function z(){Z=W.computeNextDate(Z),i()}function A(){Z.add(-1,"years"),i()}function B(){Z.add(1,"years"),i()}function C(){Z=N.getNow(),i()}function D(a){Z=N.moment(a).stripZone(),i()}function E(a){Z.add(b.duration(a)),i()}function F(a,b){var c;b=b||"day",c=N.getViewSpec(b)||N.getUnitViewSpec(b),Z=a.clone(),i(c?c.type:null)}function G(){return N.applyTimezone(Z)}function H(){T.css({width:"100%",height:T.height(),overflow:"hidden"})}function I(){T.css({width:"",height:"",overflow:""})}function J(){return N}function K(){return W}function L(a,b){return void 0===b?O[a]:void(("height"==a||"contentHeight"==a||"aspectRatio"==a)&&(O[a]=b,j(!0)))}function M(a,b){var c=Array.prototype.slice.call(arguments,2);return b=b||aa,this.triggerWith(a,b,c),O[a]?O[a].apply(b,c):void 0}var N=this;N.initOptions(d||{});var O=this.options;N.render=e,N.destroy=g,N.refetchEvents=n,N.reportEvents=s,N.reportEventChange=t,N.rerenderEvents=o,N.changeView=i,N.select=w,N.unselect=x,N.prev=y,N.next=z,N.prevYear=A,N.nextYear=B,N.today=C,N.gotoDate=D,N.incrementDate=E,N.zoomTo=F,N.getDate=G,N.getCalendar=J,N.getView=K,N.option=L,N.trigger=M;var P=V(Pa(O.lang));if(O.monthNames&&(P._months=O.monthNames),O.monthNamesShort&&(P._monthsShort=O.monthNamesShort),O.dayNames&&(P._weekdays=O.dayNames),O.dayNamesShort&&(P._weekdaysShort=O.dayNamesShort),null!=O.firstDay){var Q=V(P._week);Q.dow=O.firstDay,P._week=Q}P._fullCalendar_weekCalc=function(a){return"function"==typeof a?a:"local"===a?a:"iso"===a||"ISO"===a?"ISO":void 0}(O.weekNumberCalculation),N.defaultAllDayEventDuration=b.duration(O.defaultAllDayEventDuration),N.defaultTimedEventDuration=b.duration(O.defaultTimedEventDuration),N.moment=function(){var a;return"local"===O.timezone?(a=Ta.moment.apply(null,arguments),a.hasTime()&&a.local()):a="UTC"===O.timezone?Ta.moment.utc.apply(null,arguments):Ta.moment.parseZone.apply(null,arguments),"_locale"in a?a._locale=P:a._lang=P,a},N.getIsAmbigTimezone=function(){return"local"!==O.timezone&&"UTC"!==O.timezone},N.applyTimezone=function(a){if(!a.hasTime())return a.clone();var b,c=N.moment(a.toArray()),d=a.time()-c.time();return d&&(b=c.clone().add(d),a.time()-b.time()===0&&(c=b)),c},N.getNow=function(){var a=O.now;return"function"==typeof a&&(a=a()),N.moment(a).stripZone()},N.getEventEnd=function(a){return a.end?a.end.clone():N.getDefaultEventEnd(a.allDay,a.start)},N.getDefaultEventEnd=function(a,b){var c=b.clone();return a?c.stripTime().add(N.defaultAllDayEventDuration):c.add(N.defaultTimedEventDuration),N.getIsAmbigTimezone()&&c.stripZone(),c},N.humanizeDuration=function(a){return(a.locale||a.lang).call(a,O.lang).humanize()},Ra.call(N,O);var R,S,T,U,W,X,Y,Z,$=N.isFetchNeeded,_=N.fetchEvents,aa=c[0],ba={},ca=0,da=[];Z=null!=O.defaultDate?N.moment(O.defaultDate).stripZone():N.getNow(),N.getSuggestedViewHeight=function(){return void 0===X&&k(),X},N.isHeightAuto=function(){return"auto"===O.contentHeight||"auto"===O.height},N.freezeContentHeight=H,N.unfreezeContentHeight=I,N.initialize()}function Oa(b){a.each(zb,function(a,c){null==b[a]&&(b[a]=c(b))})}function Pa(a){var c=b.localeData||b.langData;return c.call(b,a)||c.call(b,"en")}function Qa(b,c){function d(){var b=c.header;return n=c.theme?"ui":"fc",b?o=a("<div class='fc-toolbar'/>").append(f("left")).append(f("right")).append(f("center")).append('<div class="fc-clear"/>'):void 0}function e(){o.remove(),o=a()}function f(d){var e=a('<div class="fc-'+d+'"/>'),f=c.header[d];return f&&a.each(f.split(" "),function(d){var f,g=a(),h=!0;a.each(this.split(","),function(d,e){var f,i,j,k,l,m,o,q,r,s;"title"==e?(g=g.add(a("<h2>&nbsp;</h2>")),h=!1):((f=(b.options.customButtons||{})[e])?(j=function(a){f.click&&f.click.call(s[0],a)},k="",l=f.text):(i=b.getViewSpec(e))?(j=function(){b.changeView(e)},p.push(e),k=i.buttonTextOverride,l=i.buttonTextDefault):b[e]&&(j=function(){b[e]()},k=(b.overrides.buttonText||{})[e],l=c.buttonText[e]),j&&(m=f?f.themeIcon:c.themeButtonIcons[e],o=f?f.icon:c.buttonIcons[e],q=k?aa(k):m&&c.theme?"<span class='ui-icon ui-icon-"+m+"'></span>":o&&!c.theme?"<span class='fc-icon fc-icon-"+o+"'></span>":aa(l),r=["fc-"+e+"-button",n+"-button",n+"-state-default"],s=a('<button type="button" class="'+r.join(" ")+'">'+q+"</button>").click(function(a){s.hasClass(n+"-state-disabled")||(j(a),(s.hasClass(n+"-state-active")||s.hasClass(n+"-state-disabled"))&&s.removeClass(n+"-state-hover"))}).mousedown(function(){s.not("."+n+"-state-active").not("."+n+"-state-disabled").addClass(n+"-state-down")}).mouseup(function(){s.removeClass(n+"-state-down")}).hover(function(){s.not("."+n+"-state-active").not("."+n+"-state-disabled").addClass(n+"-state-hover")},function(){s.removeClass(n+"-state-hover").removeClass(n+"-state-down")}),g=g.add(s)))}),h&&g.first().addClass(n+"-corner-left").end().last().addClass(n+"-corner-right").end(),g.length>1?(f=a("<div/>"),h&&f.addClass("fc-button-group"),f.append(g),e.append(f)):e.append(g)}),e}function g(a){o.find("h2").text(a)}function h(a){o.find(".fc-"+a+"-button").addClass(n+"-state-active")}function i(a){o.find(".fc-"+a+"-button").removeClass(n+"-state-active")}function j(a){o.find(".fc-"+a+"-button").attr("disabled","disabled").addClass(n+"-state-disabled")}function k(a){o.find(".fc-"+a+"-button").removeAttr("disabled").removeClass(n+"-state-disabled")}function l(){return p}var m=this;m.render=d,m.removeElement=e,m.updateTitle=g,m.activateButton=h,m.deactivateButton=i,m.disableButton=j,m.enableButton=k,m.getViewsWithButtons=l;var n,o=a(),p=[]}function Ra(c){function d(a,b){return!I||I>a||b>M}function e(a,b){I=a,M=b,S=[];var c=++Q,d=P.length;R=d;for(var e=0;d>e;e++)f(P[e],c)}function f(b,c){g(b,function(d){var e,f,g,h=a.isArray(b.events);if(c==Q){if(d)for(e=0;e<d.length;e++)f=d[e],g=h?f:s(f,b),g&&S.push.apply(S,w(g));R--,R||N(S)}})}function g(b,d){var e,f,h=Ta.sourceFetchers;for(e=0;e<h.length;e++){if(f=h[e].call(H,b,I.clone(),M.clone(),c.timezone,d),f===!0)return;if("object"==typeof f)return void g(f,d)}var i=b.events;if(i)a.isFunction(i)?(H.pushLoading(),i.call(H,I.clone(),M.clone(),c.timezone,function(a){d(a),H.popLoading()})):a.isArray(i)?d(i):d();else{var j=b.url;if(j){var k,l=b.success,m=b.error,n=b.complete;k=a.isFunction(b.data)?b.data():b.data;var o=a.extend({},k||{}),p=_(b.startParam,c.startParam),q=_(b.endParam,c.endParam),r=_(b.timezoneParam,c.timezoneParam);p&&(o[p]=I.format()),q&&(o[q]=M.format()),c.timezone&&"local"!=c.timezone&&(o[r]=c.timezone),H.pushLoading(),a.ajax(a.extend({},Ab,b,{data:o,success:function(b){b=b||[];var c=$(l,this,arguments);a.isArray(c)&&(b=c),d(b)},error:function(){$(m,this,arguments),d()},complete:function(){$(n,this,arguments),H.popLoading()}}))}else d()}}function h(a){var b=i(a);b&&(P.push(b),R++,f(b,Q))}function i(b){var c,d,e=Ta.sourceNormalizers;if(a.isFunction(b)||a.isArray(b)?c={events:b}:"string"==typeof b?c={url:b}:"object"==typeof b&&(c=a.extend({},b)),c){for(c.className?"string"==typeof c.className&&(c.className=c.className.split(/\s+/)):c.className=[],a.isArray(c.events)&&(c.origArray=c.events,c.events=a.map(c.events,function(a){return s(a,c)})),d=0;d<e.length;d++)e[d].call(H,c);return c}}function j(b){P=a.grep(P,function(a){return!k(a,b)}),S=a.grep(S,function(a){return!k(a.source,b)}),N(S)}function k(a,b){return a&&b&&l(a)==l(b)}function l(a){return("object"==typeof a?a.origArray||a.googleCalendarId||a.url||a.events:null)||a}function m(a){a.start=H.moment(a.start),a.end?a.end=H.moment(a.end):a.end=null,x(a,n(a)),N(S)}function n(b){var c={};return a.each(b,function(a,b){o(a)&&void 0!==b&&Z(b)&&(c[a]=b)}),c}function o(a){return!/^_|^(id|allDay|start|end)$/.test(a)}function p(a,b){var c,d,e,f=s(a);if(f){for(c=w(f),d=0;d<c.length;d++)e=c[d],e.source||(b&&(O.events.push(e),e.source=O),S.push(e));return N(S),c}return[]}function q(b){var c,d;for(null==b?b=function(){return!0}:a.isFunction(b)||(c=b+"",b=function(a){return a._id==c}),S=a.grep(S,b,!0),d=0;d<P.length;d++)a.isArray(P[d].events)&&(P[d].events=a.grep(P[d].events,b,!0));N(S)}function r(b){return a.isFunction(b)?a.grep(S,b):null!=b?(b+="",a.grep(S,function(a){return a._id==b})):S}function s(d,e){var f,g,h,i={};if(c.eventDataTransform&&(d=c.eventDataTransform(d)),e&&e.eventDataTransform&&(d=e.eventDataTransform(d)),a.extend(i,d),e&&(i.source=e),i._id=d._id||(void 0===d.id?"_fc"+Bb++:d.id+""),d.className?"string"==typeof d.className?i.className=d.className.split(/\s+/):i.className=d.className:i.className=[],f=d.start||d.date,g=d.end,T(f)&&(f=b.duration(f)),T(g)&&(g=b.duration(g)),d.dow||b.isDuration(f)||b.isDuration(g))i.start=f?b.duration(f):null,i.end=g?b.duration(g):null,i._recurring=!0;else{if(f&&(f=H.moment(f),!f.isValid()))return!1;g&&(g=H.moment(g),g.isValid()||(g=null)),h=d.allDay,void 0===h&&(h=_(e?e.allDayDefault:void 0,c.allDayDefault)),t(f,g,h,i)}return i}function t(a,b,c,d){d.start=a,d.end=b,d.allDay=c,u(d),Sa(d)}function u(a){v(a),a.end&&!a.end.isAfter(a.start)&&(a.end=null),a.end||(c.forceEventDuration?a.end=H.getDefaultEventEnd(a.allDay,a.start):a.end=null)}function v(a){null==a.allDay&&(a.allDay=!(a.start.hasTime()||a.end&&a.end.hasTime())),a.allDay?(a.start.stripTime(),a.end&&a.end.stripTime()):(a.start.hasTime()||(a.start=H.applyTimezone(a.start.time(0))),a.end&&!a.end.hasTime()&&(a.end=H.applyTimezone(a.end.time(0))))}function w(b,c,d){var e,f,g,h,i,j,k,l,m,n=[];if(c=c||I,d=d||M,b)if(b._recurring){if(f=b.dow)for(e={},g=0;g<f.length;g++)e[f[g]]=!0;for(h=c.clone().stripTime();h.isBefore(d);)(!e||e[h.day()])&&(i=b.start,j=b.end,k=h.clone(),l=null,i&&(k=k.time(i)),j&&(l=h.clone().time(j)),m=a.extend({},b),t(k,l,!i&&!j,m),n.push(m)),h.add(1,"days")}else n.push(b);return n}function x(b,c,d){function e(a,b){return d?L(a,b,d):c.allDay?K(a,b):J(a,b)}var f,g,h,i,j,k,l={};return c=c||{},c.start||(c.start=b.start.clone()),void 0===c.end&&(c.end=b.end?b.end.clone():null),null==c.allDay&&(c.allDay=b.allDay),u(c),f={start:b._start.clone(),end:b._end?b._end.clone():H.getDefaultEventEnd(b._allDay,b._start),allDay:c.allDay},u(f),g=null!==b._end&&null===c.end,h=e(c.start,f.start),c.end?(i=e(c.end,f.end),j=i.subtract(h)):j=null,a.each(c,function(a,b){o(a)&&void 0!==b&&(l[a]=b)}),k=y(r(b._id),g,c.allDay,h,j,l),{dateDelta:h,durationDelta:j,undo:k}}function y(b,c,d,e,f,g){var h=H.getIsAmbigTimezone(),i=[];return e&&!e.valueOf()&&(e=null),f&&!f.valueOf()&&(f=null),a.each(b,function(b,j){var k,l;k={start:j.start.clone(),end:j.end?j.end.clone():null,allDay:j.allDay},a.each(g,function(a){k[a]=j[a]}),l={start:j._start,end:j._end,allDay:d},u(l),c?l.end=null:f&&!l.end&&(l.end=H.getDefaultEventEnd(l.allDay,l.start)),e&&(l.start.add(e),l.end&&l.end.add(e)),f&&l.end.add(f),h&&!l.allDay&&(e||f)&&(l.start.stripZone(),l.end&&l.end.stripZone()),a.extend(j,g,l),Sa(j),i.push(function(){a.extend(j,k),Sa(j)})}),function(){for(var a=0;a<i.length;a++)i[a]()}}function z(b){var d,e=c.businessHours,f={className:"fc-nonbusiness",start:"09:00",end:"17:00",dow:[1,2,3,4,5],rendering:"inverse-background"},g=H.getView();return e&&(d=a.extend({},f,"object"==typeof e?e:{})),d?(b&&(d.start=null,d.end=null),w(s(d),g.start,g.end)):[]}function A(a,b){var d=b.source||{},e=_(b.constraint,d.constraint,c.eventConstraint),f=_(b.overlap,d.overlap,c.eventOverlap);return D(a,e,f,b)}function B(b,c,d){var e,f;return d&&(e=a.extend({},d,c),f=w(s(e))[0]),f?A(b,f):C(b)}function C(a){return D(a,c.selectConstraint,c.selectOverlap)}function D(a,b,c,d){var e,f,g,h,i,j;if(null!=b){for(e=E(b),f=!1,h=0;h<e.length;h++)if(F(e[h],a)){f=!0;break}if(!f)return!1}for(g=H.getPeerEvents(a,d),h=0;h<g.length;h++)if(i=g[h],G(i,a)){if(c===!1)return!1;if("function"==typeof c&&!c(i,d))return!1;if(d){if(j=_(i.overlap,(i.source||{}).overlap),j===!1)return!1;if("function"==typeof j&&!j(d,i))return!1}}return!0}function E(a){return"businessHours"===a?z():"object"==typeof a?w(s(a)):r(a)}function F(a,b){var c=a.start.clone().stripZone(),d=H.getEventEnd(a).stripZone();return b.start>=c&&b.end<=d}function G(a,b){var c=a.start.clone().stripZone(),d=H.getEventEnd(a).stripZone();return b.start<d&&b.end>c}var H=this;H.isFetchNeeded=d,H.fetchEvents=e,H.addEventSource=h,H.removeEventSource=j,H.updateEvent=m,H.renderEvent=p,H.removeEvents=q,H.clientEvents=r,H.mutateEvent=x,H.normalizeEventDates=u,H.normalizeEventTimes=v;var I,M,N=H.reportEvents,O={events:[]},P=[O],Q=0,R=0,S=[];a.each((c.events?[c.events]:[]).concat(c.eventSources||[]),function(a,b){var c=i(b);c&&P.push(c)}),H.getBusinessHoursEvents=z,H.isEventSpanAllowed=A,H.isExternalSpanAllowed=B,H.isSelectionSpanAllowed=C,H.getEventCache=function(){return S}}function Sa(a){a._allDay=a.allDay,a._start=a.start.clone(),a._end=a.end?a.end.clone():null}var Ta=a.fullCalendar={version:"2.7.0",internalApiVersion:3},Ua=Ta.views={};Ta.isTouch="ontouchstart"in document,a.fn.fullCalendar=function(b){var c=Array.prototype.slice.call(arguments,1),d=this;return this.each(function(e,f){var g,h=a(f),i=h.data("fullCalendar");"string"==typeof b?i&&a.isFunction(i[b])&&(g=i[b].apply(i,c),e||(d=g),"destroy"===b&&h.removeData("fullCalendar")):i||(i=new vb(h,b),h.data("fullCalendar",i),i.render())}),d};var Va=["header","buttonText","buttonIcons","themeButtonIcons"];Ta.intersectRanges=I,Ta.applyAll=$,Ta.debounce=ha,Ta.isInt=fa,Ta.htmlEscape=aa,Ta.cssToStr=ca,Ta.proxy=ga,Ta.capitaliseFirstLetter=da,Ta.getOuterRect=n,Ta.getClientRect=o,Ta.getContentRect=p,Ta.getScrollbarWidths=q;var Wa=null;Ta.preventDefault=z,Ta.intersectRects=A,Ta.parseFieldSpecs=E,Ta.compareByFieldSpecs=F,Ta.compareByFieldSpec=G,Ta.flexibleCompare=H,Ta.computeIntervalUnit=M,Ta.divideRangeByDuration=O,Ta.divideDurationByDuration=P,Ta.multiplyDuration=Q,Ta.durationHasTime=R;var Xa=["sun","mon","tue","wed","thu","fri","sat"],Ya=["year","month","week","day","hour","minute","second","millisecond"];Ta.log=function(){var a=window.console;return a&&a.log?a.log.apply(a,arguments):void 0},Ta.warn=function(){var a=window.console;return a&&a.warn?a.warn.apply(a,arguments):Ta.log.apply(Ta,arguments)};var Za,$a,_a,ab={}.hasOwnProperty,bb=/^\s*\d{4}-\d\d$/,cb=/^\s*\d{4}-(?:(\d\d-\d\d)|(W\d\d$)|(W\d\d-\d)|(\d\d\d))((T| )(\d\d(:\d\d(:\d\d(\.\d+)?)?)?)?)?$/,db=b.fn,eb=a.extend({},db);Ta.moment=function(){return ia(arguments)},Ta.moment.utc=function(){var a=ia(arguments,!0);return a.hasTime()&&a.utc(),a},Ta.moment.parseZone=function(){return ia(arguments,!0,!0)},db.clone=function(){var a=eb.clone.apply(this,arguments);return ka(this,a),this._fullCalendar&&(a._fullCalendar=!0),a},db.week=db.weeks=function(a){var b=(this._locale||this._lang)._fullCalendar_weekCalc;return null==a&&"function"==typeof b?b(this):"ISO"===b?eb.isoWeek.apply(this,arguments):eb.week.apply(this,arguments)},db.time=function(a){if(!this._fullCalendar)return eb.time.apply(this,arguments);if(null==a)return b.duration({hours:this.hours(),minutes:this.minutes(),seconds:this.seconds(),milliseconds:this.milliseconds()});this._ambigTime=!1,b.isDuration(a)||b.isMoment(a)||(a=b.duration(a));var c=0;return b.isDuration(a)&&(c=24*Math.floor(a.asDays())),this.hours(c+a.hours()).minutes(a.minutes()).seconds(a.seconds()).milliseconds(a.milliseconds())},db.stripTime=function(){var a;return this._ambigTime||(a=this.toArray(),this.utc(),$a(this,a.slice(0,3)),this._ambigTime=!0,this._ambigZone=!0),this},db.hasTime=function(){return!this._ambigTime},db.stripZone=function(){var a,b;return this._ambigZone||(a=this.toArray(),b=this._ambigTime,this.utc(),$a(this,a),this._ambigTime=b||!1,this._ambigZone=!0),this},db.hasZone=function(){return!this._ambigZone},db.local=function(){var a=this.toArray(),b=this._ambigZone;return eb.local.apply(this,arguments),this._ambigTime=!1,this._ambigZone=!1,b&&_a(this,a),this},db.utc=function(){return eb.utc.apply(this,arguments),this._ambigTime=!1,this._ambigZone=!1,this},a.each(["zone","utcOffset"],function(a,b){eb[b]&&(db[b]=function(a){return null!=a&&(this._ambigTime=!1,this._ambigZone=!1),eb[b].apply(this,arguments)})}),db.format=function(){return this._fullCalendar&&arguments[0]?na(this,arguments[0]):this._ambigTime?ma(this,"YYYY-MM-DD"):this._ambigZone?ma(this,"YYYY-MM-DD[T]HH:mm:ss"):eb.format.apply(this,arguments)},db.toISOString=function(){return this._ambigTime?ma(this,"YYYY-MM-DD"):this._ambigZone?ma(this,"YYYY-MM-DD[T]HH:mm:ss"):eb.toISOString.apply(this,arguments)},db.isWithin=function(a,b){var c=ja([this,a,b]);return c[0]>=c[1]&&c[0]<c[2]},db.isSame=function(a,b){var c;return this._fullCalendar?b?(c=ja([this,a],!0),eb.isSame.call(c[0],c[1],b)):(a=Ta.moment.parseZone(a),eb.isSame.call(this,a)&&Boolean(this._ambigTime)===Boolean(a._ambigTime)&&Boolean(this._ambigZone)===Boolean(a._ambigZone)):eb.isSame.apply(this,arguments)},a.each(["isBefore","isAfter"],function(a,b){db[b]=function(a,c){var d;return this._fullCalendar?(d=ja([this,a]),eb[b].call(d[0],d[1],c)):eb[b].apply(this,arguments)}}),Za="_d"in b()&&"updateOffset"in b,$a=Za?function(a,c){a._d.setTime(Date.UTC.apply(Date,c)),b.updateOffset(a,!1)}:la,_a=Za?function(a,c){a._d.setTime(+new Date(c[0]||0,c[1]||0,c[2]||0,c[3]||0,c[4]||0,c[5]||0,c[6]||0)),b.updateOffset(a,!1)}:la;var fb={t:function(a){return ma(a,"a").charAt(0)},T:function(a){return ma(a,"A").charAt(0)}};Ta.formatRange=qa;var gb={Y:"year",M:"month",D:"day",d:"day",A:"second",a:"second",T:"second",t:"second",H:"second",h:"second",m:"second",s:"second"},hb={};Ta.Class=va,va.extend=function(){var a,b,c=arguments.length;for(a=0;c>a;a++)b=arguments[a],c-1>a&&xa(this,b);return wa(this,b||{})},va.mixin=function(a){xa(this,a)};var ib=Ta.EmitterMixin={callbackHash:null,on:function(a,b){return this.loopCallbacks(a,"add",[b]),this},off:function(a,b){return this.loopCallbacks(a,"remove",[b]),this},trigger:function(a){var b=Array.prototype.slice.call(arguments,1);return this.triggerWith(a,this,b),this},triggerWith:function(a,b,c){return this.loopCallbacks(a,"fireWith",[b,c]),this},loopCallbacks:function(a,b,c){var d,e,f,g=a.split(".");for(d=0;d<g.length;d++)e=g[d],e&&(f=this.ensureCallbackObj((d?".":"")+e),f[b].apply(f,c))},ensureCallbackObj:function(b){return this.callbackHash||(this.callbackHash={}),this.callbackHash[b]||(this.callbackHash[b]=a.Callbacks()),this.callbackHash[b]}},jb=Ta.ListenerMixin=function(){var b=0,c={listenerId:null,listenTo:function(b,c,d){if("object"==typeof c)for(var e in c)c.hasOwnProperty(e)&&this.listenTo(b,e,c[e]);else"string"==typeof c&&b.on(c+"."+this.getListenerNamespace(),a.proxy(d,this))},stopListeningTo:function(a,b){a.off((b||"")+"."+this.getListenerNamespace())},getListenerNamespace:function(){return null==this.listenerId&&(this.listenerId=b++),"_listener"+this.listenerId}};return c}(),kb=va.extend(jb,{isHidden:!0,options:null,el:null,margin:10,constructor:function(a){this.options=a||{}},show:function(){this.isHidden&&(this.el||this.render(),
+this.el.show(),this.position(),this.isHidden=!1,this.trigger("show"))},hide:function(){this.isHidden||(this.el.hide(),this.isHidden=!0,this.trigger("hide"))},render:function(){var b=this,c=this.options;this.el=a('<div class="fc-popover"/>').addClass(c.className||"").css({top:0,left:0}).append(c.content).appendTo(c.parentEl),this.el.on("click",".fc-close",function(){b.hide()}),c.autoHide&&this.listenTo(a(document),"mousedown",this.documentMousedown)},documentMousedown:function(b){this.el&&!a(b.target).closest(this.el).length&&this.hide()},removeElement:function(){this.hide(),this.el&&(this.el.remove(),this.el=null),this.stopListeningTo(a(document),"mousedown")},position:function(){var b,c,d,e,f,g=this.options,h=this.el.offsetParent().offset(),i=this.el.outerWidth(),j=this.el.outerHeight(),k=a(window),l=m(this.el);e=g.top||0,f=void 0!==g.left?g.left:void 0!==g.right?g.right-i:0,l.is(window)||l.is(document)?(l=k,b=0,c=0):(d=l.offset(),b=d.top,c=d.left),b+=k.scrollTop(),c+=k.scrollLeft(),g.viewportConstrain!==!1&&(e=Math.min(e,b+l.outerHeight()-j-this.margin),e=Math.max(e,b+this.margin),f=Math.min(f,c+l.outerWidth()-i-this.margin),f=Math.max(f,c+this.margin)),this.el.css({top:e-h.top,left:f-h.left})},trigger:function(a){this.options[a]&&this.options[a].apply(this,Array.prototype.slice.call(arguments,1))}}),lb=Ta.CoordCache=va.extend({els:null,forcedOffsetParentEl:null,origin:null,boundingRect:null,isHorizontal:!1,isVertical:!1,lefts:null,rights:null,tops:null,bottoms:null,constructor:function(b){this.els=a(b.els),this.isHorizontal=b.isHorizontal,this.isVertical=b.isVertical,this.forcedOffsetParentEl=b.offsetParent?a(b.offsetParent):null},build:function(){var a=this.forcedOffsetParentEl||this.els.eq(0).offsetParent();this.origin=a.offset(),this.boundingRect=this.queryBoundingRect(),this.isHorizontal&&this.buildElHorizontals(),this.isVertical&&this.buildElVerticals()},clear:function(){this.origin=null,this.boundingRect=null,this.lefts=null,this.rights=null,this.tops=null,this.bottoms=null},ensureBuilt:function(){this.origin||this.build()},queryBoundingRect:function(){var a=m(this.els.eq(0));return a.is(document)?void 0:o(a)},buildElHorizontals:function(){var b=[],c=[];this.els.each(function(d,e){var f=a(e),g=f.offset().left,h=f.outerWidth();b.push(g),c.push(g+h)}),this.lefts=b,this.rights=c},buildElVerticals:function(){var b=[],c=[];this.els.each(function(d,e){var f=a(e),g=f.offset().top,h=f.outerHeight();b.push(g),c.push(g+h)}),this.tops=b,this.bottoms=c},getHorizontalIndex:function(a){this.ensureBuilt();var b,c=this.boundingRect,d=this.lefts,e=this.rights,f=d.length;if(!c||a>=c.left&&a<c.right)for(b=0;f>b;b++)if(a>=d[b]&&a<e[b])return b},getVerticalIndex:function(a){this.ensureBuilt();var b,c=this.boundingRect,d=this.tops,e=this.bottoms,f=d.length;if(!c||a>=c.top&&a<c.bottom)for(b=0;f>b;b++)if(a>=d[b]&&a<e[b])return b},getLeftOffset:function(a){return this.ensureBuilt(),this.lefts[a]},getLeftPosition:function(a){return this.ensureBuilt(),this.lefts[a]-this.origin.left},getRightOffset:function(a){return this.ensureBuilt(),this.rights[a]},getRightPosition:function(a){return this.ensureBuilt(),this.rights[a]-this.origin.left},getWidth:function(a){return this.ensureBuilt(),this.rights[a]-this.lefts[a]},getTopOffset:function(a){return this.ensureBuilt(),this.tops[a]},getTopPosition:function(a){return this.ensureBuilt(),this.tops[a]-this.origin.top},getBottomOffset:function(a){return this.ensureBuilt(),this.bottoms[a]},getBottomPosition:function(a){return this.ensureBuilt(),this.bottoms[a]-this.origin.top},getHeight:function(a){return this.ensureBuilt(),this.bottoms[a]-this.tops[a]}}),mb=Ta.DragListener=va.extend(jb,{options:null,subjectEl:null,subjectHref:null,originX:null,originY:null,scrollEl:null,isInteracting:!1,isDistanceSurpassed:!1,isDelayEnded:!1,isDragging:!1,isTouch:!1,delay:null,delayTimeoutId:null,minDistance:null,constructor:function(a){this.options=a||{}},startInteraction:function(b,c){var d=x(b);if("mousedown"===b.type){if(!u(b))return;b.preventDefault()}this.isInteracting||(c=c||{},this.delay=_(c.delay,this.options.delay,0),this.minDistance=_(c.distance,this.options.distance,0),this.subjectEl=this.options.subjectEl,this.isInteracting=!0,this.isTouch=d,this.isDelayEnded=!1,this.isDistanceSurpassed=!1,this.originX=v(b),this.originY=w(b),this.scrollEl=m(a(b.target)),this.bindHandlers(),this.initAutoScroll(),this.handleInteractionStart(b),this.startDelay(b),this.minDistance||this.handleDistanceSurpassed(b))},handleInteractionStart:function(a){this.trigger("interactionStart",a)},endInteraction:function(a){this.isInteracting&&(this.endDrag(a),this.delayTimeoutId&&(clearTimeout(this.delayTimeoutId),this.delayTimeoutId=null),this.destroyAutoScroll(),this.unbindHandlers(),this.isInteracting=!1,this.handleInteractionEnd(a))},handleInteractionEnd:function(a){this.trigger("interactionEnd",a)},bindHandlers:function(){var b=this,c=1;this.isTouch?(this.listenTo(a(document),{touchmove:this.handleTouchMove,touchend:this.endInteraction,touchcancel:this.endInteraction,touchstart:function(a){c?c--:b.endInteraction(a)}}),this.scrollEl&&this.listenTo(this.scrollEl,"scroll",this.handleTouchScroll)):this.listenTo(a(document),{mousemove:this.handleMouseMove,mouseup:this.endInteraction}),this.listenTo(a(document),{selectstart:z,contextmenu:z})},unbindHandlers:function(){this.stopListeningTo(a(document)),this.scrollEl&&this.stopListeningTo(this.scrollEl)},startDrag:function(a,b){this.startInteraction(a,b),this.isDragging||(this.isDragging=!0,this.handleDragStart(a))},handleDragStart:function(a){this.trigger("dragStart",a),this.initHrefHack()},handleMove:function(a){var b,c=v(a)-this.originX,d=w(a)-this.originY,e=this.minDistance;this.isDistanceSurpassed||(b=c*c+d*d,b>=e*e&&this.handleDistanceSurpassed(a)),this.isDragging&&this.handleDrag(c,d,a)},handleDrag:function(a,b,c){this.trigger("drag",a,b,c),this.updateAutoScroll(c)},endDrag:function(a){this.isDragging&&(this.isDragging=!1,this.handleDragEnd(a))},handleDragEnd:function(a){this.trigger("dragEnd",a),this.destroyHrefHack()},startDelay:function(a){var b=this;this.delay?this.delayTimeoutId=setTimeout(function(){b.handleDelayEnd(a)},this.delay):this.handleDelayEnd(a)},handleDelayEnd:function(a){this.isDelayEnded=!0,this.isDistanceSurpassed&&this.startDrag(a)},handleDistanceSurpassed:function(a){this.isDistanceSurpassed=!0,this.isDelayEnded&&this.startDrag(a)},handleTouchMove:function(a){this.isDragging&&a.preventDefault(),this.handleMove(a)},handleMouseMove:function(a){this.handleMove(a)},handleTouchScroll:function(a){this.isDragging||this.endInteraction(a)},initHrefHack:function(){var a=this.subjectEl;(this.subjectHref=a?a.attr("href"):null)&&a.removeAttr("href")},destroyHrefHack:function(){var a=this.subjectEl,b=this.subjectHref;setTimeout(function(){b&&a.attr("href",b)},0)},trigger:function(a){this.options[a]&&this.options[a].apply(this,Array.prototype.slice.call(arguments,1)),this["_"+a]&&this["_"+a].apply(this,Array.prototype.slice.call(arguments,1))}});mb.mixin({isAutoScroll:!1,scrollBounds:null,scrollTopVel:null,scrollLeftVel:null,scrollIntervalId:null,scrollSensitivity:30,scrollSpeed:200,scrollIntervalMs:50,initAutoScroll:function(){var a=this.scrollEl;this.isAutoScroll=this.options.scroll&&a&&!a.is(window)&&!a.is(document),this.isAutoScroll&&this.listenTo(a,"scroll",ha(this.handleDebouncedScroll,100))},destroyAutoScroll:function(){this.endAutoScroll(),this.isAutoScroll&&this.stopListeningTo(this.scrollEl,"scroll")},computeScrollBounds:function(){this.isAutoScroll&&(this.scrollBounds=n(this.scrollEl))},updateAutoScroll:function(a){var b,c,d,e,f=this.scrollSensitivity,g=this.scrollBounds,h=0,i=0;g&&(b=(f-(w(a)-g.top))/f,c=(f-(g.bottom-w(a)))/f,d=(f-(v(a)-g.left))/f,e=(f-(g.right-v(a)))/f,b>=0&&1>=b?h=b*this.scrollSpeed*-1:c>=0&&1>=c&&(h=c*this.scrollSpeed),d>=0&&1>=d?i=d*this.scrollSpeed*-1:e>=0&&1>=e&&(i=e*this.scrollSpeed)),this.setScrollVel(h,i)},setScrollVel:function(a,b){this.scrollTopVel=a,this.scrollLeftVel=b,this.constrainScrollVel(),!this.scrollTopVel&&!this.scrollLeftVel||this.scrollIntervalId||(this.scrollIntervalId=setInterval(ga(this,"scrollIntervalFunc"),this.scrollIntervalMs))},constrainScrollVel:function(){var a=this.scrollEl;this.scrollTopVel<0?a.scrollTop()<=0&&(this.scrollTopVel=0):this.scrollTopVel>0&&a.scrollTop()+a[0].clientHeight>=a[0].scrollHeight&&(this.scrollTopVel=0),this.scrollLeftVel<0?a.scrollLeft()<=0&&(this.scrollLeftVel=0):this.scrollLeftVel>0&&a.scrollLeft()+a[0].clientWidth>=a[0].scrollWidth&&(this.scrollLeftVel=0)},scrollIntervalFunc:function(){var a=this.scrollEl,b=this.scrollIntervalMs/1e3;this.scrollTopVel&&a.scrollTop(a.scrollTop()+this.scrollTopVel*b),this.scrollLeftVel&&a.scrollLeft(a.scrollLeft()+this.scrollLeftVel*b),this.constrainScrollVel(),this.scrollTopVel||this.scrollLeftVel||this.endAutoScroll()},endAutoScroll:function(){this.scrollIntervalId&&(clearInterval(this.scrollIntervalId),this.scrollIntervalId=null,this.handleScrollEnd())},handleDebouncedScroll:function(){this.scrollIntervalId||this.handleScrollEnd()},handleScrollEnd:function(){}});var nb=mb.extend({component:null,origHit:null,hit:null,coordAdjust:null,constructor:function(a,b){mb.call(this,b),this.component=a},handleInteractionStart:function(a){var b,c,d,e=this.subjectEl;mb.prototype.handleInteractionStart.apply(this,arguments),this.computeCoords(),a?(c={left:v(a),top:w(a)},d=c,e&&(b=n(e),d=B(d,b)),this.origHit=this.queryHit(d.left,d.top),e&&this.options.subjectCenter&&(this.origHit&&(b=A(this.origHit,b)||b),d=C(b)),this.coordAdjust=D(d,c)):(this.origHit=null,this.coordAdjust=null)},computeCoords:function(){this.component.prepareHits(),this.computeScrollBounds()},handleDragStart:function(a){var b;mb.prototype.handleDragStart.apply(this,arguments),b=this.queryHit(v(a),w(a)),b&&this.handleHitOver(b)},handleDrag:function(a,b,c){var d;mb.prototype.handleDrag.apply(this,arguments),d=this.queryHit(v(c),w(c)),ya(d,this.hit)||(this.hit&&this.handleHitOut(),d&&this.handleHitOver(d))},handleDragEnd:function(){this.handleHitDone(),mb.prototype.handleDragEnd.apply(this,arguments)},handleHitOver:function(a){var b=ya(a,this.origHit);this.hit=a,this.trigger("hitOver",this.hit,b,this.origHit)},handleHitOut:function(){this.hit&&(this.trigger("hitOut",this.hit),this.handleHitDone(),this.hit=null)},handleHitDone:function(){this.hit&&this.trigger("hitDone",this.hit)},handleInteractionEnd:function(){mb.prototype.handleInteractionEnd.apply(this,arguments),this.origHit=null,this.hit=null,this.component.releaseHits()},handleScrollEnd:function(){mb.prototype.handleScrollEnd.apply(this,arguments),this.computeCoords()},queryHit:function(a,b){return this.coordAdjust&&(a+=this.coordAdjust.left,b+=this.coordAdjust.top),this.component.queryHit(a,b)}}),ob=va.extend(jb,{options:null,sourceEl:null,el:null,parentEl:null,top0:null,left0:null,y0:null,x0:null,topDelta:null,leftDelta:null,isFollowing:!1,isHidden:!1,isAnimating:!1,constructor:function(b,c){this.options=c=c||{},this.sourceEl=b,this.parentEl=c.parentEl?a(c.parentEl):b.parent()},start:function(b){this.isFollowing||(this.isFollowing=!0,this.y0=w(b),this.x0=v(b),this.topDelta=0,this.leftDelta=0,this.isHidden||this.updatePosition(),x(b)?this.listenTo(a(document),"touchmove",this.handleMove):this.listenTo(a(document),"mousemove",this.handleMove))},stop:function(b,c){function d(){this.isAnimating=!1,e.removeElement(),this.top0=this.left0=null,c&&c()}var e=this,f=this.options.revertDuration;this.isFollowing&&!this.isAnimating&&(this.isFollowing=!1,this.stopListeningTo(a(document)),b&&f&&!this.isHidden?(this.isAnimating=!0,this.el.animate({top:this.top0,left:this.left0},{duration:f,complete:d})):d())},getEl:function(){var a=this.el;return a||(this.sourceEl.width(),a=this.el=this.sourceEl.clone().addClass(this.options.additionalClass||"").css({position:"absolute",visibility:"",display:this.isHidden?"none":"",margin:0,right:"auto",bottom:"auto",width:this.sourceEl.width(),height:this.sourceEl.height(),opacity:this.options.opacity||"",zIndex:this.options.zIndex}),a.addClass("fc-unselectable"),a.appendTo(this.parentEl)),a},removeElement:function(){this.el&&(this.el.remove(),this.el=null)},updatePosition:function(){var a,b;this.getEl(),null===this.top0&&(this.sourceEl.width(),a=this.sourceEl.offset(),b=this.el.offsetParent().offset(),this.top0=a.top-b.top,this.left0=a.left-b.left),this.el.css({top:this.top0+this.topDelta,left:this.left0+this.leftDelta})},handleMove:function(a){this.topDelta=w(a)-this.y0,this.leftDelta=v(a)-this.x0,this.isHidden||this.updatePosition()},hide:function(){this.isHidden||(this.isHidden=!0,this.el&&this.el.hide())},show:function(){this.isHidden&&(this.isHidden=!1,this.updatePosition(),this.getEl().show())}}),pb=Ta.Grid=va.extend(jb,{view:null,isRTL:null,start:null,end:null,el:null,elsByFill:null,eventTimeFormat:null,displayEventTime:null,displayEventEnd:null,minResizeDuration:null,largeUnit:null,dayDragListener:null,segDragListener:null,segResizeListener:null,externalDragListener:null,constructor:function(a){this.view=a,this.isRTL=a.opt("isRTL"),this.elsByFill={}},computeEventTimeFormat:function(){return this.view.opt("smallTimeFormat")},computeDisplayEventTime:function(){return!0},computeDisplayEventEnd:function(){return!0},setRange:function(a){this.start=a.start.clone(),this.end=a.end.clone(),this.rangeUpdated(),this.processRangeOptions()},rangeUpdated:function(){},processRangeOptions:function(){var a,b,c=this.view;this.eventTimeFormat=c.opt("eventTimeFormat")||c.opt("timeFormat")||this.computeEventTimeFormat(),a=c.opt("displayEventTime"),null==a&&(a=this.computeDisplayEventTime()),b=c.opt("displayEventEnd"),null==b&&(b=this.computeDisplayEventEnd()),this.displayEventTime=a,this.displayEventEnd=b},spanToSegs:function(a){},diffDates:function(a,b){return this.largeUnit?L(a,b,this.largeUnit):J(a,b)},prepareHits:function(){},releaseHits:function(){},queryHit:function(a,b){},getHitSpan:function(a){},getHitEl:function(a){},setElement:function(a){this.el=a,y(a),this.view.calendar.isTouch?this.bindDayHandler("touchstart",this.dayTouchStart):this.bindDayHandler("mousedown",this.dayMousedown),this.bindSegHandlers(),this.bindGlobalHandlers()},bindDayHandler:function(b,c){var d=this;this.el.on(b,function(b){return a(b.target).is(".fc-event-container *, .fc-more")||a(b.target).closest(".fc-popover").length?void 0:c.call(d,b)})},removeElement:function(){this.unbindGlobalHandlers(),this.clearDragListeners(),this.el.remove()},renderSkeleton:function(){},renderDates:function(){},unrenderDates:function(){},bindGlobalHandlers:function(){this.listenTo(a(document),{dragstart:this.externalDragStart,sortstart:this.externalDragStart})},unbindGlobalHandlers:function(){this.stopListeningTo(a(document))},dayMousedown:function(a){this.clearDragListeners(),this.buildDayDragListener().startInteraction(a,{})},dayTouchStart:function(a){this.clearDragListeners(),this.buildDayDragListener().startInteraction(a,{delay:this.view.opt("longPressDelay")})},buildDayDragListener:function(){var a,b,c=this,d=this.view,e=d.opt("selectable"),f=this.dayDragListener=new nb(this,{scroll:d.opt("dragScroll"),dragStart:function(){d.unselect()},hitOver:function(d,f,h){h&&(a=f?d:null,e&&(b=c.computeSelection(c.getHitSpan(h),c.getHitSpan(d)),b?c.renderSelection(b):b===!1&&g()))},hitOut:function(){a=null,b=null,c.unrenderSelection(),h()},interactionEnd:function(e){a&&d.triggerDayClick(c.getHitSpan(a),c.getHitEl(a),e),b&&d.reportSelection(b,e),h(),c.dayDragListener=null}});return f},clearDragListeners:function(){this.dayDragListener&&this.dayDragListener.endInteraction(),this.segDragListener&&this.segDragListener.endInteraction(),this.segResizeListener&&this.segResizeListener.endInteraction(),this.externalDragListener&&this.externalDragListener.endInteraction()},renderEventLocationHelper:function(a,b){var c=this.fabricateHelperEvent(a,b);return this.renderHelper(c,b)},fabricateHelperEvent:function(a,b){var c=b?V(b.event):{};return c.start=a.start.clone(),c.end=a.end?a.end.clone():null,c.allDay=null,this.view.calendar.normalizeEventDates(c),c.className=(c.className||[]).concat("fc-helper"),b||(c.editable=!1),c},renderHelper:function(a,b){},unrenderHelper:function(){},renderSelection:function(a){this.renderHighlight(a)},unrenderSelection:function(){this.unrenderHighlight()},computeSelection:function(a,b){var c=this.computeSelectionSpan(a,b);return c&&!this.view.calendar.isSelectionSpanAllowed(c)?!1:c},computeSelectionSpan:function(a,b){var c=[a.start,a.end,b.start,b.end];return c.sort(ea),{start:c[0].clone(),end:c[3].clone()}},renderHighlight:function(a){this.renderFill("highlight",this.spanToSegs(a))},unrenderHighlight:function(){this.unrenderFill("highlight")},highlightSegClasses:function(){return["fc-highlight"]},renderBusinessHours:function(){},unrenderBusinessHours:function(){},getNowIndicatorUnit:function(){},renderNowIndicator:function(a){},unrenderNowIndicator:function(){},renderFill:function(a,b){},unrenderFill:function(a){var b=this.elsByFill[a];b&&(b.remove(),delete this.elsByFill[a])},renderFillSegEls:function(b,c){var d,e=this,f=this[b+"SegEl"],g="",h=[];if(c.length){for(d=0;d<c.length;d++)g+=this.fillSegHtml(b,c[d]);a(g).each(function(b,d){var g=c[b],i=a(d);f&&(i=f.call(e,g,i)),i&&(i=a(i),i.is(e.fillSegTag)&&(g.el=i,h.push(g)))})}return h},fillSegTag:"div",fillSegHtml:function(a,b){var c=this[a+"SegClasses"],d=this[a+"SegCss"],e=c?c.call(this,b):[],f=ca(d?d.call(this,b):{});return"<"+this.fillSegTag+(e.length?' class="'+e.join(" ")+'"':"")+(f?' style="'+f+'"':"")+" />"},getDayClasses:function(a){var b=this.view,c=b.calendar.getNow(),d=["fc-"+Xa[a.day()]];return 1==b.intervalDuration.as("months")&&a.month()!=b.intervalStart.month()&&d.push("fc-other-month"),a.isSame(c,"day")?d.push("fc-today",b.highlightStateClass):c>a?d.push("fc-past"):d.push("fc-future"),d}});pb.mixin({mousedOverSeg:null,isDraggingSeg:!1,isResizingSeg:!1,isDraggingExternal:!1,segs:null,renderEvents:function(a){var b,c=[],d=[];for(b=0;b<a.length;b++)(Aa(a[b])?c:d).push(a[b]);this.segs=[].concat(this.renderBgEvents(c),this.renderFgEvents(d))},renderBgEvents:function(a){var b=this.eventsToSegs(a);return this.renderBgSegs(b)||b},renderFgEvents:function(a){var b=this.eventsToSegs(a);return this.renderFgSegs(b)||b},unrenderEvents:function(){this.handleSegMouseout(),this.clearDragListeners(),this.unrenderFgSegs(),this.unrenderBgSegs(),this.segs=null},getEventSegs:function(){return this.segs||[]},renderFgSegs:function(a){},unrenderFgSegs:function(){},renderFgSegEls:function(b,c){var d,e=this.view,f="",g=[];if(b.length){for(d=0;d<b.length;d++)f+=this.fgSegHtml(b[d],c);a(f).each(function(c,d){var f=b[c],h=e.resolveEventEl(f.event,a(d));h&&(h.data("fc-seg",f),f.el=h,g.push(f))})}return g},fgSegHtml:function(a,b){},renderBgSegs:function(a){return this.renderFill("bgEvent",a)},unrenderBgSegs:function(){this.unrenderFill("bgEvent")},bgEventSegEl:function(a,b){return this.view.resolveEventEl(a.event,b)},bgEventSegClasses:function(a){var b=a.event,c=b.source||{};return["fc-bgevent"].concat(b.className,c.className||[])},bgEventSegCss:function(a){return{"background-color":this.getSegSkinCss(a)["background-color"]}},businessHoursSegClasses:function(a){return["fc-nonbusiness","fc-bgevent"]},bindSegHandlers:function(){this.view.calendar.isTouch?this.bindSegHandler("touchstart",this.handleSegTouchStart):(this.bindSegHandler("mouseenter",this.handleSegMouseover),this.bindSegHandler("mouseleave",this.handleSegMouseout),this.bindSegHandler("mousedown",this.handleSegMousedown)),this.bindSegHandler("click",this.handleSegClick)},bindSegHandler:function(b,c){var d=this;this.el.on(b,".fc-event-container > *",function(b){var e=a(this).data("fc-seg");return!e||d.isDraggingSeg||d.isResizingSeg?void 0:c.call(d,e,b)})},handleSegClick:function(a,b){return this.view.trigger("eventClick",a.el[0],a.event,b)},handleSegMouseover:function(a,b){this.mousedOverSeg||(this.mousedOverSeg=a,this.view.trigger("eventMouseover",a.el[0],a.event,b))},handleSegMouseout:function(a,b){b=b||{},this.mousedOverSeg&&(a=a||this.mousedOverSeg,this.mousedOverSeg=null,this.view.trigger("eventMouseout",a.el[0],a.event,b))},handleSegTouchStart:function(a,b){var c,d=this.view,e=a.event,f=d.isEventSelected(e),g=d.isEventDraggable(e),h=d.isEventResizable(e),i=!1;f&&h&&(i=this.startSegResize(a,b)),i||!g&&!h||(this.clearDragListeners(),c=g?this.buildSegDragListener(a):new mb,c._dragStart=function(){f||d.selectEvent(e)},c.startInteraction(b,{delay:f?0:this.view.opt("longPressDelay")}))},handleSegMousedown:function(a,b){var c=this.startSegResize(a,b,{distance:5});!c&&this.view.isEventDraggable(a.event)&&(this.clearDragListeners(),this.buildSegDragListener(a).startInteraction(b,{distance:5}))},startSegResize:function(b,c,d){return a(c.target).is(".fc-resizer")?(this.clearDragListeners(),this.buildSegResizeListener(b,a(c.target).is(".fc-start-resizer")).startInteraction(c,d),!0):!1},buildSegDragListener:function(a){var b,c,d,e=this,f=this.view,i=f.calendar,j=a.el,k=a.event,l=this.segDragListener=new nb(f,{scroll:f.opt("dragScroll"),subjectEl:j,subjectCenter:!0,interactionStart:function(d){b=!1,c=new ob(a.el,{additionalClass:"fc-dragging",parentEl:f.el,opacity:l.isTouch?null:f.opt("dragOpacity"),revertDuration:f.opt("dragRevertDuration"),zIndex:2}),c.hide(),c.start(d)},dragStart:function(c){b=!0,e.handleSegMouseout(a,c),e.segDragStart(a,c),f.hideEvent(k)},hitOver:function(b,h,j){var m;a.hit&&(j=a.hit),d=e.computeEventDrop(j.component.getHitSpan(j),b.component.getHitSpan(b),k),d&&!i.isEventSpanAllowed(e.eventToSpan(d),k)&&(g(),d=null),d&&(m=f.renderDrag(d,a))?(m.addClass("fc-dragging"),l.isTouch||e.applyDragOpacity(m),c.hide()):c.show(),h&&(d=null)},hitOut:function(){f.unrenderDrag(),c.show(),d=null},hitDone:function(){h()},interactionEnd:function(g){c.stop(!d,function(){b&&(f.unrenderDrag(),f.showEvent(k),e.segDragStop(a,g)),d&&f.reportEventDrop(k,d,this.largeUnit,j,g)}),e.segDragListener=null}});return l},segDragStart:function(a,b){this.isDraggingSeg=!0,this.view.trigger("eventDragStart",a.el[0],a.event,b,{})},segDragStop:function(a,b){this.isDraggingSeg=!1,this.view.trigger("eventDragStop",a.el[0],a.event,b,{})},computeEventDrop:function(a,b,c){var d,e,f=this.view.calendar,g=a.start,h=b.start;return g.hasTime()===h.hasTime()?(d=this.diffDates(h,g),c.allDay&&R(d)?(e={start:c.start.clone(),end:f.getEventEnd(c),allDay:!1},f.normalizeEventTimes(e)):e={start:c.start.clone(),end:c.end?c.end.clone():null,allDay:c.allDay},e.start.add(d),e.end&&e.end.add(d)):e={start:h.clone(),end:null,allDay:!h.hasTime()},e},applyDragOpacity:function(a){var b=this.view.opt("dragOpacity");null!=b&&a.each(function(a,c){c.style.opacity=b})},externalDragStart:function(b,c){var d,e,f=this.view;f.opt("droppable")&&(d=a((c?c.item:null)||b.target),e=f.opt("dropAccept"),(a.isFunction(e)?e.call(d[0],d):d.is(e))&&(this.isDraggingExternal||this.listenToExternalDrag(d,b,c)))},listenToExternalDrag:function(a,b,c){var d,e=this,f=this.view.calendar,i=Fa(a),j=e.externalDragListener=new nb(this,{interactionStart:function(){e.isDraggingExternal=!0},hitOver:function(a){d=e.computeExternalDrop(a.component.getHitSpan(a),i),d&&!f.isExternalSpanAllowed(e.eventToSpan(d),d,i.eventProps)&&(g(),d=null),d&&e.renderDrag(d)},hitOut:function(){d=null},hitDone:function(){h(),e.unrenderDrag()},interactionEnd:function(b){d&&e.view.reportExternalDrop(i,d,a,b,c),e.isDraggingExternal=!1,e.externalDragListener=null}});j.startDrag(b)},computeExternalDrop:function(a,b){var c=this.view.calendar,d={start:c.applyTimezone(a.start),end:null};return b.startTime&&!d.start.hasTime()&&d.start.time(b.startTime),b.duration&&(d.end=d.start.clone().add(b.duration)),d},renderDrag:function(a,b){},unrenderDrag:function(){},buildSegResizeListener:function(a,b){var c,d,e=this,f=this.view,i=f.calendar,j=a.el,k=a.event,l=i.getEventEnd(k),m=this.segResizeListener=new nb(this,{scroll:f.opt("dragScroll"),subjectEl:j,interactionStart:function(){c=!1},dragStart:function(b){c=!0,e.handleSegMouseout(a,b),e.segResizeStart(a,b)},hitOver:function(c,h,j){var m=e.getHitSpan(j),n=e.getHitSpan(c);d=b?e.computeEventStartResize(m,n,k):e.computeEventEndResize(m,n,k),d&&(i.isEventSpanAllowed(e.eventToSpan(d),k)?d.start.isSame(k.start)&&d.end.isSame(l)&&(d=null):(g(),d=null)),d&&(f.hideEvent(k),e.renderEventResize(d,a))},hitOut:function(){d=null},hitDone:function(){e.unrenderEventResize(),f.showEvent(k),h()},interactionEnd:function(b){c&&e.segResizeStop(a,b),d&&f.reportEventResize(k,d,this.largeUnit,j,b),e.segResizeListener=null}});return m},segResizeStart:function(a,b){this.isResizingSeg=!0,this.view.trigger("eventResizeStart",a.el[0],a.event,b,{})},segResizeStop:function(a,b){this.isResizingSeg=!1,this.view.trigger("eventResizeStop",a.el[0],a.event,b,{})},computeEventStartResize:function(a,b,c){return this.computeEventResize("start",a,b,c)},computeEventEndResize:function(a,b,c){return this.computeEventResize("end",a,b,c)},computeEventResize:function(a,b,c,d){var e,f,g=this.view.calendar,h=this.diffDates(c[a],b[a]);return e={start:d.start.clone(),end:g.getEventEnd(d),allDay:d.allDay},e.allDay&&R(h)&&(e.allDay=!1,g.normalizeEventTimes(e)),e[a].add(h),e.start.isBefore(e.end)||(f=this.minResizeDuration||(d.allDay?g.defaultAllDayEventDuration:g.defaultTimedEventDuration),"start"==a?e.start=e.end.clone().subtract(f):e.end=e.start.clone().add(f)),e},renderEventResize:function(a,b){},unrenderEventResize:function(){},getEventTimeText:function(a,b,c){return null==b&&(b=this.eventTimeFormat),null==c&&(c=this.displayEventEnd),this.displayEventTime&&a.start.hasTime()?c&&a.end?this.view.formatRange(a,b):a.start.format(b):""},getSegClasses:function(a,b,c){var d=this.view,e=a.event,f=["fc-event",a.isStart?"fc-start":"fc-not-start",a.isEnd?"fc-end":"fc-not-end"].concat(e.className,e.source?e.source.className:[]);return b&&f.push("fc-draggable"),c&&f.push("fc-resizable"),d.isEventSelected(e)&&f.push("fc-selected"),f},getSegSkinCss:function(a){var b=a.event,c=this.view,d=b.source||{},e=b.color,f=d.color,g=c.opt("eventColor");return{"background-color":b.backgroundColor||e||d.backgroundColor||f||c.opt("eventBackgroundColor")||g,"border-color":b.borderColor||e||d.borderColor||f||c.opt("eventBorderColor")||g,color:b.textColor||d.textColor||c.opt("eventTextColor")}},eventToSegs:function(a){return this.eventsToSegs([a])},eventToSpan:function(a){return this.eventToSpans(a)[0]},eventToSpans:function(a){var b=this.eventToRange(a);return this.eventRangeToSpans(b,a)},eventsToSegs:function(b,c){var d=this,e=Da(b),f=[];return a.each(e,function(a,b){var e,g=[];for(e=0;e<b.length;e++)g.push(d.eventToRange(b[e]));if(Ba(b[0]))for(g=d.invertRanges(g),e=0;e<g.length;e++)f.push.apply(f,d.eventRangeToSegs(g[e],b[0],c));else for(e=0;e<g.length;e++)f.push.apply(f,d.eventRangeToSegs(g[e],b[e],c))}),f},eventToRange:function(a){return{start:a.start.clone().stripZone(),end:(a.end?a.end.clone():this.view.calendar.getDefaultEventEnd(null!=a.allDay?a.allDay:!a.start.hasTime(),a.start)).stripZone()}},eventRangeToSegs:function(a,b,c){var d,e=this.eventRangeToSpans(a,b),f=[];for(d=0;d<e.length;d++)f.push.apply(f,this.eventSpanToSegs(e[d],b,c));return f},eventRangeToSpans:function(b,c){return[a.extend({},b)]},eventSpanToSegs:function(a,b,c){var d,e,f=c?c(a):this.spanToSegs(a);for(d=0;d<f.length;d++)e=f[d],e.event=b,e.eventStartMS=+a.start,e.eventDurationMS=a.end-a.start;return f},invertRanges:function(a){var b,c,d=this.view,e=d.start.clone(),f=d.end.clone(),g=[],h=e;for(a.sort(Ea),b=0;b<a.length;b++)c=a[b],c.start>h&&g.push({start:h,end:c.start}),h=c.end;return f>h&&g.push({start:h,end:f}),g},sortEventSegs:function(a){a.sort(ga(this,"compareEventSegs"))},compareEventSegs:function(a,b){return a.eventStartMS-b.eventStartMS||b.eventDurationMS-a.eventDurationMS||b.event.allDay-a.event.allDay||F(a.event,b.event,this.view.eventOrderSpecs)}}),Ta.isBgEvent=Aa,Ta.dataAttrPrefix="";var qb=Ta.DayTableMixin={breakOnWeeks:!1,dayDates:null,dayIndices:null,daysPerRow:null,rowCnt:null,colCnt:null,colHeadFormat:null,updateDayTable:function(){for(var a,b,c,d=this.view,e=this.start.clone(),f=-1,g=[],h=[];e.isBefore(this.end);)d.isHiddenDay(e)?g.push(f+.5):(f++,g.push(f),h.push(e.clone())),e.add(1,"days");if(this.breakOnWeeks){for(b=h[0].day(),a=1;a<h.length&&h[a].day()!=b;a++);c=Math.ceil(h.length/a)}else c=1,a=h.length;this.dayDates=h,this.dayIndices=g,this.daysPerRow=a,this.rowCnt=c,this.updateDayTableCols()},updateDayTableCols:function(){this.colCnt=this.computeColCnt(),this.colHeadFormat=this.view.opt("columnFormat")||this.computeColHeadFormat()},computeColCnt:function(){return this.daysPerRow},getCellDate:function(a,b){return this.dayDates[this.getCellDayIndex(a,b)].clone()},getCellRange:function(a,b){var c=this.getCellDate(a,b),d=c.clone().add(1,"days");return{start:c,end:d}},getCellDayIndex:function(a,b){return a*this.daysPerRow+this.getColDayIndex(b)},getColDayIndex:function(a){return this.isRTL?this.colCnt-1-a:a},getDateDayIndex:function(a){var b=this.dayIndices,c=a.diff(this.start,"days");return 0>c?b[0]-1:c>=b.length?b[b.length-1]+1:b[c]},computeColHeadFormat:function(){return this.rowCnt>1||this.colCnt>10?"ddd":this.colCnt>1?this.view.opt("dayOfMonthFormat"):"dddd"},sliceRangeByRow:function(a){var b,c,d,e,f,g=this.daysPerRow,h=this.view.computeDayRange(a),i=this.getDateDayIndex(h.start),j=this.getDateDayIndex(h.end.clone().subtract(1,"days")),k=[];for(b=0;b<this.rowCnt;b++)c=b*g,d=c+g-1,e=Math.max(i,c),f=Math.min(j,d),e=Math.ceil(e),f=Math.floor(f),f>=e&&k.push({row:b,firstRowDayIndex:e-c,lastRowDayIndex:f-c,isStart:e===i,isEnd:f===j});return k},sliceRangeByDay:function(a){var b,c,d,e,f,g,h=this.daysPerRow,i=this.view.computeDayRange(a),j=this.getDateDayIndex(i.start),k=this.getDateDayIndex(i.end.clone().subtract(1,"days")),l=[];for(b=0;b<this.rowCnt;b++)for(c=b*h,d=c+h-1,e=c;d>=e;e++)f=Math.max(j,e),g=Math.min(k,e),f=Math.ceil(f),g=Math.floor(g),g>=f&&l.push({row:b,firstRowDayIndex:f-c,lastRowDayIndex:g-c,isStart:f===j,isEnd:g===k});return l},renderHeadHtml:function(){var a=this.view;return'<div class="fc-row '+a.widgetHeaderClass+'"><table><thead>'+this.renderHeadTrHtml()+"</thead></table></div>"},renderHeadIntroHtml:function(){return this.renderIntroHtml()},renderHeadTrHtml:function(){return"<tr>"+(this.isRTL?"":this.renderHeadIntroHtml())+this.renderHeadDateCellsHtml()+(this.isRTL?this.renderHeadIntroHtml():"")+"</tr>"},renderHeadDateCellsHtml:function(){var a,b,c=[];for(a=0;a<this.colCnt;a++)b=this.getCellDate(0,a),c.push(this.renderHeadDateCellHtml(b));return c.join("")},renderHeadDateCellHtml:function(a,b,c){var d=this.view;return'<th class="fc-day-header '+d.widgetHeaderClass+" fc-"+Xa[a.day()]+'"'+(1==this.rowCnt?' data-date="'+a.format("YYYY-MM-DD")+'"':"")+(b>1?' colspan="'+b+'"':"")+(c?" "+c:"")+">"+aa(a.format(this.colHeadFormat))+"</th>"},renderBgTrHtml:function(a){return"<tr>"+(this.isRTL?"":this.renderBgIntroHtml(a))+this.renderBgCellsHtml(a)+(this.isRTL?this.renderBgIntroHtml(a):"")+"</tr>"},renderBgIntroHtml:function(a){return this.renderIntroHtml()},renderBgCellsHtml:function(a){var b,c,d=[];for(b=0;b<this.colCnt;b++)c=this.getCellDate(a,b),d.push(this.renderBgCellHtml(c));return d.join("")},renderBgCellHtml:function(a,b){var c=this.view,d=this.getDayClasses(a);return d.unshift("fc-day",c.widgetContentClass),'<td class="'+d.join(" ")+'" data-date="'+a.format("YYYY-MM-DD")+'"'+(b?" "+b:"")+"></td>"},renderIntroHtml:function(){},bookendCells:function(a){var b=this.renderIntroHtml();b&&(this.isRTL?a.append(b):a.prepend(b))}},rb=Ta.DayGrid=pb.extend(qb,{numbersVisible:!1,bottomCoordPadding:0,rowEls:null,cellEls:null,helperEls:null,rowCoordCache:null,colCoordCache:null,renderDates:function(a){var b,c,d=this.view,e=this.rowCnt,f=this.colCnt,g="";for(b=0;e>b;b++)g+=this.renderDayRowHtml(b,a);for(this.el.html(g),this.rowEls=this.el.find(".fc-row"),this.cellEls=this.el.find(".fc-day"),this.rowCoordCache=new lb({els:this.rowEls,isVertical:!0}),this.colCoordCache=new lb({els:this.cellEls.slice(0,this.colCnt),
+isHorizontal:!0}),b=0;e>b;b++)for(c=0;f>c;c++)d.trigger("dayRender",null,this.getCellDate(b,c),this.getCellEl(b,c))},unrenderDates:function(){this.removeSegPopover()},renderBusinessHours:function(){var a=this.view.calendar.getBusinessHoursEvents(!0),b=this.eventsToSegs(a);this.renderFill("businessHours",b,"bgevent")},renderDayRowHtml:function(a,b){var c=this.view,d=["fc-row","fc-week",c.widgetContentClass];return b&&d.push("fc-rigid"),'<div class="'+d.join(" ")+'"><div class="fc-bg"><table>'+this.renderBgTrHtml(a)+'</table></div><div class="fc-content-skeleton"><table>'+(this.numbersVisible?"<thead>"+this.renderNumberTrHtml(a)+"</thead>":"")+"</table></div></div>"},renderNumberTrHtml:function(a){return"<tr>"+(this.isRTL?"":this.renderNumberIntroHtml(a))+this.renderNumberCellsHtml(a)+(this.isRTL?this.renderNumberIntroHtml(a):"")+"</tr>"},renderNumberIntroHtml:function(a){return this.renderIntroHtml()},renderNumberCellsHtml:function(a){var b,c,d=[];for(b=0;b<this.colCnt;b++)c=this.getCellDate(a,b),d.push(this.renderNumberCellHtml(c));return d.join("")},renderNumberCellHtml:function(a){var b;return this.view.dayNumbersVisible?(b=this.getDayClasses(a),b.unshift("fc-day-number"),'<td class="'+b.join(" ")+'" data-date="'+a.format()+'">'+a.date()+"</td>"):"<td/>"},computeEventTimeFormat:function(){return this.view.opt("extraSmallTimeFormat")},computeDisplayEventEnd:function(){return 1==this.colCnt},rangeUpdated:function(){this.updateDayTable()},spanToSegs:function(a){var b,c,d=this.sliceRangeByRow(a);for(b=0;b<d.length;b++)c=d[b],this.isRTL?(c.leftCol=this.daysPerRow-1-c.lastRowDayIndex,c.rightCol=this.daysPerRow-1-c.firstRowDayIndex):(c.leftCol=c.firstRowDayIndex,c.rightCol=c.lastRowDayIndex);return d},prepareHits:function(){this.colCoordCache.build(),this.rowCoordCache.build(),this.rowCoordCache.bottoms[this.rowCnt-1]+=this.bottomCoordPadding},releaseHits:function(){this.colCoordCache.clear(),this.rowCoordCache.clear()},queryHit:function(a,b){var c=this.colCoordCache.getHorizontalIndex(a),d=this.rowCoordCache.getVerticalIndex(b);return null!=d&&null!=c?this.getCellHit(d,c):void 0},getHitSpan:function(a){return this.getCellRange(a.row,a.col)},getHitEl:function(a){return this.getCellEl(a.row,a.col)},getCellHit:function(a,b){return{row:a,col:b,component:this,left:this.colCoordCache.getLeftOffset(b),right:this.colCoordCache.getRightOffset(b),top:this.rowCoordCache.getTopOffset(a),bottom:this.rowCoordCache.getBottomOffset(a)}},getCellEl:function(a,b){return this.cellEls.eq(a*this.colCnt+b)},renderDrag:function(a,b){return this.renderHighlight(this.eventToSpan(a)),b&&!b.el.closest(this.el).length?this.renderEventLocationHelper(a,b):void 0},unrenderDrag:function(){this.unrenderHighlight(),this.unrenderHelper()},renderEventResize:function(a,b){return this.renderHighlight(this.eventToSpan(a)),this.renderEventLocationHelper(a,b)},unrenderEventResize:function(){this.unrenderHighlight(),this.unrenderHelper()},renderHelper:function(b,c){var d,e=[],f=this.eventToSegs(b);return f=this.renderFgSegEls(f),d=this.renderSegRows(f),this.rowEls.each(function(b,f){var g,h=a(f),i=a('<div class="fc-helper-skeleton"><table/></div>');g=c&&c.row===b?c.el.position().top:h.find(".fc-content-skeleton tbody").position().top,i.css("top",g).find("table").append(d[b].tbodyEl),h.append(i),e.push(i[0])}),this.helperEls=a(e)},unrenderHelper:function(){this.helperEls&&(this.helperEls.remove(),this.helperEls=null)},fillSegTag:"td",renderFill:function(b,c,d){var e,f,g,h=[];for(c=this.renderFillSegEls(b,c),e=0;e<c.length;e++)f=c[e],g=this.renderFillRow(b,f,d),this.rowEls.eq(f.row).append(g),h.push(g[0]);return this.elsByFill[b]=a(h),c},renderFillRow:function(b,c,d){var e,f,g=this.colCnt,h=c.leftCol,i=c.rightCol+1;return d=d||b.toLowerCase(),e=a('<div class="fc-'+d+'-skeleton"><table><tr/></table></div>'),f=e.find("tr"),h>0&&f.append('<td colspan="'+h+'"/>'),f.append(c.el.attr("colspan",i-h)),g>i&&f.append('<td colspan="'+(g-i)+'"/>'),this.bookendCells(f),e}});rb.mixin({rowStructs:null,unrenderEvents:function(){this.removeSegPopover(),pb.prototype.unrenderEvents.apply(this,arguments)},getEventSegs:function(){return pb.prototype.getEventSegs.call(this).concat(this.popoverSegs||[])},renderBgSegs:function(b){var c=a.grep(b,function(a){return a.event.allDay});return pb.prototype.renderBgSegs.call(this,c)},renderFgSegs:function(b){var c;return b=this.renderFgSegEls(b),c=this.rowStructs=this.renderSegRows(b),this.rowEls.each(function(b,d){a(d).find(".fc-content-skeleton > table").append(c[b].tbodyEl)}),b},unrenderFgSegs:function(){for(var a,b=this.rowStructs||[];a=b.pop();)a.tbodyEl.remove();this.rowStructs=null},renderSegRows:function(a){var b,c,d=[];for(b=this.groupSegRows(a),c=0;c<b.length;c++)d.push(this.renderSegRow(c,b[c]));return d},fgSegHtml:function(a,b){var c,d,e=this.view,f=a.event,g=e.isEventDraggable(f),h=!b&&f.allDay&&a.isStart&&e.isEventResizableFromStart(f),i=!b&&f.allDay&&a.isEnd&&e.isEventResizableFromEnd(f),j=this.getSegClasses(a,g,h||i),k=ca(this.getSegSkinCss(a)),l="";return j.unshift("fc-day-grid-event","fc-h-event"),a.isStart&&(c=this.getEventTimeText(f),c&&(l='<span class="fc-time">'+aa(c)+"</span>")),d='<span class="fc-title">'+(aa(f.title||"")||"&nbsp;")+"</span>",'<a class="'+j.join(" ")+'"'+(f.url?' href="'+aa(f.url)+'"':"")+(k?' style="'+k+'"':"")+'><div class="fc-content">'+(this.isRTL?d+" "+l:l+" "+d)+"</div>"+(h?'<div class="fc-resizer fc-start-resizer" />':"")+(i?'<div class="fc-resizer fc-end-resizer" />':"")+"</a>"},renderSegRow:function(b,c){function d(b){for(;b>g;)k=(r[e-1]||[])[g],k?k.attr("rowspan",parseInt(k.attr("rowspan")||1,10)+1):(k=a("<td/>"),h.append(k)),q[e][g]=k,r[e][g]=k,g++}var e,f,g,h,i,j,k,l=this.colCnt,m=this.buildSegLevels(c),n=Math.max(1,m.length),o=a("<tbody/>"),p=[],q=[],r=[];for(e=0;n>e;e++){if(f=m[e],g=0,h=a("<tr/>"),p.push([]),q.push([]),r.push([]),f)for(i=0;i<f.length;i++){for(j=f[i],d(j.leftCol),k=a('<td class="fc-event-container"/>').append(j.el),j.leftCol!=j.rightCol?k.attr("colspan",j.rightCol-j.leftCol+1):r[e][g]=k;g<=j.rightCol;)q[e][g]=k,p[e][g]=j,g++;h.append(k)}d(l),this.bookendCells(h),o.append(h)}return{row:b,tbodyEl:o,cellMatrix:q,segMatrix:p,segLevels:m,segs:c}},buildSegLevels:function(a){var b,c,d,e=[];for(this.sortEventSegs(a),b=0;b<a.length;b++){for(c=a[b],d=0;d<e.length&&Ga(c,e[d]);d++);c.level=d,(e[d]||(e[d]=[])).push(c)}for(d=0;d<e.length;d++)e[d].sort(Ha);return e},groupSegRows:function(a){var b,c=[];for(b=0;b<this.rowCnt;b++)c.push([]);for(b=0;b<a.length;b++)c[a[b].row].push(a[b]);return c}}),rb.mixin({segPopover:null,popoverSegs:null,removeSegPopover:function(){this.segPopover&&this.segPopover.hide()},limitRows:function(a){var b,c,d=this.rowStructs||[];for(b=0;b<d.length;b++)this.unlimitRow(b),c=a?"number"==typeof a?a:this.computeRowLevelLimit(b):!1,c!==!1&&this.limitRow(b,c)},computeRowLevelLimit:function(b){function c(b,c){f=Math.max(f,a(c).outerHeight())}var d,e,f,g=this.rowEls.eq(b),h=g.height(),i=this.rowStructs[b].tbodyEl.children();for(d=0;d<i.length;d++)if(e=i.eq(d).removeClass("fc-limited"),f=0,e.find("> td > :first-child").each(c),e.position().top+f>h)return d;return!1},limitRow:function(b,c){function d(d){for(;d>w;)j=t.getCellSegs(b,w,c),j.length&&(m=f[c-1][w],s=t.renderMoreLink(b,w,j),r=a("<div/>").append(s),m.append(r),v.push(r[0])),w++}var e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t=this,u=this.rowStructs[b],v=[],w=0;if(c&&c<u.segLevels.length){for(e=u.segLevels[c-1],f=u.cellMatrix,g=u.tbodyEl.children().slice(c).addClass("fc-limited").get(),h=0;h<e.length;h++){for(i=e[h],d(i.leftCol),l=[],k=0;w<=i.rightCol;)j=this.getCellSegs(b,w,c),l.push(j),k+=j.length,w++;if(k){for(m=f[c-1][i.leftCol],n=m.attr("rowspan")||1,o=[],p=0;p<l.length;p++)q=a('<td class="fc-more-cell"/>').attr("rowspan",n),j=l[p],s=this.renderMoreLink(b,i.leftCol+p,[i].concat(j)),r=a("<div/>").append(s),q.append(r),o.push(q[0]),v.push(q[0]);m.addClass("fc-limited").after(a(o)),g.push(m[0])}}d(this.colCnt),u.moreEls=a(v),u.limitedEls=a(g)}},unlimitRow:function(a){var b=this.rowStructs[a];b.moreEls&&(b.moreEls.remove(),b.moreEls=null),b.limitedEls&&(b.limitedEls.removeClass("fc-limited"),b.limitedEls=null)},renderMoreLink:function(b,c,d){var e=this,f=this.view;return a('<a class="fc-more"/>').text(this.getMoreLinkText(d.length)).on("click",function(g){var h=f.opt("eventLimitClick"),i=e.getCellDate(b,c),j=a(this),k=e.getCellEl(b,c),l=e.getCellSegs(b,c),m=e.resliceDaySegs(l,i),n=e.resliceDaySegs(d,i);"function"==typeof h&&(h=f.trigger("eventLimitClick",null,{date:i,dayEl:k,moreEl:j,segs:m,hiddenSegs:n},g)),"popover"===h?e.showSegPopover(b,c,j,m):"string"==typeof h&&f.calendar.zoomTo(i,h)})},showSegPopover:function(a,b,c,d){var e,f,g=this,h=this.view,i=c.parent();e=1==this.rowCnt?h.el:this.rowEls.eq(a),f={className:"fc-more-popover",content:this.renderSegPopoverContent(a,b,d),parentEl:this.el,top:e.offset().top,autoHide:!0,viewportConstrain:h.opt("popoverViewportConstrain"),hide:function(){g.segPopover.removeElement(),g.segPopover=null,g.popoverSegs=null}},this.isRTL?f.right=i.offset().left+i.outerWidth()+1:f.left=i.offset().left-1,this.segPopover=new kb(f),this.segPopover.show()},renderSegPopoverContent:function(b,c,d){var e,f=this.view,g=f.opt("theme"),h=this.getCellDate(b,c).format(f.opt("dayPopoverFormat")),i=a('<div class="fc-header '+f.widgetHeaderClass+'"><span class="fc-close '+(g?"ui-icon ui-icon-closethick":"fc-icon fc-icon-x")+'"></span><span class="fc-title">'+aa(h)+'</span><div class="fc-clear"/></div><div class="fc-body '+f.widgetContentClass+'"><div class="fc-event-container"></div></div>'),j=i.find(".fc-event-container");for(d=this.renderFgSegEls(d,!0),this.popoverSegs=d,e=0;e<d.length;e++)this.prepareHits(),d[e].hit=this.getCellHit(b,c),this.releaseHits(),j.append(d[e].el);return i},resliceDaySegs:function(b,c){var d=a.map(b,function(a){return a.event}),e=c.clone(),f=e.clone().add(1,"days"),g={start:e,end:f};return b=this.eventsToSegs(d,function(a){var b=I(a,g);return b?[b]:[]}),this.sortEventSegs(b),b},getMoreLinkText:function(a){var b=this.view.opt("eventLimitText");return"function"==typeof b?b(a):"+"+a+" "+b},getCellSegs:function(a,b,c){for(var d,e=this.rowStructs[a].segMatrix,f=c||0,g=[];f<e.length;)d=e[f][b],d&&g.push(d),f++;return g}});var sb=Ta.TimeGrid=pb.extend(qb,{slotDuration:null,snapDuration:null,snapsPerSlot:null,minTime:null,maxTime:null,labelFormat:null,labelInterval:null,colEls:null,slatContainerEl:null,slatEls:null,nowIndicatorEls:null,colCoordCache:null,slatCoordCache:null,constructor:function(){pb.apply(this,arguments),this.processOptions()},renderDates:function(){this.el.html(this.renderHtml()),this.colEls=this.el.find(".fc-day"),this.slatContainerEl=this.el.find(".fc-slats"),this.slatEls=this.slatContainerEl.find("tr"),this.colCoordCache=new lb({els:this.colEls,isHorizontal:!0}),this.slatCoordCache=new lb({els:this.slatEls,isVertical:!0}),this.renderContentSkeleton()},renderHtml:function(){return'<div class="fc-bg"><table>'+this.renderBgTrHtml(0)+'</table></div><div class="fc-slats"><table>'+this.renderSlatRowHtml()+"</table></div>"},renderSlatRowHtml:function(){for(var a,c,d,e=this.view,f=this.isRTL,g="",h=b.duration(+this.minTime);h<this.maxTime;)a=this.start.clone().time(h),c=fa(P(h,this.labelInterval)),d='<td class="fc-axis fc-time '+e.widgetContentClass+'" '+e.axisStyleAttr()+">"+(c?"<span>"+aa(a.format(this.labelFormat))+"</span>":"")+"</td>",g+='<tr data-time="'+a.format("HH:mm:ss")+'"'+(c?"":' class="fc-minor"')+">"+(f?"":d)+'<td class="'+e.widgetContentClass+'"/>'+(f?d:"")+"</tr>",h.add(this.slotDuration);return g},processOptions:function(){var c,d=this.view,e=d.opt("slotDuration"),f=d.opt("snapDuration");e=b.duration(e),f=f?b.duration(f):e,this.slotDuration=e,this.snapDuration=f,this.snapsPerSlot=e/f,this.minResizeDuration=f,this.minTime=b.duration(d.opt("minTime")),this.maxTime=b.duration(d.opt("maxTime")),c=d.opt("slotLabelFormat"),a.isArray(c)&&(c=c[c.length-1]),this.labelFormat=c||d.opt("axisFormat")||d.opt("smallTimeFormat"),c=d.opt("slotLabelInterval"),this.labelInterval=c?b.duration(c):this.computeLabelInterval(e)},computeLabelInterval:function(a){var c,d,e;for(c=Jb.length-1;c>=0;c--)if(d=b.duration(Jb[c]),e=P(d,a),fa(e)&&e>1)return d;return b.duration(a)},computeEventTimeFormat:function(){return this.view.opt("noMeridiemTimeFormat")},computeDisplayEventEnd:function(){return!0},prepareHits:function(){this.colCoordCache.build(),this.slatCoordCache.build()},releaseHits:function(){this.colCoordCache.clear()},queryHit:function(a,b){var c=this.snapsPerSlot,d=this.colCoordCache,e=this.slatCoordCache,f=d.getHorizontalIndex(a),g=e.getVerticalIndex(b);if(null!=f&&null!=g){var h=e.getTopOffset(g),i=e.getHeight(g),j=(b-h)/i,k=Math.floor(j*c),l=g*c+k,m=h+k/c*i,n=h+(k+1)/c*i;return{col:f,snap:l,component:this,left:d.getLeftOffset(f),right:d.getRightOffset(f),top:m,bottom:n}}},getHitSpan:function(a){var b,c=this.getCellDate(0,a.col),d=this.computeSnapTime(a.snap);return c.time(d),b=c.clone().add(this.snapDuration),{start:c,end:b}},getHitEl:function(a){return this.colEls.eq(a.col)},rangeUpdated:function(){this.updateDayTable()},computeSnapTime:function(a){return b.duration(this.minTime+this.snapDuration*a)},spanToSegs:function(a){var b,c=this.sliceRangeByTimes(a);for(b=0;b<c.length;b++)this.isRTL?c[b].col=this.daysPerRow-1-c[b].dayIndex:c[b].col=c[b].dayIndex;return c},sliceRangeByTimes:function(a){var b,c,d,e,f=[];for(c=0;c<this.daysPerRow;c++)d=this.dayDates[c].clone(),e={start:d.clone().time(this.minTime),end:d.clone().time(this.maxTime)},b=I(a,e),b&&(b.dayIndex=c,f.push(b));return f},updateSize:function(a){this.slatCoordCache.build(),a&&this.updateSegVerticals([].concat(this.fgSegs||[],this.bgSegs||[],this.businessSegs||[]))},getTotalSlatHeight:function(){return this.slatContainerEl.outerHeight()},computeDateTop:function(a,c){return this.computeTimeTop(b.duration(a-c.clone().stripTime()))},computeTimeTop:function(a){var b,c,d=this.slatEls.length,e=(a-this.minTime)/this.slotDuration;return e=Math.max(0,e),e=Math.min(d,e),b=Math.floor(e),b=Math.min(b,d-1),c=e-b,this.slatCoordCache.getTopPosition(b)+this.slatCoordCache.getHeight(b)*c},renderDrag:function(a,b){return b?this.renderEventLocationHelper(a,b):void this.renderHighlight(this.eventToSpan(a))},unrenderDrag:function(){this.unrenderHelper(),this.unrenderHighlight()},renderEventResize:function(a,b){return this.renderEventLocationHelper(a,b)},unrenderEventResize:function(){this.unrenderHelper()},renderHelper:function(a,b){return this.renderHelperSegs(this.eventToSegs(a),b)},unrenderHelper:function(){this.unrenderHelperSegs()},renderBusinessHours:function(){var a=this.view.calendar.getBusinessHoursEvents(),b=this.eventsToSegs(a);this.renderBusinessSegs(b)},unrenderBusinessHours:function(){this.unrenderBusinessSegs()},getNowIndicatorUnit:function(){return"minute"},renderNowIndicator:function(b){var c,d=this.spanToSegs({start:b,end:b}),e=this.computeDateTop(b,b),f=[];for(c=0;c<d.length;c++)f.push(a('<div class="fc-now-indicator fc-now-indicator-line"></div>').css("top",e).appendTo(this.colContainerEls.eq(d[c].col))[0]);d.length>0&&f.push(a('<div class="fc-now-indicator fc-now-indicator-arrow"></div>').css("top",e).appendTo(this.el.find(".fc-content-skeleton"))[0]),this.nowIndicatorEls=a(f)},unrenderNowIndicator:function(){this.nowIndicatorEls&&(this.nowIndicatorEls.remove(),this.nowIndicatorEls=null)},renderSelection:function(a){this.view.opt("selectHelper")?this.renderEventLocationHelper(a):this.renderHighlight(a)},unrenderSelection:function(){this.unrenderHelper(),this.unrenderHighlight()},renderHighlight:function(a){this.renderHighlightSegs(this.spanToSegs(a))},unrenderHighlight:function(){this.unrenderHighlightSegs()}});sb.mixin({colContainerEls:null,fgContainerEls:null,bgContainerEls:null,helperContainerEls:null,highlightContainerEls:null,businessContainerEls:null,fgSegs:null,bgSegs:null,helperSegs:null,highlightSegs:null,businessSegs:null,renderContentSkeleton:function(){var b,c,d="";for(b=0;b<this.colCnt;b++)d+='<td><div class="fc-content-col"><div class="fc-event-container fc-helper-container"></div><div class="fc-event-container"></div><div class="fc-highlight-container"></div><div class="fc-bgevent-container"></div><div class="fc-business-container"></div></div></td>';c=a('<div class="fc-content-skeleton"><table><tr>'+d+"</tr></table></div>"),this.colContainerEls=c.find(".fc-content-col"),this.helperContainerEls=c.find(".fc-helper-container"),this.fgContainerEls=c.find(".fc-event-container:not(.fc-helper-container)"),this.bgContainerEls=c.find(".fc-bgevent-container"),this.highlightContainerEls=c.find(".fc-highlight-container"),this.businessContainerEls=c.find(".fc-business-container"),this.bookendCells(c.find("tr")),this.el.append(c)},renderFgSegs:function(a){return a=this.renderFgSegsIntoContainers(a,this.fgContainerEls),this.fgSegs=a,a},unrenderFgSegs:function(){this.unrenderNamedSegs("fgSegs")},renderHelperSegs:function(b,c){var d,e,f,g=[];for(b=this.renderFgSegsIntoContainers(b,this.helperContainerEls),d=0;d<b.length;d++)e=b[d],c&&c.col===e.col&&(f=c.el,e.el.css({left:f.css("left"),right:f.css("right"),"margin-left":f.css("margin-left"),"margin-right":f.css("margin-right")})),g.push(e.el[0]);return this.helperSegs=b,a(g)},unrenderHelperSegs:function(){this.unrenderNamedSegs("helperSegs")},renderBgSegs:function(a){return a=this.renderFillSegEls("bgEvent",a),this.updateSegVerticals(a),this.attachSegsByCol(this.groupSegsByCol(a),this.bgContainerEls),this.bgSegs=a,a},unrenderBgSegs:function(){this.unrenderNamedSegs("bgSegs")},renderHighlightSegs:function(a){a=this.renderFillSegEls("highlight",a),this.updateSegVerticals(a),this.attachSegsByCol(this.groupSegsByCol(a),this.highlightContainerEls),this.highlightSegs=a},unrenderHighlightSegs:function(){this.unrenderNamedSegs("highlightSegs")},renderBusinessSegs:function(a){a=this.renderFillSegEls("businessHours",a),this.updateSegVerticals(a),this.attachSegsByCol(this.groupSegsByCol(a),this.businessContainerEls),this.businessSegs=a},unrenderBusinessSegs:function(){this.unrenderNamedSegs("businessSegs")},groupSegsByCol:function(a){var b,c=[];for(b=0;b<this.colCnt;b++)c.push([]);for(b=0;b<a.length;b++)c[a[b].col].push(a[b]);return c},attachSegsByCol:function(a,b){var c,d,e;for(c=0;c<this.colCnt;c++)for(d=a[c],e=0;e<d.length;e++)b.eq(c).append(d[e].el)},unrenderNamedSegs:function(a){var b,c=this[a];if(c){for(b=0;b<c.length;b++)c[b].el.remove();this[a]=null}},renderFgSegsIntoContainers:function(a,b){var c,d;for(a=this.renderFgSegEls(a),c=this.groupSegsByCol(a),d=0;d<this.colCnt;d++)this.updateFgSegCoords(c[d]);return this.attachSegsByCol(c,b),a},fgSegHtml:function(a,b){var c,d,e,f=this.view,g=a.event,h=f.isEventDraggable(g),i=!b&&a.isStart&&f.isEventResizableFromStart(g),j=!b&&a.isEnd&&f.isEventResizableFromEnd(g),k=this.getSegClasses(a,h,i||j),l=ca(this.getSegSkinCss(a));return k.unshift("fc-time-grid-event","fc-v-event"),f.isMultiDayEvent(g)?(a.isStart||a.isEnd)&&(c=this.getEventTimeText(a),d=this.getEventTimeText(a,"LT"),e=this.getEventTimeText(a,null,!1)):(c=this.getEventTimeText(g),d=this.getEventTimeText(g,"LT"),e=this.getEventTimeText(g,null,!1)),'<a class="'+k.join(" ")+'"'+(g.url?' href="'+aa(g.url)+'"':"")+(l?' style="'+l+'"':"")+'><div class="fc-content">'+(c?'<div class="fc-time" data-start="'+aa(e)+'" data-full="'+aa(d)+'"><span>'+aa(c)+"</span></div>":"")+(g.title?'<div class="fc-title">'+aa(g.title)+"</div>":"")+'</div><div class="fc-bg"/>'+(j?'<div class="fc-resizer fc-end-resizer" />':"")+"</a>"},updateSegVerticals:function(a){this.computeSegVerticals(a),this.assignSegVerticals(a)},computeSegVerticals:function(a){var b,c;for(b=0;b<a.length;b++)c=a[b],c.top=this.computeDateTop(c.start,c.start),c.bottom=this.computeDateTop(c.end,c.start)},assignSegVerticals:function(a){var b,c;for(b=0;b<a.length;b++)c=a[b],c.el.css(this.generateSegVerticalCss(c))},generateSegVerticalCss:function(a){return{top:a.top,bottom:-a.bottom}},updateFgSegCoords:function(a){this.computeSegVerticals(a),this.computeFgSegHorizontals(a),this.assignSegVerticals(a),this.assignFgSegHorizontals(a)},computeFgSegHorizontals:function(a){var b,c,d;if(this.sortEventSegs(a),b=Ia(a),Ja(b),c=b[0]){for(d=0;d<c.length;d++)Ka(c[d]);for(d=0;d<c.length;d++)this.computeFgSegForwardBack(c[d],0,0)}},computeFgSegForwardBack:function(a,b,c){var d,e=a.forwardSegs;if(void 0===a.forwardCoord)for(e.length?(this.sortForwardSegs(e),this.computeFgSegForwardBack(e[0],b+1,c),a.forwardCoord=e[0].backwardCoord):a.forwardCoord=1,a.backwardCoord=a.forwardCoord-(a.forwardCoord-c)/(b+1),d=0;d<e.length;d++)this.computeFgSegForwardBack(e[d],0,a.forwardCoord)},sortForwardSegs:function(a){a.sort(ga(this,"compareForwardSegs"))},compareForwardSegs:function(a,b){return b.forwardPressure-a.forwardPressure||(a.backwardCoord||0)-(b.backwardCoord||0)||this.compareEventSegs(a,b)},assignFgSegHorizontals:function(a){var b,c;for(b=0;b<a.length;b++)c=a[b],c.el.css(this.generateFgSegHorizontalCss(c)),c.bottom-c.top<30&&c.el.addClass("fc-short")},generateFgSegHorizontalCss:function(a){var b,c,d=this.view.opt("slotEventOverlap"),e=a.backwardCoord,f=a.forwardCoord,g=this.generateSegVerticalCss(a);return d&&(f=Math.min(1,e+2*(f-e))),this.isRTL?(b=1-f,c=e):(b=e,c=1-f),g.zIndex=a.level+1,g.left=100*b+"%",g.right=100*c+"%",d&&a.forwardPressure&&(g[this.isRTL?"marginLeft":"marginRight"]=20),g}});var tb=Ta.View=va.extend(ib,jb,{type:null,name:null,title:null,calendar:null,options:null,el:null,displaying:null,isSkeletonRendered:!1,isEventsRendered:!1,start:null,end:null,intervalStart:null,intervalEnd:null,intervalDuration:null,intervalUnit:null,isRTL:!1,isSelected:!1,selectedEvent:null,eventOrderSpecs:null,widgetHeaderClass:null,widgetContentClass:null,highlightStateClass:null,nextDayThreshold:null,isHiddenDayHash:null,isNowIndicatorRendered:null,initialNowDate:null,initialNowQueriedMs:null,nowIndicatorTimeoutID:null,nowIndicatorIntervalID:null,constructor:function(a,c,d,e){this.calendar=a,this.type=this.name=c,this.options=d,this.intervalDuration=e||b.duration(1,"day"),this.nextDayThreshold=b.duration(this.opt("nextDayThreshold")),this.initThemingProps(),this.initHiddenDays(),this.isRTL=this.opt("isRTL"),this.eventOrderSpecs=E(this.opt("eventOrder")),this.initialize()},initialize:function(){},opt:function(a){return this.options[a]},trigger:function(a,b){var c=this.calendar;return c.trigger.apply(c,[a,b||this].concat(Array.prototype.slice.call(arguments,2),[this]))},setDate:function(a){this.setRange(this.computeRange(a))},setRange:function(b){a.extend(this,b),this.updateTitle()},computeRange:function(a){var b,c,d=M(this.intervalDuration),e=a.clone().startOf(d),f=e.clone().add(this.intervalDuration);return/year|month|week|day/.test(d)?(e.stripTime(),f.stripTime()):(e.hasTime()||(e=this.calendar.time(0)),f.hasTime()||(f=this.calendar.time(0))),b=e.clone(),b=this.skipHiddenDays(b),c=f.clone(),c=this.skipHiddenDays(c,-1,!0),{intervalUnit:d,intervalStart:e,intervalEnd:f,start:b,end:c}},computePrevDate:function(a){return this.massageCurrentDate(a.clone().startOf(this.intervalUnit).subtract(this.intervalDuration),-1)},computeNextDate:function(a){return this.massageCurrentDate(a.clone().startOf(this.intervalUnit).add(this.intervalDuration))},massageCurrentDate:function(a,b){return this.intervalDuration.as("days")<=1&&this.isHiddenDay(a)&&(a=this.skipHiddenDays(a,b),a.startOf("day")),a},updateTitle:function(){this.title=this.computeTitle()},computeTitle:function(){return this.formatRange({start:this.calendar.applyTimezone(this.intervalStart),end:this.calendar.applyTimezone(this.intervalEnd)},this.opt("titleFormat")||this.computeTitleFormat(),this.opt("titleRangeSeparator"))},computeTitleFormat:function(){return"year"==this.intervalUnit?"YYYY":"month"==this.intervalUnit?this.opt("monthYearFormat"):this.intervalDuration.as("days")>1?"ll":"LL"},formatRange:function(a,b,c){var d=a.end;return d.hasTime()||(d=d.clone().subtract(1)),qa(a.start,d,b,c,this.opt("isRTL"))},setElement:function(a){this.el=a,this.bindGlobalHandlers()},removeElement:function(){this.clear(),this.isSkeletonRendered&&(this.unrenderSkeleton(),this.isSkeletonRendered=!1),this.unbindGlobalHandlers(),this.el.remove()},display:function(b){var c=this,d=null;return this.displaying&&(d=this.queryScroll()),this.calendar.freezeContentHeight(),this.clear().then(function(){return c.displaying=a.when(c.displayView(b)).then(function(){c.forceScroll(c.computeInitialScroll(d)),c.calendar.unfreezeContentHeight(),c.triggerRender()})})},clear:function(){var b=this,c=this.displaying;return c?c.then(function(){return b.displaying=null,b.clearEvents(),b.clearView()}):a.when()},displayView:function(a){this.isSkeletonRendered||(this.renderSkeleton(),this.isSkeletonRendered=!0),a&&this.setDate(a),this.render&&this.render(),this.renderDates(),this.updateSize(),this.renderBusinessHours(),this.startNowIndicator()},clearView:function(){this.unselect(),this.stopNowIndicator(),this.triggerUnrender(),this.unrenderBusinessHours(),this.unrenderDates(),this.destroy&&this.destroy()},renderSkeleton:function(){},unrenderSkeleton:function(){},renderDates:function(){},unrenderDates:function(){},triggerRender:function(){this.trigger("viewRender",this,this,this.el)},triggerUnrender:function(){this.trigger("viewDestroy",this,this,this.el)},bindGlobalHandlers:function(){this.listenTo(a(document),"mousedown",this.handleDocumentMousedown),this.listenTo(a(document),"touchstart",this.handleDocumentTouchStart),this.listenTo(a(document),"touchend",this.handleDocumentTouchEnd)},unbindGlobalHandlers:function(){this.stopListeningTo(a(document))},initThemingProps:function(){var a=this.opt("theme")?"ui":"fc";this.widgetHeaderClass=a+"-widget-header",this.widgetContentClass=a+"-widget-content",this.highlightStateClass=a+"-state-highlight"},renderBusinessHours:function(){},unrenderBusinessHours:function(){},startNowIndicator:function(){var a,c,d,e=this;this.opt("nowIndicator")&&(a=this.getNowIndicatorUnit(),a&&(c=ga(this,"updateNowIndicator"),this.initialNowDate=this.calendar.getNow(),this.initialNowQueriedMs=+new Date,this.renderNowIndicator(this.initialNowDate),this.isNowIndicatorRendered=!0,d=this.initialNowDate.clone().startOf(a).add(1,a)-this.initialNowDate,this.nowIndicatorTimeoutID=setTimeout(function(){e.nowIndicatorTimeoutID=null,c(),d=+b.duration(1,a),d=Math.max(100,d),e.nowIndicatorIntervalID=setInterval(c,d)},d)))},updateNowIndicator:function(){this.isNowIndicatorRendered&&(this.unrenderNowIndicator(),this.renderNowIndicator(this.initialNowDate.clone().add(new Date-this.initialNowQueriedMs)))},stopNowIndicator:function(){this.isNowIndicatorRendered&&(this.nowIndicatorTimeoutID&&(clearTimeout(this.nowIndicatorTimeoutID),this.nowIndicatorTimeoutID=null),this.nowIndicatorIntervalID&&(clearTimeout(this.nowIndicatorIntervalID),this.nowIndicatorIntervalID=null),this.unrenderNowIndicator(),this.isNowIndicatorRendered=!1)},getNowIndicatorUnit:function(){},renderNowIndicator:function(a){},unrenderNowIndicator:function(){},updateSize:function(a){var b;a&&(b=this.queryScroll()),this.updateHeight(a),this.updateWidth(a),this.updateNowIndicator(),a&&this.setScroll(b)},updateWidth:function(a){},updateHeight:function(a){var b=this.calendar;this.setHeight(b.getSuggestedViewHeight(),b.isHeightAuto())},setHeight:function(a,b){},computeInitialScroll:function(a){return 0},queryScroll:function(){},setScroll:function(a){},forceScroll:function(a){var b=this;this.setScroll(a),setTimeout(function(){b.setScroll(a)},0)},displayEvents:function(a){var b=this.queryScroll();this.clearEvents(),this.renderEvents(a),this.isEventsRendered=!0,this.setScroll(b),this.triggerEventRender()},clearEvents:function(){var a;this.isEventsRendered&&(a=this.queryScroll(),this.triggerEventUnrender(),this.destroyEvents&&this.destroyEvents(),this.unrenderEvents(),this.setScroll(a),this.isEventsRendered=!1)},renderEvents:function(a){},unrenderEvents:function(){},triggerEventRender:function(){this.renderedEventSegEach(function(a){this.trigger("eventAfterRender",a.event,a.event,a.el)}),this.trigger("eventAfterAllRender")},triggerEventUnrender:function(){this.renderedEventSegEach(function(a){this.trigger("eventDestroy",a.event,a.event,a.el)})},resolveEventEl:function(b,c){var d=this.trigger("eventRender",b,b,c);return d===!1?c=null:d&&d!==!0&&(c=a(d)),c},showEvent:function(a){this.renderedEventSegEach(function(a){a.el.css("visibility","")},a)},hideEvent:function(a){this.renderedEventSegEach(function(a){a.el.css("visibility","hidden")},a)},renderedEventSegEach:function(a,b){var c,d=this.getEventSegs();for(c=0;c<d.length;c++)b&&d[c].event._id!==b._id||d[c].el&&a.call(this,d[c])},getEventSegs:function(){return[]},isEventDraggable:function(a){var b=a.source||{};return _(a.startEditable,b.startEditable,this.opt("eventStartEditable"),a.editable,b.editable,this.opt("editable"))},reportEventDrop:function(a,b,c,d,e){var f=this.calendar,g=f.mutateEvent(a,b,c),h=function(){g.undo(),f.reportEventChange()};this.triggerEventDrop(a,g.dateDelta,h,d,e),f.reportEventChange()},triggerEventDrop:function(a,b,c,d,e){this.trigger("eventDrop",d[0],a,b,c,e,{})},reportExternalDrop:function(b,c,d,e,f){var g,h,i=b.eventProps;i&&(g=a.extend({},i,c),h=this.calendar.renderEvent(g,b.stick)[0]),this.triggerExternalDrop(h,c,d,e,f)},triggerExternalDrop:function(a,b,c,d,e){this.trigger("drop",c[0],b.start,d,e),a&&this.trigger("eventReceive",null,a)},renderDrag:function(a,b){},unrenderDrag:function(){},isEventResizableFromStart:function(a){return this.opt("eventResizableFromStart")&&this.isEventResizable(a)},isEventResizableFromEnd:function(a){return this.isEventResizable(a)},isEventResizable:function(a){var b=a.source||{};return _(a.durationEditable,b.durationEditable,this.opt("eventDurationEditable"),a.editable,b.editable,this.opt("editable"))},reportEventResize:function(a,b,c,d,e){var f=this.calendar,g=f.mutateEvent(a,b,c),h=function(){g.undo(),f.reportEventChange()};this.triggerEventResize(a,g.durationDelta,h,d,e),f.reportEventChange()},triggerEventResize:function(a,b,c,d,e){this.trigger("eventResize",d[0],a,b,c,e,{})},select:function(a,b){this.unselect(b),this.renderSelection(a),this.reportSelection(a,b)},renderSelection:function(a){},reportSelection:function(a,b){this.isSelected=!0,this.triggerSelect(a,b)},triggerSelect:function(a,b){this.trigger("select",null,this.calendar.applyTimezone(a.start),this.calendar.applyTimezone(a.end),b)},unselect:function(a){this.isSelected&&(this.isSelected=!1,this.destroySelection&&this.destroySelection(),this.unrenderSelection(),this.trigger("unselect",null,a))},unrenderSelection:function(){},selectEvent:function(a){this.selectedEvent&&this.selectedEvent===a||(this.unselectEvent(),this.renderedEventSegEach(function(a){a.el.addClass("fc-selected")},a),this.selectedEvent=a)},unselectEvent:function(){this.selectedEvent&&(this.renderedEventSegEach(function(a){a.el.removeClass("fc-selected")},this.selectedEvent),this.selectedEvent=null)},isEventSelected:function(a){return this.selectedEvent&&this.selectedEvent._id===a._id},handleDocumentMousedown:function(a){!this.calendar.isTouch&&u(a)&&(this.processRangeUnselect(a),this.processEventUnselect(a))},handleDocumentTouchStart:function(a){this.processRangeUnselect(a)},handleDocumentTouchEnd:function(a){this.processEventUnselect(a)},processRangeUnselect:function(b){var c;this.isSelected&&this.opt("unselectAuto")&&(c=this.opt("unselectCancel"),c&&a(b.target).closest(c).length||this.unselect(b))},processEventUnselect:function(b){this.selectedEvent&&(a(b.target).closest(".fc-selected").length||this.unselectEvent())},triggerDayClick:function(a,b,c){this.trigger("dayClick",b,this.calendar.applyTimezone(a.start),c)},initHiddenDays:function(){var b,c=this.opt("hiddenDays")||[],d=[],e=0;for(this.opt("weekends")===!1&&c.push(0,6),b=0;7>b;b++)(d[b]=-1!==a.inArray(b,c))||e++;if(!e)throw"invalid hiddenDays";this.isHiddenDayHash=d},isHiddenDay:function(a){return b.isMoment(a)&&(a=a.day()),this.isHiddenDayHash[a]},skipHiddenDays:function(a,b,c){
+var d=a.clone();for(b=b||1;this.isHiddenDayHash[(d.day()+(c?b:0)+7)%7];)d.add(b,"days");return d},computeDayRange:function(a){var b,c=a.start.clone().stripTime(),d=a.end,e=null;return d&&(e=d.clone().stripTime(),b=+d.time(),b&&b>=this.nextDayThreshold&&e.add(1,"days")),(!d||c>=e)&&(e=c.clone().add(1,"days")),{start:c,end:e}},isMultiDayEvent:function(a){var b=this.computeDayRange(a);return b.end.diff(b.start,"days")>1}}),ub=Ta.Scroller=va.extend({el:null,scrollEl:null,overflowX:null,overflowY:null,constructor:function(a){a=a||{},this.overflowX=a.overflowX||a.overflow||"auto",this.overflowY=a.overflowY||a.overflow||"auto"},render:function(){this.el=this.renderEl(),this.applyOverflow()},renderEl:function(){return this.scrollEl=a('<div class="fc-scroller"></div>')},clear:function(){this.setHeight("auto"),this.applyOverflow()},destroy:function(){this.el.remove()},applyOverflow:function(){this.scrollEl.css({"overflow-x":this.overflowX,"overflow-y":this.overflowY})},lockOverflow:function(a){var b=this.overflowX,c=this.overflowY;a=a||this.getScrollbarWidths(),"auto"===b&&(b=a.top||a.bottom||this.scrollEl[0].scrollWidth-1>this.scrollEl[0].clientWidth?"scroll":"hidden"),"auto"===c&&(c=a.left||a.right||this.scrollEl[0].scrollHeight-1>this.scrollEl[0].clientHeight?"scroll":"hidden"),this.scrollEl.css({"overflow-x":b,"overflow-y":c})},setHeight:function(a){this.scrollEl.height(a)},getScrollTop:function(){return this.scrollEl.scrollTop()},setScrollTop:function(a){this.scrollEl.scrollTop(a)},getClientWidth:function(){return this.scrollEl[0].clientWidth},getClientHeight:function(){return this.scrollEl[0].clientHeight},getScrollbarWidths:function(){return q(this.scrollEl)}}),vb=Ta.Calendar=va.extend({dirDefaults:null,langDefaults:null,overrides:null,options:null,viewSpecCache:null,view:null,header:null,loadingLevel:0,isTouch:!1,constructor:Na,initialize:function(){},initOptions:function(a){var b,e,f,g;a=d(a),b=a.lang,e=wb[b],e||(b=vb.defaults.lang,e=wb[b]||{}),f=_(a.isRTL,e.isRTL,vb.defaults.isRTL),g=f?vb.rtlDefaults:{},this.dirDefaults=g,this.langDefaults=e,this.overrides=a,this.options=c([vb.defaults,g,e,a]),Oa(this.options),this.isTouch=null!=this.options.isTouch?this.options.isTouch:Ta.isTouch,this.viewSpecCache={}},getViewSpec:function(a){var b=this.viewSpecCache;return b[a]||(b[a]=this.buildViewSpec(a))},getUnitViewSpec:function(b){var c,d,e;if(-1!=a.inArray(b,Ya))for(c=this.header.getViewsWithButtons(),a.each(Ta.views,function(a){c.push(a)}),d=0;d<c.length;d++)if(e=this.getViewSpec(c[d]),e&&e.singleUnit==b)return e},buildViewSpec:function(a){for(var d,e,f,g,h=this.overrides.views||{},i=[],j=[],k=[],l=a;l;)d=Ua[l],e=h[l],l=null,"function"==typeof d&&(d={"class":d}),d&&(i.unshift(d),j.unshift(d.defaults||{}),f=f||d.duration,l=l||d.type),e&&(k.unshift(e),f=f||e.duration,l=l||e.type);return d=U(i),d.type=a,d["class"]?(f&&(f=b.duration(f),f.valueOf()&&(d.duration=f,g=M(f),1===f.as(g)&&(d.singleUnit=g,k.unshift(h[g]||{})))),d.defaults=c(j),d.overrides=c(k),this.buildViewSpecOptions(d),this.buildViewSpecButtonText(d,a),d):!1},buildViewSpecOptions:function(a){a.options=c([vb.defaults,a.defaults,this.dirDefaults,this.langDefaults,this.overrides,a.overrides]),Oa(a.options)},buildViewSpecButtonText:function(a,b){function c(c){var d=c.buttonText||{};return d[b]||(a.singleUnit?d[a.singleUnit]:null)}a.buttonTextOverride=c(this.overrides)||a.overrides.buttonText,a.buttonTextDefault=c(this.langDefaults)||c(this.dirDefaults)||a.defaults.buttonText||c(vb.defaults)||(a.duration?this.humanizeDuration(a.duration):null)||b},instantiateView:function(a){var b=this.getViewSpec(a);return new b["class"](this,a,b.options,b.duration)},isValidViewType:function(a){return Boolean(this.getViewSpec(a))},pushLoading:function(){this.loadingLevel++||this.trigger("loading",null,!0,this.view)},popLoading:function(){--this.loadingLevel||this.trigger("loading",null,!1,this.view)},buildSelectSpan:function(a,b){var c,d=this.moment(a).stripZone();return c=b?this.moment(b).stripZone():d.hasTime()?d.clone().add(this.defaultTimedEventDuration):d.clone().add(this.defaultAllDayEventDuration),{start:d,end:c}}});vb.mixin(ib),vb.defaults={titleRangeSeparator:" — ",monthYearFormat:"MMMM YYYY",defaultTimedEventDuration:"02:00:00",defaultAllDayEventDuration:{days:1},forceEventDuration:!1,nextDayThreshold:"09:00:00",defaultView:"month",aspectRatio:1.35,header:{left:"title",center:"",right:"today prev,next"},weekends:!0,weekNumbers:!1,weekNumberTitle:"W",weekNumberCalculation:"local",scrollTime:"06:00:00",lazyFetching:!0,startParam:"start",endParam:"end",timezoneParam:"timezone",timezone:!1,isRTL:!1,buttonText:{prev:"prev",next:"next",prevYear:"prev year",nextYear:"next year",year:"year",today:"today",month:"month",week:"week",day:"day"},buttonIcons:{prev:"left-single-arrow",next:"right-single-arrow",prevYear:"left-double-arrow",nextYear:"right-double-arrow"},theme:!1,themeButtonIcons:{prev:"circle-triangle-w",next:"circle-triangle-e",prevYear:"seek-prev",nextYear:"seek-next"},dragOpacity:.75,dragRevertDuration:500,dragScroll:!0,unselectAuto:!0,dropAccept:"*",eventOrder:"title",eventLimit:!1,eventLimitText:"more",eventLimitClick:"popover",dayPopoverFormat:"LL",handleWindowResize:!0,windowResizeDelay:200,longPressDelay:1e3},vb.englishDefaults={dayPopoverFormat:"dddd, MMMM D"},vb.rtlDefaults={header:{left:"next,prev today",center:"",right:"title"},buttonIcons:{prev:"right-single-arrow",next:"left-single-arrow",prevYear:"right-double-arrow",nextYear:"left-double-arrow"},themeButtonIcons:{prev:"circle-triangle-e",next:"circle-triangle-w",nextYear:"seek-prev",prevYear:"seek-next"}};var wb=Ta.langs={};Ta.datepickerLang=function(b,c,d){var e=wb[b]||(wb[b]={});e.isRTL=d.isRTL,e.weekNumberTitle=d.weekHeader,a.each(xb,function(a,b){e[a]=b(d)}),a.datepicker&&(a.datepicker.regional[c]=a.datepicker.regional[b]=d,a.datepicker.regional.en=a.datepicker.regional[""],a.datepicker.setDefaults(d))},Ta.lang=function(b,d){var e,f;e=wb[b]||(wb[b]={}),d&&(e=wb[b]=c([e,d])),f=Pa(b),a.each(yb,function(a,b){null==e[a]&&(e[a]=b(f,e))}),vb.defaults.lang=b};var xb={buttonText:function(a){return{prev:ba(a.prevText),next:ba(a.nextText),today:ba(a.currentText)}},monthYearFormat:function(a){return a.showMonthAfterYear?"YYYY["+a.yearSuffix+"] MMMM":"MMMM YYYY["+a.yearSuffix+"]"}},yb={dayOfMonthFormat:function(a,b){var c=a.longDateFormat("l");return c=c.replace(/^Y+[^\w\s]*|[^\w\s]*Y+$/g,""),b.isRTL?c+=" ddd":c="ddd "+c,c},mediumTimeFormat:function(a){return a.longDateFormat("LT").replace(/\s*a$/i,"a")},smallTimeFormat:function(a){return a.longDateFormat("LT").replace(":mm","(:mm)").replace(/(\Wmm)$/,"($1)").replace(/\s*a$/i,"a")},extraSmallTimeFormat:function(a){return a.longDateFormat("LT").replace(":mm","(:mm)").replace(/(\Wmm)$/,"($1)").replace(/\s*a$/i,"t")},hourFormat:function(a){return a.longDateFormat("LT").replace(":mm","").replace(/(\Wmm)$/,"").replace(/\s*a$/i,"a")},noMeridiemTimeFormat:function(a){return a.longDateFormat("LT").replace(/\s*a$/i,"")}},zb={smallDayDateFormat:function(a){return a.isRTL?"D dd":"dd D"},weekFormat:function(a){return a.isRTL?"w[ "+a.weekNumberTitle+"]":"["+a.weekNumberTitle+" ]w"},smallWeekFormat:function(a){return a.isRTL?"w["+a.weekNumberTitle+"]":"["+a.weekNumberTitle+"]w"}};Ta.lang("en",vb.englishDefaults),Ta.sourceNormalizers=[],Ta.sourceFetchers=[];var Ab={dataType:"json",cache:!1},Bb=1;vb.prototype.getPeerEvents=function(a,b){var c,d,e=this.getEventCache(),f=[];for(c=0;c<e.length;c++)d=e[c],b&&b._id===d._id||f.push(d);return f};var Cb=Ta.BasicView=tb.extend({scroller:null,dayGridClass:rb,dayGrid:null,dayNumbersVisible:!1,weekNumbersVisible:!1,weekNumberWidth:null,headContainerEl:null,headRowEl:null,initialize:function(){this.dayGrid=this.instantiateDayGrid(),this.scroller=new ub({overflowX:"hidden",overflowY:"auto"})},instantiateDayGrid:function(){var a=this.dayGridClass.extend(Db);return new a(this)},setRange:function(a){tb.prototype.setRange.call(this,a),this.dayGrid.breakOnWeeks=/year|month|week/.test(this.intervalUnit),this.dayGrid.setRange(a)},computeRange:function(a){var b=tb.prototype.computeRange.call(this,a);return/year|month/.test(b.intervalUnit)&&(b.start.startOf("week"),b.start=this.skipHiddenDays(b.start),b.end.weekday()&&(b.end.add(1,"week").startOf("week"),b.end=this.skipHiddenDays(b.end,-1,!0))),b},renderDates:function(){this.dayNumbersVisible=this.dayGrid.rowCnt>1,this.weekNumbersVisible=this.opt("weekNumbers"),this.dayGrid.numbersVisible=this.dayNumbersVisible||this.weekNumbersVisible,this.el.addClass("fc-basic-view").html(this.renderSkeletonHtml()),this.renderHead(),this.scroller.render();var b=this.scroller.el.addClass("fc-day-grid-container"),c=a('<div class="fc-day-grid" />').appendTo(b);this.el.find(".fc-body > tr > td").append(b),this.dayGrid.setElement(c),this.dayGrid.renderDates(this.hasRigidRows())},renderHead:function(){this.headContainerEl=this.el.find(".fc-head-container").html(this.dayGrid.renderHeadHtml()),this.headRowEl=this.headContainerEl.find(".fc-row")},unrenderDates:function(){this.dayGrid.unrenderDates(),this.dayGrid.removeElement(),this.scroller.destroy()},renderBusinessHours:function(){this.dayGrid.renderBusinessHours()},renderSkeletonHtml:function(){return'<table><thead class="fc-head"><tr><td class="fc-head-container '+this.widgetHeaderClass+'"></td></tr></thead><tbody class="fc-body"><tr><td class="'+this.widgetContentClass+'"></td></tr></tbody></table>'},weekNumberStyleAttr:function(){return null!==this.weekNumberWidth?'style="width:'+this.weekNumberWidth+'px"':""},hasRigidRows:function(){var a=this.opt("eventLimit");return a&&"number"!=typeof a},updateWidth:function(){this.weekNumbersVisible&&(this.weekNumberWidth=k(this.el.find(".fc-week-number")))},setHeight:function(a,b){var c,d,g=this.opt("eventLimit");this.scroller.clear(),f(this.headRowEl),this.dayGrid.removeSegPopover(),g&&"number"==typeof g&&this.dayGrid.limitRows(g),c=this.computeScrollerHeight(a),this.setGridHeight(c,b),g&&"number"!=typeof g&&this.dayGrid.limitRows(g),b||(this.scroller.setHeight(c),d=this.scroller.getScrollbarWidths(),(d.left||d.right)&&(e(this.headRowEl,d),c=this.computeScrollerHeight(a),this.scroller.setHeight(c)),this.scroller.lockOverflow(d))},computeScrollerHeight:function(a){return a-l(this.el,this.scroller.el)},setGridHeight:function(a,b){b?j(this.dayGrid.rowEls):i(this.dayGrid.rowEls,a,!0)},queryScroll:function(){return this.scroller.getScrollTop()},setScroll:function(a){this.scroller.setScrollTop(a)},prepareHits:function(){this.dayGrid.prepareHits()},releaseHits:function(){this.dayGrid.releaseHits()},queryHit:function(a,b){return this.dayGrid.queryHit(a,b)},getHitSpan:function(a){return this.dayGrid.getHitSpan(a)},getHitEl:function(a){return this.dayGrid.getHitEl(a)},renderEvents:function(a){this.dayGrid.renderEvents(a),this.updateHeight()},getEventSegs:function(){return this.dayGrid.getEventSegs()},unrenderEvents:function(){this.dayGrid.unrenderEvents()},renderDrag:function(a,b){return this.dayGrid.renderDrag(a,b)},unrenderDrag:function(){this.dayGrid.unrenderDrag()},renderSelection:function(a){this.dayGrid.renderSelection(a)},unrenderSelection:function(){this.dayGrid.unrenderSelection()}}),Db={renderHeadIntroHtml:function(){var a=this.view;return a.weekNumbersVisible?'<th class="fc-week-number '+a.widgetHeaderClass+'" '+a.weekNumberStyleAttr()+"><span>"+aa(a.opt("weekNumberTitle"))+"</span></th>":""},renderNumberIntroHtml:function(a){var b=this.view;return b.weekNumbersVisible?'<td class="fc-week-number" '+b.weekNumberStyleAttr()+"><span>"+this.getCellDate(a,0).format("w")+"</span></td>":""},renderBgIntroHtml:function(){var a=this.view;return a.weekNumbersVisible?'<td class="fc-week-number '+a.widgetContentClass+'" '+a.weekNumberStyleAttr()+"></td>":""},renderIntroHtml:function(){var a=this.view;return a.weekNumbersVisible?'<td class="fc-week-number" '+a.weekNumberStyleAttr()+"></td>":""}},Eb=Ta.MonthView=Cb.extend({computeRange:function(a){var b,c=Cb.prototype.computeRange.call(this,a);return this.isFixedWeeks()&&(b=Math.ceil(c.end.diff(c.start,"weeks",!0)),c.end.add(6-b,"weeks")),c},setGridHeight:function(a,b){b=b||"variable"===this.opt("weekMode"),b&&(a*=this.rowCnt/6),i(this.dayGrid.rowEls,a,!b)},isFixedWeeks:function(){var a=this.opt("weekMode");return a?"fixed"===a:this.opt("fixedWeekCount")}});Ua.basic={"class":Cb},Ua.basicDay={type:"basic",duration:{days:1}},Ua.basicWeek={type:"basic",duration:{weeks:1}},Ua.month={"class":Eb,duration:{months:1},defaults:{fixedWeekCount:!0}};var Fb=Ta.AgendaView=tb.extend({scroller:null,timeGridClass:sb,timeGrid:null,dayGridClass:rb,dayGrid:null,axisWidth:null,headContainerEl:null,noScrollRowEls:null,bottomRuleEl:null,initialize:function(){this.timeGrid=this.instantiateTimeGrid(),this.opt("allDaySlot")&&(this.dayGrid=this.instantiateDayGrid()),this.scroller=new ub({overflowX:"hidden",overflowY:"auto"})},instantiateTimeGrid:function(){var a=this.timeGridClass.extend(Gb);return new a(this)},instantiateDayGrid:function(){var a=this.dayGridClass.extend(Hb);return new a(this)},setRange:function(a){tb.prototype.setRange.call(this,a),this.timeGrid.setRange(a),this.dayGrid&&this.dayGrid.setRange(a)},renderDates:function(){this.el.addClass("fc-agenda-view").html(this.renderSkeletonHtml()),this.renderHead(),this.scroller.render();var b=this.scroller.el.addClass("fc-time-grid-container"),c=a('<div class="fc-time-grid" />').appendTo(b);this.el.find(".fc-body > tr > td").append(b),this.timeGrid.setElement(c),this.timeGrid.renderDates(),this.bottomRuleEl=a('<hr class="fc-divider '+this.widgetHeaderClass+'"/>').appendTo(this.timeGrid.el),this.dayGrid&&(this.dayGrid.setElement(this.el.find(".fc-day-grid")),this.dayGrid.renderDates(),this.dayGrid.bottomCoordPadding=this.dayGrid.el.next("hr").outerHeight()),this.noScrollRowEls=this.el.find(".fc-row:not(.fc-scroller *)")},renderHead:function(){this.headContainerEl=this.el.find(".fc-head-container").html(this.timeGrid.renderHeadHtml())},unrenderDates:function(){this.timeGrid.unrenderDates(),this.timeGrid.removeElement(),this.dayGrid&&(this.dayGrid.unrenderDates(),this.dayGrid.removeElement()),this.scroller.destroy()},renderSkeletonHtml:function(){return'<table><thead class="fc-head"><tr><td class="fc-head-container '+this.widgetHeaderClass+'"></td></tr></thead><tbody class="fc-body"><tr><td class="'+this.widgetContentClass+'">'+(this.dayGrid?'<div class="fc-day-grid"/><hr class="fc-divider '+this.widgetHeaderClass+'"/>':"")+"</td></tr></tbody></table>"},axisStyleAttr:function(){return null!==this.axisWidth?'style="width:'+this.axisWidth+'px"':""},renderBusinessHours:function(){this.timeGrid.renderBusinessHours(),this.dayGrid&&this.dayGrid.renderBusinessHours()},unrenderBusinessHours:function(){this.timeGrid.unrenderBusinessHours(),this.dayGrid&&this.dayGrid.unrenderBusinessHours()},getNowIndicatorUnit:function(){return this.timeGrid.getNowIndicatorUnit()},renderNowIndicator:function(a){this.timeGrid.renderNowIndicator(a)},unrenderNowIndicator:function(){this.timeGrid.unrenderNowIndicator()},updateSize:function(a){this.timeGrid.updateSize(a),tb.prototype.updateSize.call(this,a)},updateWidth:function(){this.axisWidth=k(this.el.find(".fc-axis"))},setHeight:function(a,b){var c,d,g;this.bottomRuleEl.hide(),this.scroller.clear(),f(this.noScrollRowEls),this.dayGrid&&(this.dayGrid.removeSegPopover(),c=this.opt("eventLimit"),c&&"number"!=typeof c&&(c=Ib),c&&this.dayGrid.limitRows(c)),b||(d=this.computeScrollerHeight(a),this.scroller.setHeight(d),g=this.scroller.getScrollbarWidths(),(g.left||g.right)&&(e(this.noScrollRowEls,g),d=this.computeScrollerHeight(a),this.scroller.setHeight(d)),this.scroller.lockOverflow(g),this.timeGrid.getTotalSlatHeight()<d&&this.bottomRuleEl.show())},computeScrollerHeight:function(a){return a-l(this.el,this.scroller.el)},computeInitialScroll:function(){var a=b.duration(this.opt("scrollTime")),c=this.timeGrid.computeTimeTop(a);return c=Math.ceil(c),c&&c++,c},queryScroll:function(){return this.scroller.getScrollTop()},setScroll:function(a){this.scroller.setScrollTop(a)},prepareHits:function(){this.timeGrid.prepareHits(),this.dayGrid&&this.dayGrid.prepareHits()},releaseHits:function(){this.timeGrid.releaseHits(),this.dayGrid&&this.dayGrid.releaseHits()},queryHit:function(a,b){var c=this.timeGrid.queryHit(a,b);return!c&&this.dayGrid&&(c=this.dayGrid.queryHit(a,b)),c},getHitSpan:function(a){return a.component.getHitSpan(a)},getHitEl:function(a){return a.component.getHitEl(a)},renderEvents:function(a){var b,c,d=[],e=[],f=[];for(c=0;c<a.length;c++)a[c].allDay?d.push(a[c]):e.push(a[c]);b=this.timeGrid.renderEvents(e),this.dayGrid&&(f=this.dayGrid.renderEvents(d)),this.updateHeight()},getEventSegs:function(){return this.timeGrid.getEventSegs().concat(this.dayGrid?this.dayGrid.getEventSegs():[])},unrenderEvents:function(){this.timeGrid.unrenderEvents(),this.dayGrid&&this.dayGrid.unrenderEvents()},renderDrag:function(a,b){return a.start.hasTime()?this.timeGrid.renderDrag(a,b):this.dayGrid?this.dayGrid.renderDrag(a,b):void 0},unrenderDrag:function(){this.timeGrid.unrenderDrag(),this.dayGrid&&this.dayGrid.unrenderDrag()},renderSelection:function(a){a.start.hasTime()||a.end.hasTime()?this.timeGrid.renderSelection(a):this.dayGrid&&this.dayGrid.renderSelection(a)},unrenderSelection:function(){this.timeGrid.unrenderSelection(),this.dayGrid&&this.dayGrid.unrenderSelection()}}),Gb={renderHeadIntroHtml:function(){var a,b=this.view;return b.opt("weekNumbers")?(a=this.start.format(b.opt("smallWeekFormat")),'<th class="fc-axis fc-week-number '+b.widgetHeaderClass+'" '+b.axisStyleAttr()+"><span>"+aa(a)+"</span></th>"):'<th class="fc-axis '+b.widgetHeaderClass+'" '+b.axisStyleAttr()+"></th>"},renderBgIntroHtml:function(){var a=this.view;return'<td class="fc-axis '+a.widgetContentClass+'" '+a.axisStyleAttr()+"></td>"},renderIntroHtml:function(){var a=this.view;return'<td class="fc-axis" '+a.axisStyleAttr()+"></td>"}},Hb={renderBgIntroHtml:function(){var a=this.view;return'<td class="fc-axis '+a.widgetContentClass+'" '+a.axisStyleAttr()+"><span>"+(a.opt("allDayHtml")||aa(a.opt("allDayText")))+"</span></td>"},renderIntroHtml:function(){var a=this.view;return'<td class="fc-axis" '+a.axisStyleAttr()+"></td>"}},Ib=5,Jb=[{hours:1},{minutes:30},{minutes:15},{seconds:30},{seconds:15}];return Ua.agenda={"class":Fb,defaults:{allDaySlot:!0,allDayText:"all-day",slotDuration:"00:30:00",minTime:"00:00:00",maxTime:"24:00:00",slotEventOverlap:!0}},Ua.agendaDay={type:"agenda",duration:{days:1}},Ua.agendaWeek={type:"agenda",duration:{weeks:1}},Ta});
+/*!
+FullCalendar Scheduler v1.3.0
+Docs & License: http://fullcalendar.io/scheduler/
+(c) 2015 Adam Shaw
+ */
+!function(t){"function"==typeof define&&define.amd?define(["jquery","moment"],t):t(jQuery,moment)}(function(t,e){var r,o,i,n,s,l,u,a,h,c,p,d,f,g,y,v,m,w,R,S,b,C,E,T,H,_,I,D,x,F,G,M,W,L,B,k,z,V,P,A,O,N,q,Y,j,U,X,$,K,Q,J,Z,tt,et,rt,ot,it,nt,st,lt,ut,at,ht,ct,pt,dt,ft,gt,yt,vt,mt,wt,Rt,St,bt,Ct,Et,Tt,Ht,_t,It,Dt,xt,Ft,Gt,Mt,Wt,Lt,Bt,kt,zt=function(t,e){function r(){this.constructor=t}for(var o in e)Vt.call(e,o)&&(t[o]=e[o]);return r.prototype=e.prototype,t.prototype=new r,t.__super__=e.prototype,t},Vt={}.hasOwnProperty,Pt=[].slice;return d=t.fullCalendar,d.schedulerVersion="1.3.0",3!==d.internalApiVersion?void d.warn("v"+d.schedulerVersion+" of FullCalendar Scheduler is incompatible with v"+d.version+" of the core.\nPlease see http://fullcalendar.io/support/ for more information."):(o=d.Calendar,n=d.Class,X=d.View,f=d.Grid,vt=d.intersectRanges,ot=d.debounce,Rt=d.isInt,ft=d.getScrollbarWidths,a=d.DragListener,yt=d.htmlEscape,J=d.computeIntervalUnit,Ft=d.proxy,K=d.capitaliseFirstLetter,$=d.applyAll,h=d.EmitterMixin,v=d.ListenerMixin,lt=d.durationHasTime,st=d.divideRangeByDuration,nt=d.divideDurationByDuration,Ct=d.multiplyDuration,Dt=d.parseFieldSpecs,Q=d.compareByFieldSpecs,ut=d.flexibleCompare,mt=d.intersectRects,l=d.CoordCache,at=d.getContentRect,ht=d.getOuterRect,ct=function(t){return t.find("> td").filter(function(t,e){return e.rowSpan<=1})},c=function(e){function r(){r.__super__.constructor.apply(this,arguments),this.requestMovingEnd=ot(this.reportMovingEnd,500)}var o,i;return zt(r,e),r.mixin(h),r.mixin(v),r.prototype.canvas=null,r.prototype.isScrolling=!1,r.prototype.isTouching=!1,r.prototype.isMoving=!1,r.prototype.isTouchScrollEnabled=!0,r.prototype.preventTouchScrollHandler=null,r.prototype.render=function(){return r.__super__.render.apply(this,arguments),this.canvas&&(this.canvas.render(),this.canvas.el.appendTo(this.scrollEl)),this.bindHandlers()},r.prototype.destroy=function(){return r.__super__.destroy.apply(this,arguments),this.unbindHandlers()},r.prototype.disableTouchScroll=function(){return this.isTouchScrollEnabled=!1,this.bindPreventTouchScroll()},r.prototype.enableTouchScroll=function(){return this.isTouchScrollEnabled=!0,this.isTouching?void 0:this.unbindPreventTouchScroll()},r.prototype.bindPreventTouchScroll=function(){return this.preventTouchScrollHandler?void 0:this.scrollEl.on("touchmove",this.preventTouchScrollHandler=d.preventDefault)},r.prototype.unbindPreventTouchScroll=function(){return this.preventTouchScrollHandler?(this.scrollEl.off("touchmove",this.preventTouchScrollHandler),this.preventTouchScrollHandler=null):void 0},r.prototype.bindHandlers=function(){return this.listenTo(this.scrollEl,{scroll:this.reportScroll,touchstart:this.reportTouchStart,touchend:this.reportTouchEnd})},r.prototype.unbindHandlers=function(){return this.stopListeningTo(this.scrollEl)},r.prototype.reportScroll=function(){return this.isScrolling||this.reportScrollStart(),this.trigger("scroll"),this.isMoving=!0,this.requestMovingEnd()},r.prototype.reportScrollStart=function(){return this.isScrolling?void 0:(this.isScrolling=!0,this.trigger("scrollStart",this.isTouching))},r.prototype.requestMovingEnd=null,r.prototype.reportMovingEnd=function(){return this.isMoving=!1,this.isTouching?void 0:this.reportScrollEnd()},r.prototype.reportScrollEnd=function(){return this.isScrolling?(this.trigger("scrollEnd"),this.isScrolling=!1):void 0},r.prototype.reportTouchStart=function(){return this.isTouching=!0},r.prototype.reportTouchEnd=function(){return this.isTouching&&(this.isTouching=!1,this.isTouchScrollEnabled&&this.unbindPreventTouchScroll(),!this.isMoving)?this.reportScrollEnd():void 0},r.prototype.getScrollLeft=function(){var t,e,r;if(t=this.scrollEl.css("direction"),e=this.scrollEl[0],r=e.scrollLeft,"rtl"===t)switch(i){case"positive":r=r+e.clientWidth-e.scrollWidth;break;case"reverse":r=-r}return r},r.prototype.setScrollLeft=function(t){var e,r;if(e=this.scrollEl.css("direction"),r=this.scrollEl[0],"rtl"===e)switch(i){case"positive":t=t-r.clientWidth+r.scrollWidth;break;case"reverse":t=-t}return r.scrollLeft=t},r.prototype.getScrollFromLeft=function(){var t,e,r;if(t=this.scrollEl.css("direction"),e=this.scrollEl[0],r=e.scrollLeft,"rtl"===t)switch(i){case"negative":r=r-e.clientWidth+e.scrollWidth;break;case"reverse":r=-r-e.clientWidth+e.scrollWidth}return r},r.prototype.getNativeScrollLeft=function(){return this.scrollEl[0].scrollLeft},r.prototype.setNativeScrollLeft=function(t){return this.scrollEl[0].scrollLeft=t},i=null,o=function(){var e,r,o;return e=t('<div style=" position: absolute top: -1000px; width: 1px; height: 1px; overflow: scroll; direction: rtl; font-size: 14px; ">A</div>').appendTo("body"),r=e[0],o=r.scrollLeft>0?"positive":(r.scrollLeft=1,e.scrollLeft>0?"reverse":"negative"),e.remove(),o},t(function(){return i=o()}),r}(d.Scroller),s=function(e){function r(){r.__super__.constructor.apply(this,arguments),"clipped-scroll"===this.overflowX&&(this.overflowX="scroll",this.isHScrollbarsClipped=!0),"clipped-scroll"===this.overflowY&&(this.overflowY="scroll",this.isVScrollbarsClipped=!0)}return zt(r,e),r.prototype.isHScrollbarsClipped=!1,r.prototype.isVScrollbarsClipped=!1,r.prototype.renderEl=function(){var e;return e=r.__super__.renderEl.apply(this,arguments),t('<div class="fc-scroller-clip" />').append(e)},r.prototype.updateSize=function(){var t,e,r;return e=this.scrollEl,r=ft(e),t={marginLeft:0,marginRight:0,marginTop:0,marginBottom:0},this.isHScrollbarsClipped&&(t.marginTop=-r.top,t.marginBottom=-r.bottom),this.isVScrollbarsClipped&&(t.marginLeft=-r.left,t.marginRight=-r.right),e.css(t),e.toggleClass("fc-no-scrollbars",(this.isHScrollbarsClipped||"hidden"===this.overflowX)&&(this.isVScrollbarsClipped||"hidden"===this.overflowY)&&!(r.top||r.bottom||r.left||r.right))},r.prototype.getScrollbarWidths=function(){var t;return t=ft(this.scrollEl),this.isHScrollbarsClipped&&(t.top=0,t.bottom=0),this.isVScrollbarsClipped&&(t.left=0,t.right=0),t},r}(c),O=function(){function e(){this.gutters={}}return e.prototype.el=null,e.prototype.contentEl=null,e.prototype.bgEl=null,e.prototype.gutters=null,e.prototype.width=null,e.prototype.minWidth=null,e.prototype.render=function(){return this.el=t('<div class="fc-scroller-canvas"> <div class="fc-content"></div> <div class="fc-bg"></div> </div>'),this.contentEl=this.el.find(".fc-content"),this.bgEl=this.el.find(".fc-bg")},e.prototype.setGutters=function(e){return e?t.extend(this.gutters,e):this.gutters={},this.updateSize()},e.prototype.setWidth=function(t){return this.width=t,this.updateSize()},e.prototype.setMinWidth=function(t){return this.minWidth=t,this.updateSize()},e.prototype.clearWidth=function(){return this.width=null,this.minWidth=null,this.updateSize()},e.prototype.updateSize=function(){var t;return t=this.gutters,this.el.toggleClass("fc-gutter-left",Boolean(t.left)).toggleClass("fc-gutter-right",Boolean(t.right)).toggleClass("fc-gutter-top",Boolean(t.top)).toggleClass("fc-gutter-bottom",Boolean(t.bottom)).css({paddingLeft:t.left||"",paddingRight:t.right||"",paddingTop:t.top||"",paddingBottom:t.bottom||"",width:null!=this.width?this.width+(t.left||0)+(t.right||0):"",minWidth:null!=this.minWidth?this.minWidth+(t.left||0)+(t.right||0):""}),this.bgEl.css({left:t.left||"",right:t.right||"",top:t.top||"",bottom:t.bottom||""})},e}(),A=function(){function t(t,e){var r,o,i,n;for(this.axis=t,this.scrollers=e,i=this.scrollers,r=0,o=i.length;o>r;r++)n=i[r],this.initScroller(n)}return t.prototype.axis=null,t.prototype.scrollers=null,t.prototype.masterScroller=null,t.prototype.initScroller=function(t){return t.scrollEl.on("wheel mousewheel DomMouseScroll MozMousePixelScroll",function(e){return function(){e.assignMasterScroller(t)}}(this)),t.on("scrollStart",function(e){return function(){return e.masterScroller?void 0:e.assignMasterScroller(t)}}(this)).on("scroll",function(e){return function(){var r,o,i,n,s;if(t===e.masterScroller){for(n=e.scrollers,s=[],r=0,o=n.length;o>r;r++)if(i=n[r],i!==t)switch(e.axis){case"horizontal":s.push(i.setNativeScrollLeft(t.getNativeScrollLeft()));break;case"vertical":s.push(i.setScrollTop(t.getScrollTop()));break;default:s.push(void 0)}else s.push(void 0);return s}}}(this)).on("scrollEnd",function(e){return function(){return t===e.masterScroller?e.unassignMasterScroller():void 0}}(this))},t.prototype.assignMasterScroller=function(t){var e,r,o,i;for(this.unassignMasterScroller(),this.masterScroller=t,i=this.scrollers,e=0,r=i.length;r>e;e++)o=i[e],o!==t&&o.disableTouchScroll()},t.prototype.unassignMasterScroller=function(){var t,e,r,o;if(this.masterScroller){for(o=this.scrollers,t=0,e=o.length;e>t;t++)r=o[t],r.enableTouchScroll();this.masterScroller=null}},t.prototype.update=function(){var t,e,r,o,i,n,s,l,u,a,h,c,p;for(t=function(){var t,e,r,o;for(r=this.scrollers,o=[],t=0,e=r.length;e>t;t++)c=r[t],o.push(c.getScrollbarWidths());return o}.call(this),l=u=a=s=0,r=0,i=t.length;i>r;r++)p=t[r],l=Math.max(l,p.left),u=Math.max(u,p.right),a=Math.max(a,p.top),s=Math.max(s,p.bottom);for(h=this.scrollers,e=o=0,n=h.length;n>o;e=++o)c=h[e],p=t[e],c.canvas.setGutters("horizontal"===this.axis?{left:l-p.left,right:u-p.right}:{top:a-p.top,bottom:s-p.bottom})},t}(),V=function(){function e(t,e){this.isTouch=e,this.scroller=t,this.sprites=[],this.isTouch&&(this.isForcedRelative=!0),t.on(this.isTouch?"scrollEnd":"scroll",function(t){return function(){return t.handleScroll()}}(this))}return e.prototype.scroller=null,e.prototype.scrollbarWidths=null,e.prototype.sprites=null,e.prototype.viewportRect=null,e.prototype.contentOffset=null,e.prototype.isHFollowing=!0,e.prototype.isVFollowing=!1,e.prototype.containOnNaturalLeft=!1,e.prototype.containOnNaturalRight=!1,e.prototype.minTravel=0,e.prototype.isTouch=!1,e.prototype.isForcedRelative=!1,e.prototype.setSprites=function(e){var r,o,i;if(this.clearSprites(),e instanceof t)return this.sprites=function(){var r,o,n;for(n=[],r=0,o=e.length;o>r;r++)i=e[r],n.push(new P(t(i),this));return n}.call(this);for(r=0,o=e.length;o>r;r++)i=e[r],i.follower=this;return this.sprites=e},e.prototype.clearSprites=function(){var t,e,r,o;for(r=this.sprites,t=0,e=r.length;e>t;t++)o=r[t],o.clear();return this.sprites=[]},e.prototype.handleScroll=function(){return this.updateViewport(),this.updatePositions()},e.prototype.cacheDimensions=function(){var t,e,r,o;for(this.updateViewport(),this.scrollbarWidths=this.scroller.getScrollbarWidths(),this.contentOffset=this.scroller.canvas.el.offset(),r=this.sprites,t=0,e=r.length;e>t;t++)o=r[t],o.cacheDimensions()},e.prototype.updateViewport=function(){var t,e,r;return e=this.scroller,t=e.getScrollFromLeft(),r=e.getScrollTop(),this.viewportRect={left:t,right:t+e.getClientWidth(),top:r,bottom:r+e.getClientHeight()}},e.prototype.forceRelative=function(){var t,e,r,o,i;if(!this.isForcedRelative){for(this.isForcedRelative=!0,r=this.sprites,o=[],t=0,e=r.length;e>t;t++)i=r[t],o.push(i.doAbsolute?i.assignPosition():void 0);return o}},e.prototype.clearForce=function(){var t,e,r,o,i;if(this.isForcedRelative&&!this.isTouch){for(this.isForcedRelative=!1,r=this.sprites,o=[],t=0,e=r.length;e>t;t++)i=r[t],o.push(i.assignPosition());return o}},e.prototype.update=function(){return this.cacheDimensions(),this.updatePositions()},e.prototype.updatePositions=function(){var t,e,r,o;for(r=this.sprites,t=0,e=r.length;e>t;t++)o=r[t],o.updatePosition()},e.prototype.getContentRect=function(t){return at(t,this.contentOffset)},e.prototype.getBoundingRect=function(t){return ht(t,this.contentOffset)},e}(),P=function(){function t(t,e){this.el=t,this.follower=null!=e?e:null,this.isBlock="block"===this.el.css("display"),this.el.css("position","relative")}return t.prototype.follower=null,t.prototype.el=null,t.prototype.absoluteEl=null,t.prototype.naturalRect=null,t.prototype.parentRect=null,t.prototype.containerRect=null,t.prototype.isEnabled=!0,t.prototype.isHFollowing=!1,t.prototype.isVFollowing=!1,t.prototype.doAbsolute=!1,t.prototype.isAbsolute=!1,t.prototype.isCentered=!1,t.prototype.rect=null,t.prototype.isBlock=!1,t.prototype.naturalWidth=null,t.prototype.disable=function(){return this.isEnabled?(this.isEnabled=!1,this.resetPosition(),this.unabsolutize()):void 0},t.prototype.enable=function(){return this.isEnabled?void 0:(this.isEnabled=!0,this.assignPosition())},t.prototype.clear=function(){return this.disable(),this.follower=null,this.absoluteEl=null},t.prototype.cacheDimensions=function(){var t,e,r,o,i,n,s,l;return o=!1,i=!1,r=!1,this.naturalWidth=this.el.width(),this.resetPosition(),e=this.follower,s=this.naturalRect=e.getBoundingRect(this.el),l=this.el.parent(),this.parentRect=e.getBoundingRect(l),t=this.containerRect=bt(e.getContentRect(l),s),n=e.minTravel,e.containOnNaturalLeft&&(t.left=s.left),e.containOnNaturalRight&&(t.right=s.right),e.isHFollowing&&dt(t)-dt(s)>=n&&(r="center"===this.el.css("text-align"),o=!0),e.isVFollowing&&pt(t)-pt(s)>=n&&(i=!0),this.isHFollowing=o,this.isVFollowing=i,this.isCentered=r},t.prototype.updatePosition=function(){return this.computePosition(),this.assignPosition()},t.prototype.resetPosition=function(){return this.el.css({top:"",left:""})},t.prototype.computePosition=function(){var t,e,r,o,i,n,s,l;return s=this.follower.viewportRect,r=this.parentRect,t=this.containerRect,l=mt(s,r),o=null,e=!1,l&&(o=et(this.naturalRect),n=mt(o,r),(this.isCentered&&!Mt(s,r)||n&&!Mt(s,n))&&(e=!0,this.isHFollowing&&(this.isCentered?(i=dt(o),o.left=(l.left+l.right)/2-i/2,o.right=o.left+i):gt(o,s)||(e=!1),gt(o,t)&&(e=!1)),this.isVFollowing&&(kt(o,s)||(e=!1),kt(o,t)&&(e=!1)),Mt(s,o)||(e=!1))),this.rect=o,this.doAbsolute=e},t.prototype.assignPosition=function(){var t,e;return this.isEnabled?this.rect?this.doAbsolute&&!this.follower.isForcedRelative?(this.absolutize(),this.absoluteEl.css({top:this.rect.top-this.follower.viewportRect.top+this.follower.scrollbarWidths.top,left:this.rect.left-this.follower.viewportRect.left+this.follower.scrollbarWidths.left,width:this.isBlock?this.naturalWidth:""})):(e=this.rect.top-this.naturalRect.top,t=this.rect.left-this.naturalRect.left,this.unabsolutize(),this.el.toggleClass("fc-following",Boolean(e||t)).css({top:e,left:t})):this.unabsolutize():void 0},t.prototype.absolutize=function(){return this.isAbsolute?void 0:(this.absoluteEl||(this.absoluteEl=this.buildAbsoluteEl()),this.absoluteEl.appendTo(this.follower.scroller.el),this.el.css("visibility","hidden"),this.isAbsolute=!0)},t.prototype.unabsolutize=function(){return this.isAbsolute?(this.absoluteEl.detach(),this.el.css("visibility",""),this.isAbsolute=!1):void 0},t.prototype.buildAbsoluteEl=function(){return this.el.clone().addClass("fc-following").css({position:"absolute","z-index":1e3,"font-weight":this.el.css("font-weight"),"font-size":this.el.css("font-size"),"font-family":this.el.css("font-family"),color:this.el.css("color"),"padding-top":this.el.css("padding-top"),"padding-bottom":this.el.css("padding-bottom"),"padding-left":this.el.css("padding-left"),"padding-right":this.el.css("padding-right"),"pointer-events":"none"})},t}(),et=function(t){return{left:t.left,right:t.right,top:t.top,bottom:t.bottom}},dt=function(t){return t.right-t.left},pt=function(t){return t.bottom-t.top},Mt=function(t,e){return Wt(t,e)&&Lt(t,e)},Wt=function(t,e){return e.left>=t.left&&e.right<=t.right},Lt=function(t,e){return e.top>=t.top&&e.bottom<=t.bottom},gt=function(t,e){return t.left<e.left?(t.right=e.left+dt(t),t.left=e.left,!0):t.right>e.right?(t.left=e.right-dt(t),t.right=e.right,!0):!1},kt=function(t,e){return t.top<e.top?(t.bottom=e.top+pt(t),t.top=e.top,!0):t.bottom>e.bottom?(t.top=e.bottom-pt(t),t.bottom=e.bottom,!0):!1},bt=function(t,e){return{left:Math.min(t.left,e.left),right:Math.max(t.right,e.right),top:Math.min(t.top,e.top),bottom:Math.max(t.bottom,e.bottom)}},i=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.prototype.resourceManager=null,r.prototype.initialize=function(){return this.resourceManager=new D(this)},r.prototype.instantiateView=function(t){var e,r;return e=this.getViewSpec(t),r=e["class"],this.options.resources&&e.options.resources!==!1&&(e.queryResourceClass?r=e.queryResourceClass(e)||r:e.resourceClass&&(r=e.resourceClass)),new r(this,t,e.options,e.duration)},r.prototype.getResources=function(){return this.resourceManager.topLevelResources},r.prototype.addResource=function(t,e){var r;null==e&&(e=!1),r=this.resourceManager.addResource(t),e&&this.view.scrollToResource&&r.done(function(t){return function(e){return t.view.scrollToResource(e)}}(this))},r.prototype.removeResource=function(t){return this.resourceManager.removeResource(t)},r.prototype.refetchResources=function(){this.resourceManager.fetchResources()},r.prototype.rerenderResources=function(){this.resourceManager.resetResources()},r.prototype.getPeerEvents=function(t,e){var o,i,n,s,l,u,a,h,c,p,d,f,g,y;for(f=r.__super__.getPeerEvents.apply(this,arguments),p=t.resourceId?[t.resourceId]:e?this.getEventResourceIds(e):[],o=[],n=0,u=f.length;u>n;n++){if(d=f[n],i=!1,y=this.getEventResourceIds(d),y.length&&p.length){for(s=0,a=y.length;a>s;s++)for(g=y[s],l=0,h=p.length;h>l;l++)if(c=p[l],c===g){i=!0;break}}else i=!0;i&&o.push(d)}return o},r.prototype.buildSelectSpan=function(t,e,o){var i;return i=r.__super__.buildSelectSpan.apply(this,arguments),o&&(i.resourceId=o),i},r.prototype.getResourceById=function(t){return this.resourceManager.getResourceById(t)},r.prototype.getEventResourceId=function(t){return this.getEventResourceIds(t)[0]},r.prototype.getEventResourceIds=function(t){var e,r,o,i,n,s,l,u;if(u=String(null!=(n=null!=(s=t[this.getEventResourceField()])?s:t.resourceId)?n:""))return[u];if(t.resourceIds){for(i=[],l=t.resourceIds,e=0,r=l.length;r>e;e++)u=l[e],o=String(null!=u?u:""),o&&i.push(o);return i}return[]},r.prototype.setEventResourceId=function(t,e){return t[this.getEventResourceField()]=String(null!=e?e:"")},r.prototype.getEventResourceField=function(){return this.options.eventResourceField||"resourceId"},r.prototype.getResourceEvents=function(e){var r;return r="object"==typeof e?e:this.getResourceById(e),r?this.clientEvents(function(e){return function(o){return-1!==t.inArray(r.id,e.getEventResourceIds(o))}}(this)):[]},r.prototype.getEventResource=function(t){return this.getEventResources(t)[0]},r.prototype.getEventResources=function(t){var e,r,o,i,n,s,l;if(e="object"==typeof t?t:this.clientEvents(t)[0],l=[],e)for(i=this.getEventResourceIds(e),r=0,o=i.length;o>r;r++)s=i[r],n=this.getResourceById(s),n&&l.push(n);return l},r}(o),o.prototype=i.prototype,Tt=X.prototype.displayView,_t=X.prototype.renderSkeleton,It=X.prototype.unrenderSkeleton,Et=X.prototype.displayEvents,X.prototype.isResourcesBound=!1,X.prototype.settingResources=null,X.prototype.displayView=function(){return Tt.apply(this,arguments),xt(this.calendar.options.schedulerLicenseKey,this.el),this.bindResources(),this.whenResources()},X.prototype.unrenderSkeleton=function(){return It.apply(this,arguments),this.unbindResources()},X.prototype.displayEvents=function(t){return this.whenResources(function(e){return function(){return Et.call(e,t)}}(this))},X.prototype.bindResources=function(){var e;return this.isResourcesBound?void 0:(this.isResourcesBound=!0,this.settingResources=t.Deferred(),e=function(t){return function(e){return t.setResources(e),t.settingResources.resolve()}}(this),this.listenTo(this.calendar.resourceManager,{set:e,unset:this.unsetResources,reset:this.resetResources,add:this.addResource,remove:this.removeResource}),this.calendar.resourceManager.hasFetched()?e(this.calendar.resourceManager.topLevelResources):this.calendar.resourceManager.getResources())},X.prototype.unbindResources=function(){return this.isResourcesBound?(this.stopListeningTo(this.calendar.resourceManager),"resolved"===this.settingResources.state()&&this.unsetResources(),this.settingResources=null,this.isResourcesBound=!1):void 0},X.prototype.whenResources=function(e){return"resolved"===this.settingResources.state()?t.when(e?e():void 0):e?this.settingResources.then(e):this.settingResources.promise()},X.prototype.setResources=function(t){},X.prototype.unsetResources=function(){},X.prototype.resetResources=function(t){return this.calendar.rerenderEvents()},X.prototype.addResource=function(t){return this.resetResources(this.calendar.resourceManager.topLevelResources)},X.prototype.removeResource=function(t){return this.resetResources(this.calendar.resourceManager.topLevelResources)},Ht=f.prototype.getSegClasses,f.prototype.getSegClasses=function(t){var e,r,o,i,n;for(e=Ht.apply(this,arguments),i=this.getSegResources(t),r=0,o=i.length;o>r;r++)n=i[r],e=e.concat(n.eventClassName||[]);return e},f.prototype.getSegSkinCss=function(t){var e,r,o,i,n,s,l,u,a,h;return h=this.view,e=t.event,u=e.source||{},r=e.color,a=u.color,s=h.opt("eventColor"),l=this.getSegResources(t),o=function(){var t,e,r,o;for(o=null,e=0,r=l.length;r>e;e++)for(t=l[e];t&&!o;)o=t.eventBackgroundColor||t.eventColor,t=t._parent;return o},i=function(){var t,e,r,o;for(o=null,e=0,r=l.length;r>e;e++)for(t=l[e];t&&!o;)o=t.eventBorderColor||t.eventColor,t=t._parent;return o},n=function(){var t,e,r,o;for(o=null,e=0,r=l.length;r>e;e++)for(t=l[e];t&&!o;)o=t.eventTextColor,t=t._parent;return o},{"background-color":e.backgroundColor||r||o()||u.backgroundColor||a||h.opt("eventBackgroundColor")||s,"border-color":e.borderColor||r||i()||u.borderColor||a||h.opt("eventBorderColor")||s,color:e.textColor||n()||u.textColor||h.opt("eventTextColor")}},f.prototype.getSegResources=function(t){return t.resource?[t.resource]:this.view.calendar.getEventResources(t.event)},D=function(e){function r(t){this.calendar=t,this.initializeCache()}return zt(r,e),r.mixin(h),r.resourceGuid=1,r.ajaxDefaults={dataType:"json",cache:!1},r.prototype.calendar=null,r.prototype.topLevelResources=null,r.prototype.resourcesById=null,r.prototype.fetching=null,r.prototype.hasFetched=function(){return this.fetching&&"resolved"===this.fetching.state()},r.prototype.getResources=function(){var e;return this.fetching?t.Deferred().resolve(this.topLevelResources).promise():(e=t.Deferred(),this.fetchResources().done(function(t){return e.resolve(t)}).fail(function(){return e.resolve([])}),e)},r.prototype.fetchResources=function(){var e;return e=this.fetching,t.when(e).then(function(t){return function(){return t.fetching=t.fetchResourceInputs().then(function(r){return t.setResources(r,Boolean(e)),t.topLevelResources})}}(this))},r.prototype.fetchResourceInputs=function(){var e,o,i;switch(e=t.Deferred(),i=this.calendar.options.resources,"string"===t.type(i)&&(i={url:i}),t.type(i)){case"function":i(function(t){return function(t){return e.resolve(t)}}(this));break;case"object":o=t.ajax(t.extend({},r.ajaxDefaults,i));break;case"array":e.resolve(i);break;default:e.resolve([])}return o||(o=e.promise()),"pending"===!o.state()&&(this.calendar.pushLoading(),o.always(function(){return this.calendar.popLoading()})),o},r.prototype.resetResources=function(){return this.getResources().then(function(t){return function(){return t.trigger("reset",t.topLevelResources)}}(this))},r.prototype.getResourceById=function(t){return this.resourcesById[t]},r.prototype.initializeCache=function(){return this.topLevelResources=[],this.resourcesById={}},r.prototype.setResources=function(t,e){var r,o,i,n,s,l;for(this.initializeCache(),s=function(){var e,r,o;for(o=[],e=0,r=t.length;r>e;e++)n=t[e],o.push(this.buildResource(n));return o}.call(this),l=function(){var t,e,r;for(r=[],t=0,e=s.length;e>t;t++)i=s[t],this.addResourceToIndex(i)&&r.push(i);return r}.call(this),r=0,o=l.length;o>r;r++)i=l[r],this.addResourceToTree(i);return e?this.trigger("reset",this.topLevelResources):this.trigger("set",this.topLevelResources),this.calendar.trigger("resourcesSet",null,this.topLevelResources)},r.prototype.addResource=function(e){return t.when(this.fetching).then(function(t){return function(){var r;return r=t.buildResource(e),t.addResourceToIndex(r)?(t.addResourceToTree(r),t.trigger("add",r),r):!1}}(this))},r.prototype.addResourceToIndex=function(t){var e,r,o,i;if(this.resourcesById[t.id])return!1;for(this.resourcesById[t.id]=t,i=t.children,r=0,o=i.length;o>r;r++)e=i[r],this.addResourceToIndex(e);return!0},r.prototype.addResourceToTree=function(t){var e,r,o,i;if(!t.parent){if(r=String(null!=(o=t.parentId)?o:"")){if(e=this.resourcesById[r],!e)return!1;t.parent=e,i=e.children}else i=this.topLevelResources;i.push(t)}return!0},r.prototype.removeResource=function(e){var r;return r="object"==typeof e?e.id:e,t.when(this.fetching).then(function(t){return function(){var e;return e=t.removeResourceFromIndex(r),e&&(t.removeResourceFromTree(e),t.trigger("remove",e)),e}}(this))},r.prototype.removeResourceFromIndex=function(t){var e,r,o,i,n;if(n=this.resourcesById[t]){for(delete this.resourcesById[t],i=n.children,r=0,o=i.length;o>r;r++)e=i[r],this.removeResourceFromIndex(e.id);return n}return!1},r.prototype.removeResourceFromTree=function(t,e){var r,o,i,n;for(null==e&&(e=this.topLevelResources),r=o=0,i=e.length;i>o;r=++o){if(n=e[r],n===t)return t.parent=null,e.splice(r,1),!0;if(this.removeResourceFromTree(t,n.children))return!0}return!1},r.prototype.buildResource=function(e){var o,i,n,s,l;return l=t.extend({},e),l.id=String(null!=(s=e.id)?s:"_fc"+r.resourceGuid++),n=e.eventClassName,l.eventClassName=function(){switch(t.type(n)){case"string":return n.split(/\s+/);case"array":return n;default:return[]}}(),l.children=function(){var t,r,n,s,u;for(s=null!=(n=e.children)?n:[],u=[],t=0,r=s.length;r>t;t++)i=s[t],o=this.buildResource(i),o.parent=l,u.push(o);return u}.call(this),l},r}(n),L={resourceTextFunc:null,unsetResources:function(){return this.clearEvents()},resetResources:function(t){var e;return e=this.queryScroll(),this.unsetResources(),this.setResources(t),this.setScroll(e),this.calendar.rerenderEvents()},getResourceText:function(t){return this.getResourceTextFunc()(t)},getResourceTextFunc:function(){var t;return this.resourceTextFunc?this.resourceTextFunc:(t=this.opt("resourceText"),"function"!=typeof t&&(t=function(t){return t.title||t.id}),this.resourceTextFunc=t)},triggerDayClick:function(t,e,r){var o;return o=this.calendar.resourceManager,this.trigger("dayClick",e,this.calendar.applyTimezone(t.start),r,this,o.getResourceById(t.resourceId))},triggerSelect:function(t,e){var r;return r=this.calendar.resourceManager,this.trigger("select",null,this.calendar.applyTimezone(t.start),this.calendar.applyTimezone(t.end),e,this,r.getResourceById(t.resourceId))},triggerExternalDrop:function(t,e,r,o,i){return this.trigger("drop",r[0],e.start,o,i,e.resourceId),t?this.trigger("eventReceive",null,t):void 0},reportEventDrop:function(){var t,e,r,o;return e=arguments[0],t=arguments[1],r=3<=arguments.length?Pt.call(arguments,2):[],t=this.normalizeDropLocation(t),t.resourceId&&e.resourceIds&&(t.resourceIds=null),(o=X.prototype.reportEventDrop).call.apply(o,[this,e,t].concat(Pt.call(r)))},reportExternalDrop:function(){var t,e,r,o;return e=arguments[0],t=arguments[1],r=3<=arguments.length?Pt.call(arguments,2):[],t=this.normalizeDropLocation(t),(o=X.prototype.reportExternalDrop).call.apply(o,[this,e,t].concat(Pt.call(r)))},normalizeDropLocation:function(e){var r;return r=t.extend({},e),delete r.resourceId,this.calendar.setEventResourceId(r,e.resourceId),r}},I={allowCrossResource:!0,eventRangeToSpans:function(e,r){var o,i,n,s,l;if(s=this.view.calendar.getEventResourceIds(r),s.length){for(l=[],o=0,i=s.length;i>o;o++)n=s[o],l.push(t.extend({},e,{resourceId:n}));return l}return d.isBgEvent(r)?f.prototype.eventRangeToSpans.apply(this,arguments):[]},fabricateHelperEvent:function(t,e){var r;return r=f.prototype.fabricateHelperEvent.apply(this,arguments),this.view.calendar.setEventResourceId(r,t.resourceId),r},computeEventDrop:function(t,e,r){var o,i;return o=!0,o||t.resourceId===e.resourceId?(i=f.prototype.computeEventDrop.apply(this,arguments),i&&(i.resourceId=e.resourceId),i):null},computeExternalDrop:function(t,e){var r;return r=f.prototype.computeExternalDrop.apply(this,arguments),r&&(r.resourceId=t.resourceId),r},computeEventResize:function(t,e,r,o){var i;if(this.allowCrossResource||e.resourceId===r.resourceId)return i=f.prototype.computeEventResize.apply(this,arguments),i&&(i.resourceId=e.resourceId),i},computeSelectionSpan:function(t,e){var r;if(this.allowCrossResource||t.resourceId===e.resourceId)return r=f.prototype.computeSelectionSpan.apply(this,arguments),r&&(r.resourceId=t.resourceId),r}},_={flattenedResources:null,resourceCnt:0,datesAboveResources:!1,allowCrossResource:!1,setResources:function(t){return this.flattenedResources=this.flattenResources(t),this.resourceCnt=this.flattenedResources.length,this.updateDayTableCols()},unsetResources:function(){return this.flattenedResources=null,this.resourceCnt=0,this.updateDayTableCols()},flattenResources:function(t){var e,r,o,i;return r=this.view.opt("resourceOrder"),r?(e=Dt(r),i=function(t,r){return Q(t,r,e)}):i=null,o=[],this.accumulateResources(t,i,o),o},accumulateResources:function(t,e,r){var o,i,n,s,l;for(e?(l=t.slice(0),l.sort(e)):l=t,s=[],o=0,i=l.length;i>o;o++)n=l[o],r.push(n),s.push(this.accumulateResources(n.children,e,r));return s},updateDayTableCols:function(){return this.datesAboveResources=this.view.opt("groupByDateAndResource"),d.DayTableMixin.updateDayTableCols.call(this)},computeColCnt:function(){return(this.resourceCnt||1)*this.daysPerRow},getColDayIndex:function(t){return this.isRTL&&(t=this.colCnt-1-t),this.datesAboveResources?Math.floor(t/(this.resourceCnt||1)):t%this.daysPerRow},getColResource:function(t){return this.flattenedResources[this.getColResourceIndex(t)]},getColResourceIndex:function(t){return this.isRTL&&(t=this.colCnt-1-t),this.datesAboveResources?t%(this.resourceCnt||1):Math.floor(t/this.daysPerRow)},indicesToCol:function(t,e){var r;return r=this.datesAboveResources?e*(this.resourceCnt||1)+t:t*this.daysPerRow+e,this.isRTL&&(r=this.colCnt-1-r),r},renderHeadTrHtml:function(){return this.resourceCnt?this.daysPerRow>1?this.datesAboveResources?this.renderHeadDateAndResourceHtml():this.renderHeadResourceAndDateHtml():this.renderHeadResourceHtml():d.DayTableMixin.renderHeadTrHtml.call(this)},renderHeadResourceHtml:function(){var t,e,r,o,i;for(i=[],r=this.flattenedResources,t=0,e=r.length;e>t;t++)o=r[t],i.push(this.renderHeadResourceCellHtml(o));return this.wrapTr(i,"renderHeadIntroHtml")},renderHeadResourceAndDateHtml:function(){var t,e,r,o,i,n,s,l,u,a;for(a=[],e=[],s=this.flattenedResources,o=0,n=s.length;n>o;o++)for(u=s[o],a.push(this.renderHeadResourceCellHtml(u,null,this.daysPerRow)),r=i=0,l=this.daysPerRow;l>i;r=i+=1)t=this.dayDates[r].clone(),e.push(this.renderHeadResourceDateCellHtml(t,u));return this.wrapTr(a,"renderHeadIntroHtml")+this.wrapTr(e,"renderHeadIntroHtml")},renderHeadDateAndResourceHtml:function(){var t,e,r,o,i,n,s,l,u,a;for(e=[],a=[],r=o=0,s=this.daysPerRow;s>o;r=o+=1)for(t=this.dayDates[r].clone(),e.push(this.renderHeadDateCellHtml(t,this.resourceCnt)),l=this.flattenedResources,i=0,n=l.length;n>i;i++)u=l[i],a.push(this.renderHeadResourceCellHtml(u,t));return this.wrapTr(e,"renderHeadIntroHtml")+this.wrapTr(a,"renderHeadIntroHtml")},renderHeadResourceCellHtml:function(t,e,r){return'<th class="fc-resource-cell" data-resource-id="'+t.id+'"'+(e?' data-date="'+e.format("YYYY-MM-DD")+'"':"")+(r>1?' colspan="'+r+'"':"")+">"+yt(this.view.getResourceText(t))+"</th>"},renderHeadResourceDateCellHtml:function(t,e,r){return this.renderHeadDateCellHtml(t,r,'data-resource-id="'+e.id+'"')},processHeadResourceEls:function(e){return e.find(".fc-resource-cell").each(function(e){return function(r,o){var i;return i=e.datesAboveResources?e.getColResource(r):e.flattenedResources[e.isRTL?e.flattenedResources.length-1-r:r],e.view.trigger("resourceRender",i,i,t(o),t())}}(this))},renderBgCellsHtml:function(t){var e,r,o,i,n,s;if(this.resourceCnt){for(o=[],e=i=0,n=this.colCnt;n>i;e=i+=1)r=this.getCellDate(t,e),s=this.getColResource(e),o.push(this.renderResourceBgCellHtml(r,s));return o.join("")}return d.DayTableMixin.renderBgCellsHtml.call(this,t)},renderResourceBgCellHtml:function(t,e){
+return this.renderBgCellHtml(t,'data-resource-id="'+e.id+'"')},wrapTr:function(t,e){return this.isRTL?(t.reverse(),"<tr>"+t.join("")+this[e]()+"</tr>"):"<tr>"+this[e]()+t.join("")+"</tr>"}},H=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.mixin(I),r.mixin(_),r.prototype.getHitSpan=function(t){var e;return e=r.__super__.getHitSpan.apply(this,arguments),this.resourceCnt&&(e.resourceId=this.getColResource(t.col).id),e},r.prototype.spanToSegs=function(e){var r,o,i,n,s,l,u,a,h,c,p,d,f;if(h=this.resourceCnt,o=this.datesAboveResources?this.sliceRangeByDay(e):this.sliceRangeByRow(e),h){for(d=[],n=0,u=o.length;u>n;n++)for(f=o[n],c=s=0,a=h;a>s;c=s+=1)p=this.flattenedResources[c],e.resourceId&&e.resourceId!==p.id||(r=t.extend({},f),r.resource=p,this.isRTL?(r.leftCol=this.indicesToCol(c,f.lastRowDayIndex),r.rightCol=this.indicesToCol(c,f.firstRowDayIndex)):(r.leftCol=this.indicesToCol(c,f.firstRowDayIndex),r.rightCol=this.indicesToCol(c,f.lastRowDayIndex)),d.push(r));return d}for(i=0,l=o.length;l>i;i++)f=o[i],this.isRTL?(f.leftCol=f.lastRowDayIndex,f.rightCol=f.firstRowDayIndex):(f.leftCol=f.firstRowDayIndex,f.rightCol=f.lastRowDayIndex);return o},r}(d.DayGrid),G=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.mixin(I),r.mixin(_),r.prototype.getHitSpan=function(t){var e;return e=r.__super__.getHitSpan.apply(this,arguments),this.resourceCnt&&(e.resourceId=this.getColResource(t.col).id),e},r.prototype.spanToSegs=function(e){var r,o,i,n,s,l,u,a,h,c,p,d,f;if(h=this.resourceCnt,o=this.sliceRangeByTimes(e),h){for(d=[],n=0,u=o.length;u>n;n++)for(f=o[n],c=s=0,a=h;a>s;c=s+=1)p=this.flattenedResources[c],e.resourceId&&e.resourceId!==p.id||(r=t.extend({},f),r.resource=p,r.col=this.indicesToCol(c,f.dayIndex),d.push(r));return d}for(i=0,l=o.length;l>i;i++)f=o[i],f.col=f.dayIndex;return o},r}(d.TimeGrid),Y=function(t){function e(){return e.__super__.constructor.apply(this,arguments)}return zt(e,t),e.prototype.timeGrid=null,e.prototype.isScrolled=!1,e.prototype.initialize=function(){return this.timeGrid=this.instantiateGrid(),this.intervalDuration=this.timeGrid.duration},e.prototype.instantiateGrid=function(){return new q(this)},e.prototype.setRange=function(t){return e.__super__.setRange.apply(this,arguments),this.timeGrid.setRange(t)},e.prototype.renderSkeleton=function(){return this.el.addClass("fc-timeline"),this.opt("eventOverlap")===!1&&this.el.addClass("fc-no-overlap"),this.el.html(this.renderSkeletonHtml()),this.renderTimeGridSkeleton()},e.prototype.renderSkeletonHtml=function(){return'<table> <thead class="fc-head"> <tr> <td class="fc-time-area '+this.widgetHeaderClass+'"></td> </tr> </thead> <tbody class="fc-body"> <tr> <td class="fc-time-area '+this.widgetContentClass+'"></td> </tr> </tbody> </table>'},e.prototype.renderTimeGridSkeleton=function(){return this.timeGrid.setElement(this.el.find("tbody .fc-time-area")),this.timeGrid.headEl=this.el.find("thead .fc-time-area"),this.timeGrid.renderSkeleton(),this.isScrolled=!1,this.timeGrid.bodyScroller.on("scroll",Ft(this,"handleBodyScroll"))},e.prototype.handleBodyScroll=function(t,e){if(t){if(!this.isScrolled)return this.isScrolled=!0,this.el.addClass("fc-scrolled")}else if(this.isScrolled)return this.isScrolled=!1,this.el.removeClass("fc-scrolled")},e.prototype.unrenderSkeleton=function(){return this.timeGrid.removeElement(),this.handleBodyScroll(0),e.__super__.unrenderSkeleton.apply(this,arguments)},e.prototype.renderDates=function(){return this.timeGrid.renderDates()},e.prototype.unrenderDates=function(){return this.timeGrid.unrenderDates()},e.prototype.renderBusinessHours=function(){return this.timeGrid.renderBusinessHours()},e.prototype.unrenderBusinessHours=function(){return this.timeGrid.unrenderBusinessHours()},e.prototype.getNowIndicatorUnit=function(){return this.timeGrid.getNowIndicatorUnit()},e.prototype.renderNowIndicator=function(t){return this.timeGrid.renderNowIndicator(t)},e.prototype.unrenderNowIndicator=function(){return this.timeGrid.unrenderNowIndicator()},e.prototype.prepareHits=function(){return this.timeGrid.prepareHits()},e.prototype.releaseHits=function(){return this.timeGrid.releaseHits()},e.prototype.queryHit=function(t,e){return this.timeGrid.queryHit(t,e)},e.prototype.getHitSpan=function(t){return this.timeGrid.getHitSpan(t)},e.prototype.getHitEl=function(t){return this.timeGrid.getHitEl(t)},e.prototype.updateWidth=function(){return this.timeGrid.updateWidth()},e.prototype.setHeight=function(t,e){var r;return r=e?"auto":t-this.timeGrid.headHeight()-this.queryMiscHeight(),this.timeGrid.bodyScroller.setHeight(r)},e.prototype.queryMiscHeight=function(){return this.el.outerHeight()-this.timeGrid.headScroller.el.outerHeight()-this.timeGrid.bodyScroller.el.outerHeight()},e.prototype.computeInitialScroll=function(t){return this.timeGrid.computeInitialScroll(t)},e.prototype.queryScroll=function(){return this.timeGrid.queryScroll()},e.prototype.setScroll=function(t){return this.timeGrid.setScroll(t)},e.prototype.renderEvents=function(t){return this.timeGrid.renderEvents(t),this.updateWidth()},e.prototype.unrenderEvents=function(){return this.timeGrid.unrenderEvents(),this.updateWidth()},e.prototype.renderDrag=function(t,e){return this.timeGrid.renderDrag(t,e)},e.prototype.unrenderDrag=function(){return this.timeGrid.unrenderDrag()},e.prototype.getEventSegs=function(){return this.timeGrid.getEventSegs()},e.prototype.renderSelection=function(t){return this.timeGrid.renderSelection(t)},e.prototype.unrenderSelection=function(){return this.timeGrid.unrenderSelection()},e}(X),rt=d.cssToStr,q=function(r){function o(){var t;o.__super__.constructor.apply(this,arguments),this.initScaleProps(),this.minTime=e.duration(this.opt("minTime")||"00:00"),this.maxTime=e.duration(this.opt("maxTime")||"24:00"),this.timeWindowMs=this.maxTime-this.minTime,this.snapDuration=(t=this.opt("snapDuration"))?e.duration(t):this.slotDuration,this.minResizeDuration=this.snapDuration,this.snapsPerSlot=nt(this.slotDuration,this.snapDuration),this.slotWidth=this.opt("slotWidth")}return zt(o,r),o.prototype.slotDates=null,o.prototype.slotCnt=null,o.prototype.snapCnt=null,o.prototype.snapsPerSlot=null,o.prototype.snapDiffToIndex=null,o.prototype.snapIndexToDiff=null,o.prototype.headEl=null,o.prototype.slatContainerEl=null,o.prototype.slatEls=null,o.prototype.containerCoordCache=null,o.prototype.slatCoordCache=null,o.prototype.slatInnerCoordCache=null,o.prototype.headScroller=null,o.prototype.bodyScroller=null,o.prototype.joiner=null,o.prototype.follower=null,o.prototype.eventTitleFollower=null,o.prototype.minTime=null,o.prototype.maxTime=null,o.prototype.timeWindowMs=null,o.prototype.slotDuration=null,o.prototype.snapDuration=null,o.prototype.duration=null,o.prototype.labelInterval=null,o.prototype.headerFormats=null,o.prototype.isTimeScale=null,o.prototype.largeUnit=null,o.prototype.emphasizeWeeks=!1,o.prototype.titleFollower=null,o.prototype.segContainerEl=null,o.prototype.segContainerHeight=null,o.prototype.bgSegContainerEl=null,o.prototype.helperEls=null,o.prototype.innerEl=null,o.prototype.opt=function(t){return this.view.opt(t)},o.prototype.isValidDate=function(t){var e;return this.view.isHiddenDay(t)?!1:this.isTimeScale?(e=t.time()-this.minTime,e=(e%864e5+864e5)%864e5,e<this.timeWindowMs):!0},o.prototype.computeDisplayEventTime=function(){return!this.isTimeScale},o.prototype.computeDisplayEventEnd=function(){return!1},o.prototype.computeEventTimeFormat=function(){return this.opt("extraSmallTimeFormat")},o.prototype.normalizeGridDate=function(t){var e;return this.isTimeScale?(e=t.clone(),e.hasTime()||e.time(0)):(e=t.clone().stripTime(),this.largeUnit&&e.startOf(this.largeUnit)),e},o.prototype.normalizeGridRange=function(t){var e,r;return this.isTimeScale?r={start:this.normalizeGridDate(t.start),end:this.normalizeGridDate(t.end)}:(r=this.view.computeDayRange(t),this.largeUnit&&(r.start.startOf(this.largeUnit),e=r.end.clone().startOf(this.largeUnit),e.isSame(r.end)&&e.isAfter(r.start)||e.add(this.slotDuration),r.end=e)),r},o.prototype.rangeUpdated=function(){var t,e;for(this.start=this.normalizeGridDate(this.start).add(this.minTime),this.end=this.normalizeGridDate(this.end).subtract(1,"day").add(this.maxTime),e=[],t=this.start.clone();t<this.end;)this.isValidDate(t)&&e.push(t.clone()),t.add(this.slotDuration);return this.slotDates=e,this.updateGridDates()},o.prototype.updateGridDates=function(){var t,e,r,o,i;for(o=-1,e=0,r=[],i=[],t=this.start.clone();t<this.end;)this.isValidDate(t)?(o++,r.push(o),i.push(e)):r.push(o+.5),t.add(this.snapDuration),e++;return this.snapDiffToIndex=r,this.snapIndexToDiff=i,this.snapCnt=o+1,this.slotCnt=this.snapCnt/this.snapsPerSlot},o.prototype.spanToSegs=function(t){var e,r;return e=this.normalizeGridRange(t),this.computeDateSnapCoverage(t.start)<this.computeDateSnapCoverage(t.end)&&(r=vt(e,this))?(r.isStart&&!this.isValidDate(r.start)&&(r.isStart=!1),r.isEnd&&r.end&&!this.isValidDate(r.end.clone().subtract(1))&&(r.isEnd=!1),[r]):[]},o.prototype.prepareHits=function(){return this.buildCoords()},o.prototype.queryHit=function(t,e){var r,o,i,n,s,l,u,a,h,c,p,d;return d=this.snapsPerSlot,n=this.slatCoordCache,r=this.containerCoordCache,null!=r.getVerticalIndex(e)&&(s=n.getHorizontalIndex(t),null!=s)?(a=n.getWidth(s),this.isRTL?(u=n.getRightOffset(s),i=(u-t)/a,o=Math.floor(i*d),h=s*d+o,p=u-o/d*a,c=p-(o+1)/d*a):(l=n.getLeftOffset(s),i=(t-l)/a,o=Math.floor(i*d),h=s*d+o,c=l+o/d*a,p=l+(o+1)/d*a),{snap:h,component:this,left:c,right:p,top:r.getTopOffset(0),bottom:r.getBottomOffset(0)}):void 0},o.prototype.getHitSpan=function(t){return this.getSnapRange(t.snap)},o.prototype.getHitEl=function(t){return this.getSnapEl(t.snap)},o.prototype.getSnapRange=function(t){var e,r;return r=this.start.clone(),r.add(Ct(this.snapDuration,this.snapIndexToDiff[t])),e=r.clone().add(this.snapDuration),{start:r,end:e}},o.prototype.getSnapEl=function(t){return this.slatEls.eq(Math.floor(t/this.snapsPerSlot))},o.prototype.renderSkeleton=function(){return this.headScroller=new s({overflowX:"clipped-scroll",overflowY:"hidden"}),this.headScroller.canvas=new O,this.headScroller.render(),this.headEl.append(this.headScroller.el),this.bodyScroller=new s,this.bodyScroller.canvas=new O,this.bodyScroller.render(),this.el.append(this.bodyScroller.el),this.innerEl=this.bodyScroller.canvas.contentEl,this.slatContainerEl=t('<div class="fc-slats"/>').appendTo(this.bodyScroller.canvas.bgEl),this.segContainerEl=t('<div class="fc-event-container"/>').appendTo(this.bodyScroller.canvas.contentEl),this.bgSegContainerEl=this.bodyScroller.canvas.bgEl,this.containerCoordCache=new l({els:this.bodyScroller.canvas.el,isHorizontal:!0,isVertical:!0}),this.joiner=new A("horizontal",[this.headScroller,this.bodyScroller]),this.follower=new V(this.headScroller,this.view.calendar.isTouch),this.eventTitleFollower=new V(this.bodyScroller,this.view.calendar.isTouch),this.eventTitleFollower.minTravel=50,this.isRTL?this.eventTitleFollower.containOnNaturalRight=!0:this.eventTitleFollower.containOnNaturalLeft=!0,o.__super__.renderSkeleton.apply(this,arguments)},o.prototype.headColEls=null,o.prototype.slatColEls=null,o.prototype.renderDates=function(){var t,e,r,o,i;for(this.headScroller.canvas.contentEl.html(this.renderHeadHtml()),this.headColEls=this.headScroller.canvas.contentEl.find("col"),this.slatContainerEl.html(this.renderSlatHtml()),this.slatColEls=this.slatContainerEl.find("col"),this.slatEls=this.slatContainerEl.find("td"),this.slatCoordCache=new l({els:this.slatEls,isHorizontal:!0}),this.slatInnerCoordCache=new l({els:this.slatEls.find("> div"),isHorizontal:!0,offsetParent:this.bodyScroller.canvas.el}),i=this.slotDates,e=r=0,o=i.length;o>r;e=++r)t=i[e],this.view.trigger("dayRender",null,t,this.slatEls.eq(e));return this.follower?this.follower.setSprites(this.headEl.find("tr:not(:last-child) span")):void 0},o.prototype.unrenderDates=function(){return this.follower&&this.follower.clearSprites(),this.headScroller.canvas.contentEl.empty(),this.slatContainerEl.empty(),this.headScroller.canvas.clearWidth(),this.bodyScroller.canvas.clearWidth()},o.prototype.renderHeadHtml=function(){var t,e,r,o,i,n,s,l,u,a,h,c,p,d,f,g,y,v,m,w,R,S,b,C,E,T,H,_,I,D,x,F,G,M,W,L,B;for(g=this.labelInterval,n=this.headerFormats,e=function(){var t,e,r;for(r=[],t=0,e=n.length;e>t;t++)i=n[t],r.push([]);return r}(),y=null,I=null,W=this.slotDates,M=[],p=0,v=W.length;v>p;p++){for(r=W[p],B=r.week(),c=this.emphasizeWeeks&&null!==I&&I!==B,x=d=0,m=n.length;m>d;x=++d)i=n[x],F=e[x],y=F[F.length-1],h=n.length>1&&x<n.length-1,H=null,h?(L=r.format(i),o=r.format(),y&&y.text===L?y.colspan+=1:H={text:L,dateData:o,colspan:1}):!y||Rt(st(this.start,r,g))?(L=r.format(i),o=r.format(),H={text:L,dateData:o,colspan:1}):y.colspan+=1,H&&(H.weekStart=c,F.push(H));M.push({weekStart:c}),I=B}for(u=g>this.slotDuration,s="<table>",s+="<colgroup>",f=0,w=W.length;w>f;f++)r=W[f],s+="<col/>";for(s+="</colgroup>",s+="<tbody>",l=E=0,R=e.length;R>E;l=++E){for(F=e[l],a=l===e.length-1,s+="<tr"+(u&&a?' class="fc-chrono"':"")+">",T=0,S=F.length;S>T;T++)t=F[T],s+='<th class="'+this.view.widgetHeaderClass+" "+(t.weekStart?"fc-em-cell":"")+'" data-date="'+t.dateData+'"'+(t.colspan>1?' colspan="'+t.colspan+'"':"")+'><div class="fc-cell-content"><span class="fc-cell-text">'+yt(t.text)+"</span></div></th>";s+="</tr>"}for(s+="</tbody></table>",G="<table>",G+="<colgroup>",_=0,b=M.length;b>_;_++)t=M[_],G+="<col/>";for(G+="</colgroup>",G+="<tbody><tr>",l=D=0,C=M.length;C>D;l=++D)t=M[l],r=W[l],G+=this.slatCellHtml(r,t.weekStart);return G+="</tr></tbody></table>",this._slatHtml=G,s},o.prototype.renderSlatHtml=function(){return this._slatHtml},o.prototype.slatCellHtml=function(t,e){var r;return this.isTimeScale?(r=[],r.push(Rt(st(this.start,t,this.labelInterval))?"fc-major":"fc-minor")):(r=this.getDayClasses(t),r.push("fc-day")),r.unshift(this.view.widgetContentClass),e&&r.push("fc-em-cell"),'<td class="'+r.join(" ")+'" data-date="'+t.format()+'"><div /></td>'},o.prototype.businessHourSegs=null,o.prototype.renderBusinessHours=function(){var t,e;return this.largeUnit?void 0:(t=this.view.calendar.getBusinessHoursEvents(!this.isTimeScale),e=this.businessHourSegs=this.eventsToSegs(t),this.renderFill("businessHours",e,"bgevent"))},o.prototype.unrenderBusinessHours=function(){return this.unrenderFill("businessHours")},o.prototype.nowIndicatorEls=null,o.prototype.getNowIndicatorUnit=function(){return this.isTimeScale?J(this.slotDuration):void 0},o.prototype.renderNowIndicator=function(e){var r,o,i;return i=[],e=this.normalizeGridDate(e),e>=this.start&&e<this.end&&(r=this.dateToCoord(e),o=this.isRTL?{right:-r}:{left:r},i.push(t("<div class='fc-now-indicator fc-now-indicator-arrow'></div>").css(o).appendTo(this.headScroller.canvas.el)[0]),i.push(t("<div class='fc-now-indicator fc-now-indicator-line'></div>").css(o).appendTo(this.bodyScroller.canvas.el)[0])),this.nowIndicatorEls=t(i)},o.prototype.unrenderNowIndicator=function(){return this.nowIndicatorEls?(this.nowIndicatorEls.remove(),this.nowIndicatorEls=null):void 0},o.prototype.explicitSlotWidth=null,o.prototype.defaultSlotWidth=null,o.prototype.updateWidth=function(){var t,e,r,o,i;return i=Math.round(this.slotWidth||(this.slotWidth=this.computeSlotWidth())),r=i*this.slotDates.length,e="",o=i,t=this.bodyScroller.getClientWidth(),t>r&&(e=t,r="",o=Math.floor(t/this.slotDates.length)),this.headScroller.canvas.setWidth(r),this.headScroller.canvas.setMinWidth(e),this.bodyScroller.canvas.setWidth(r),this.bodyScroller.canvas.setMinWidth(e),this.headColEls.slice(0,-1).add(this.slatColEls.slice(0,-1)).width(o),this.headScroller.updateSize(),this.bodyScroller.updateSize(),this.joiner.update(),this.buildCoords(),this.updateSegPositions(),this.follower&&this.follower.update(),this.eventTitleFollower?this.eventTitleFollower.update():void 0},o.prototype.computeSlotWidth=function(){var e,r,o,i,n,s;return o=0,r=this.headEl.find("tr:last-child th span"),r.each(function(e,r){var i;return i=t(r).outerWidth(),o=Math.max(o,i)}),e=o+1,s=nt(this.labelInterval,this.slotDuration),n=Math.ceil(e/s),i=this.headColEls.eq(0).css("min-width"),i&&(i=parseInt(i,10),i&&(n=Math.max(n,i))),n},o.prototype.buildCoords=function(){return this.containerCoordCache.build(),this.slatCoordCache.build(),this.slatInnerCoordCache.build()},o.prototype.computeDateSnapCoverage=function(t){var e,r,o;return r=st(this.start,t,this.snapDuration),0>r?0:r>=this.snapDiffToIndex.length?this.snapCnt:(o=Math.floor(r),e=this.snapDiffToIndex[o],Rt(e)?e+=r-o:e=Math.ceil(e),e)},o.prototype.dateToCoord=function(t){var e,r,o,i,n;return n=this.computeDateSnapCoverage(t),o=n/this.snapsPerSlot,i=Math.floor(o),i=Math.min(i,this.slotCnt-1),r=o-i,e=this.slatInnerCoordCache,this.isRTL?e.getRightPosition(i)-e.getWidth(i)*r-this.containerCoordCache.getWidth(0):e.getLeftPosition(i)+e.getWidth(i)*r},o.prototype.rangeToCoords=function(t){return this.isRTL?{right:this.dateToCoord(t.start),left:this.dateToCoord(t.end)}:{left:this.dateToCoord(t.start),right:this.dateToCoord(t.end)}},o.prototype.headHeight=function(){var t;return t=this.headScroller.canvas.contentEl.find("table"),t.height.apply(t,arguments)},o.prototype.updateSegPositions=function(){var t,e,r,o,i;for(i=(this.segs||[]).concat(this.businessHourSegs||[]),e=0,r=i.length;r>e;e++)o=i[e],t=this.rangeToCoords(o),o.el.css({left:o.left=t.left,right:-(o.right=t.right)})},o.prototype.computeInitialScroll=function(t){var r,o;return r=0,this.isTimeScale&&(o=this.opt("scrollTime"),o&&(o=e.duration(o),r=this.dateToCoord(this.start.clone().time(o)))),{left:r,top:0}},o.prototype.queryScroll=function(){return{left:this.bodyScroller.getScrollLeft(),top:this.bodyScroller.getScrollTop()}},o.prototype.setScroll=function(t){return this.headScroller.setScrollLeft(t.left),this.headScroller.setScrollLeft(t.left),this.bodyScroller.setScrollTop(t.top)},o.prototype.renderFgSegs=function(t){return t=this.renderFgSegEls(t),this.renderFgSegsInContainers([[this,t]]),this.updateSegFollowers(t),t},o.prototype.unrenderFgSegs=function(){return this.clearSegFollowers(),this.unrenderFgContainers([this])},o.prototype.renderFgSegsInContainers=function(t){var e,r,o,i,n,s,l,u,a,h,c,p,d,f,g,y,v,m,w,R,S,b,C,E,T;for(o=0,s=t.length;s>o;o++)for(w=t[o],e=w[0],T=w[1],i=0,l=T.length;l>i;i++)E=T[i],r=this.rangeToCoords(E),E.el.css({left:E.left=r.left,right:-(E.right=r.right)});for(n=0,u=t.length;u>n;n++)for(R=t[n],e=R[0],T=R[1],f=0,a=T.length;a>f;f++)E=T[f],E.el.appendTo(e.segContainerEl);for(g=0,h=t.length;h>g;g++){for(S=t[g],e=S[0],T=S[1],y=0,c=T.length;c>y;y++)E=T[y],E.height=E.el.outerHeight(!0);this.buildSegLevels(T),e.segContainerHeight=tt(T)}for(C=[],v=0,p=t.length;p>v;v++){for(b=t[v],e=b[0],T=b[1],m=0,d=T.length;d>m;m++)E=T[m],E.el.css("top",E.top);C.push(e.segContainerEl.height(e.segContainerHeight))}return C},o.prototype.buildSegLevels=function(t){var e,r,o,i,n,s,l,u,a,h,c,p,d,f;for(d=[],this.sortEventSegs(t),o=0,s=t.length;s>o;o++){for(f=t[o],f.above=[],a=0;a<d.length;){for(r=!1,c=d[a],i=0,l=c.length;l>i;i++)h=c[i],Bt(f,h)&&(f.above.push(h),r=!0);if(!r)break;a+=1}for((d[a]||(d[a]=[])).push(f),a+=1;a<d.length;){for(p=d[a],n=0,u=p.length;u>n;n++)e=p[n],Bt(f,e)&&e.above.push(f);a+=1}}return d},o.prototype.unrenderFgContainers=function(t){var e,r,o,i;for(i=[],r=0,o=t.length;o>r;r++)e=t[r],e.segContainerEl.empty(),e.segContainerEl.height(""),i.push(e.segContainerHeight=null);return i},o.prototype.fgSegHtml=function(t,e){var r,o,i,n,s,l;return o=t.event,i=this.view.isEventDraggable(o),s=t.isStart&&this.view.isEventResizableFromStart(o),n=t.isEnd&&this.view.isEventResizableFromEnd(o),r=this.getSegClasses(t,i,s||n),r.unshift("fc-timeline-event","fc-h-event"),l=this.getEventTimeText(o),'<a class="'+r.join(" ")+'" style="'+rt(this.getSegSkinCss(t))+'"'+(o.url?' href="'+yt(o.url)+'"':"")+'><div class="fc-content">'+(l?'<span class="fc-time">'+yt(l)+"</span>":"")+'<span class="fc-title">'+(o.title?yt(o.title):"&nbsp;")+'</span></div><div class="fc-bg" />'+(s?'<div class="fc-resizer fc-start-resizer"></div>':"")+(n?'<div class="fc-resizer fc-end-resizer"></div>':"")+"</a>"},o.prototype.updateSegFollowers=function(t){var e,r,o,i,n;if(this.eventTitleFollower){for(i=[],e=0,r=t.length;r>e;e++)o=t[e],n=o.el.find(".fc-title"),n.length&&i.push(new P(n));return this.eventTitleFollower.setSprites(i)}},o.prototype.clearSegFollowers=function(){return this.eventTitleFollower?this.eventTitleFollower.clearSprites():void 0},o.prototype.segDragStart=function(){return o.__super__.segDragStart.apply(this,arguments),this.eventTitleFollower?this.eventTitleFollower.forceRelative():void 0},o.prototype.segDragEnd=function(){return o.__super__.segDragEnd.apply(this,arguments),this.eventTitleFollower?this.eventTitleFollower.clearForce():void 0},o.prototype.segResizeStart=function(){return o.__super__.segResizeStart.apply(this,arguments),this.eventTitleFollower?this.eventTitleFollower.forceRelative():void 0},o.prototype.segResizeEnd=function(){return o.__super__.segResizeEnd.apply(this,arguments),this.eventTitleFollower?this.eventTitleFollower.clearForce():void 0},o.prototype.renderHelper=function(t,e){var r;return r=this.eventToSegs(t),r=this.renderFgSegEls(r),this.renderHelperSegsInContainers([[this,r]],e)},o.prototype.renderHelperSegsInContainers=function(e,r){var o,i,n,s,l,u,a,h,c,p,d,f,g,y,v,m,w,R;for(s=[],w=[],l=0,h=e.length;h>l;l++)for(g=e[l],o=g[0],R=g[1],u=0,c=R.length;c>u;u++)m=R[u],i=this.rangeToCoords(m),m.el.css({left:m.left=i.left,right:-(m.right=i.right)}),r&&r.resourceId===(null!=(y=o.resource)?y.id:void 0)?m.el.css("top",r.el.css("top")):m.el.css("top",0);for(a=0,p=e.length;p>a;a++)for(v=e[a],o=v[0],R=v[1],n=t('<div class="fc-event-container fc-helper-container"/>').appendTo(o.innerEl),s.push(n[0]),f=0,d=R.length;d>f;f++)m=R[f],n.append(m.el),w.push(m.el[0]);return this.helperEls=this.helperEls?this.helperEls.add(t(s)):t(s),t(w)},o.prototype.unrenderHelper=function(){return this.helperEls?(this.helperEls.remove(),this.helperEls=null):void 0},o.prototype.renderEventResize=function(t,e){return this.renderHighlight(this.eventToSpan(t)),this.renderEventLocationHelper(t,e)},o.prototype.unrenderEventResize=function(){return this.unrenderHighlight(),this.unrenderHelper()},o.prototype.renderFill=function(t,e,r){return e=this.renderFillSegEls(t,e),this.renderFillInContainers(t,[[this,e]],r),e},o.prototype.renderFillInContainers=function(t,e,r){var o,i,n,s,l,u;for(l=[],i=0,n=e.length;n>i;i++)s=e[i],o=s[0],u=s[1],l.push(this.renderFillInContainer(t,o,u,r));return l},o.prototype.renderFillInContainer=function(e,r,o,i){var n,s,l,u,a;if(o.length){for(i||(i=e.toLowerCase()),n=t('<div class="fc-'+i+'-container" />').appendTo(r.bgSegContainerEl),l=0,u=o.length;u>l;l++)a=o[l],s=this.rangeToCoords(a),a.el.css({left:a.left=s.left,right:-(a.right=s.right)}),a.el.appendTo(n);return this.elsByFill[e]=this.elsByFill[e]?this.elsByFill[e].add(n):n}},o.prototype.renderDrag=function(t,e){return e?this.renderEventLocationHelper(t,e):(this.renderHighlight(this.eventToSpan(t)),null)},o.prototype.unrenderDrag=function(){return this.unrenderHelper(),this.unrenderHighlight()},o}(f),tt=function(t){var e,r,o,i;for(o=0,e=0,r=t.length;r>e;e++)i=t[e],o=Math.max(o,Z(i));return o},Z=function(t){return null==t.top&&(t.top=tt(t.above)),t.top+t.height},Bt=function(t,e){return t.left<e.right&&t.right>e.left},S=18,w=6,m=200,R=1e3,u={months:1},z=[{years:1},{months:1},{days:1},{hours:1},{minutes:30},{minutes:15},{minutes:10},{minutes:5},{minutes:1},{seconds:30},{seconds:15},{seconds:10},{seconds:5},{seconds:1},{milliseconds:500},{milliseconds:100},{milliseconds:10},{milliseconds:1}],q.prototype.initScaleProps=function(){var e,r,o;return this.labelInterval=this.queryDurationOption("slotLabelInterval"),this.slotDuration=this.queryDurationOption("slotDuration"),this.ensureGridDuration(),this.validateLabelAndSlot(),this.ensureLabelInterval(),this.ensureSlotDuration(),e=this.opt("slotLabelFormat"),o=t.type(e),this.headerFormats="array"===o?e:"string"===o?[e]:this.computeHeaderFormats(),this.isTimeScale=lt(this.slotDuration),this.largeUnit=this.isTimeScale?void 0:(r=J(this.slotDuration),/year|month|week/.test(r)?r:void 0),this.emphasizeWeeks=1===this.slotDuration.as("days")&&this.duration.as("weeks")>=2&&!this.opt("businessHours")},q.prototype.queryDurationOption=function(t){var r,o;return o=this.opt(t),null!=o&&(r=e.duration(o),+r)?r:void 0},q.prototype.validateLabelAndSlot=function(){var t,e,r;return this.labelInterval&&(t=nt(this.duration,this.labelInterval),t>R&&(d.warn("slotLabelInterval results in too many cells"),this.labelInterval=null)),this.slotDuration&&(e=nt(this.duration,this.slotDuration),e>R&&(d.warn("slotDuration results in too many cells"),this.slotDuration=null)),this.labelInterval&&this.slotDuration&&(r=nt(this.labelInterval,this.slotDuration),!Rt(r)||1>r)?(d.warn("slotLabelInterval must be a multiple of slotDuration"),this.slotDuration=null):void 0},q.prototype.ensureGridDuration=function(){var t,r,o,i,n;if(t=this.duration,!t){if(t=this.view.intervalDuration,!t)if(this.labelInterval||this.slotDuration)for(n=this.ensureLabelInterval(),o=z.length-1;o>=0&&(r=z[o],t=e.duration(r),i=nt(t,n),!(i>=S));o+=-1);else t=e.duration(u);this.duration=t}return t},q.prototype.ensureLabelInterval=function(){var t,r,o,i,n,s,l,u,a;if(n=this.labelInterval,!n){if(this.duration||this.slotDuration||this.ensureGridDuration(),this.slotDuration){for(r=0,s=z.length;s>r;r++)if(t=z[r],a=e.duration(t),u=nt(a,this.slotDuration),Rt(u)&&w>=u){n=a;break}n||(n=this.slotDuration)}else for(o=0,l=z.length;l>o&&(t=z[o],n=e.duration(t),i=nt(this.duration,n),!(i>=S));o++);this.labelInterval=n}return n},q.prototype.ensureSlotDuration=function(){var t,r,o,i,n,s,l,u;if(s=this.slotDuration,!s){for(o=this.ensureLabelInterval(),r=0,i=z.length;i>r;r++)if(t=z[r],u=e.duration(t),l=nt(o,u),Rt(l)&&l>1&&w>=l){s=u;break}s&&this.duration&&(n=nt(this.duration,s),n>m&&(s=null)),s||(s=o),this.slotDuration=s}return s},q.prototype.computeHeaderFormats=function(){var t,e,r,o,i,n,s,l;switch(s=this.view,o=this.duration,i=this.labelInterval,n=J(i),l=this.opt("weekNumbers"),t=e=r=null,"week"!==n||l||(n="day"),n){case"year":t="YYYY";break;case"month":o.asYears()>1&&(t="YYYY"),e="MMM";break;case"week":o.asYears()>1&&(t="YYYY"),e=this.opt("shortWeekFormat");break;case"day":o.asYears()>1?t=this.opt("monthYearFormat"):o.asMonths()>1&&(t="MMMM"),l&&(e=this.opt("weekFormat")),r="dd D";break;case"hour":l&&(t=this.opt("weekFormat")),o.asDays()>1&&(e=this.opt("dayOfMonthFormat")),r=this.opt("smallTimeFormat");break;case"minute":i.asMinutes()/60>=w?(t=this.opt("hourFormat"),e="[:]mm"):t=this.opt("mediumTimeFormat");break;case"second":i.asSeconds()/60>=w?(t="LT",e="[:]ss"):t="LTS";break;case"millisecond":t="LTS",e="[.]SSS"}return[].concat(t||[],e||[],r||[])},d.views.timeline={"class":Y,defaults:{eventResizableFromStart:!0}},d.views.timelineDay={type:"timeline",duration:{days:1}},d.views.timelineWeek={type:"timeline",duration:{weeks:1}},d.views.timelineMonth={type:"timeline",duration:{months:1}},d.views.timelineYear={type:"timeline",duration:{years:1}},W=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.mixin(L),r.prototype.resourceGrid=null,r.prototype.tbodyHash=null,r.prototype.joiner=null,r.prototype.dividerEls=null,r.prototype.superHeaderText=null,r.prototype.isVGrouping=null,r.prototype.isHGrouping=null,r.prototype.groupSpecs=null,r.prototype.colSpecs=null,r.prototype.orderSpecs=null,r.prototype.rowHierarchy=null,r.prototype.resourceRowHash=null,r.prototype.nestingCnt=0,r.prototype.isNesting=null,r.prototype.dividerWidth=null,r.prototype.initialize=function(){return r.__super__.initialize.apply(this,arguments),this.processResourceOptions(),this.resourceGrid=new N(this),this.rowHierarchy=new k(this),this.resourceRowHash={}},r.prototype.instantiateGrid=function(){return new M(this)},r.prototype.processResourceOptions=function(){var t,e,r,o,i,n,s,l,u,a,h,c,p,d,f,g,y,v,m,w,R,S;for(t=this.opt("resourceColumns")||[],f=this.opt("resourceLabelText"),o="Resources",S=null,t.length?S=f:t.push({labelText:f||o,text:this.getResourceTextFunc()}),w=[],i=[],s=[],h=!1,a=!1,c=0,g=t.length;g>c;c++)r=t[c],r.group?i.push(r):w.push(r);for(w[0].isMain=!0,i.length?(s=i,h=!0):(l=this.opt("resourceGroupField"),l&&(a=!0,s.push({field:l,text:this.opt("resourceGroupText"),render:this.opt("resourceGroupRender")}))),e=Dt(this.opt("resourceOrder")),R=[],p=0,y=e.length;y>p;p++){for(m=e[p],u=!1,d=0,v=s.length;v>d;d++)if(n=s[d],n.field===m.field){n.order=m.order,u=!0;break}u||R.push(m)}return this.superHeaderText=S,this.isVGrouping=h,this.isHGrouping=a,this.groupSpecs=s,this.colSpecs=i.concat(w),this.orderSpecs=R},r.prototype.renderSkeleton=function(){return r.__super__.renderSkeleton.apply(this,arguments),this.renderResourceGridSkeleton(),this.tbodyHash={spreadsheet:this.resourceGrid.tbodyEl,event:this.timeGrid.tbodyEl},this.joiner=new A("vertical",[this.resourceGrid.bodyScroller,this.timeGrid.bodyScroller]),this.initDividerMoving()},r.prototype.renderSkeletonHtml=function(){return'<table> <thead class="fc-head"> <tr> <td class="fc-resource-area '+this.widgetHeaderClass+'"></td> <td class="fc-divider fc-col-resizer '+this.widgetHeaderClass+'"></td> <td class="fc-time-area '+this.widgetHeaderClass+'"></td> </tr> </thead> <tbody class="fc-body"> <tr> <td class="fc-resource-area '+this.widgetContentClass+'"></td> <td class="fc-divider fc-col-resizer '+this.widgetHeaderClass+'"></td> <td class="fc-time-area '+this.widgetContentClass+'"></td> </tr> </tbody> </table>'},r.prototype.renderResourceGridSkeleton=function(){return this.resourceGrid.el=this.el.find("tbody .fc-resource-area"),this.resourceGrid.headEl=this.el.find("thead .fc-resource-area"),this.resourceGrid.renderSkeleton()},r.prototype.initDividerMoving=function(){var t;return this.dividerEls=this.el.find(".fc-divider"),this.dividerWidth=null!=(t=this.opt("resourceAreaWidth"))?t:this.resourceGrid.tableWidth,null!=this.dividerWidth&&this.positionDivider(this.dividerWidth),this.dividerEls.on("mousedown",function(t){return function(e){return t.dividerMousedown(e)}}(this))},r.prototype.dividerMousedown=function(t){var e,r,o,i,n;return r=this.opt("isRTL"),i=30,o=this.el.width()-30,n=this.getNaturalDividerWidth(),e=new a({dragStart:function(t){return function(){return t.dividerEls.addClass("fc-active")}}(this),drag:function(t){return function(e,s){var l;return l=r?n-e:n+e,l=Math.max(l,i),l=Math.min(l,o),t.dividerWidth=l,t.positionDivider(l),t.updateWidth()}}(this),dragEnd:function(t){return function(){return t.dividerEls.removeClass("fc-active")}}(this)}),e.startInteraction(t)},r.prototype.getNaturalDividerWidth=function(){return this.el.find(".fc-resource-area").width()},r.prototype.positionDivider=function(t){return this.el.find(".fc-resource-area").width(t)},r.prototype.renderEvents=function(t){return this.timeGrid.renderEvents(t),this.syncRowHeights(),this.updateWidth()},r.prototype.unrenderEvents=function(){return this.timeGrid.unrenderEvents(),this.syncRowHeights(),this.updateWidth()},r.prototype.updateWidth=function(){return r.__super__.updateWidth.apply(this,arguments),this.resourceGrid.updateWidth(),this.joiner.update(),this.cellFollower?this.cellFollower.update():void 0},r.prototype.updateHeight=function(t){return r.__super__.updateHeight.apply(this,arguments),t?this.syncRowHeights():void 0},r.prototype.setHeight=function(t,e){var r,o;return o=this.syncHeadHeights(),r=e?"auto":t-o-this.queryMiscHeight(),this.timeGrid.bodyScroller.setHeight(r),this.resourceGrid.bodyScroller.setHeight(r)},r.prototype.queryMiscHeight=function(){return this.el.outerHeight()-Math.max(this.resourceGrid.headScroller.el.outerHeight(),this.timeGrid.headScroller.el.outerHeight())-Math.max(this.resourceGrid.bodyScroller.el.outerHeight(),this.timeGrid.bodyScroller.el.outerHeight())},r.prototype.syncHeadHeights=function(){var t;return this.resourceGrid.headHeight("auto"),this.timeGrid.headHeight("auto"),
+t=Math.max(this.resourceGrid.headHeight(),this.timeGrid.headHeight()),this.resourceGrid.headHeight(t),this.timeGrid.headHeight(t),t},r.prototype.scrollToResource=function(t){return this.timeGrid.scrollToResource(t)},r.prototype.setResources=function(t){var e,r,o;for(this.batchRows(),e=0,r=t.length;r>e;e++)o=t[e],this.insertResource(o);return this.rowHierarchy.show(),this.unbatchRows(),this.reinitializeCellFollowers()},r.prototype.unsetResources=function(){return this.clearEvents(),this.batchRows(),this.rowHierarchy.removeChildren(),this.unbatchRows(),this.reinitializeCellFollowers()},r.prototype.addResource=function(t){return this.insertResource(t),this.reinitializeCellFollowers()},r.prototype.removeResource=function(t){var e;return e=this.getResourceRow(t.id),e?(this.batchRows(),e.remove(),this.unbatchRows(),this.reinitializeCellFollowers()):void 0},r.prototype.cellFollower=null,r.prototype.reinitializeCellFollowers=function(){var e,r,o,i,n,s;for(this.cellFollower&&this.cellFollower.clearSprites(),this.cellFollower=new V(this.resourceGrid.bodyScroller,this.calendar.isTouch),this.cellFollower.isHFollowing=!1,this.cellFollower.isVFollowing=!0,i=[],n=this.rowHierarchy.getNodes(),r=0,o=n.length;o>r;r++)s=n[r],s instanceof U&&s.groupTd&&(e=s.groupTd.find(".fc-cell-content"),e.length&&i.push(e[0]));return this.cellFollower.setSprites(t(i))},r.prototype.insertResource=function(t,e){var r,o,i,n,s,l,u;for(u=new F(this,t),null==e&&(n=t.parentId,n&&(e=this.getResourceRow(n))),e?this.insertRowAsChild(u,e):this.insertRow(u),s=t.children,l=[],o=0,i=s.length;i>o;o++)r=s[o],l.push(this.insertResource(r,u));return l},r.prototype.insertRow=function(t,e,r){var o;return null==e&&(e=this.rowHierarchy),null==r&&(r=this.groupSpecs),r.length?(o=this.ensureResourceGroup(t,e,r[0]),o instanceof g?this.insertRowAsChild(t,o):this.insertRow(t,o,r.slice(1))):this.insertRowAsChild(t,e)},r.prototype.insertRowAsChild=function(t,e){return e.addChild(t,this.computeChildRowPosition(t,e))},r.prototype.computeChildRowPosition=function(t,e){var r,o,i,n,s,l;if(this.orderSpecs.length)for(s=e.children,o=i=0,n=s.length;n>i;o=++i)if(l=s[o],r=this.compareResources(l.resource||{},t.resource||{}),r>0)return o;return null},r.prototype.compareResources=function(t,e){return Q(t,e,this.orderSpecs)},r.prototype.ensureResourceGroup=function(t,e,r){var o,i,n,s,l,u,a,h,c,p,d;if(n=(t.resource||{})[r.field],i=null,r.order)for(c=e.children,s=l=0,a=c.length;a>l;s=++l){if(d=c[s],o=ut(d.groupValue,n)*r.order,0===o){i=d;break}if(o>0)break}else for(p=e.children,s=u=0,h=p.length;h>u;s=++u)if(d=p[s],d.groupValue===n){i=d;break}return i||(i=this.isVGrouping?new U(this,r,n):new g(this,r,n),e.addChild(i,s)),i},r.prototype.pairSegsWithRows=function(t){var e,r,o,i,n,s,l,u;for(i=[],n={},e=0,r=t.length;r>e;e++)u=t[e],s=u.resourceId,s&&(l=this.getResourceRow(s),l&&(o=n[s],o||(o=[l,[]],i.push(o),n[s]=o),o[1].push(u)));return i},r.prototype.rowAdded=function(t){var e,r;return t instanceof F&&(this.resourceRowHash[t.resource.id]=t),r=this.isNesting,e=Boolean(this.nestingCnt+=t.depth?1:0),r!==e&&(this.el.toggleClass("fc-nested",e),this.el.toggleClass("fc-flat",!e)),this.isNesting=e},r.prototype.rowRemoved=function(t){var e,r;return t instanceof F&&delete this.resourceRowHash[t.resource.id],r=this.isNesting,e=Boolean(this.nestingCnt-=t.depth?1:0),r!==e&&(this.el.toggleClass("fc-nested",e),this.el.toggleClass("fc-flat",!e)),this.isNesting=e},r.prototype.batchRowDepth=0,r.prototype.shownRowBatch=null,r.prototype.hiddenRowBatch=null,r.prototype.batchRows=function(){return this.batchRowDepth++?void 0:(this.shownRowBatch=[],this.hiddenRowBatch=[])},r.prototype.unbatchRows=function(){return--this.batchRowDepth?void 0:(this.hiddenRowBatch.length&&this.rowsHidden(this.hiddenRowBatch),this.shownRowBatch.length&&this.rowsShown(this.shownRowBatch),this.hiddenRowBatch=null,this.shownRowBatch=null)},r.prototype.rowShown=function(t){return this.shownRowBatch?this.shownRowBatch.push(t):this.rowsShown([t])},r.prototype.rowHidden=function(t){return this.hiddenRowBatch?this.hiddenRowBatch.push(t):this.rowsHidden([t])},r.prototype.rowsShown=function(t){return this.syncRowHeights(t),this.updateWidth()},r.prototype.rowsHidden=function(t){return this.updateWidth()},r.prototype.syncRowHeights=function(t,e){var r,o,i,n,s,l,u,a,h,c;for(null==e&&(e=!1),null==t&&(t=this.getVisibleRows()),l=0,a=t.length;a>l;l++)c=t[l],c.setTrInnerHeight("");for(s=function(){var o,i,n;for(n=[],o=0,i=t.length;i>o;o++)c=t[o],r=c.getMaxTrInnerHeight(),e&&(r+=r%2),n.push(r);return n}(),n=u=0,h=t.length;h>u;n=++u)c=t[n],c.setTrInnerHeight(s[n]);return!e&&(o=this.resourceGrid.tbodyEl.height(),i=this.timeGrid.tbodyEl.height(),Math.abs(o-i)>1)?this.syncRowHeights(t,!0):void 0},r.prototype.getVisibleRows=function(){var t,e,r,o,i;for(r=this.rowHierarchy.getRows(),o=[],t=0,e=r.length;e>t;t++)i=r[t],i.isShown&&o.push(i);return o},r.prototype.getEventRows=function(){var t,e,r,o,i;for(r=this.rowHierarchy.getRows(),o=[],t=0,e=r.length;e>t;t++)i=r[t],i instanceof p&&o.push(i);return o},r.prototype.getResourceRow=function(t){return this.resourceRowHash[t]},r.prototype.setScroll=function(t){return r.__super__.setScroll.apply(this,arguments),this.resourceGrid.bodyScroller.setScrollTop(t.top)},r}(Y),M=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.mixin(I),r.prototype.eventRows=null,r.prototype.shownEventRows=null,r.prototype.tbodyEl=null,r.prototype.rowCoordCache=null,r.prototype.spanToSegs=function(t){var e,o,i,n,s,l;if(l=r.__super__.spanToSegs.apply(this,arguments),e=this.view.calendar,n=t.resourceId)for(o=0,i=l.length;i>o;o++)s=l[o],s.resource=e.getResourceById(n),s.resourceId=n;return l},r.prototype.prepareHits=function(){var t,e;return r.__super__.prepareHits.apply(this,arguments),this.eventRows=this.view.getEventRows(),this.shownEventRows=function(){var e,r,o,i;for(o=this.eventRows,i=[],e=0,r=o.length;r>e;e++)t=o[e],t.isShown&&i.push(t);return i}.call(this),e=function(){var e,r,o,i;for(o=this.shownEventRows,i=[],e=0,r=o.length;r>e;e++)t=o[e],i.push(t.getTr("event")[0]);return i}.call(this),this.rowCoordCache=new l({els:e,isVertical:!0}),this.rowCoordCache.build()},r.prototype.releaseHits=function(){return r.__super__.releaseHits.apply(this,arguments),this.eventRows=null,this.shownEventRows=null,this.rowCoordCache.clear()},r.prototype.queryHit=function(t,e){var o,i;return i=r.__super__.queryHit.apply(this,arguments),i&&(o=this.rowCoordCache.getVerticalIndex(e),null!=o)?{resourceId:this.shownEventRows[o].resource.id,snap:i.snap,component:this,left:i.left,right:i.right,top:this.rowCoordCache.getTopOffset(o),bottom:this.rowCoordCache.getBottomOffset(o)}:void 0},r.prototype.getHitSpan=function(t){var e;return e=this.getSnapRange(t.snap),e.resourceId=t.resourceId,e},r.prototype.getHitEl=function(t){return this.getSnapEl(t.snap)},r.prototype.renderSkeleton=function(){var e;return r.__super__.renderSkeleton.apply(this,arguments),this.segContainerEl.remove(),this.segContainerEl=null,e=t('<div class="fc-rows"><table><tbody/></table></div>').appendTo(this.bodyScroller.canvas.contentEl),this.tbodyEl=e.find("tbody")},r.prototype.renderFgSegs=function(t){var e,r,o,i,n,s,l;for(t=this.renderFgSegEls(t),s=this.view.pairSegsWithRows(t),l=[],o=0,i=s.length;i>o;o++)n=s[o],e=n[0],r=n[1],e.fgSegs=r,e.isShown&&(e.isSegsRendered=!0,l.push(n));return this.renderFgSegsInContainers(l),this.updateSegFollowers(t),t},r.prototype.unrenderFgSegs=function(){var t,e,r,o;for(this.clearSegFollowers(),e=this.view.getEventRows(),r=0,o=e.length;o>r;r++)t=e[r],t.fgSegs=null,t.isSegsRendered=!1;return this.unrenderFgContainers(e)},r.prototype.renderFill=function(t,e,r){var o,i,n,s,l,u,a,h,c,p,d,f;for(e=this.renderFillSegEls(t,e),h=[],l=[],o=0,n=e.length;n>o;o++)d=e[o],d.resourceId?h.push(d):l.push(d);for(a=this.view.pairSegsWithRows(h),f=[],i=0,s=a.length;s>i;i++)u=a[i],c=u[0],p=u[1],"bgEvent"===t&&(c.bgSegs=p),c.isShown&&f.push(u);return l.length&&f.unshift([this,l]),this.renderFillInContainers(t,f,r),e},r.prototype.renderHelper=function(t,e){var r,o;return o=this.eventToSegs(t),o=this.renderFgSegEls(o),r=this.view.pairSegsWithRows(o),this.renderHelperSegsInContainers(r,e)},r.prototype.computeInitialScroll=function(t){var e;return e=r.__super__.computeInitialScroll.apply(this,arguments),t&&(e.resourceId=t.resourceId,e.bottom=t.bottom),e},r.prototype.queryScroll=function(){var t,e,o,i,n,s,l,u;for(u=r.__super__.queryScroll.apply(this,arguments),l=this.bodyScroller.scrollEl.offset().top,n=this.view.getVisibleRows(),o=0,i=n.length;i>o;o++)if(s=n[o],s.resource&&(t=s.getTr("event"),e=t.offset().top+t.outerHeight(),e>l)){u.resourceId=s.resource.id,u.bottom=e-l;break}return u},r.prototype.setScroll=function(t){var e,o,i,n;return t.resourceId&&(n=this.view.getResourceRow(t.resourceId),n&&(e=n.getTr("event"),e&&(i=this.bodyScroller.canvas.el.offset().top,o=e.offset().top+e.outerHeight(),t.top=o-t.bottom-i))),r.__super__.setScroll.call(this,t)},r.prototype.scrollToResource=function(t){var e,r,o,i;return o=this.view.getResourceRow(t.id),o&&(e=o.getTr("event"))?(r=this.bodyScroller.canvas.el.offset().top,i=e.offset().top-r,this.bodyScroller.scrollEl.scrollTop(i)):void 0},r}(q),r=30,N=function(){function e(t){var e;this.view=t,this.isRTL=this.view.opt("isRTL"),this.givenColWidths=this.colWidths=function(){var t,r,o,i;for(o=this.view.colSpecs,i=[],t=0,r=o.length;r>t;t++)e=o[t],i.push(e.width);return i}.call(this)}return e.prototype.view=null,e.prototype.headEl=null,e.prototype.el=null,e.prototype.tbodyEl=null,e.prototype.headScroller=null,e.prototype.bodyScroller=null,e.prototype.joiner=null,e.prototype.colGroupHtml="",e.prototype.headTable=null,e.prototype.headColEls=null,e.prototype.headCellEls=null,e.prototype.bodyColEls=null,e.prototype.bodyTable=null,e.prototype.renderSkeleton=function(){return this.headScroller=new s({overflowX:"clipped-scroll",overflowY:"hidden"}),this.headScroller.canvas=new O,this.headScroller.render(),this.headScroller.canvas.contentEl.html(this.renderHeadHtml()),this.headEl.append(this.headScroller.el),this.bodyScroller=new s({overflowY:"clipped-scroll"}),this.bodyScroller.canvas=new O,this.bodyScroller.render(),this.bodyScroller.canvas.contentEl.html("<table>"+this.colGroupHtml+"<tbody/></table>"),this.tbodyEl=this.bodyScroller.canvas.contentEl.find("tbody"),this.el.append(this.bodyScroller.el),this.joiner=new A("horizontal",[this.headScroller,this.bodyScroller]),this.headTable=this.headEl.find("table"),this.headColEls=this.headEl.find("col"),this.headCellEls=this.headScroller.canvas.contentEl.find("tr:last-child th"),this.bodyColEls=this.el.find("col"),this.bodyTable=this.el.find("table"),this.colMinWidths=this.computeColMinWidths(),this.applyColWidths(),this.initColResizing()},e.prototype.renderHeadHtml=function(){var t,e,r,o,i,n,s,l,u,a,h;for(e=this.view.colSpecs,r="<table>",t="<colgroup>",s=0,u=e.length;u>s;s++)h=e[s],t+=h.isMain?'<col class="fc-main-col"/>':"<col/>";for(t+="</colgroup>",this.colGroupHtml=t,r+=t,r+="<tbody>",this.view.superHeaderText&&(r+='<tr class="fc-super"><th class="'+this.view.widgetHeaderClass+'" colspan="'+e.length+'"><div class="fc-cell-content"><span class="fc-cell-text">'+yt(this.view.superHeaderText)+"</span></div></th></tr>"),r+="<tr>",n=!0,o=l=0,a=e.length;a>l;o=++l)h=e[o],i=o===e.length-1,r+='<th class="'+this.view.widgetHeaderClass+'"><div><div class="fc-cell-content">'+(h.isMain?'<span class="fc-expander-space"><span class="fc-icon"></span></span>':"")+'<span class="fc-cell-text">'+yt(h.labelText||"")+"</span></div>"+(i?"":'<div class="fc-col-resizer"></div>')+"</div></th>";return r+="</tr>",r+="</tbody></table>"},e.prototype.givenColWidths=null,e.prototype.colWidths=null,e.prototype.colMinWidths=null,e.prototype.tableWidth=null,e.prototype.tableMinWidth=null,e.prototype.initColResizing=function(){return this.headEl.find("th .fc-col-resizer").each(function(e){return function(r,o){return o=t(o),o.on("mousedown",function(t){return e.colResizeMousedown(r,t,o)})}}(this))},e.prototype.colResizeMousedown=function(t,e,o){var i,n,s,l;return i=this.colWidths=this.queryColWidths(),i.pop(),i.push(null),l=i[t],s=Math.min(this.colMinWidths[t],r),n=new a({dragStart:function(t){return function(){return o.addClass("fc-active")}}(this),drag:function(e){return function(r,o){var n;return n=l+(e.isRTL?-r:r),n=Math.max(n,s),i[t]=n,e.applyColWidths()}}(this),dragEnd:function(t){return function(){return o.removeClass("fc-active")}}(this)}),n.startInteraction(e)},e.prototype.applyColWidths=function(){var t,e,r,o,i,n,s,l,u,a,h,c,p,d,f,g,y;for(r=this.colMinWidths,i=this.colWidths,t=!0,e=!1,y=0,a=0,p=i.length;p>a;a++)o=i[a],"number"==typeof o?y+=o:(t=!1,o&&(e=!0));for(l=e&&!this.view.isHGrouping?"auto":"",s=function(){var t,e,r;for(r=[],u=t=0,e=i.length;e>t;u=++t)o=i[u],r.push(null!=o?o:l);return r}(),g=0,u=h=0,d=s.length;d>h;u=++h)n=s[u],g+="number"==typeof n?n:r[u];for(u=c=0,f=s.length;f>c;u=++c)n=s[u],this.headColEls.eq(u).width(n),this.bodyColEls.eq(u).width(n);return this.headScroller.canvas.setMinWidth(g),this.bodyScroller.canvas.setMinWidth(g),this.tableMinWidth=g,this.tableWidth=t?y:void 0},e.prototype.computeColMinWidths=function(){var t,e,o,i,n,s;for(i=this.givenColWidths,n=[],t=e=0,o=i.length;o>e;t=++e)s=i[t],n.push("number"==typeof s?s:parseInt(this.headColEls.eq(t).css("min-width"))||r);return n},e.prototype.queryColWidths=function(){var e,r,o,i,n;for(i=this.headCellEls,n=[],e=0,r=i.length;r>e;e++)o=i[e],n.push(t(o).outerWidth());return n},e.prototype.updateWidth=function(){return this.headScroller.updateSize(),this.bodyScroller.updateSize(),this.joiner.update(),this.follower?this.follower.update():void 0},e.prototype.headHeight=function(){var t;return t=this.headScroller.canvas.contentEl.find("table"),t.height.apply(t,arguments)},e}(),k=function(){function e(e){this.view=e,this.children=[],this.trHash={},this.trs=t()}return e.prototype.view=null,e.prototype.parent=null,e.prototype.prevSibling=null,e.prototype.children=null,e.prototype.depth=0,e.prototype.hasOwnRow=!1,e.prototype.trHash=null,e.prototype.trs=null,e.prototype.isRendered=!1,e.prototype.isExpanded=!0,e.prototype.isShown=!1,e.prototype.addChild=function(t,e){var r,o,i,n,s;for(t.remove(),r=this.children,null!=e?r.splice(e,0,t):(e=r.length,r.push(t)),t.prevSibling=e>0?r[e-1]:null,e<r.length-1&&(r[e+1].prevSibling=t),t.parent=this,t.depth=this.depth+(this.hasOwnRow?1:0),s=t.getNodes(),o=0,i=s.length;i>o;o++)n=s[o],n.added();return this.isShown&&this.isExpanded?t.show():void 0},e.prototype.removeChild=function(t){var e,r,o,i,n,s,l,u,a,h;for(e=this.children,o=!1,r=i=0,s=e.length;s>i;r=++i)if(h=e[r],h===t){o=!0;break}if(o){for(r<e.length-1&&(e[r+1].prevSibling=t.prevSibling),e.splice(r,1),t.recursivelyUnrender(),u=t.getNodes(),n=0,l=u.length;l>n;n++)a=u[n],a.removed();return t.parent=null,t.prevSibling=null,t}return!1},e.prototype.removeChildren=function(){var t,e,r,o,i,n,s;for(n=this.children,e=0,o=n.length;o>e;e++)t=n[e],t.recursivelyUnrender();for(s=this.getDescendants(),r=0,i=s.length;i>r;r++)t=s[r],t.removed();return this.children=[]},e.prototype.remove=function(){return this.parent?this.parent.removeChild(this):void 0},e.prototype.getLastChild=function(){var t;return t=this.children,t[t.length-1]},e.prototype.getPrevRow=function(){var t,e;for(e=this;e;){if(e.prevSibling)for(e=e.prevSibling;t=e.getLastChild();)e=t;else e=e.parent;if(e&&e.hasOwnRow&&e.isShown)return e}return null},e.prototype.getLeadingRow=function(){return this.hasOwnRow?this:this.isExpanded&&this.children.length?this.children[0].getLeadingRow():void 0},e.prototype.getRows=function(t){var e,r,o,i;for(null==t&&(t=[]),this.hasOwnRow&&t.push(this),i=this.children,r=0,o=i.length;o>r;r++)e=i[r],e.getRows(t);return t},e.prototype.getNodes=function(t){var e,r,o,i;for(null==t&&(t=[]),t.push(this),i=this.children,r=0,o=i.length;o>r;r++)e=i[r],e.getNodes(t);return t},e.prototype.getDescendants=function(){var t,e,r,o,i;for(t=[],i=this.children,r=0,o=i.length;o>r;r++)e=i[r],e.getNodes(t);return t},e.prototype.render=function(){var e,r,o,i,n,s,l;if(this.trHash={},s=[],this.hasOwnRow){e=this.getPrevRow(),r=this.view.tbodyHash;for(l in r)i=r[l],n=t("<tr/>"),this.trHash[l]=n,s.push(n[0]),o="render"+K(l)+"Content",this[o]&&this[o](n),e?e.trHash[l].after(n):i.prepend(n)}return this.trs=t(s).on("click",".fc-expander",Ft(this,"toggleExpanded")),this.isRendered=!0},e.prototype.unrender=function(){var e,r,o,i;if(this.isRendered){e=this.trHash;for(o in e)r=e[o],i="unrender"+K(o)+"Content",this[i]&&this[i](r);return this.trHash={},this.trs.remove(),this.trs=t(),this.isRendered=!1,this.isShown=!1,this.hidden()}},e.prototype.recursivelyUnrender=function(){var t,e,r,o,i;for(this.unrender(),o=this.children,i=[],e=0,r=o.length;r>e;e++)t=o[e],i.push(t.recursivelyUnrender());return i},e.prototype.getTr=function(t){return this.trHash[t]},e.prototype.show=function(){var t,e,r,o,i;if(!this.isShown&&(this.isRendered?this.trs.css("display",""):this.render(),this.ensureSegsRendered&&this.ensureSegsRendered(),this.isExpanded?this.indicateExpanded():this.indicateCollapsed(),this.isShown=!0,this.shown(),this.isExpanded)){for(o=this.children,i=[],e=0,r=o.length;r>e;e++)t=o[e],i.push(t.show());return i}},e.prototype.hide=function(){var t,e,r,o,i;if(this.isShown&&(this.isRendered&&this.trs.hide(),this.isShown=!1,this.hidden(),this.isExpanded)){for(o=this.children,i=[],e=0,r=o.length;r>e;e++)t=o[e],i.push(t.hide());return i}},e.prototype.expand=function(){var t,e,r,o;if(!this.isExpanded){for(this.isExpanded=!0,this.indicateExpanded(),this.view.batchRows(),o=this.children,e=0,r=o.length;r>e;e++)t=o[e],t.show();return this.view.unbatchRows(),this.animateExpand()}},e.prototype.collapse=function(){var t,e,r,o;if(this.isExpanded){for(this.isExpanded=!1,this.indicateCollapsed(),this.view.batchRows(),o=this.children,e=0,r=o.length;r>e;e++)t=o[e],t.hide();return this.view.unbatchRows()}},e.prototype.toggleExpanded=function(){return this.isExpanded?this.collapse():this.expand()},e.prototype.indicateExpanded=function(){return this.trs.find(".fc-expander .fc-icon").removeClass(this.getCollapsedIcon()).addClass(this.getExpandedIcon())},e.prototype.indicateCollapsed=function(){return this.trs.find(".fc-expander .fc-icon").removeClass(this.getExpandedIcon()).addClass(this.getCollapsedIcon())},e.prototype.enableExpanding=function(){return this.trs.find(".fc-expander-space").addClass("fc-expander")},e.prototype.disableExpanding=function(){return this.trs.find(".fc-expander-space").removeClass("fc-expander").find(".fc-icon").removeClass(this.getExpandedIcon()).removeClass(this.getCollapsedIcon())},e.prototype.getExpandedIcon=function(){return"fc-icon-down-triangle"},e.prototype.getCollapsedIcon=function(){var t;return t=this.view.isRTL?"left":"right","fc-icon-"+t+"-triangle"},e.prototype.animateExpand=function(){var t,e,r;return r=null!=(t=this.children[0])&&null!=(e=t.getLeadingRow())?e.trs:void 0,r?(r.addClass("fc-collapsed"),setTimeout(function(){return r.addClass("fc-transitioning"),r.removeClass("fc-collapsed")}),r.one("webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend",function(){return r.removeClass("fc-transitioning")})):void 0},e.prototype.getMaxTrInnerHeight=function(){var e;return e=0,t.each(this.trHash,function(t){return function(t,r){var o;return o=ct(r).find("> div:not(.fc-cell-content):first"),e=Math.max(o.height(),e)}}(this)),e},e.prototype.setTrInnerHeight=function(e){return t.each(this.trHash,function(t){return function(t,r){return ct(r).find("> div:not(.fc-cell-content):first").height(e)}}(this))},e.prototype.shown=function(){return this.hasOwnRow?this.rowShown(this):void 0},e.prototype.hidden=function(){return this.hasOwnRow?this.rowHidden(this):void 0},e.prototype.rowShown=function(t){return(this.parent||this.view).rowShown(t)},e.prototype.rowHidden=function(t){return(this.parent||this.view).rowHidden(t)},e.prototype.added=function(){return this.hasOwnRow?this.rowAdded(this):void 0},e.prototype.removed=function(){return this.hasOwnRow?this.rowRemoved(this):void 0},e.prototype.rowAdded=function(t){return(this.parent||this.view).rowAdded(t)},e.prototype.rowRemoved=function(t){return(this.parent||this.view).rowRemoved(t)},e}(),B=function(e){function r(t,e,o){this.groupSpec=e,this.groupValue=o,r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.prototype.groupSpec=null,r.prototype.groupValue=null,r.prototype.rowRemoved=function(t){return r.__super__.rowRemoved.apply(this,arguments),t===this||this.children.length?void 0:this.remove()},r.prototype.renderGroupContentEl=function(){var e,r;return e=t('<div class="fc-cell-content" />').append(this.renderGroupTextEl()),r=this.groupSpec.render,"function"==typeof r&&(e=r(e,this.groupValue)||e),e},r.prototype.renderGroupTextEl=function(){var e,r;return r=this.groupValue||"",e=this.groupSpec.text,"function"==typeof e&&(r=e(r)||r),t('<span class="fc-cell-text" />').text(r)},r}(k),g=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.prototype.hasOwnRow=!0,r.prototype.renderSpreadsheetContent=function(e){var r;return r=this.renderGroupContentEl(),r.prepend('<span class="fc-expander"><span class="fc-icon"></span></span>'),t('<td class="fc-divider" />').attr("colspan",this.view.colSpecs.length).append(t("<div/>").append(r)).appendTo(e)},r.prototype.renderEventContent=function(t){return t.append('<td class="fc-divider"> <div/> </td>')},r}(B),U=function(e){function r(){return r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.prototype.rowspan=0,r.prototype.leadingTr=null,r.prototype.groupTd=null,r.prototype.rowShown=function(t){return this.rowspan+=1,this.renderRowspan(),r.__super__.rowShown.apply(this,arguments)},r.prototype.rowHidden=function(t){return this.rowspan-=1,this.renderRowspan(),r.__super__.rowHidden.apply(this,arguments)},r.prototype.renderRowspan=function(){var e;return this.rowspan?(this.groupTd||(this.groupTd=t('<td class="'+this.view.widgetContentClass+'"/>').append(this.renderGroupContentEl())),this.groupTd.attr("rowspan",this.rowspan),e=this.getLeadingRow().getTr("spreadsheet"),e!==this.leadingTr?(e&&e.prepend(this.groupTd),this.leadingTr=e):void 0):(this.groupTd&&(this.groupTd.remove(),this.groupTd=null),this.leadingTr=null)},r}(B),p=function(t){function e(){return e.__super__.constructor.apply(this,arguments)}return zt(e,t),e.prototype.hasOwnRow=!0,e.prototype.segContainerEl=null,e.prototype.segContainerHeight=null,e.prototype.innerEl=null,e.prototype.bgSegContainerEl=null,e.prototype.isSegsRendered=!1,e.prototype.bgSegs=null,e.prototype.fgSegs=null,e.prototype.renderEventContent=function(t){return t.html('<td class="'+this.view.widgetContentClass+'"> <div> <div class="fc-event-container" /> </div> </td>'),this.segContainerEl=t.find(".fc-event-container"),this.innerEl=this.bgSegContainerEl=t.find("td > div"),this.ensureSegsRendered()},e.prototype.ensureSegsRendered=function(){return this.isSegsRendered?void 0:(this.bgSegs&&this.view.timeGrid.renderFillInContainer("bgEvent",this,this.bgSegs),this.fgSegs&&this.view.timeGrid.renderFgSegsInContainers([[this,this.fgSegs]]),this.isSegsRendered=!0)},e.prototype.unrenderEventContent=function(){return this.bgSegs=null,this.fgSegs=null,this.isSegsRendered=!1},e}(k),F=function(e){function r(t,e){this.resource=e,r.__super__.constructor.apply(this,arguments)}return zt(r,e),r.prototype.resource=null,r.prototype.rowAdded=function(t){return r.__super__.rowAdded.apply(this,arguments),t!==this&&this.isRendered&&1===this.children.length?(this.enableExpanding(),this.isExpanded?this.indicateExpanded():this.indicateCollapsed()):void 0},r.prototype.rowRemoved=function(t){return r.__super__.rowRemoved.apply(this,arguments),t!==this&&this.isRendered&&!this.children.length?this.disableExpanding():void 0},r.prototype.render=function(){return r.__super__.render.apply(this,arguments),this.children.length>0?this.enableExpanding():this.disableExpanding(),this.view.trigger("resourceRender",this.resource,this.resource,this.getTr("spreadsheet").find("> td"),this.getTr("event").find("> td"))},r.prototype.renderEventContent=function(t){return r.__super__.renderEventContent.apply(this,arguments),t.attr("data-resource-id",this.resource.id)},r.prototype.renderSpreadsheetContent=function(e){var r,o,i,n,s,l,u,a,h;for(u=this.resource,l=this.view.colSpecs,n=0,s=l.length;s>n;n++)r=l[n],r.group||(i=r.field?u[r.field]||null:u,h="function"==typeof r.text?r.text(u,i):i,o=t('<div class="fc-cell-content">'+(r.isMain?this.renderGutterHtml():"")+'<span class="fc-cell-text">'+(h?yt(h):"&nbsp;")+"</span></div>"),"function"==typeof r.render&&(o=r.render(u,o,i)||o),a=t('<td class="'+this.view.widgetContentClass+'"/>').append(o),r.isMain&&a.wrapInner("<div/>"),e.append(a));return e.attr("data-resource-id",u.id)},r.prototype.renderGutterHtml=function(){var t,e,r,o;for(t="",e=r=0,o=this.depth;o>r;e=r+=1)t+='<span class="fc-icon"/>';return t+='<span class="fc-expander-space"><span class="fc-icon"></span></span>'},r}(p),d.views.timeline.resourceClass=W,E=function(t){function e(){return e.__super__.constructor.apply(this,arguments)}return zt(e,t),e.mixin(L),e.prototype.timeGridClass=G,e.prototype.dayGridClass=H,e.prototype.renderHead=function(){return e.__super__.renderHead.apply(this,arguments),this.timeGrid.processHeadResourceEls(this.headContainerEl)},e.prototype.setResources=function(t){return this.timeGrid.setResources(t),this.dayGrid&&this.dayGrid.setResources(t),this.clearView(),this.displayView()},e.prototype.unsetResources=function(){return this.clearEvents(),this.timeGrid.unsetResources(),this.dayGrid&&this.dayGrid.unsetResources(),this.clearView(),this.displayView()},e}(d.AgendaView),d.views.agenda.queryResourceClass=function(t){var e;return(null!=(e=t.options.groupByResource||t.options.groupByDateAndResource)?e:1===t.duration.as("days"))?E:void 0},T=function(t){function e(){return e.__super__.constructor.apply(this,arguments)}return zt(e,t),e.mixin(L),e.prototype.dayGridClass=H,e.prototype.renderHead=function(){return e.__super__.renderHead.apply(this,arguments),this.dayGrid.processHeadResourceEls(this.headContainerEl)},e.prototype.setResources=function(t){return this.dayGrid.setResources(t),this.clearView(),this.displayView()},e.prototype.unsetResources=function(){return this.clearEvents(),this.dayGrid.unsetResources(),this.clearView(),this.displayView()},e}(d.BasicView),x=function(t){function e(){return e.__super__.constructor.apply(this,arguments)}return zt(e,t),e.mixin(L),e.prototype.dayGridClass=H,e.prototype.renderHead=function(){return e.__super__.renderHead.apply(this,arguments),this.dayGrid.processHeadResourceEls(this.headContainerEl)},e.prototype.setResources=function(t){return this.dayGrid.setResources(t),this.clearView(),this.displayView()},e.prototype.unsetResources=function(){return this.clearEvents(),this.dayGrid.unsetResources(),this.clearView(),this.displayView()},e}(d.MonthView),d.views.basic.queryResourceClass=function(t){var e;return(null!=(e=t.options.groupByResource||t.options.groupByDateAndResource)?e:1===t.duration.as("days"))?T:void 0},d.views.month.queryResourceClass=function(t){return t.options.groupByResource||t.options.groupByDateAndResource?x:void 0},C="2016-04-23",j={years:1,weeks:1},y="http://fullcalendar.io/scheduler/license/",b=["GPL-My-Project-Is-Open-Source","CC-Attribution-NonCommercial-NoDerivatives"],xt=function(t,e){return wt(window.location.href)||St(t)||it(e)?void 0:Gt('Please use a valid license key. <a href="'+y+'">More Info</a>',e)},St=function(r){var o,i,n,s;return-1!==t.inArray(r,b)?!0:(i=(r||"").match(/^(\d+)\-fcs\-(\d+)$/),i&&10===i[1].length&&(n=e.utc(1e3*parseInt(i[2])),s=e.utc(d.mockSchedulerReleaseDate||C),s.isValid()&&(o=s.clone().subtract(j),n.isAfter(o)))?!0:!1)},wt=function(t){return Boolean(t.match(/\w+\:\/\/fullcalendar\.io\/|\/demos\/[\w-]+\.html$/))},Gt=function(e,r){return r.append(t('<div class="fc-license-message" />').html(e))},void(it=function(t){return t.find(".fc-license-message").length>=1}))});
 //# sourceMappingURL=all.js.map

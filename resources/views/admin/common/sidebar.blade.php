@@ -26,6 +26,7 @@
 						</a>
 					</li>
 
+
 					<li class="navigation-header">
 						<span>Espacio Coworking</span>
 						<i class="icon-menu" title="Espacio Coworking"></i>
@@ -49,6 +50,24 @@
 							Alquilables
 						</a>
 					</li>
+
+					<li class="navigation-header">
+						<span>Reservas de Salas</span>
+						<i class="icon-menu" title="Reservas de Salas"></i>
+					</li>
+					<li>
+						<a href="{{route('admin.bookings.calendar')}}" class="legitRipple">
+							<i class="icon-stack2"></i>
+							Calendario de reservas
+						</a>
+					</li>
+					<li>
+						<a href="{{route('admin.bookings.index')}}" class="legitRipple">
+							<i class="icon-stack2"></i>
+							Salas & Puestos
+						</a>
+					</li>
+
 					<li class="navigation-header">
 						<span>Recursos</span>
 						<i class="icon-menu" title="Recursos"></i>
