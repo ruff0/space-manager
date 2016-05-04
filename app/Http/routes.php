@@ -25,6 +25,9 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 			'as'   => 'api.members.payment-methods.create',
 			'uses' => 'PaymentMethods@store'
 		]);
+		Route::get('/subscriptions', 'SubscriptionsController@index');
+		Route::post('/subscriptions', 'SubscriptionsController@store');
+		Route::post('/subscriptions/calculate', 'SubscriptionsController@calculate');
 	});
 
 

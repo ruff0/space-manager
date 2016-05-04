@@ -1,5 +1,4 @@
 $el = $("#subscriptions-wizzard")
-console.log($el);
 $.ajaxSetup({
 	headers: {
 		'X-CSRF-TOKEN': $el.data('token')
@@ -7,7 +6,7 @@ $.ajaxSetup({
 });
 
 var data = {};
-var bookables = {};
+var plans = {};
 
 $el.steps({
 	headerTag: "h6",
@@ -20,24 +19,26 @@ $el.steps({
 		finish: 'Rerervar & Pagar'
 	},
 	onStepChanging: function (event, currentIndex, newIndex) {
-		// Allways allow previous action even if the current form is not valid!
+
+		// Always allow previous action even if the current form is not valid!
 		if (currentIndex > newIndex) {
 			return true;
 		}
 
 		// Forbid next action on "Warning" step if the user is to young
 		if (newIndex === 1) {
-			if($('input[name=bookable-type]:checked').length <= 0)
+
+			if($('input[name=plan-type]:checked').length <= 0)
 			{
 				$(".errors").empty().html("<li>Debes de seleccionar una opción</li>").fadeIn(500)
 				return false;
 			}
 			$(".errors").empty().hide()
-			data.type = $('input[name=bookable-type]:checked').val();
+			data.type = $('input[name=plan-type]:checked').val();
 			// var $return = false;
-
-			$('.bookables').hide();
-			$('.bookables[data-bookableType=' + data.type + ']').show()
+		 console.log($('.plans[data-type=' + data.type + ']'));
+			$('.plans').hide();
+			$('.plans[data-type=' + data.type + ']').show()
 
 
 			// Disable certain dates
@@ -53,54 +54,29 @@ $el.steps({
 				hiddenPrefix: 'date',
 				hiddenSuffix: ''
 			});
-			// Disabling ranges
-			$('.pickatime-from').pickatime({
-				interval: 60,
-				min: [8, 0],
-				max: [21, 0],
-				// Escape any “rule” characters with an exclamation mark (!).
-				format: 'HH:i ',
-				formatLabel: 'HH:i',
-				formatSubmit: 'HHi',
-				hiddenPrefix: 'time-',
-				hiddenSuffix: 'from'
-			});
-
-			$('.pickatime-to').pickatime({
-				interval: 60,
-				min: [8, 0],
-				max: [21, 0],
-				// Escape any “rule” characters with an exclamation mark (!).
-				format: 'HH:i',
-				formatLabel: 'HH:i',
-				formatSubmit: 'HHi',
-				hiddenPrefix: 'time',
-				hiddenSuffix: '-to'
-			});
 
 
 			$("button#search").on('click', function (e) {
 				e.preventDefault();
-				data.date = $("[name=date]").val()
-				data.time_from = $("[name=time-from]").val()
-				data.time_to = $("[name=time-to]").val()
+				data.date_from = $("[name=date_from]").val()
+				data.date_to = $("[name=date_to]").val()
 
 				$.ajax({
 					data: data,
-					url: '/api/bookings',
+					url: '/api/subscriptions',
 					type: 'GET',
 					dataType: 'json',
 					success: function (result) {
-						$(".bookables").removeClass('blocked');
+						$(".plans").removeClass('blocked');
 
-						$.each(result.notavailable, function(key, bookable){
-							$('[data-bookable='+ bookable.id +']').addClass('notavailable');
-							$('[data-bookable=' + bookable.id + ']').removeClass('selected')
-							$('[data-bookable=' + bookable.id + '] input[type=radio]').prop('checked', false);
+						$.each(result.notavailable, function(key, plan){
+							$('[data-plan='+ plan.id +']').addClass('notavailable');
+							$('[data-plan=' + plan.id + ']').removeClass('selected')
+							$('[data-plan=' + plan.id + '] input[type=radio]').prop('checked', false);
 						})
 
-						$.each(result.available, function(key, bookable){
-							$('[data-bookable='+ bookable.id +']').removeClass('notavailable');
+						$.each(result.available, function(key, plan){
+							$('[data-plan='+ plan.id +']').removeClass('notavailable');
 						})
 					},
 					error: function (result) {
@@ -115,17 +91,17 @@ $el.steps({
 		}
 
 		if (newIndex === 2) {
-			if ($('input[name=bookable]:checked').length <= 0) {
+			if ($('input[name=plan]:checked').length <= 0) {
 				$(".errors").empty().html("<li>Debes de seleccionar una opción</li>").fadeIn(500)
 				return false;
 			}
 			$(".errors").empty().hide()
-			data.bookable = $('input[name=bookable]:checked').val();
+			data.plan = $('input[name=plan]:checked').val();
 
 			var $return = false;
 
 			$.ajax({
-				url: '/api/bookings/calculate',
+				url: '/api/subscriptions/calculate',
 				data: data,
 				dataType: 'json',
 				type: 'POST',  // user.destroy
@@ -171,7 +147,7 @@ $el.steps({
 	},
 	onFinished: function (event, currentIndex) {
 		$.ajax({
-			url: '/api/bookings',
+			url: '/api/subscriptions',
 			data: data,
 			dataType: 'json',
 			type: 'POST',  // user.destroy

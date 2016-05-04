@@ -67,6 +67,14 @@ class AbstractResource extends Model implements SluggableInterface
 	}
 
 	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function subscriptions()
+	{
+		return $this->hasMany(Booking::class);
+	}
+
+	/**
 	 * Save a new model and return the instance.
 	 *
 	 * @param  array $attributes

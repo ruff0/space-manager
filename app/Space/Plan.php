@@ -5,7 +5,10 @@ namespace App\Space;
 use App\Events\Space\PlanWasCreated;
 use App\Events\Space\PlanWasDeleted;
 use App\Events\Space\PlanWasUpdated;
+use App\Resources\Models\ClassRoom;
+use App\Resources\Models\MeetingRoom;
 use App\Resources\Models\Resource;
+use App\Resources\Models\Spot;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -178,10 +181,28 @@ class Plan extends Model implements SluggableInterface
 		return false;
 	}
 
+	public function roomResources()
+	{
+		return $this->resources()
+		            ->whereIn('resources.resourceable_type', [
+			            MeetingRoom::class,
+			            ClassRoom::class,
+			            Spot::class
+		            ])->get();
+	}
+
 
 	#######################################################################################
 	# Relations
 	#######################################################################################
+	/**
+	 * Get all of the resources for the post.
+	 */
+	public function subscriptions()
+	{
+		return $this->hasMany(Subscription::class);
+	}
+
 	/**
 	 * Get all of the resources for the post.
 	 */

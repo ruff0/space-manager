@@ -97,6 +97,9 @@ class Bookable extends Model implements SluggableInterface
 	}
 
 
+	/**
+	 * @return mixed
+	 */
 	public function roomResources()
 	{
 		return $this->resources()

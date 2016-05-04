@@ -169,6 +169,14 @@ class Member extends Model
 	}
 
 	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function subscriptions()
+	{
+		return $this->hasMany(Subscription::class);
+	}
+
+	/**
 	 * The main user for this member
 	 *
 	 * @return mixed

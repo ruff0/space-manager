@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Subscriptions;
 
-use App\Space\Plan;
+
+use App\Space\PlanType;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -11,10 +12,10 @@ use App\Http\Controllers\Controller;
 class SubscriptionsController extends Controller
 {
 	public function create(){
-		$plans = Plan::all();
+		$plantypes = PlanType::with('plans')->get();
 
 		return view('subscriptions.index', [
-			'plans' => $plans
+			'plantypes' => $plantypes
 		]);
 	}
 }

@@ -29,13 +29,13 @@
 							      data-token="{{csrf_token()}}"
 							      method="POST"
 							>
-								<h6>¿Salas o despachos?</h6>
+								<h6>¿Coworking o despacho?</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 									<div class="row mt-20 pt-20">
 										<div class="col-md-6 col-md-offset-3">
 											<div class="errors alert alert-danger" style="display:none;"></div>
 										</div>
-										@foreach($plans as $plan)
+										@foreach($plantypes as $type)
 											<div class="col-md-2 col-md-offset-3">
 												<div class="thumbnail no-padding">
 													<div class="thumb">
@@ -44,7 +44,7 @@
 																<span>
 																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
 																		<i class="icon-plus2"></i>
-																		<input type="radio" name="bookable-type" class="styled" value="{{$plan->id}}">
+																		<input type="radio" name="plan-type" class="styled" value="{{$type->id}}">
 																	</label>
 																</span>
 														</div>
@@ -52,8 +52,8 @@
 
 													<div class="caption text-center">
 														<h6 class="text-semibold no-margin">
-															{{$plan->name}}
-															<small class="display-block">{{$plan->name}}</small>
+															{{$type->name}}
+															<small class="display-block">{{$type->name}}</small>
 														</h6>
 													</div>
 												</div>
@@ -67,34 +67,22 @@
 										<div class="col-md-8 col-md-offset-2">
 											<div class="errors alert alert-danger" style="display:none;"></div>
 										</div>
-										<div class="col-md-3">
+										<div class="col-md-4">
 											<div class="form-group">
-												<label>Fecha</label>
+												<label>Fecha de inicio</label>
 												<div class="input-group">
 													<span class="input-group-addon"><i class="icon-calendar5"></i></span>
-													<input type="text" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
+													<input type="text" name="_from" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
 												</div>
 											</div>
 										</div>
 
-										<div class="col-md-3">
+										<div class="col-md-4">
 											<div class="form-group">
-												<label>Hora inicio</label>
+												<label>Fecha de fin</label>
 												<div class="input-group">
-													<span class="input-group-addon"><i class="icon-alarm"></i></span>
-													<input type="text" placeholder="¿Desde que hora?" class="form-control pickatime-from">
-												</div>
-
-											</div>
-										</div>
-
-										<div class="col-md-3">
-											<div class="form-group">
-												<label>Hora fin</label>
-												<div class="input-group">
-													<span class="input-group-addon"><i class="icon-alarm"></i></span>
-													<input type="text" placeholder="¿Desde que hora?"
-													       class="form-control pickatime-to">
+													<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+													<input type="text" name="_to" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
 												</div>
 											</div>
 										</div>
@@ -106,38 +94,37 @@
 											</div>
 										</div>
 
-										@foreach($plans as $plan)
-											{{--@foreach($plan->bookables as $bookable)--}}
-												{{--<div class="col-md-2">--}}
-													{{--<label class="bookables" >--}}
-														{{----}}
-														{{--{{$bookable->name}}--}}
-													{{--</label>--}}
-												{{--</div>--}}
-												{{--<div class="col-md-2">--}}
-													{{--<div class="thumbnail no-padding bookables blocked" data-bookableType="{{$plan->id}}"--}}
-													     {{--data-bookable="{{$bookable->id}}">--}}
-														{{--<div class="thumb">--}}
-															{{--<img src="/images/placeholder.jpg" alt="">--}}
-															{{--<div class="caption-overflow">--}}
-																{{--<span>--}}
-																	{{--<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">--}}
-																		{{--<i class="icon-plus2"></i>--}}
-																		{{--<input type="radio" name="bookable" class="styled" value="{{$bookable->id}}">--}}
-																	{{--</label>--}}
-																{{--</span>--}}
-															{{--</div>--}}
-														{{--</div>--}}
+										@foreach($plantypes as $type)
+											@foreach($type->plans as $plan)
+												<div class="col-md-2">
+													<label class="plans" >
+														{{$plan->name}}
+													</label>
+												</div>
+												<div class="col-md-2">
+													<div class="thumbnail no-padding plans blocked" data-type="{{$type->id}}"
+													     data-plan="{{$plan->id}}">
+														<div class="thumb">
+															<img src="/images/placeholder.jpg" alt="">
+															<div class="caption-overflow">
+																<span>
+																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
+																		<i class="icon-plus2"></i>
+																		<input type="radio" name="plan" class="styled" value="{{$plan->id}}">
+																	</label>
+																</span>
+															</div>
+														</div>
 
-														{{--<div class="caption text-center">--}}
-															{{--<h6 class="text-semibold no-margin">--}}
-																{{--{{$bookable->name}}--}}
-																{{--<small class="display-block">{{$bookable->name}}</small>--}}
-															{{--</h6>--}}
-														{{--</div>--}}
-													{{--</div>--}}
-												{{--</div>--}}
-											{{--@endforeach--}}
+														<div class="caption text-center">
+															<h6 class="text-semibold no-margin">
+																{{$plan->name}}
+																<small class="display-block">{{$plan->name}}</small>
+															</h6>
+														</div>
+													</div>
+												</div>
+											@endforeach
 										@endforeach
 									</div>
 								</fieldset>
