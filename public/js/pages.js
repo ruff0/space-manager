@@ -1075,20 +1075,17 @@ $('.plans-list').DataTable({
 	}
 });
 
-
 // External table additions
 // ------------------------------
 
 // Add placeholder to the datatable filter option
 $('.dataTables_filter input[type=search]').attr('placeholder', 'Escribe para filtrar...');
 
-
 // Enable Select2 select for the length option
 $('.dataTables_length select').select2({
 	minimumResultsForSearch: Infinity,
 	width: 'auto'
 });
-
 /**
  * Creates a ajax request from a anchor
  */

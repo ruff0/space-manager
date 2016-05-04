@@ -5,6 +5,7 @@ namespace App\Space;
 use App\Events\Space\PlanWasCreated;
 use App\Events\Space\PlanWasDeleted;
 use App\Events\Space\PlanWasUpdated;
+use App\Resources\Models\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -36,6 +37,8 @@ class Plan extends Model implements SluggableInterface
 		'name',
 		'price',
 		'description',
+		'active',
+		'standalone',
 	];
 
 	/**
@@ -71,6 +74,9 @@ class Plan extends Model implements SluggableInterface
 		return $value / 100;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function priceForStripe()
 	{
 		return $this->price * 100;
@@ -109,6 +115,21 @@ class Plan extends Model implements SluggableInterface
 	{
 		$plan = parent::update($attributes, $options);
 
+		// Extract this out of here
+		if (isset($attributes['resources'])) {
+			$resources = [];
+
+			foreach ($attributes['resources'] as $key => $resource) {
+				if (isset($resource['settings'])) {
+					$resource['settings'] = json_encode($resource['settings']);
+				}
+
+				$resources[$key] = $resource;
+			}
+			$this->resources()->sync($resources);
+		}
+
+
 		if($plan)
 		{
 			list($stripePlan) = event(
@@ -138,5 +159,16 @@ class Plan extends Model implements SluggableInterface
 		}
 
 		return $deleted;
+	}
+
+	#######################################################################################
+	# Relations
+	#######################################################################################
+	/**
+	 * Get all of the resources for the post.
+	 */
+	public function resources()
+	{
+		return $this->morphToMany(Resource::class, 'resourceable')->withPivot('settings');
 	}
 }

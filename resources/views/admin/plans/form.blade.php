@@ -46,8 +46,8 @@
 			<label>Activo</label>
 			<div class="checkbox checkbox-switchery">
 				<label for="active">
-				<input name="active" id="active" type="checkbox" class="switchery"
-					{!! $plan->status || old('actives')? 'checked' : null !!}
+				<input name="active" value="1" id="active" type="checkbox" class="switchery"
+					{!! $plan->active || old('active')? 'checked' : null !!}
 				/>
 					<span class="text-muted">
 						Este plan esta activo o inactivo
@@ -63,8 +63,8 @@
 			<label>Plan es standalone</label>
 			<div class="checkbox checkbox-switchery">
 				<label for="standalone">
-				<input name="standalone" id="standalone" type="checkbox" class="switchery"
-					{!! $plan->status || old('standalone')? 'checked' : null !!}
+				<input name="standalone" value="1" id="standalone" type="checkbox" class="switchery"
+					{!! $plan->standalone || old('standalone')? 'checked' : null !!}
 				/>
 					<span class="text-muted">
 						Este plan se puede contratar solo o es un adjunto a otro plan

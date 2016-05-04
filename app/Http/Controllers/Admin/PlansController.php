@@ -114,7 +114,6 @@ class PlansController extends AdminController
 	 */
 	public function update(Request $request, Plan $plans)
 	{
-
 		$plan = $plans->update(
 			$request->all()
 		);

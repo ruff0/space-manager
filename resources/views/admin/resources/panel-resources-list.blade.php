@@ -9,7 +9,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@inject('resources', 'App\Resources\Models\Resource')
-				@foreach($resources->ofType("price")->notSelectedBy($bookable)->get() as $resource)
+				@foreach($resources->ofType("price")->notSelectedBy($entity)->get() as $resource)
 					@include('admin.resources.resource-list-item')
 				@endforeach
 			</ul>
@@ -27,7 +27,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@inject('resources', 'App\Resources\Models\Resource')
-				@foreach($resources->ofType("meetingroom")->notSelectedBy($bookable)->get() as $resource)
+				@foreach($resources->ofType("meetingroom")->notSelectedBy($entity)->get() as $resource)
 					@include('admin.resources.resource-list-item')
 				@endforeach
 			</ul>
@@ -45,7 +45,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@inject('resources', 'App\Resources\Models\Resource')
-				@foreach($resources->ofType("spot")->notSelectedBy($bookable)->get() as $resource)
+				@foreach($resources->ofType("spot")->notSelectedBy($entity)->get() as $resource)
 					@include('admin.resources.resource-list-item', ['actions' => true])
 				@endforeach
 			</ul>
@@ -63,7 +63,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@inject('resources', 'App\Resources\Models\Resource')
-				@foreach($resources->ofType("classroom")->notSelectedBy($bookable)->get() as $resource)
+				@foreach($resources->ofType("classroom")->notSelectedBy($entity)->get() as $resource)
 					@include('admin.resources.resource-list-item')
 				@endforeach
 			</ul>

@@ -70,6 +70,8 @@ class Bookable extends Model implements SluggableInterface
 		return $this->belongsTo(BookableType::class, 'bookable_type_id');
 	}
 
+
+
 	/**
 	 * Get all of the resources for the post.
 	 */
