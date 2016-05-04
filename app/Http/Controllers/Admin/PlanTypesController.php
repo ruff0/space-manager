@@ -65,7 +65,7 @@ class PlanTypesController extends AdminController
 		$plantype = PlanType::create($request->all());
 
 		return redirect()->route('admin.plantypes.index')->with(
-			'success', 'El tipo de sala se ha guardado correctamente'
+			'success', 'El tipo de suscripción se ha guardado correctamente'
 		);
 	}
 
@@ -117,7 +117,7 @@ class PlanTypesController extends AdminController
 		);
 
 		return redirect()->route('admin.plantypes.index')->with(
-			'success', 'El tipo de sala se ha guardado correctamente'
+			'success', 'El tipo de suscripción se ha guardado correctamente'
 		);
 	}
 
@@ -137,13 +137,13 @@ class PlanTypesController extends AdminController
 		if ($request->ajax() || $request->wantsJson()) {
 			return new JsonResponse([
 				'status'  => 'success',
-				'message' => 'El tipo de sala se ha borrado correctamente'
+				'message' => 'El tipo de suscripción se ha borrado correctamente'
 			], Response::HTTP_OK
 			);
 		}
 
 		return redirect()->route('admin.plantypes.index')
 		                 ->withStatus('success')
-		                 ->withMessage('El tipo de sala se ha borrado correctamente');
+		                 ->withMessage('El tipo de suscripción se ha borrado correctamente');
 	}
 }

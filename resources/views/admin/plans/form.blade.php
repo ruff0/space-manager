@@ -13,6 +13,24 @@
 			@include('forms._validation-error', ['field' => 'name'])
 		</div>
 	</div>
+	<div class="row pb-20">
+		<div class="col-sm-12">
+			@inject('types', 'App\Space\PlanType')
+			<label>Tipo de selectable</label>
+			<select name="plan_type_id" data-placeholder="Selecciona un tipo" class="select">
+				<option></option>
+				@foreach($types->actives() as $type)
+
+					<option value="{{$type->id}}"
+					        @if($plan->hasType($type)) selected @endif
+					>
+						{{$type->name}}
+					</option>
+				@endforeach
+			</select>
+			@include('forms._validation-error', ['field' => 'plan_type_id'])
+		</div>
+	</div>
 
 	<div class="row pb-20">
 		<div class="col-sm-12">

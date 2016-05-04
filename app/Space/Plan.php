@@ -39,6 +39,7 @@ class Plan extends Model implements SluggableInterface
 		'description',
 		'active',
 		'standalone',
+		'plan_type_id'
 	];
 
 	/**
@@ -162,6 +163,23 @@ class Plan extends Model implements SluggableInterface
 	}
 
 	#######################################################################################
+	# Special Methods
+	#######################################################################################
+	public function hasType($type)
+	{
+		if ($type instanceof PlanType) {
+			$type = $type->id;
+		}
+
+		if (is_integer($type)) {
+			return $this->plan_type_id == $type;
+		}
+
+		return false;
+	}
+
+
+	#######################################################################################
 	# Relations
 	#######################################################################################
 	/**
@@ -170,5 +188,14 @@ class Plan extends Model implements SluggableInterface
 	public function resources()
 	{
 		return $this->morphToMany(Resource::class, 'resourceable')->withPivot('settings');
+	}
+
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function types()
+	{
+		return $this->belongsTo(PlanType::class, 'plan_type_id');
 	}
 }
