@@ -24,9 +24,8 @@ class SubscriptionsController extends Controller
 		$available = [];
 		if ($request->has('date_from') && $request->has('type')) {
 			$dateFrom = Carbon::parse($request->get('date_from'));
-			$dateTo = Carbon::parse($request->get('date_to'));
+			$dateTo = $request->has('date_to')? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
 			$plans = PlanType::find($request->get('type'))->plans()->get();
-
 			foreach ($plans as $plan)
 			{
 				foreach ($plan->roomResources() as $resource)
@@ -130,14 +129,12 @@ class SubscriptionsController extends Controller
 		$rooms->first();
 
 		$dateFrom = Carbon::parse($request->get('date_from'));
-		$dateTo = Carbon::parse($request->get('date_to'));
-
+		$dateTo = $request->has('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
 
 		$subscription = $member->subscriptions()->create([
 			'date_from' => $dateFrom,
 			'date_to'   => $dateTo
 		]);
-
 
 		$subscription->plan()->associate($plan);
 		$subscription->resource()->associate($rooms->first());
@@ -163,7 +160,7 @@ class SubscriptionsController extends Controller
 	public function calculate(Request $request)
 	{
 		$dateFrom = Carbon::parse($request->get('date_from'));
-		$dateTo = Carbon::parse($request->get('date_to'));
+		$dateTo = $request->has('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
 
 		$plan = Plan::findOrFail($request->get('plan'));
 
