@@ -51,6 +51,11 @@ Route::group(['middleware' => ['auth']], function () {
 		Route::get('/bookings/create', 'BookingsController@create');
 	});
 
+	Route::group(['namespace' => 'Subscriptions'], function () {
+		Route::get('/subscriptions', 'SubscriptionsController@index');
+		Route::get('/subscriptions/create', 'SubscriptionsController@create');
+	});
+
 	/**
 	 * Users Routes
 	 */
@@ -89,6 +94,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 		// Configs
 		Route::resource('bookabletypes', 'BookableTypesController');
+		Route::resource('plantypes', 'PlanTypesController');
 		// File uploads
 		Route::resource('files', 'FilesController');
 

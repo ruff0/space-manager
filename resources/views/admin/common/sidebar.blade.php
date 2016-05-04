@@ -103,6 +103,13 @@
 							<li><a href="{{route('admin.bookabletypes.index')}}" class="legitRipple">Tipo de alquilable</a></li>
 						</ul>
 					</li>
+
+					<li class="">
+						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Planes</span></a>
+						<ul class="hidden-ul" style="display: none;">
+							<li><a href="{{route('admin.plantypes.index')}}" class="legitRipple">Tipo de Suscripciones</a></li>
+						</ul>
+					</li>
 				</ul>
 			</div>
 		</div>

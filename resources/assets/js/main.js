@@ -19,9 +19,9 @@ $("[role=delete-form]").on('click', function (e) {
 		confirmButtonColor: "#FF7043",
 		confirmButtonText: "Si, borralo. ¡me da ígual!",
 		cancelButtonText: "Mejor no lo borres"
-	}).then(function (isConfirm) {
+	}, function (isConfirm) {
 		if (isConfirm) {
-			swal.enableLoading();
+			// swal.enableLoading();
 			$.ajax({
 				url: $el.attr('href'),
 				type: 'DELETE',  // user.destroy

@@ -62,8 +62,8 @@ elixir(function (mix) {
 				'page/admin/classrooms.js',
 				'page/admin/spots.js',
 				'page/admin/bookabletypes.js',
+				'page/admin/plantypes.js',
 				'page/admin/members.js',
-				'page/admin/plans.js',
 				'page/admin/plans.js',
 				'main.js'
 			],
