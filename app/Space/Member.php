@@ -159,7 +159,6 @@ class Member extends Model
 	}
 
 
-
 	/**
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
@@ -242,23 +241,18 @@ class Member extends Model
 		return "eur";
 	}
 
-//	public function createStripeCustomer($token, $properties = [])
-//	{
-//		$customer = (new StripeGateway($this))->createStripeCustomer($token, $properties);
-//
-//		$this->stripe_id = $customer->id;
-//
-//
-//
-//		// Next we will add the credit card to the user's account on Stripe using this
-//		// token that was provided to this method. This will allow us to bill users
-//		// when they subscribe to plans or we need to do one-off charges on them.
-//		if (!is_null($token)) {
-//			$this->updateCard($token);
-//		}
-//
-//		$this->save();
-//
-//		return $customer;
-//	}
+	/**
+	 * Determine if the entity is on the given plan.
+	 *
+	 * @param Plan $plan
+	 *
+	 * @return bool
+	 */
+	public function onPlan(Plan $plan)
+	{
+		return !is_null($this->subscriptions->first(function ($key, $value) use ($plan) {
+			return $value->plan_id === $plan->id;
+		}));
+	}
+
 }
