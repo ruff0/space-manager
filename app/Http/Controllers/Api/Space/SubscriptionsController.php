@@ -84,13 +84,36 @@ class SubscriptionsController extends Controller
 			], 422);
 		}
 
+		$dateFrom = Carbon::parse($request->get('date_from'));
+		$dateTo = $request->has('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
+
+
 		$plan = Plan::findOrFail($request->get('plan'));
 		$resources = ['rooms' => []];
 
-		foreach ($plan->resources as $resource) {
-			$settings = $resource->settings;
+		foreach ($plan->resources as $resource)
+		{
+//			$settings = $resource->settings;
 			if ($resource->ofType('room')) {
-				$resources['rooms'][] = $resource->resourceable;
+				$isBooked = $resource->resourceable->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
+					$q->where(function ($q) use ($dateFrom, $dateTo) {
+						$q->where('date_from', '>=', $dateFrom)
+						  ->where('date_to', '<=', $dateTo);
+					})
+					  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+						  $q->where('date_from', '<', $dateTo)
+						    ->where('date_to', '>', $dateTo);
+					  })
+					  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+						  $q->where('date_from', '<', $dateFrom)
+						    ->where('date_to', '>', $dateFrom);
+					  });
+				})->first();
+
+				if(!$isBooked)
+				{
+					$resources['rooms'][] = $resource->resourceable;
+				}
 			}
 		}
 
@@ -125,11 +148,7 @@ class SubscriptionsController extends Controller
 		$invoice->save();
 
 		$rooms = collect($resources['rooms']);
-
 		$rooms->first();
-
-		$dateFrom = Carbon::parse($request->get('date_from'));
-		$dateTo = $request->has('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
 
 		$subscription = $member->subscriptions()->create([
 			'date_from' => $dateFrom,
