@@ -3,6 +3,7 @@
 namespace App\Resources\Models;
 
 use App\Bookings\Booking;
+use App\Space\Subscription;
 use Cviebrock\EloquentSluggable\SluggableInterface;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Illuminate\Database\Eloquent\Model;
@@ -64,6 +65,14 @@ class AbstractResource extends Model implements SluggableInterface
 	public function bookings()
 	{
 		return $this->hasMany(Booking::class);
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function subscriptions()
+	{
+		return $this->hasMany(Subscription::class, 'resource_id', 'id');
 	}
 
 	/**

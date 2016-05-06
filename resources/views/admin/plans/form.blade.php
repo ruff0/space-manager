@@ -13,6 +13,24 @@
 			@include('forms._validation-error', ['field' => 'name'])
 		</div>
 	</div>
+	<div class="row pb-20">
+		<div class="col-sm-12">
+			@inject('types', 'App\Space\PlanType')
+			<label>Tipo de selectable</label>
+			<select name="plan_type_id" data-placeholder="Selecciona un tipo" class="select">
+				<option></option>
+				@foreach($types->actives() as $type)
+
+					<option value="{{$type->id}}"
+					        @if($plan->hasType($type)) selected @endif
+					>
+						{{$type->name}}
+					</option>
+				@endforeach
+			</select>
+			@include('forms._validation-error', ['field' => 'plan_type_id'])
+		</div>
+	</div>
 
 	<div class="row pb-20">
 		<div class="col-sm-12">
@@ -46,8 +64,8 @@
 			<label>Activo</label>
 			<div class="checkbox checkbox-switchery">
 				<label for="active">
-				<input name="active" id="active" type="checkbox" class="switchery"
-					{!! $plan->status || old('actives')? 'checked' : null !!}
+				<input name="active" value="1" id="active" type="checkbox" class="switchery"
+					{!! $plan->active || old('active')? 'checked' : null !!}
 				/>
 					<span class="text-muted">
 						Este plan esta activo o inactivo
@@ -63,8 +81,8 @@
 			<label>Plan es standalone</label>
 			<div class="checkbox checkbox-switchery">
 				<label for="standalone">
-				<input name="standalone" id="standalone" type="checkbox" class="switchery"
-					{!! $plan->status || old('standalone')? 'checked' : null !!}
+				<input name="standalone" value="1" id="standalone" type="checkbox" class="switchery"
+					{!! $plan->standalone || old('standalone')? 'checked' : null !!}
 				/>
 					<span class="text-muted">
 						Este plan se puede contratar solo o es un adjunto a otro plan

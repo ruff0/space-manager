@@ -25,6 +25,7 @@
 
 <!-- Core JS files -->
 <script type="text/javascript" src="/js/all.js"></script>
+<script type="text/javascript" src="/js/pages.js"></script>
 <script type="text/javascript" src="/js/admin.js"></script>
 <!-- /core JS files -->
 @if(session('success'))

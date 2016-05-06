@@ -5,6 +5,7 @@ namespace App\Resources\Models;
 use App\Bookables\Bookable;
 use App\Bookings\Booking;
 use App\Space\Plan;
+use App\Space\Subscription;
 use Illuminate\Database\Eloquent\Model;
 
 class Resource extends Model
@@ -124,4 +125,13 @@ class Resource extends Model
 	{
 		return $this->hasMany(Booking::class);
 	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function subscriptions()
+	{
+		return $this->hasMany(Subscription::class);
+	}
+
 }

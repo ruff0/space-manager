@@ -25,21 +25,19 @@ $.fn.dataTable.ext.order['dom-select'] = function (settings, col) {
 	});
 }
 
-
 // Table setup
 // ------------------------------
-
 // Initialize data table
-$('.plans-list').DataTable({
-	autoWidth: false,
+$('.plantypes-list').DataTable({
+	autoWidth: true,
 	columnDefs: [
 		{
 			type: "natural",
-			width: '20px',
+			width: '100px',
 			targets: 0
 		},
 		{
-			width: '10%',
+			width: '20%',
 			targets: 1
 		},
 		{
@@ -60,13 +58,8 @@ $('.plans-list').DataTable({
 			targets: 5
 		},
 		{
-			orderable: false,
-			width: '100px',
-			targets: 7
-		},
-		{
 			width: '15%',
-			targets: [4, 5, 6]
+			targets: [4, 5]
 		}
 	],
 	order: [[0, 'asc']],
@@ -119,11 +112,13 @@ $('.plans-list').DataTable({
 	}
 });
 
+
 // External table additions
 // ------------------------------
 
 // Add placeholder to the datatable filter option
 $('.dataTables_filter input[type=search]').attr('placeholder', 'Escribe para filtrar...');
+
 
 // Enable Select2 select for the length option
 $('.dataTables_length select').select2({

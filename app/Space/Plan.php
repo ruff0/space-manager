@@ -5,6 +5,10 @@ namespace App\Space;
 use App\Events\Space\PlanWasCreated;
 use App\Events\Space\PlanWasDeleted;
 use App\Events\Space\PlanWasUpdated;
+use App\Resources\Models\ClassRoom;
+use App\Resources\Models\MeetingRoom;
+use App\Resources\Models\Resource;
+use App\Resources\Models\Spot;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -36,6 +40,9 @@ class Plan extends Model implements SluggableInterface
 		'name',
 		'price',
 		'description',
+		'active',
+		'standalone',
+		'plan_type_id'
 	];
 
 	/**
@@ -71,6 +78,9 @@ class Plan extends Model implements SluggableInterface
 		return $value / 100;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function priceForStripe()
 	{
 		return $this->price * 100;
@@ -109,6 +119,21 @@ class Plan extends Model implements SluggableInterface
 	{
 		$plan = parent::update($attributes, $options);
 
+		// Extract this out of here
+		if (isset($attributes['resources'])) {
+			$resources = [];
+
+			foreach ($attributes['resources'] as $key => $resource) {
+				if (isset($resource['settings'])) {
+					$resource['settings'] = json_encode($resource['settings']);
+				}
+
+				$resources[$key] = $resource;
+			}
+			$this->resources()->sync($resources);
+		}
+
+
 		if($plan)
 		{
 			list($stripePlan) = event(
@@ -138,5 +163,60 @@ class Plan extends Model implements SluggableInterface
 		}
 
 		return $deleted;
+	}
+
+	#######################################################################################
+	# Special Methods
+	#######################################################################################
+	public function hasType($type)
+	{
+		if ($type instanceof PlanType) {
+			$type = $type->id;
+		}
+
+		if (is_integer($type)) {
+			return $this->plan_type_id == $type;
+		}
+
+		return false;
+	}
+
+	public function roomResources()
+	{
+		return $this->resources()
+		            ->whereIn('resources.resourceable_type', [
+			            MeetingRoom::class,
+			            ClassRoom::class,
+			            Spot::class
+		            ])->get();
+	}
+
+
+	#######################################################################################
+	# Relations
+	#######################################################################################
+	/**
+	 * Get all of the resources for the post.
+	 */
+	public function subscriptions()
+	{
+		return $this->hasMany(Subscription::class);
+	}
+
+	/**
+	 * Get all of the resources for the post.
+	 */
+	public function resources()
+	{
+		return $this->morphToMany(Resource::class, 'resourceable')->withPivot('settings');
+	}
+
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasOne
+	 */
+	public function types()
+	{
+		return $this->belongsTo(PlanType::class, 'plan_type_id');
 	}
 }

@@ -25,6 +25,9 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 			'as'   => 'api.members.payment-methods.create',
 			'uses' => 'PaymentMethods@store'
 		]);
+		Route::get('/subscriptions', 'SubscriptionsController@index');
+		Route::post('/subscriptions', 'SubscriptionsController@store');
+		Route::post('/subscriptions/calculate', 'SubscriptionsController@calculate');
 	});
 
 
@@ -49,6 +52,11 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::group(['namespace' => 'Bookings'], function () {
 		Route::get('/bookings', 'BookingsController@index');
 		Route::get('/bookings/create', 'BookingsController@create');
+	});
+
+	Route::group(['namespace' => 'Subscriptions'], function () {
+		Route::get('/subscriptions', 'SubscriptionsController@index');
+		Route::get('/subscriptions/create', 'SubscriptionsController@create');
 	});
 
 	/**
@@ -89,6 +97,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 		// Configs
 		Route::resource('bookabletypes', 'BookableTypesController');
+		Route::resource('plantypes', 'PlanTypesController');
 		// File uploads
 		Route::resource('files', 'FilesController');
 

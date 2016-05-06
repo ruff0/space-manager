@@ -30,15 +30,13 @@
 										@endforeach
 									</ul>
 								</fieldset>
-
 								<button type="submit" class="btn btn-primary pull-right">Guardar</button>
 							</form>
 						</div>
 					</div>
 				</div>
-
 				<div class="col-sm-3">
-					@include('admin.resources.panel-resources-list')
+					@include('admin.resources.panel-resources-list', ['entity' => $bookable])
 				</div>
 			</div>
 		</div>
