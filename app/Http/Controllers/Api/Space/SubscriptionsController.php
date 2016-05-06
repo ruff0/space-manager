@@ -216,7 +216,6 @@ class SubscriptionsController extends Controller
 			$price = ($plan->priceForStripe() / 30) * $daysToCharge;
 		}
 
-
 		$line = new QuoteLine([
 			'price'       => (int) $price,
 			'name'        => $plan->name,
