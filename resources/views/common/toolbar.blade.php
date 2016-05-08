@@ -12,7 +12,7 @@
 		<div class="navbar-right">
 			<ul class="nav navbar-nav">
 				<li>
-					<a href="/home">Panel</a>
+					<a href="/home">Dashboard</a>
 				</li>
 
 				<li>
@@ -24,26 +24,26 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 						<i class="icon-gear"></i>
-						<span class="visible-xs-inline-block position-right"> Options</span>
+						<span class="visible-xs-inline-block position-right"> Opciones</span>
 						<span class="caret"></span>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-right">
 						@if($user->hasProfile())
 							<li>
 								<a href="{{route('users.profiles.edit', [$user->id, $user->profile->id])}}">
-									<i class="icon-cog5"></i> Profile settings
+									<i class="icon-user"></i> Mi perfil
 								</a>
 							</li>
 						@endif
 						<li>
 							<a href="{{route('members.edit', [$user->member->id])}}">
-								<i class="icon-cog5"></i> Member Settings
+								<i class="icon-cog5"></i> Mi cuenta
 							</a>
 						</li>
 						<li class="divider"></li>
 						<li>
 							<a href="{{url('/logout')}}">
-								<i class="icon-three-bars"></i> Logout
+								<i class="icon-three-bars"></i> Cerrar sessión
 							</a>
 						</li>
 					</ul>

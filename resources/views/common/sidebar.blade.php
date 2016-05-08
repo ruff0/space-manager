@@ -28,12 +28,12 @@
 {{-- Navigation --}}
 <div class="panel panel-flat">
 	<div class="list-group no-border">
-		<a href="#" class="list-group-item">
-			<i class="icon-user"></i> My profile
+		<a href="{{route('users.profiles.edit', [$user->id, $user->profile->id])}}" class="list-group-item">
+			<i class="icon-user"></i> Mi perfil
 		</a>
 		<div class="list-group-divider"></div>
-		<a href="#" class="list-group-item">
-			<i class="icon-cog3"></i> Account settings
+		<a href="{{route('members.edit', [$user->member->id])}}" class="list-group-item">
+			<i class="icon-cog3"></i> Mi cuenta
 		</a>
 	</div>
 </div>
