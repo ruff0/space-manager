@@ -40,6 +40,16 @@ class BookableType extends Model implements SluggableInterface
 		return $this->whereActive(true)->get();
 	}
 
+	/**
+	 * @param int $hours
+	 *
+	 * @return int
+	 */
+	public function pricePerHour($hours = 1)
+	{
+		$this->pricePerHour = $hours * 50;
+	}
+
 	#######################################################################################
 	# Relations
 	#######################################################################################

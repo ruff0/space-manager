@@ -18,9 +18,29 @@
 			{{$resource->resourceable->description}}
 		</div>
 		<div class="media-right media-middle">
-			<div class="form" style="display:none;">
-				<input type="hidden" name="resources[{{$resource->id}}][settings][time]" value="3600">
-				<input type="text" name="resources[{{$resource->id}}][settings][price]" value="">
+			<div class="form form-inline" style="display:none;">
+				<div class="form-group">
+					<label for="">Precio</label>
+					<input type="text" class="form-control"
+					       name="resources[{{$resource->id}}][settings][price][hourly]"
+					       value=""
+					       placeholder="por hora"
+					/>
+				</div>
+				<div class="form-group form-inline">
+					<input type="text" class="form-control"
+					       name="resources[{{$resource->id}}][settings][price][part_time]"
+					       value=""
+					       placeholder="media jornada"
+					/>
+				</div>
+				<div class="form-group form-inline">
+					<input type="text" class="form-control"
+					       name="resources[{{$resource->id}}][settings][price][full_time]"
+					       value=""
+					       placeholder="jornada completa"
+					/>
+				</div>
 			</div>
 		</div>
 	</div>

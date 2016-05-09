@@ -175,6 +175,18 @@ class Member extends Model
 		return $this->hasMany(Subscription::class);
 	}
 
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function subscription()
+	{
+		if($this->subscriptions)
+			return $this->subscriptions->first();
+
+		return new $this->subscriptions();
+	}
+
 	/**
 	 * The main user for this member
 	 *

@@ -44,8 +44,8 @@ export default {
 			editable: true,
 			weekends: true,
 			aspectRatio: 3,
-			scrollTime: '09:00',
-			minTime: "09:00",
+			scrollTime: '08:00',
+			minTime: "08:00",
 			maxTime: "21:00",
 			eventOverlap : false,
 			header: {

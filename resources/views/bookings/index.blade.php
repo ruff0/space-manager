@@ -114,21 +114,34 @@
 														{{--{{$bookable->name}}--}}
 													{{--</label>--}}
 												{{--</div>--}}
-												<div class="col-md-2">
+												<div class="col-md-2 col-sm-2">
 													<div class="thumbnail no-padding bookables blocked" data-bookableType="{{$type->id}}"
 													     data-bookable="{{$bookable->id}}">
 														<div class="thumb">
 															<img src="/images/placeholder.jpg" alt="">
 															<div class="caption-overflow">
+																<p class="times text-center pt-20 mt-20"></p>
 																<span>
 																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
-																		<i class="icon-plus2"></i>
+																		Reservar <i class="icon-cross2"></i>
+																		<b class="total-price text-center"></b>
 																		<input type="radio" name="bookable" class="styled" value="{{$bookable->id}}">
 																	</label>
 																</span>
+
+																<p class="pt-20 mt-20"></p>
+																<p class="message text-center pt-20 mt-20"></p>
 															</div>
 														</div>
-
+														<div class="caption info">
+															<span class="pull-left">
+																<i class="icon-user"></i>
+																{{$bookable->max_occupants }}
+															</span>
+															<span class="pull-right">
+																@currencyFormat($bookable->pricePerHour())/Hora
+															</span>
+														</div>
 														<div class="caption text-center">
 															<h6 class="text-semibold no-margin">
 																{{$bookable->name}}

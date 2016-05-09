@@ -101,6 +101,9 @@ $el.steps({
 
 						$.each(result.available, function(key, bookable){
 							$('[data-bookable='+ bookable.id +']').removeClass('notavailable');
+							$('[data-bookable='+ bookable.id +']').find('.total-price').html(bookable.totalPrice);
+							$('[data-bookable='+ bookable.id +']').find('.times').html(bookable.times);
+							$('[data-bookable='+ bookable.id +']').find('.message').html(bookable.message);
 						})
 					},
 					error: function (result) {

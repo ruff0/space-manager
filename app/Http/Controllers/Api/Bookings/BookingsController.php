@@ -24,10 +24,13 @@ class BookingsController extends Controller
 	{
 		$available = [];
 
+
+
 		if ($request->has('date') && $request->has('type')) {
 			$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 			$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
 			$bookables = BookableType::find($request->get('type'))->bookables()->get();
+
 
 			foreach ($bookables as $bookable)
 			{
@@ -61,8 +64,11 @@ class BookingsController extends Controller
 			}
 		}
 
+		$hours = $timeFrom->diffInHours($timeTo);
+
 		return [
-			'available' => BookableType::find($request->get('type'))->bookables()->whereIn('id', $available)->get(),
+			'available' => BookableType::find($request->get('type'))->bookables()
+				->getWithHours($hours, $available, $timeFrom, $timeTo),
 			'notavailable' => BookableType::find($request->get('type'))->bookables()->whereNotIn('id', $available)->get()
 		];
 	}
@@ -98,11 +104,15 @@ class BookingsController extends Controller
 
 		$member = Auth::user()->member;
 
+		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
+		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
+		$hours = $timeFrom->diffInHours($timeTo);
+
 
 		$invoice = Invoice::create(['paid' => 0]);
 		$invoice->toMember($member);
 		$line = new Line([
-			'price'       => $settings['price'],
+			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, true),
 			'name'        => $bookable->name,
 			'description' => $bookable->description,
 			'amount'      => 1
@@ -129,10 +139,6 @@ class BookingsController extends Controller
 		$rooms = collect($resources['rooms']);
 
 		$rooms->first();
-
-		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
-		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('timeto'));
-
 
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
@@ -165,6 +171,7 @@ class BookingsController extends Controller
 	{
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
+		$hours  = $timeFrom->diffInHours($timeTo);
 
 		$bookable = Bookable::findOrFail($request->get('bookable'));
 
@@ -172,17 +179,20 @@ class BookingsController extends Controller
 			'rooms' => []
 		];
 
-		foreach ($bookable->resources as $resource) {
+
+		$bookable->calculatePrice($hours, $timeFrom, $timeTo);
+
+		foreach ($bookable->resources as $resource)
+		{
 			$settings = $resource->settings;
 			if ($resource->ofType('room')) {
 				$resources['rooms'][] = $resource->resourceable;
 			}
 		}
-
 		$invoice = new QuoteInvoice();
 
 		$line = new QuoteLine([
-			'price'       => (int) $settings['price'],
+			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, true),
 			'name'        => $bookable->name,
 			'description' => $bookable->description
 		]);

@@ -24,9 +24,14 @@ class Resource extends Model
 	 */
 	protected $hidden = ['pivot'];
 
+	/**
+	 * @param $value
+	 *
+	 * @return mixed
+	 */
 	public function getSettingsAttribute($value)
 	{
-		return $this->fromJson( $this->pivot->settings);
+		return $this->fromJson($this->pivot->settings, true);
 	}
 
 	/**
@@ -86,6 +91,49 @@ class Resource extends Model
 	public function getOfType($type)
 	{
 		return $this->ofType($type)->get();
+	}
+
+	/**
+	 * Divides price by 100 to get the real price
+	 *
+	 * @param $value
+	 *
+	 * @return float
+	 */
+	public function getPriceAttribute($value)
+	{
+		return $this->getPrice();
+	}
+
+	/**
+	 * @param string $type
+	 *
+	 * @return mixed
+	 */
+	public function getPrice($type = 'hourly')
+	{
+		switch($type)
+		{
+			case 'part_time' :
+				$price = $this->settings->price->part_time;
+				break;
+			case 'full_time' :
+				$price = $this->settings->price->full_time;
+				break;
+			default:
+				$price = $this->settings->price->hourly;
+				break;
+		}
+
+		return $price / 100;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function priceForStripe($type = 'hourly')
+	{
+		return $this->getPrice($type) * 100;
 	}
 
 	/**

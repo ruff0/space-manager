@@ -13,7 +13,10 @@ use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
 
 /**
- * @property mixed bookable_type_id
+ * @property mixed  bookable_type_id
+ * @property string times
+ * @property string totalPrice
+ * @property string message
  */
 class Bookable extends Model implements SluggableInterface
 {
@@ -49,13 +52,131 @@ class Bookable extends Model implements SluggableInterface
 	#######################################################################################
 	public function hasType($type)
 	{
-		if ($type instanceof BookableType)
+		if ($type instanceof BookableType) {
 			$type = $type->id;
+		}
 
-		if(is_integer($type))
+		if (is_integer($type)) {
 			return $this->bookable_type_id == $type;
+		}
 
 		return false;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function pricePerHour($clean = false)
+	{
+		if ($clean) {
+			return $this->resources->first()->priceForStripe();
+		}
+
+		return $this->resources->first()->getPrice();
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function pricePartTime($clean = false)
+	{
+		if ($clean) {
+			return $this->resources->first()->priceForStripe('part_time');
+		}
+
+		return $this->resources->first()->getPrice('part_time');
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function priceFullTime($clean = false)
+	{
+		if ($clean) {
+			return $this->resources->first()->priceForStripe('full_time');
+		}
+
+		return $this->resources->first()->getPrice('full_time');
+	}
+
+
+	/**
+	 * @param $query
+	 * @param $hours
+	 * @param $available
+	 * @param $timeFrom
+	 * @param $timeTo
+	 *
+	 * @return mixed
+	 */
+	public function scopeGetWithHours($query, $hours, $available, $timeFrom, $timeTo)
+	{
+		$bookables = $query->whereIn('id', $available)->get();
+
+		foreach ($bookables as $bookable) {
+			if ($bookable->resources) {
+				$bookable->time_to = $timeTo->format('H:i');
+				$bookable->time_from = $timeFrom->format('H:i');
+				$bookable->hours = $hours;
+				$bookable->calculatePrice($hours, $timeFrom, $timeTo);
+			}
+		}
+
+		return $bookables;
+	}
+
+	/**
+	 * @param $hours
+	 * @param $timeFrom
+	 * @param $timeTo
+	 */
+	public function calculatePrice($hours, $timeFrom, $timeTo)
+	{
+		$this->times = $timeTo->format('H:i') . " - " . $timeFrom->format('H:i') . " (" . $hours . " Horas)";
+		$this->message = $this->messageForTimeFrame($hours);
+		$this->totalPrice = $this->calculatePriceForTimeFrame($hours) . ' €';
+	}
+
+
+	/**
+	 * @param      $hours
+	 * @param bool $clean
+	 *
+	 * @return mixed
+	 */
+	public function calculatePriceForTimeFrame($hours, $clean = false)
+	{
+		$totalPrice = $this->pricePerHour($clean) * $hours;
+
+		if ($hours >= 4) {
+			$totalPrice = $this->pricePartTime($clean);
+		}
+
+		if ($hours >= 6) {
+			$totalPrice = $this->priceFullTime($clean);
+		}
+
+		return $totalPrice;
+	}
+
+	/**
+	 * @param      $hours
+	 *
+	 * @return string
+	 */
+	public function messageForTimeFrame($hours)
+	{
+		$message = "";
+
+		if ($hours >= 4) {
+			$message = "* Precio de media jornada";
+		}
+
+		if ($hours >= 6) {
+			$message = "* Precio de jornada completa";
+		}
+
+		return $message;
 	}
 
 	#######################################################################################
@@ -69,7 +190,6 @@ class Bookable extends Model implements SluggableInterface
 	{
 		return $this->belongsTo(BookableType::class, 'bookable_type_id');
 	}
-
 
 
 	/**
@@ -103,9 +223,11 @@ class Bookable extends Model implements SluggableInterface
 	public function roomResources()
 	{
 		return $this->resources()
-		             ->whereIn('resources.resourceable_type', [
-			             MeetingRoom::class,  ClassRoom::class,  Spot::class
-		             ])->get();
+		            ->whereIn('resources.resourceable_type', [
+			            MeetingRoom::class,
+			            ClassRoom::class,
+			            Spot::class
+		            ])->get();
 	}
 
 
@@ -113,7 +235,7 @@ class Bookable extends Model implements SluggableInterface
 	 * Update the model in the database.
 	 *
 	 * @param  array $attributes
-	 * @param  array $options                                       ñ
+	 * @param  array $options ñ
 	 *
 	 * @return bool|int
 	 */
@@ -124,10 +246,18 @@ class Bookable extends Model implements SluggableInterface
 		if (isset($attributes['resources'])) {
 			$resources = [];
 
-			foreach ($attributes['resources'] as $key => $resource)
-			{
+			foreach ($attributes['resources'] as $key => $resource) {
 				if (isset($resource['settings'])) {
-				  $resource['settings'] = json_encode($resource['settings']);
+					// Set the prices to be integers always
+					if (isset($resource['settings']['price'])) {
+						foreach ($resource['settings']['price'] as $priceType => $value) {
+							$resource['settings']['price'][$priceType] = $value * 100;
+						}
+					}
+
+
+					$resource['settings'] = json_encode($resource['settings']);
+
 				}
 
 				$resources[$key] = $resource;
@@ -137,5 +267,6 @@ class Bookable extends Model implements SluggableInterface
 
 		return $bookable;
 	}
+
 
 }
