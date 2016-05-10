@@ -15,13 +15,11 @@
 					<a href="/home">Dashboard</a>
 				</li>
 
-
 				<li>
 					<a href="{{route('subscriptions.show', [$user->member->subscription()->id])}}">
 						Mi suscripción
 					</a>
 				</li>
-
 
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
