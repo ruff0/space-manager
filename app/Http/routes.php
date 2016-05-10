@@ -56,7 +56,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 	Route::group(['namespace' => 'Subscriptions'], function () {
 		Route::resource('subscriptions', 'SubscriptionsController', [
-			'except' => ['index', 'destroy']
+			'only' => ['create']
 		]);
 	});
 

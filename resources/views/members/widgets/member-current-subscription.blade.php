@@ -23,18 +23,26 @@
 					</li>
 				</ul>
 			</div>
+
+			<div class="col-sm-12 mt-20">
+				<div class="thumbnail no-padding plans">
+					<div class="thumb">
+						<img src="/images/placeholder.jpg" alt="">
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 
 	<div class="panel-footer panel-footer-condensed">
 		<div class="heading-elements">
-									<span class="heading-text">
-										<span class="status-mark border-danger position-left"></span>
-										Miembro desde:
-										<span class="text-semibold">
-											{{$member->created_at->format('d/m/Y')}}
-										</span>
-									</span>
+			<span class="heading-text">
+				<span class="status-mark border-danger position-left"></span>
+				Miembro desde:
+				<span class="text-semibold">
+					{{$member->created_at->format('d/m/Y')}}
+				</span>
+			</span>
 
 			<ul class="list-inline list-inline-condensed heading-text pull-right">
 				<li class="dropdown">

@@ -19,22 +19,8 @@ class SubscriptionsController extends Controller
 	{
 		$plantypes = PlanType::with('plans')->get();
 
-		return view('subscriptions.index', [
+		return view('subscriptions.create', [
 			'plantypes' => $plantypes
 		]);
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 *
-	 * @param Subscription $subscriptions
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show(Subscription $subscriptions)
-	{
-
-		dd($subscriptions);
 	}
 }
