@@ -15,6 +15,10 @@
 					<a href="/home">Dashboard</a>
 				</li>
 
+				<li>
+					<a href="/invoices">Facturación</a>
+				</li>
+
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 						<i class="icon-gear"></i>

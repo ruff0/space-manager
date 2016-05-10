@@ -60,6 +60,13 @@ Route::group(['middleware' => ['auth']], function () {
 		]);
 	});
 
+	Route::group(['namespace' => 'Invoices'], function () {
+		Route::resource('invoices', 'InvoicesController', [
+			'only' => ['index', 'show']
+		]);
+
+	});
+
 	/**
 	 * Users Routes
 	 */
