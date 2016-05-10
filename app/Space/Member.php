@@ -26,6 +26,7 @@ use Laravel\Cashier\StripeGateway;
  * @property mixed phone
  * @property mixed mobile
  * @property mixed isCompany
+ * @property mixed subscriptions
  */
 class Member extends Model
 {
@@ -266,5 +267,17 @@ class Member extends Model
 			return $value->plan_id === $plan->id;
 		}));
 	}
+
+	/**
+	 * Returns the current plan
+	 *
+	 * @return mixed
+	 */
+	public function currentPlan()
+	{
+		if($this->subscriptions)
+			return $this->subscriptions->first()->plan;
+	}
+
 
 }

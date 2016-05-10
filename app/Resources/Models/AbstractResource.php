@@ -23,14 +23,20 @@ class AbstractResource extends Model implements SluggableInterface
 		'save_to'    => 'slug',
 	];
 
-
+	/**
+	 * @var string
+	 */
 	public $type = '';
 
+	/**
+	 * @var string
+	 */
 	public $category = '';
 
 	protected $cast = [
-	'settings' => 'json'
+		'settings' => 'json'
 	];
+
 	/**
 	 * Is this room already a resource
 	 *
