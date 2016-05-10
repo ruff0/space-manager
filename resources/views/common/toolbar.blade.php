@@ -15,6 +15,15 @@
 					<a href="/home">Dashboard</a>
 				</li>
 
+<<<<<<< Updated upstream
+=======
+				<li>
+					<a href="{{route('subscriptions.show', [$user->member->subscription()->id])}}">
+						Mi suscripción
+					</a>
+				</li>
+
+>>>>>>> Stashed changes
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 						<i class="icon-gear"></i>
