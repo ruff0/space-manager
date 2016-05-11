@@ -65,6 +65,10 @@ Route::group(['middleware' => ['auth']], function () {
 			'only' => ['index', 'show']
 		]);
 
+		Route::get('invoices/{invoices}/download', [
+			'as' => 'invoices.download',
+			'uses' =>	'InvoicesController@download'
+		]);
 	});
 
 	/**

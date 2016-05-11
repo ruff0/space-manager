@@ -156,6 +156,9 @@ return [
 		Barryvdh\Debugbar\ServiceProvider::class,
 		Cviebrock\EloquentSluggable\SluggableServiceProvider::class,
 		Laravel\Cashier\CashierServiceProvider::class,
+		Barryvdh\DomPDF\ServiceProvider::class,
+		Collective\Html\HtmlServiceProvider::class,
+		Barryvdh\Snappy\ServiceProvider::class,
 		/*
 		 * Application Service Providers...
 		 */
@@ -214,6 +217,11 @@ return [
 		 * Third party aliases
 		 */
 		'Debugbar' => Barryvdh\Debugbar\Facade::class,
+//		'PDF' => Barryvdh\DomPDF\Facade::class,
+		'Form' => Collective\Html\FormFacade::class,
+		'Html' => Collective\Html\HtmlFacade::class,
+		'PDF'   => Barryvdh\Snappy\Facades\SnappyPdf::class,
+		'Image' => Barryvdh\Snappy\Facades\SnappyImage::class,
 	],
 
 ];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Invoices;
 
 use App\Invoices\Models\Invoice;
+use Barryvdh\Snappy\PdfWrapper;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -48,8 +49,23 @@ class InvoicesController extends Controller
 		]);
 	}
 
-	public function download($id)
+	/**
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
+	public function download($id, PdfWrapper $pdf)
 	{
+		$member = auth()->user()->member;
+		$invoice = Invoice::where('member_id', $member->id)
+		                  ->where('id', $id)
+		                  ->where('paid', true)
+		                  ->first();
 
+		$view = view('invoices.pdf.invoice', [
+			'invoice' => $invoice
+		])->render();
+		$pdf = $pdf->loadHTML($view);
+		return $pdf->download("ulab-factura-{$invoice->number}.pdf");;
 	}
 }
