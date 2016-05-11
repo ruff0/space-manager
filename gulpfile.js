@@ -14,6 +14,7 @@ var elixir = require('laravel-elixir');
 elixir(function (mix) {
 	mix
 		.less('app.less')
+		.less('pdf.less')
 		.copy('./resources/assets/css', './public/css')
 		.copy('./resources/assets/images', './public/images')
 		.copy('./resources/assets/icons', './public/fonts')
