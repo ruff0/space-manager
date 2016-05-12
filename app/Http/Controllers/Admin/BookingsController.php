@@ -42,6 +42,7 @@ class BookingsController extends AdminController
 	{
 		$this->current['action'] = 'Calendario';
 		$bookings = Booking::all();
+
 		$resources = Resource::with(['bookables', 'bookables.types'])->ofType('room')->get();
 		$finalResources = [];
 		$finalBookings = [];

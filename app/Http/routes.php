@@ -11,9 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-	return view('welcome');
-});
 
 Route::auth();
 Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api'], function () {
@@ -44,6 +41,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 
 
 Route::group(['middleware' => ['auth']], function () {
+	Route::get('/', 'HomeController@index');
 	Route::get('/home', 'HomeController@index');
 
 	/**

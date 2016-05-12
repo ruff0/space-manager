@@ -60,7 +60,9 @@ class Resource extends Model
 
 			case "room" :
 				return $query->whereIn('resources.resourceable_type', [
-					MeetingRoom::class, ClassRoom::class, Spot::class
+					"App\\Resources\\Models\\MeetingRoom",
+					"App\\Resources\\Models\\ClassRoom",
+					"App\\Resources\\Models\\Spot",
 				]);
 				break;
 		}
