@@ -67,7 +67,7 @@
 										<ul class="dropdown-menu dropdown-menu-right">
 											<li>
 												<a href="{{ route('admin.bookabletypes.edit', [$bookabletype->id]) }}">
-													<i class="icon-pencil7"></i> Editar tipo de sala
+													<i class="icon-pencil7"></i> Editar
 												</a>
 											</li>
 											<li>
