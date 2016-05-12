@@ -8,6 +8,7 @@ use App\Resources\Models\ClassRoom;
 use App\Resources\Models\MeetingRoom;
 use App\Resources\Models\Resource;
 use App\Resources\Models\Spot;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -133,22 +134,24 @@ class Bookable extends Model implements SluggableInterface
 	public function calculatePrice($hours, $timeFrom, $timeTo)
 	{
 		$this->times = $timeTo->format('H:i') . " - " . $timeFrom->format('H:i') . " (" . $hours . " Horas)";
-		$this->message = $this->messageForTimeFrame($hours);
-		$this->totalPrice = $this->calculatePriceForTimeFrame($hours) . ' €';
+		$this->message = $this->messageForTimeFrame($hours, $timeFrom, $timeTo);
+		$this->totalPrice = $this->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo) . ' €';
 	}
 
 
 	/**
 	 * @param      $hours
+	 * @param      $timeFrom
+	 * @param      $timeTo
 	 * @param bool $clean
 	 *
 	 * @return mixed
 	 */
-	public function calculatePriceForTimeFrame($hours, $clean = false)
+	public function calculatePriceForTimeFrame($hours, $timeFrom, $timeTo,  $clean = false)
 	{
 		$totalPrice = $this->pricePerHour($clean) * $hours;
 
-		if ($hours >= 4) {
+		if ($this->isPartTime($hours, $timeFrom, $timeTo)) {
 			$totalPrice = $this->pricePartTime($clean);
 		}
 
@@ -160,15 +163,18 @@ class Bookable extends Model implements SluggableInterface
 	}
 
 	/**
-	 * @param      $hours
+	 * @param $hours
+	 *
+	 * @param $timeFrom
+	 * @param $timeTo
 	 *
 	 * @return string
 	 */
-	public function messageForTimeFrame($hours)
+	public function messageForTimeFrame($hours, $timeFrom, $timeTo)
 	{
 		$message = "";
 
-		if ($hours >= 4) {
+		if ($this->isPartTime($hours, $timeFrom, $timeTo)) {
 			$message = "* Precio de media jornada";
 		}
 
@@ -266,6 +272,21 @@ class Bookable extends Model implements SluggableInterface
 		}
 
 		return $bookable;
+	}
+
+	private function isPartTime($hours, $timeFrom, $timeTo)
+	{
+		$limitFrom = Carbon::create($timeFrom->year, $timeFrom->month, $timeFrom->day, 15, 01, 0);
+		$limitTo = Carbon::create($timeFrom->year, $timeFrom->month, $timeFrom->day, 15, 59, 0);
+
+		if($hours >= 4 &&
+		   !$limitFrom->between($timeFrom, $timeTo, false) &&
+		   !$limitTo->between($timeFrom, $timeTo, false)
+		) {
+			return true;
+		}
+
+		return false;
 	}
 
 
