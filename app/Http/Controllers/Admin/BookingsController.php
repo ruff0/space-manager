@@ -49,6 +49,7 @@ class BookingsController extends AdminController
 
 		foreach ($resources as $resource)
 		{
+			dd($resource);
 			$res = new \stdClass();
 			$res->id = $resource->id;
 			$res->name = $resource->bookables->first()->name;
