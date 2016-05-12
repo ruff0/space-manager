@@ -46,7 +46,7 @@
 
 									<div class="panel-body no-padding-bottom">
 										<div class="row">
-											<div class="col-sm-12">
+											<div class="col-sm-8 col-sm-offset-2">
 												@include('invoices.invoice')
 											</div>
 										</div>

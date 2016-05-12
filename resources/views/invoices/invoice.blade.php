@@ -64,22 +64,22 @@
 	<table class="table table-lg">
 		<thead>
 		<tr>
-			<th>Descripción</th>
-			<th class="col-sm-1">Precio</th>
+			<th class="col-sm-8">Descripción</th>
+			<th class="col-sm-2">Precio</th>
 			<th class="col-sm-1">Cantidad</th>
-			<th class="col-sm-1">Total</th>
+			<th class="col-sm-2">Total</th>
 		</tr>
 		</thead>
 		<tbody>
 		@foreach($invoice->lines as $line)
 			<tr>
-				<td>
+				<td class="col-sm-8">
 					<h6 class="no-margin">{{$line->name}}</h6>
 					<span class="text-muted">{{$line->description}}</span>
 				</td>
-				<td>@currencyFormat($line->price / 100)</td>
-				<td>{{$line->amount}}</td>
-				<td>
+				<td class="col-sm-2">@currencyFormat($line->price / 100)</td>
+				<td class="col-sm-1">{{$line->amount}}</td>
+				<td class="col-sm-2">
 					<span class="text-semibold">
 						@currencyFormat($line->subtotal / 100)
 					</span>
@@ -90,9 +90,9 @@
 	</table>
 </div>
 
-<div class="panel-body">
-	<div class="row invoice-payment">
-		<div class="col-sm-7 col-xs-7">
+<div class="panel-body no-padding-right no-margin-right">
+	<div class="row invoice-payment no-padding no-margin">
+		<div class="col-sm-8 col-xs-8">
 			<div class="content-group">
 				<h6>Persona autorizada</h6>
 				<ul class="list-condensed list-unstyled text-muted">
@@ -102,7 +102,7 @@
 			</div>
 		</div>
 
-		<div class="col-sm-5 col-xs-5">
+		<div class="col-sm-4 col-xs-4 no-padding no-margin">
 			<div class="content-group">
 				<h6></h6>
 				<div class="table-responsive no-border">
