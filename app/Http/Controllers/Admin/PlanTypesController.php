@@ -112,6 +112,10 @@ class PlanTypesController extends AdminController
 	 */
 	public function update(Request $request, PlanType $plantypes)
 	{
+		if (!$request->has('active')) {
+			$request->offsetSet('active', false);
+		}
+
 		$plantype = $plantypes->update(
 			$request->all()
 		);

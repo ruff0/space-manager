@@ -17,7 +17,7 @@ class SubscriptionsController extends Controller
 	 */
 	public function create()
 	{
-		$plantypes = PlanType::with('plans')->get();
+		$plantypes = PlanType::with('plans')->where('active', true)->get();
 
 		return view('subscriptions.create', [
 			'plantypes' => $plantypes

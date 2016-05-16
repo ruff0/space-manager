@@ -181,14 +181,14 @@ class Plan extends Model implements SluggableInterface
 		return false;
 	}
 
+	/**
+	 * Returns all active room resources.
+	 * @return mixed
+	 */
 	public function roomResources()
 	{
 		return $this->resources()
-		            ->whereIn('resources.resourceable_type', [
-			            MeetingRoom::class,
-			            ClassRoom::class,
-			            Spot::class
-		            ])->get();
+		            ->ofType('room')->get();
 	}
 
 

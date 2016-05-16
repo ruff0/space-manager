@@ -112,6 +112,11 @@ class BookableTypesController extends AdminController
 	 */
 	public function update(Request $request, BookableType $bookabletypes)
 	{
+		if(!$request->has('active'))
+		{
+			$request->offsetSet('active', false);
+		}
+
 		$bookabletype = $bookabletypes->update(
 			$request->all()
 		);
