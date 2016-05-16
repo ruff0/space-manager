@@ -69,33 +69,6 @@
 										</div>
 									</div>
 									<div class="row">
-										<div class="col-md-4 col-md-offset-1">
-											<div class="form-group">
-												<label>Fecha de inicio</label>
-												<div class="input-group">
-													<span class="input-group-addon"><i class="icon-calendar5"></i></span>
-													<input type="text" name="_from" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
-												</div>
-											</div>
-										</div>
-										<div class="col-md-4">
-											<div class="form-group">
-												<label>Fecha de fin</label>
-												<div class="input-group">
-													<span class="input-group-addon"><i class="icon-calendar5"></i></span>
-													<input type="text" name="_to" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
-												</div>
-											</div>
-										</div>
-										<div class="col-md-3">
-											<div class="form-group">
-												<label>&nbsp;</label>
-												<button type="button" class="btn btn-block btn-warning" id="search">Buscar</button>
-											</div>
-										</div>
-									</div>
-
-									<div class="row">
 										@foreach($plantypes as $type)
 											@foreach($type->plans as $plan)
 												<div class="col-md-3 col-md-offset-2 col-sm-2 col-sm-offset-2">

@@ -35,32 +35,16 @@ $el.steps({
 			}
 			$(".errors").empty().hide()
 			data.type = $('input[name=plan-type]:checked').val();
-			// var $return = false;
-		 console.log($('.plans[data-type=' + data.type + ']'));
+
 			$('.plans').hide();
 			$('.plans[data-type=' + data.type + ']').show()
 
-
-			// Disable certain dates
-			$('.pickadate-date').pickadate({
-				disable: [
-					[2015, 8, 3],
-					[2015, 8, 12],
-					[2015, 8, 20]
-				],
-				// Escape any “rule” characters with an exclamation mark (!).
-				format: 'dddd, dd mmm, yyyy',
-				formatSubmit: 'yyyymmdd',
-				hiddenPrefix: 'date',
-				hiddenSuffix: ''
-			});
-
-
 			$("button#search").on('click', function (e) {
 				e.preventDefault();
-				data.date_from = $("[name=date_from]").val()
-				data.date_to = $("[name=date_to]").val()
 
+
+
+				data.date_from = $("[name=date_from]").val()
 				$.ajax({
 					data: data,
 					url: '/api/subscriptions',
