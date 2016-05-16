@@ -36,7 +36,7 @@
 											<div class="errors alert alert-danger" style="display:none;"></div>
 										</div>
 										@foreach($bookableTypes as $type)
-											<div class="col-md-2 col-md-offset-3">
+											<div class="col-md-2 col-md-offset-3 col-lg-3 col-lg-offset-2">
 												<div class="thumbnail no-padding">
 													<div class="thumb">
 														<img src="/images/placeholder.jpg" alt="">
@@ -114,7 +114,7 @@
 														{{--{{$bookable->name}}--}}
 													{{--</label>--}}
 												{{--</div>--}}
-												<div class="col-md-2 col-sm-2">
+												<div class="col-md-3 col-sm-2">
 													<div class="thumbnail no-padding bookables blocked" data-bookableType="{{$type->id}}"
 													     data-bookable="{{$bookable->id}}">
 														<div class="thumb">
