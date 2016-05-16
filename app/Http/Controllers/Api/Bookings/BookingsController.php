@@ -24,8 +24,6 @@ class BookingsController extends Controller
 	{
 		$available = [];
 
-
-
 		if ($request->has('date') && $request->has('type')) {
 			$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 			$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));

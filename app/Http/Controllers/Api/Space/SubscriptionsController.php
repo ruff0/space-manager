@@ -23,7 +23,7 @@ class SubscriptionsController extends Controller
 	{
 		$available = [];
 		if ($request->has('date_from') && $request->has('type')) {
-			$dateFrom = Carbon::parse($request->get('date_from'));
+			$dateFrom = Carbon::parse(Carbon::now());
 			$dateTo = $request->has('date_to')? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
 			$plans = PlanType::find($request->get('type'))->plans()->get();
 			foreach ($plans as $plan)
@@ -34,16 +34,16 @@ class SubscriptionsController extends Controller
 					$subscriptions = $resource->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
 						$q->where(function ($q) use ($dateFrom, $dateTo) {
 							$q->where('date_from', '>=', $dateFrom)
-							  ->where('date_to', '<=', $dateTo);
-						})
-						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-							  $q->where('date_from', '<', $dateTo)
-							    ->where('date_to', '>', $dateTo);
-						  })
-						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-							  $q->where('date_from', '<', $dateFrom)
-							    ->where('date_to', '>', $dateFrom);
-						  });
+								->where('date_to', '<=', $dateTo);
+						});
+//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+//							  $q->where('date_from', '<', $dateTo)
+//							    ->where('date_to', '>', $dateTo);
+//						  })
+//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+//							  $q->where('date_from', '<', $dateFrom)
+//							    ->where('date_to', '>', $dateFrom);
+//						  });
 					});
 
 					if($subscriptions->count() == 0)
@@ -62,6 +62,60 @@ class SubscriptionsController extends Controller
 		return [
 			'available' => PlanType::find($request->get('type'))->plans()->whereIn('id', $available)->get(),
 			'notavailable' => PlanType::find($request->get('type'))->plans()->whereNotIn('id', $available)->get()
+		];
+	}
+
+
+	public function rooms(Request $request)
+	{
+		$available = [];
+		$notAvailable = [];
+
+		if ($request->has('date_from') && $request->has('type')) {
+			$dateFrom = Carbon::parse($request->get('date_from'));
+			$dateTo = $request->has('date_to')? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
+			$plans = PlanType::find($request->get('type'))->plans()->get();
+			foreach ($plans as $plan)
+			{
+				foreach ($plan->roomResources() as $resource)
+				{
+					$settings = $resource->settings;
+					$subscriptions = $resource->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
+						$q->where(function ($q) use ($dateFrom, $dateTo) {
+							$q->where('date_from', '>=', $dateFrom);
+//							  ->where('date_to', '<=', $dateTo);
+						});
+//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+//							  $q->where('date_from', '<', $dateTo)
+//							    ->where('date_to', '>', $dateTo);
+//						  })
+//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+//							  $q->where('date_from', '<', $dateFrom)
+//							    ->where('date_to', '>', $dateFrom);
+//						  });
+					})->get();
+
+
+					if($plan->id == $request->get('plan'))
+					{
+						if ($subscriptions->count() === 0) {
+							if (!array_key_exists($resource->resourceable->id, $available)) {
+								$available[$resource->resourceable->id] = $resource->resourceable;
+							}
+						} else {
+							if (!array_key_exists($resource->resourceable->id, $notAvailable)) {
+								$notAvailable[$resource->resourceable->id] = $resource->resourceable;
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+		return [
+			'available'    => collect($available),
+			'notavailable' => collect($notAvailable)
 		];
 	}
 
@@ -89,32 +143,32 @@ class SubscriptionsController extends Controller
 
 
 		$plan = Plan::findOrFail($request->get('plan'));
-		$resources = ['rooms' => []];
+		$room = $plan->resources()->where('resources.resourceable_id', $request->get('room'))->first();
+//		dd($room);
+		$isBooked = $room->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
+			$q->where(function ($q) use ($dateFrom, $dateTo) {
+				$q->where('date_from', '>=', $dateFrom);
+//				  ->where('date_to', '<=', $dateTo);
+			});
+//			  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+//				  $q->where('date_from', '<', $dateTo)
+//				    ->where('date_to', '>', $dateTo);
+//			  })
+//			  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
+//				  $q->where('date_from', '<', $dateFrom)
+//				    ->where('date_to', '>', $dateFrom);
+//			  });
+		})->first();
 
-		foreach ($plan->resources as $resource)
+		if($isBooked)
 		{
-//			$settings = $resource->settings;
-			if ($resource->ofType('room')) {
-				$isBooked = $resource->resourceable->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
-					$q->where(function ($q) use ($dateFrom, $dateTo) {
-						$q->where('date_from', '>=', $dateFrom)
-						  ->where('date_to', '<=', $dateTo);
-					})
-					  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-						  $q->where('date_from', '<', $dateTo)
-						    ->where('date_to', '>', $dateTo);
-					  })
-					  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-						  $q->where('date_from', '<', $dateFrom)
-						    ->where('date_to', '>', $dateFrom);
-					  });
-				})->first();
-
-				if(!$isBooked)
-				{
-					$resources['rooms'][] = $resource->resourceable;
-				}
-			}
+			return response()->json([
+				'error' => [
+					'messages' => [
+						"Lo sentimos pero ya esta alquilado, intenta volver atras y alquilar otro puesto o sala ",
+					]
+				]
+			], 422);
 		}
 
 		$member = Auth::user()->member;
@@ -158,16 +212,13 @@ class SubscriptionsController extends Controller
 		$invoice->charge_id = $charge->id;
 		$invoice->save();
 
-		$rooms = collect($resources['rooms']);
-		$rooms->first();
-
 		$subscription = $member->subscriptions()->create([
 			'date_from' => $dateFrom,
 			'date_to'   => $dateTo
 		]);
 
 		$subscription->plan()->associate($plan);
-		$subscription->resource()->associate($rooms->first());
+		$subscription->resource()->associate($room);
 		$subscription->save();
 
 		return response()->json([
@@ -194,14 +245,11 @@ class SubscriptionsController extends Controller
 
 		$plan = Plan::findOrFail($request->get('plan'));
 
-		$resources = [
-			'rooms' => []
-		];
 
+		$room = null;
 		foreach ($plan->resources as $resource) {
-			$settings = $resource->settings;
-			if ($resource->ofType('room')) {
-				$resources['rooms'][] = $resource->resourceable;
+			if ($resource->ofType('room') && $resource->resourceable->id == $request->get('room')) {
+				$room = $resource->resourceable;
 			}
 		}
 
@@ -219,7 +267,9 @@ class SubscriptionsController extends Controller
 		$line = new QuoteLine([
 			'price'       => (int) $price,
 			'name'        => $plan->name,
-			'description' => $plan->description
+			'description' => $plan->description .
+			                 "<br/> " . $room->name . " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  ".
+			                 "<br/> <small>reserva apartir del {$dateFrom->format('d/m/Y')}</small>"
 		]);
 
 		$invoice->addLine($line);

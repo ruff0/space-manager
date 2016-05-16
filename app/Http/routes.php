@@ -25,6 +25,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 		Route::get('/subscriptions', 'SubscriptionsController@index');
 		Route::post('/subscriptions', 'SubscriptionsController@store');
 		Route::post('/subscriptions/calculate', 'SubscriptionsController@calculate');
+		Route::post('/subscriptions/rooms', 'SubscriptionsController@rooms');
 	});
 
 

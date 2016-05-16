@@ -61,14 +61,40 @@
 										@endforeach
 									</div>
 								</fieldset>
-								<h6>¿Que sala quieres alquilar?</h6>
+								<h6>¿Cuando quieres alquilar la sala?</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 									<div class="row">
 										<div class="col-md-8 col-md-offset-2">
 											<div class="errors alert alert-danger" style="display:none;"></div>
 										</div>
 									</div>
-									<div class="row">
+
+									<div class="row mt-20 pt-20">
+										<div class="col-md-4 col-md-offset-4">
+											<label data-time class="thumb-label btn btn-block bg-success-400 btn-icon btn-xs legitRipple">
+												<i class="icon-calendar"></i> Desde hoy
+												<input type="radio" name="date_from" class="styled" value="this-month" checked>
+											</label>
+										</div>
+									</div>
+
+									<div class="row mt-20 pt-20">
+										<div class="col-md-4 col-md-offset-4">
+											<label data-time class="thumb-label btn btn-block bg-info-400 btn-icon btn-xs legitRipple">
+												<i class="icon-calendar"></i> Desde primeros del mes que viene
+												<input type="radio" name="date_from" class="styled" value="next-month">
+											</label>
+										</div>
+									</div>
+								</fieldset>
+								<h6>¿Que tipo de sala quieres alquilar?</h6>
+								<fieldset class="col-md-12" style="min-height:50vh">
+									<div class="row mt-20 pt-20">
+										<div class="row">
+											<div class="col-md-8 col-md-offset-2">
+												<div class="errors alert alert-danger" style="display:none;"></div>
+											</div>
+										</div>
 										@foreach($plantypes as $type)
 											@foreach($type->plans as $plan)
 												<div class="col-md-3 col-md-offset-2 col-sm-2 col-sm-offset-2">
@@ -98,6 +124,47 @@
 										@endforeach
 									</div>
 								</fieldset>
+
+								<h6>¿Elige tu sala o puesto?</h6>
+								<fieldset class="col-md-12" style="min-height:50vh">
+									<div class="row mt-20 pt-20">
+										<div class="row">
+											<div class="col-md-8 col-md-offset-2">
+												<div class="errors alert alert-danger" style="display:none;"></div>
+											</div>
+										</div>
+										@foreach($plantypes as $type)
+											@foreach($type->plans as $plan)
+												@foreach($plan->roomResources() as $resource)
+													<div class="col-md-3 col-md-offset-2 col-sm-2 col-sm-offset-2">
+														<div class="thumbnail no-padding rooms blocked" data-type="{{$type->id}}"
+														     data-plan="{{$plan->id}}" data-room="{{$resource->resourceable->id}}">
+															<div class="thumb">
+																<img src="/images/placeholder.jpg" alt="">
+																<div class="caption-overflow">
+																<span>
+																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
+																		<i class="icon-plus2"></i>
+																		<input type="radio" name="room" class="styled" value="{{$resource->resourceable->id}}">
+																	</label>
+																</span>
+																</div>
+															</div>
+
+															<div class="caption text-center">
+																<h6 class="text-semibold no-margin">
+																	{{$resource->resourceable->name}}
+																	<small class="display-block">{{$resource->resourceable->description}}</small>
+																</h6>
+															</div>
+														</div>
+													</div>
+												@endforeach
+											@endforeach
+										@endforeach
+									</div>
+								</fieldset>
+
 								<h6>¿Detalles del pedido?</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 
