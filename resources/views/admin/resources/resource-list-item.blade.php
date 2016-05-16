@@ -1,3 +1,5 @@
+<?php $selectedResource = isset($selectedResource)?$selectedResource:false; ?>
+
 <li class="media border-left-primary" data-resourceable-type="{{ $resource->resourceable->type }}">
 	<div class="media-left media-middle">
 		<i class="icon-move dragula-handle"></i>
@@ -18,46 +20,48 @@
 			{{$resource->resourceable->description}}
 		</div>
 		<div class="media-right media-middle">
-			<div class="form form-inline" style="display:none;">
+			@if(isset($entityType) && $entityType == 'booking')
+				<div class="form form-inline @if(!$selectedResource) hidden @endif">
 				<div class="form-group">
 					<label for="">Precio</label>
 					<input type="text" class="form-control"
 					       name="resources[{{$resource->id}}][settings][price][hourly]"
-					       value=""
+					       value="{{  $resource->settings('price') ? $resource->settings('price')->hourly: "" }}"
 					       placeholder="por hora"
 					/>
 				</div>
 				<div class="form-group form-inline">
 					<input type="text" class="form-control"
 					       name="resources[{{$resource->id}}][settings][price][part_time]"
-					       value=""
+					       value="{{  $resource->settings('price') ? $resource->settings('price')->part_time: "" }}"
 					       placeholder="media jornada"
 					/>
 				</div>
 				<div class="form-group form-inline">
 					<input type="text" class="form-control"
 					       name="resources[{{$resource->id}}][settings][price][full_time]"
-					       value=""
+					       value="{{  $resource->settings('price') ? $resource->settings('price')->full_time: "" }}"
 					       placeholder="jornada completa"
 					/>
 				</div>
 			</div>
+			@endif
 		</div>
 	</div>
-	@if(isset($actions) && $actions)
-		<div class="media-right media-middle">
-			<ul class="icons-list text-nowrap">
-				<li>
-					<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>
-					<ul class="dropdown-menu dropdown-menu-right">
-						<li><a href="#"><i class="icon-comment-discussion pull-right"></i> Start chat</a></li>
-						<li><a href="#"><i class="icon-phone2 pull-right"></i> Make a call</a></li>
-						<li><a href="#"><i class="icon-mail5 pull-right"></i> Send mail</a></li>
-						<li class="divider"></li>
-						<li><a href="#"><i class="icon-statistics pull-right"></i> Statistics</a></li>
-					</ul>
-				</li>
-			</ul>
-		</div>
-	@endif
+	{{--@if(isset($actions) && $actions)--}}
+		{{--<div class="media-right media-middle">--}}
+			{{--<ul class="icons-list text-nowrap">--}}
+				{{--<li>--}}
+					{{--<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu7"></i></a>--}}
+					{{--<ul class="dropdown-menu dropdown-menu-right">--}}
+						{{--<li><a href="#"><i class="icon-comment-discussion pull-right"></i> Start chat</a></li>--}}
+						{{--<li><a href="#"><i class="icon-phone2 pull-right"></i> Make a call</a></li>--}}
+						{{--<li><a href="#"><i class="icon-mail5 pull-right"></i> Send mail</a></li>--}}
+						{{--<li class="divider"></li>--}}
+						{{--<li><a href="#"><i class="icon-statistics pull-right"></i> Statistics</a></li>--}}
+					{{--</ul>--}}
+				{{--</li>--}}
+			{{--</ul>--}}
+		{{--</div>--}}
+	{{--@endif--}}
 </li>

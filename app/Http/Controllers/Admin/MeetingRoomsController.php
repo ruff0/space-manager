@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MeetingRoomsController extends AdminController
 {
+	/**
+	 * MeetingRoomsController constructor.
+	 */
 	public function __construct()
 	{
 		$this->current['model'] = 'Salas de reuniones';
@@ -109,6 +112,10 @@ class MeetingRoomsController extends AdminController
 	 */
 	public function update(MeetingRoomForm $request, MeetingRoom $meetingrooms)
 	{
+		if (!$request->has('active')) {
+			$request->offsetSet('active', false);
+		}
+
 
 		$meetingroom = $meetingrooms->update(
 			$request->all()

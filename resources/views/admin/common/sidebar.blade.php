@@ -90,6 +90,11 @@
 									Puestos
 								</a>
 							</li>
+							<li>
+								<a href="{{route('admin.offices.index')}}" class="legitRipple">
+									Despachos
+								</a>
+							</li>
 						</ul>
 					</li>
 

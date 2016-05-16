@@ -1,32 +1,20 @@
 
-<div class="panel panel-white">
+<div class="panel panel-white panel-collapsed">
+	@inject('resources', 'App\Resources\Models\Resource')
 	<div class="panel-heading">
 		<h6 class="panel-title">
-			<a data-toggle="collapse" href="#collapse-group1">Precios</a>
+			Salas disponibles
+			<small>({{$resources->ofType("meetingroom")->notSelectedBy($entity)->count()}})</small>
 		</h6>
-	</div>
-	<div id="collapse-group1" class="panel-collapse collapse in">
-		<div class="panel-body">
-			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
-				@inject('resources', 'App\Resources\Models\Resource')
-				@foreach($resources->ofType("price")->notSelectedBy($entity)->get() as $resource)
-					@include('admin.resources.resource-list-item')
-				@endforeach
+		<div class="heading-elements">
+			<ul class="icons-list">
+				<li><a data-action="collapse"></a></li>
 			</ul>
 		</div>
 	</div>
-</div>
-
-<div class="panel panel-white">
-	<div class="panel-heading">
-		<h6 class="panel-title">
-			<a data-toggle="collapse" href="#collapse-group1">Salas disponibles</a>
-		</h6>
-	</div>
 	<div id="collapse-group1" class="panel-collapse collapse in">
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
-				@inject('resources', 'App\Resources\Models\Resource')
 				@foreach($resources->ofType("meetingroom")->notSelectedBy($entity)->get() as $resource)
 					@include('admin.resources.resource-list-item')
 				@endforeach
@@ -35,39 +23,74 @@
 	</div>
 </div>
 
-<div class="panel panel-white">
+<div class="panel panel-white panel-collapsed">
+	@inject('resources', 'App\Resources\Models\Resource')
 	<div class="panel-heading">
 		<h6 class="panel-title">
-			<a class="collapsed" data-toggle="collapse" href="#collapse-group2">Puestos disponibles</a>
+			Puestos disponibles
+			<small>({{$resources->ofType("spot")->notSelectedBy($entity)->count()}})</small>
 		</h6>
+		<div class="heading-elements">
+			<ul class="icons-list">
+				<li><a data-action="collapse"></a></li>
+			</ul>
+		</div>
 	</div>
 	<div id="collapse-group2" class="panel-collapse collapse in">
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
-				@inject('resources', 'App\Resources\Models\Resource')
 				@foreach($resources->ofType("spot")->notSelectedBy($entity)->get() as $resource)
-					@include('admin.resources.resource-list-item', ['actions' => true])
+					@include('admin.resources.resource-list-item', ['actions' => true , 'type' => isset($type)?$type:null])
 				@endforeach
 			</ul>
 		</div>
 	</div>
 </div>
 
-<div class="panel panel-white">
+<div class="panel panel-white panel-collapsed">
+	@inject('resources', 'App\Resources\Models\Resource')
 	<div class="panel-heading">
 		<h6 class="panel-title">
-			<a class="collapsed" data-toggle="collapse" href="#collapse-group3">Aulas disponibles</a>
+			Despachos disponibles
+			<small>({{$resources->ofType("office")->notSelectedBy($entity)->count()}})</small>
 		</h6>
+		<div class="heading-elements">
+			<ul class="icons-list">
+				<li><a data-action="collapse"></a></li>
+			</ul>
+		</div>
 	</div>
 	<div id="collapse-group3" class="panel-collapse collapse in">
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
-				@inject('resources', 'App\Resources\Models\Resource')
-				@foreach($resources->ofType("classroom")->notSelectedBy($entity)->get() as $resource)
+				@foreach($resources->ofType("office")->notSelectedBy($entity)->get() as $resource)
 					@include('admin.resources.resource-list-item')
 				@endforeach
 			</ul>
 		</div>
 	</div>
 </div>
+
+<div class="panel panel-white panel-collapsed">
+	@inject('resources', 'App\Resources\Models\Resource')
+	<div class="panel-heading">
+		<h6 class="panel-title">
+			Aulas disponibles
+			<small>({{$resources->ofType("classroom")->notSelectedBy($entity)->count()}})</small>
+		</h6>
+		<div class="heading-elements">
+			<ul class="icons-list">
+				<li><a data-action="collapse"></a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="collapse-group3" class="panel-collapse collapse in">
+		<div class="panel-body">
+			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
+				@foreach($resources->ofType("classroom")->notSelectedBy($entity)->get() as $resource)
+					@include('admin.resources.resource-list-item')
+				@endforeach
+			</ul>
+		</div>
+	</div>
 </div>

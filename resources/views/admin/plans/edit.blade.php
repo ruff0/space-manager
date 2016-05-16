@@ -26,7 +26,10 @@
 									<ul class="media-list media-list-container resources-list-container" data-list="selected-resources"
 									    style="min-height: 100px;">
 										@foreach($plan->resources as $resource)
-											@include('admin.resources.resource-list-item')
+											@include('admin.resources.resource-list-item', [
+												'entity' => $plan,
+												'selectedResource' => true
+											])
 										@endforeach
 									</ul>
 								</fieldset>

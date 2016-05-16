@@ -39573,7 +39573,7 @@ tr.fc-collapsed > td > div {
   padding: 1em;
   border-radius: 4px;
 }
-.resources-list-container .active {
+.resources-list-container.active {
   min-height: 100px;
 }
 .resources-list-container > li {

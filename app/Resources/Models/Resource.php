@@ -35,6 +35,27 @@ class Resource extends Model
 	}
 
 	/**
+	 * @param $value
+	 *
+	 * @return mixed
+	 * @throws \Exception
+	 */
+	public function settings($value = null)
+	{
+		if(!$this->pivot){
+			return null;
+		}
+
+		$settings = $this->fromJson($this->pivot->settings, true);
+
+		if ($value && property_exists($settings, $value))
+			 return $settings->$value;
+
+		return $settings;
+	}
+
+
+	/**
 	 * Scope a query to only include resources of a given type.
 	 *
 	 * @param $query
@@ -57,12 +78,16 @@ class Resource extends Model
 			case "meetingroom" :
 				$type = MeetingRoom::class;
 				break;
+			case "office" :
+				$type = Office::class;
+				break;
 
 			case "room" :
 				return $query->whereIn('resources.resourceable_type', [
 					"App\\Resources\\Models\\MeetingRoom",
 					"App\\Resources\\Models\\ClassRoom",
 					"App\\Resources\\Models\\Spot",
+					"App\\Resources\\Models\\Office",
 				]);
 				break;
 		}

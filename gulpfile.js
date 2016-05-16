@@ -60,6 +60,7 @@ elixir(function (mix) {
 				'page/admin/bookings.js',
 				'page/admin/bookables.js',
 				'page/admin/meetingrooms.js',
+				'page/admin/offices.js',
 				'page/admin/classrooms.js',
 				'page/admin/spots.js',
 				'page/admin/bookabletypes.js',

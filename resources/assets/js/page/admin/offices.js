@@ -17,6 +17,7 @@ $.fn.dataTable.ext.order['dom-text'] = function (settings, col) {
 	});
 }
 
+
 // Create an array with the values of all the select options in a column
 $.fn.dataTable.ext.order['dom-select'] = function (settings, col) {
 	return this.api().column(col, {order: 'index'}).nodes().map(function (td, i) {
@@ -27,7 +28,7 @@ $.fn.dataTable.ext.order['dom-select'] = function (settings, col) {
 // Table setup
 // ------------------------------
 // Initialize data table
-$('.bookings-list').DataTable({
+$('.offices-list').DataTable({
 	autoWidth: true,
 	columnDefs: [
 		{
@@ -40,20 +41,16 @@ $('.bookings-list').DataTable({
 			targets: 1
 		},
 		{
-			width: '20%',
+			width: '25%',
 			targets: 2
 		},
 		{
 			width: '10%',
-			targets: 2
+			targets: 3
 		},
 		{
 			width: '10%',
 			targets: 4
-		},
-		{
-			width: '10%',
-			targets: 5
 		},
 		{
 			orderDataType: 'dom-text',
@@ -128,35 +125,3 @@ $('.dataTables_length select').select2({
 	minimumResultsForSearch: Infinity,
 	width: 'auto'
 });
-
-
-var availableContainers = $("[data-list='available-resources']").toArray();
-var selectedContainers = $("[data-list='selected-resources']").toArray();
-
-// Draggable for resources
-var drake = dragula(selectedContainers.concat(availableContainers), {
-	mirrorContainer: document.querySelector('.resources-list-container'),
-	moves: function (el, container, handle) {
-		return handle.classList.contains('dragula-handle');
-	},
-	accepts: function (el, target, source, sibling) {
-		return true;
-	}
-});
-
-drake.on('drag', function (el, source)
-{
-	$(".resources-list-container").addClass('bg-slate-300').addClass('active')
-}).on('dragend', function(el)
-{
-	$(".resources-list-container").removeClass('bg-slate-300').removeClass('active')
-}).on('drop', function(el, target, source, sibling)
-{
-
-	if( $(target).data("list") == "selected-resources")
-	{
-		console.log("YES")
-		$(el).find(".form").removeClass('hidden')
-	}
-
-})
