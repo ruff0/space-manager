@@ -112,7 +112,7 @@ class BookingsController extends Controller
 		$invoice = Invoice::create(['paid' => 0]);
 		$invoice->toMember($member);
 		$line = new Line([
-			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, true),
+			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
 			'name'        => $bookable->name,
 			'description' => $bookable->description,
 			'amount'      => 1
@@ -192,7 +192,7 @@ class BookingsController extends Controller
 		$invoice = new QuoteInvoice();
 
 		$line = new QuoteLine([
-			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, true),
+			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
 			'name'        => $bookable->name,
 			'description' => $bookable->description
 		]);
