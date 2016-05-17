@@ -20,7 +20,7 @@
 			{{$resource->resourceable->description}}
 		</div>
 		<div class="media-right media-middle">
-			@if(isset($entityType) && $entityType == 'booking')
+			@if(isset($type) && $type == 'booking')
 				<div class="form form-inline @if(!$selectedResource) hidden @endif">
 				<div class="form-group">
 					<label for="">Precio</label>

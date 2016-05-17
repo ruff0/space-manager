@@ -1,3 +1,5 @@
+<?php $type = isset($type) ? $type : null ?>
+
 
 <div class="panel panel-white panel-collapsed">
 	@inject('resources', 'App\Resources\Models\Resource')
@@ -16,7 +18,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@foreach($resources->ofType("meetingroom")->notSelectedBy($entity)->get() as $resource)
-					@include('admin.resources.resource-list-item')
+					@include('admin.resources.resource-list-item', ['type' => $type])
 				@endforeach
 			</ul>
 		</div>
@@ -40,7 +42,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@foreach($resources->ofType("spot")->notSelectedBy($entity)->get() as $resource)
-					@include('admin.resources.resource-list-item', ['actions' => true , 'type' => isset($type)?$type:null])
+					@include('admin.resources.resource-list-item', ['actions' => true , 'type' => $type])
 				@endforeach
 			</ul>
 		</div>
@@ -64,7 +66,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@foreach($resources->ofType("office")->notSelectedBy($entity)->get() as $resource)
-					@include('admin.resources.resource-list-item')
+					@include('admin.resources.resource-list-item', ['type' => $type])
 				@endforeach
 			</ul>
 		</div>
@@ -88,7 +90,7 @@
 		<div class="panel-body">
 			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
 				@foreach($resources->ofType("classroom")->notSelectedBy($entity)->get() as $resource)
-					@include('admin.resources.resource-list-item')
+					@include('admin.resources.resource-list-item', ['type' => $type])
 				@endforeach
 			</ul>
 		</div>

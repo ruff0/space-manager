@@ -152,10 +152,8 @@ drake.on('drag', function (el, source)
 	$(".resources-list-container").removeClass('bg-slate-300').removeClass('active')
 }).on('drop', function(el, target, source, sibling)
 {
-
 	if( $(target).data("list") == "selected-resources")
 	{
-		console.log("YES")
 		$(el).find(".form").removeClass('hidden')
 	}
 

@@ -36,7 +36,7 @@
 					</div>
 				</div>
 				<div class="col-sm-3">
-					@include('admin.resources.panel-resources-list', ['entity' => $bookable])
+					@include('admin.resources.panel-resources-list',  ['entity' => $bookable, 'type' => 'booking'])
 				</div>
 			</div>
 		</div>
