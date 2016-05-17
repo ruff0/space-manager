@@ -2,6 +2,7 @@
 
 namespace App\Bookables;
 
+use App\Files\Image;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -50,12 +51,36 @@ class BookableType extends Model implements SluggableInterface
 		$this->pricePerHour = $hours * 50;
 	}
 
+
+	/**
+	 * @return string
+	 */
+	public function mainImage()
+	{
+		if ($this->images()->count() > 0) {
+			return "/{$this->images()->first()->pathname}";
+		}
+
+		return "/images/placeholder.jpg";
+	}
+
 	#######################################################################################
 	# Relations
 	#######################################################################################
 
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
 	public function bookables()
 	{
 		return $this->hasMany(Bookable::class);
+	}
+
+	/**
+	 * Get all of the tags for the post.
+	 */
+	public function images()
+	{
+		return $this->morphToMany(Image::class, 'imageable');
 	}
 }

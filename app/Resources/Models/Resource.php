@@ -4,6 +4,7 @@ namespace App\Resources\Models;
 
 use App\Bookables\Bookable;
 use App\Bookings\Booking;
+use App\Files\Image;
 use App\Space\Plan;
 use App\Space\Subscription;
 use Illuminate\Database\Eloquent\Model;
@@ -164,6 +165,19 @@ class Resource extends Model
 	}
 
 	/**
+	 * @return string
+	 */
+	public function mainImage()
+	{
+		if ($this->images()->count() > 0) {
+			return "/{$this->images()->first()->pathname}";
+		}
+
+		return "/images/placeholder.jpg";
+	}
+
+
+	/**
 	 * Get all of the owning resourceable models.
 	 *
 	 * @return mixed
@@ -207,6 +221,15 @@ class Resource extends Model
 	public function subscriptions()
 	{
 		return $this->hasMany(Subscription::class);
+	}
+
+
+	/**
+	 * Get all of the tags for the post.
+	 */
+	public function images()
+	{
+		return $this->morphToMany(Image::class, 'imageable');
 	}
 
 }

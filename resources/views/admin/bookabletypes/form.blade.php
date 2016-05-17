@@ -28,6 +28,12 @@
 
 	<div class="row pb-20">
 		<div class="col-sm-12">
+			@include('forms.images', ['entity' => $bookabletype])
+		</div>
+	</div>
+
+	<div class="row pb-20">
+		<div class="col-sm-12">
 			<label>Activo</label>
 			<div class="checkbox checkbox-switchery">
 				<label for="active">

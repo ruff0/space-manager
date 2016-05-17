@@ -39,7 +39,7 @@
 											<div class="col-md-3 col-md-offset-2 col-sm-3 col-sm-offset-2">
 												<div class="thumbnail no-padding">
 													<div class="thumb">
-														<img src="/images/placeholder.jpg" alt="">
+														<img src="{{$type->mainImage()}}" alt="">
 														<div class="caption-overflow">
 																<span>
 																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
@@ -101,7 +101,7 @@
 													<div class="thumbnail no-padding plans blocked" data-type="{{$type->id}}"
 													     data-plan="{{$plan->id}}">
 														<div class="thumb">
-															<img src="/images/placeholder.jpg" alt="">
+															<img src="{{$plan->mainImage()}}" alt="">
 															<div class="caption-overflow">
 																<span>
 																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
@@ -140,7 +140,7 @@
 														<div class="thumbnail no-padding rooms blocked" data-type="{{$type->id}}"
 														     data-plan="{{$plan->id}}" data-room="{{$resource->resourceable->id}}">
 															<div class="thumb">
-																<img src="/images/placeholder.jpg" alt="">
+																<img src="{{$resource->mainImage()}}" alt="">
 																<div class="caption-overflow">
 																<span>
 																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">

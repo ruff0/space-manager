@@ -66,6 +66,10 @@ class PlansController extends AdminController
 			$request->all()
 		);
 
+		if ($request->has('images')) {
+			$plan->images()->sync($request->get('images'));
+		}
+
 		return redirect()->route('admin.plans.index')->with(
 			'success', 'El plan se ha guardado correctamente'
 		);
@@ -114,9 +118,13 @@ class PlansController extends AdminController
 	 */
 	public function update(Request $request, Plan $plans)
 	{
-		$plan = $plans->update(
+		$plans->update(
 			$request->all()
 		);
+
+		if ($request->has('images')) {
+			$plans->images()->sync($request->get('images'));
+		}
 
 		return redirect()->route('admin.plans.index')->with(
 			'success', 'El plan se ha guardado correctamente'

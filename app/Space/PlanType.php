@@ -2,6 +2,7 @@
 
 namespace App\Space;
 
+use App\Files\Image;
 use Cviebrock\EloquentSluggable\SluggableTrait;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableInterface;
@@ -35,9 +36,25 @@ class PlanType extends Model implements SluggableInterface
 	#######################################################################################
 	# Special Methods
 	#######################################################################################
+	/**
+	 * Active plantypes
+	 * @return mixed
+	 */
 	public function actives()
 	{
 		return $this->whereActive(true)->get();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function mainImage()
+	{
+		if ($this->images()->count() > 0) {
+			return "/{$this->images()->first()->pathname}";
+		}
+
+		return "/images/placeholder.jpg";
 	}
 
 	#######################################################################################
@@ -47,5 +64,13 @@ class PlanType extends Model implements SluggableInterface
 	public function plans()
 	{
 		return $this->hasMany(Plan::class);
+	}
+
+	/**
+	 * Get all of the tags for the post.
+	 */
+	public function images()
+	{
+		return $this->morphToMany(Image::class, 'imageable');
 	}
 }

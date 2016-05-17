@@ -39,7 +39,7 @@
 											<div class="col-md-2 col-md-offset-3 col-lg-3 col-lg-offset-2">
 												<div class="thumbnail no-padding">
 													<div class="thumb">
-														<img src="/images/placeholder.jpg" alt="">
+														<img src="{{$type->mainImage()}}" alt="">
 														<div class="caption-overflow">
 																<span>
 																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
@@ -118,7 +118,7 @@
 													<div class="thumbnail no-padding bookables blocked" data-bookableType="{{$type->id}}"
 													     data-bookable="{{$bookable->id}}">
 														<div class="thumb">
-															<img src="/images/placeholder.jpg" alt="">
+															<img src="{{$bookable->mainImage()}}" alt="">
 															<div class="caption-overflow">
 																<p class="times text-center pt-20 mt-20"></p>
 																<span>

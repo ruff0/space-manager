@@ -5,6 +5,7 @@ namespace App\Space;
 use App\Events\Space\PlanWasCreated;
 use App\Events\Space\PlanWasDeleted;
 use App\Events\Space\PlanWasUpdated;
+use App\Files\Image;
 use App\Resources\Models\ClassRoom;
 use App\Resources\Models\MeetingRoom;
 use App\Resources\Models\Resource;
@@ -192,6 +193,19 @@ class Plan extends Model implements SluggableInterface
 	}
 
 
+	/**
+	 * @return string
+	 */
+	public function mainImage()
+	{
+		if ($this->images()->count() > 0) {
+			return "/{$this->images()->first()->pathname}";
+		}
+
+		return "/images/placeholder.jpg";
+	}
+
+
 	#######################################################################################
 	# Relations
 	#######################################################################################
@@ -218,5 +232,14 @@ class Plan extends Model implements SluggableInterface
 	public function types()
 	{
 		return $this->belongsTo(PlanType::class, 'plan_type_id');
+	}
+
+
+	/**
+	 * Get all of the tags for the post.
+	 */
+	public function images()
+	{
+		return $this->morphToMany(Image::class, 'imageable');
 	}
 }

@@ -66,6 +66,10 @@ class BookablesController extends AdminController
 	{
 		$bookable = Bookable::create($request->all());
 
+			if ($request->has('images')) {
+			$bookable->images()->sync($request->get('images'));
+		}
+
 		return redirect()->route('admin.bookables.index')->with(
 			'success', 'La entidad se ha guardado correctamente'
 		);

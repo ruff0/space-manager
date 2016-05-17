@@ -18,6 +18,7 @@ use Cviebrock\EloquentSluggable\SluggableInterface;
  * @property string times
  * @property string totalPrice
  * @property string message
+ * @property mixed  images
  */
 class Bookable extends Model implements SluggableInterface
 {
@@ -73,7 +74,11 @@ class Bookable extends Model implements SluggableInterface
 			return $this->resources->first()->priceForStripe();
 		}
 
-		return $this->resources->first()->getPrice();
+		if($this->resources->first())
+		{
+			return $this->resources->first()->getPrice();
+		}
+
 	}
 
 	/**
@@ -185,6 +190,20 @@ class Bookable extends Model implements SluggableInterface
 		return $message;
 	}
 
+
+
+	/**
+	 * @return string
+	 */
+	public function mainImage()
+	{
+		if ($this->images()->count() > 0) {
+			return "/{$this->images()->first()->pathname}";
+		}
+
+		return "/images/placeholder.jpg";
+	}
+
 	#######################################################################################
 	# Relations
 	#######################################################################################	
@@ -274,6 +293,13 @@ class Bookable extends Model implements SluggableInterface
 		return $bookable;
 	}
 
+	/**
+	 * @param $hours
+	 * @param $timeFrom
+	 * @param $timeTo
+	 *
+	 * @return bool
+	 */
 	private function isPartTime($hours, $timeFrom, $timeTo)
 	{
 		$limitFrom = Carbon::create($timeFrom->year, $timeFrom->month, $timeFrom->day, 15, 01, 0);

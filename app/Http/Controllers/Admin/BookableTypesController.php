@@ -64,6 +64,11 @@ class BookableTypesController extends AdminController
 	{
 		$bookabletype = BookableType::create($request->all());
 
+		if ($request->has('images')) {
+			$bookabletype->images()->sync($request->get('images'));
+		}
+
+
 		return redirect()->route('admin.bookabletypes.index')->with(
 			'success', 'El tipo de sala se ha guardado correctamente'
 		);
@@ -112,14 +117,18 @@ class BookableTypesController extends AdminController
 	 */
 	public function update(Request $request, BookableType $bookabletypes)
 	{
-		if(!$request->has('active'))
-		{
+		if(!$request->has('active')) {
 			$request->offsetSet('active', false);
 		}
 
-		$bookabletype = $bookabletypes->update(
+		if ($request->has('images')) {
+			$bookabletypes->images()->sync($request->get('images'));
+		}
+
+		$bookabletypes->update(
 			$request->all()
 		);
+
 
 		return redirect()->route('admin.bookabletypes.index')->with(
 			'success', 'El tipo de sala se ha guardado correctamente'

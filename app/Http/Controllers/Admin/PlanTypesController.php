@@ -64,6 +64,10 @@ class PlanTypesController extends AdminController
 	{
 		$plantype = PlanType::create($request->all());
 
+		if ($request->has('images')) {
+			$plantype->images()->sync($request->get('images'));
+		}
+
 		return redirect()->route('admin.plantypes.index')->with(
 			'success', 'El tipo de suscripción se ha guardado correctamente'
 		);
@@ -116,9 +120,13 @@ class PlanTypesController extends AdminController
 			$request->offsetSet('active', false);
 		}
 
-		$plantype = $plantypes->update(
+		$plantypes->update(
 			$request->all()
 		);
+
+		if ($request->has('images')) {
+			$plantypes->images()->sync($request->get('images'));
+		}
 
 		return redirect()->route('admin.plantypes.index')->with(
 			'success', 'El tipo de suscripción se ha guardado correctamente'
