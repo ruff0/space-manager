@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 class CreateSubscriptionsTable extends Migration
 {
 	/**
-	 * Run the migrations.
+	 * Run the migrations.                   ¨
 	 *
 	 * @return void
 	 */
