@@ -12023,35 +12023,54 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = {
 
 	props: {
+		token: {
+			type: String,
+			required: true
+		},
 		member: {
 			type: Number,
 			required: true
+		},
+		discounts: {
+			type: Object,
+			default: function _default() {
+				return {
+					plans: { percentage: 0, date_to: null },
+					bookings: { percentage: 0, date_to: null },
+					events: { percentage: 0, date_to: null }
+				};
+			}
 		}
 	},
 
 	data: function data() {
-		return {
-			plans: {
-				percentage: 0,
-				date_to: null
-			},
-			bookings: {
-				percentage: 0,
-				date_to: null
-			},
-			events: {
-				percentage: 0,
-				date_to: null
-			}
-		};
+		return {};
 	},
 	ready: function ready() {
-		console.log('ready');
-		console.log(this.member);
+
+		// Disable certain dates
+		$('.pickadate-date').pickadate({
+			// Escape any “rule” characters with an exclamation mark (!).
+			format: 'dddd, dd mmm, yyyy',
+			formatSubmit: 'yyyymmdd',
+			hiddenPrefix: '',
+			hiddenSuffix: '_date_to'
+		});
+	},
+
+	methods: {
+		save: function save() {
+			this.$http.post('/api/members/' + this.member + '/discounts', {
+				_token: this.token,
+				member: this.member,
+				discounts: this.discounts
+			}).then(function (response) {});
+		}
 	}
+
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel-heading\">\n\t<h6 class=\"panel-title\">\n\t\t<a data-toggle=\"collapse\" href=\"#collapse-group1\">Descuentos</a>\n\t</h6>\n</div>\n<div id=\"collapse-group1\" class=\"panel-collapse collapse in\">\n\t<div class=\"panel-body\">\n\t\t<form action=\"\">\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Subscripción</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"plans.percentage\">\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"plans.date_to\" placeholder=\"Fecha limite\">\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Salas</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"bookings.percentage\">\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"bookings.date_to\" placeholder=\"Fecha limite\">\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Eventos</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"events.percentage\">\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"events.date_to\" placeholder=\"Fecha limite\">\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<button type=\"submit\" class=\"btn btn-primary pull-right hidden\" id=\"save-plan-change\">Cambiar el plan</button>\n\t\t</form>\n\t</div>\n</div>\n\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel-heading\">\n\t<h6 class=\"panel-title\">\n\t\t<a data-toggle=\"collapse\" href=\"#collapse-group1\">Descuentos</a>\n\t</h6>\n</div>\n<div id=\"collapse-group1\" class=\"panel-collapse collapse in\">\n\t<div class=\"panel-body\">\n\t\t<form action=\"\">\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Subscripción</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-3\">\n\t\t\t\t\t<div class=\"input-group\">\n\t\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"discounts.plans.percentage\">\n\t\t\t\t\t\t<span class=\"input-group-addon\"><i class=\"icon-percent\"></i></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-9\">\n\t\t\t\t\t<div class=\"input-group\">\n\t\t\t\t\t\t<input type=\"text\" class=\"form-control pickadate-date\" placeholder=\"Fecha limite\"\n\t\t\t\t\t\t\t\t\t v-model=\"discounts.plans.date_to\">\n\t\t\t\t\t\t<span class=\"input-group-addon\"><i class=\"icon-calendar5\"></i></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Salas</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-3\">\n\t\t\t\t\t<div class=\"input-group\">\n\t\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"discounts.bookings.percentage\">\n\t\t\t\t\t\t<span class=\"input-group-addon\"><i class=\"icon-percent\"></i></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-9\">\n\t\t\t\t\t<div class=\"input-group\">\n\t\t\t\t\t\t<input type=\"text\" class=\"form-control pickadate-date\" placeholder=\"Fecha limite\"\n\t\t\t\t\t\t\t\t\t v-model=\"discounts.bookings.date_to\">\n\t\t\t\t\t\t<span class=\"input-group-addon\"><i class=\"icon-calendar5\"></i></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Eventos</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-3\">\n\t\t\t\t\t<div class=\"input-group\">\n\t\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"discounts.events.percentage\">\n\t\t\t\t\t\t<span class=\"input-group-addon\"><i class=\"icon-percent\"></i></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-9\">\n\t\t\t\t\t<div class=\"input-group\">\n\t\t\t\t\t\t<input type=\"text\" name=\"events\" class=\"form-control pickadate-date\" placeholder=\"Fecha limite\"\n\t\t\t\t\t\t\t\t\t v-model=\"discounts.events.date_to\">\n\t\t\t\t\t\t<span class=\"input-group-addon\"><i class=\"icon-calendar5\"></i></span>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<button type=\"button\" role=\"button\" class=\"btn btn-primary pull-right\" @click.prevent=\"save\">Guardar descuentos</button>\n\t\t</form>\n\t</div>\n</div>\n\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)

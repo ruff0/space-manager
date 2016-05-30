@@ -20,8 +20,14 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	Route::group(['namespace' => 'Space'], function () {
 		Route::post('/members/{members}/payment-methods', [
 			'as'   => 'api.members.payment-methods.create',
-			'uses' => 'PaymentMethods@store'
+			'uses' => 'PaymentMethodsController@store'
 		]);
+		
+		Route::post('/members/{members}/discounts', [
+			'as'   => 'api.members.discounts.store',
+			'uses' => 'MemberDiscountsController@store'
+		]);
+
 		Route::get('/subscriptions', 'SubscriptionsController@index');
 		Route::post('/subscriptions', 'SubscriptionsController@store');
 		Route::post('/subscriptions/calculate', 'SubscriptionsController@calculate');

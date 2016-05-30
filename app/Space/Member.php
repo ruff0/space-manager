@@ -8,7 +8,6 @@ use App\Events\Space\MemberRegistered;
 use App\User\User;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Billable;
-use Laravel\Cashier\Contracts\Billable as BillableContract;
 use Laravel\Cashier\StripeGateway;
 
 /**
@@ -27,6 +26,7 @@ use Laravel\Cashier\StripeGateway;
  * @property mixed mobile
  * @property mixed isCompany
  * @property mixed subscriptions
+ * @property mixed discounts
  */
 class Member extends Model
 {
@@ -158,6 +158,14 @@ class Member extends Model
 	{
 		return $this->hasMany(User::class);
 	}
+	
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function discounts()
+	{
+		return $this->hasMany(Discount::class);
+	}
 
 
 	/**
@@ -280,6 +288,35 @@ class Member extends Model
 	{
 		if($this->subscriptions)
 			return $this->subscriptions->first()->plan;
+	}
+
+	public function appliedDiscounts()
+	{
+		$finalDiscounts = [
+			'plans'    => [
+				'percentage' => 0,
+				'date_to'    => null
+			],
+			'bookings' => [
+				'percentage' => 0,
+				'date_to'    => null
+			],
+			'events'   => [
+				'percentage' => 0,
+				'date_to'    => null
+			],
+		];
+
+		foreach($this->discounts as $discount)
+		{
+			$finalDiscounts[$discount->type] = [
+				'percentage' => $discount->percentage,
+				'date_to' => $discount->date_to->format('l\, d M\, Y')
+			];
+		}
+
+
+		return collect($finalDiscounts)->toJson();
 	}
 
 

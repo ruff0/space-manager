@@ -10,11 +10,18 @@
 				<div class="col-sm-12">
 					<label>Subscripción</label>
 				</div>
-				<div class="col-lg-6">
-					<input type="text" class="form-control" v-model="plans.percentage">
+				<div class="col-lg-3">
+					<div class="input-group">
+						<input type="text" class="form-control" v-model="discounts.plans.percentage">
+						<span class="input-group-addon"><i class="icon-percent"></i></span>
+					</div>
 				</div>
-				<div class="col-lg-6">
-					<input type="text" class="form-control" v-model="plans.date_to" placeholder="Fecha limite">
+				<div class="col-lg-9">
+					<div class="input-group">
+						<input type="text" class="form-control pickadate-date" placeholder="Fecha limite"
+									 v-model="discounts.plans.date_to">
+						<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+					</div>
 				</div>
 			</div>
 
@@ -22,11 +29,18 @@
 				<div class="col-sm-12">
 					<label>Salas</label>
 				</div>
-				<div class="col-lg-6">
-					<input type="text" class="form-control" v-model="bookings.percentage">
+				<div class="col-lg-3">
+					<div class="input-group">
+						<input type="text" class="form-control" v-model="discounts.bookings.percentage">
+						<span class="input-group-addon"><i class="icon-percent"></i></span>
+					</div>
 				</div>
-				<div class="col-lg-6">
-					<input type="text" class="form-control" v-model="bookings.date_to" placeholder="Fecha limite">
+				<div class="col-lg-9">
+					<div class="input-group">
+						<input type="text" class="form-control pickadate-date" placeholder="Fecha limite"
+									 v-model="discounts.bookings.date_to">
+						<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+					</div>
 				</div>
 			</div>
 
@@ -34,14 +48,21 @@
 				<div class="col-sm-12">
 					<label>Eventos</label>
 				</div>
-				<div class="col-lg-6">
-					<input type="text" class="form-control" v-model="events.percentage">
+				<div class="col-lg-3">
+					<div class="input-group">
+						<input type="text" class="form-control" v-model="discounts.events.percentage">
+						<span class="input-group-addon"><i class="icon-percent"></i></span>
+					</div>
 				</div>
-				<div class="col-lg-6">
-					<input type="text" class="form-control" v-model="events.date_to" placeholder="Fecha limite">
+				<div class="col-lg-9">
+					<div class="input-group">
+						<input type="text" name="events" class="form-control pickadate-date" placeholder="Fecha limite"
+									 v-model="discounts.events.date_to">
+						<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+					</div>
 				</div>
 			</div>
-			<button type="submit" class="btn btn-primary pull-right hidden" id="save-plan-change">Cambiar el plan</button>
+			<button type="button" role="button" class="btn btn-primary pull-right" @click.prevent="save">Guardar descuentos</button>
 		</form>
 	</div>
 </div>

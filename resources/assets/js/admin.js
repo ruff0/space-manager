@@ -2,7 +2,7 @@
  * Main Plugins
  */
 var Vue = require('vue'),
-	VueResource = require('vue-resource');
+		VueResource = require('vue-resource');
 /**
  * Components
  */
