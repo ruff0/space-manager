@@ -11877,7 +11877,11 @@ var Vue = require('vue'),
  * Components
  */
 var Calendar = {
-  Scheduler: require('./components/Calendar/Scheduler.vue')
+	Scheduler: require('./components/Calendar/Scheduler.vue')
+};
+
+var Discounts = {
+	Discount: require('./components/Discount/Discount.vue')
 };
 
 /**
@@ -11893,16 +11897,17 @@ Vue.use(VueResource);
  * Vue instance
  */
 var v = new Vue({
-  el: 'body',
-  events: {},
-  data: {},
-  methods: {},
-  components: {
-    'scheduler': Calendar.Scheduler
-  }
+	el: 'body',
+	events: {},
+	data: {},
+	methods: {},
+	components: {
+		'scheduler': Calendar.Scheduler,
+		'discount': Discounts.Discount
+	}
 });
 
-},{"./components/Calendar/Scheduler.vue":30,"vue":27,"vue-resource":16}],30:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":30,"./components/Discount/Discount.vue":31,"vue":27,"vue-resource":16}],30:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert(".Calendar {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.Calendar--List {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 0;\n      -ms-flex: 1 0 0;\n          flex: 1 0 0;\n}\n.Calendar--Calendar {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 20em;\n      -ms-flex: 1 0 20em;\n          flex: 1 0 20em;\n  margin: 1em 4em;\n}\n.fc-license-message {\n  display: none !important;\n}\n.fc-head .fc-scroller {\n  min-height: auto !important;\n}\n")
 'use strict';
 
@@ -12009,6 +12014,55 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":27,"vue-hot-reload-api":2,"vueify-insert-css":28}]},{},[29]);
+},{"vue":27,"vue-hot-reload-api":2,"vueify-insert-css":28}],31:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = {
+
+	props: {
+		member: {
+			type: Number,
+			required: true
+		}
+	},
+
+	data: function data() {
+		return {
+			plans: {
+				percentage: 0,
+				date_to: null
+			},
+			bookings: {
+				percentage: 0,
+				date_to: null
+			},
+			events: {
+				percentage: 0,
+				date_to: null
+			}
+		};
+	},
+	ready: function ready() {
+		console.log('ready');
+		console.log(this.member);
+	}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel-heading\">\n\t<h6 class=\"panel-title\">\n\t\t<a data-toggle=\"collapse\" href=\"#collapse-group1\">Descuentos</a>\n\t</h6>\n</div>\n<div id=\"collapse-group1\" class=\"panel-collapse collapse in\">\n\t<div class=\"panel-body\">\n\t\t<form action=\"\">\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Subscripción</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"plans.percentage\">\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"plans.date_to\" placeholder=\"Fecha limite\">\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Salas</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"bookings.percentage\">\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"bookings.date_to\" placeholder=\"Fecha limite\">\n\t\t\t\t</div>\n\t\t\t</div>\n\n\t\t\t<div class=\"row pb-20\">\n\t\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t\t<label>Eventos</label>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"events.percentage\">\n\t\t\t\t</div>\n\t\t\t\t<div class=\"col-lg-6\">\n\t\t\t\t\t<input type=\"text\" class=\"form-control\" v-model=\"events.date_to\" placeholder=\"Fecha limite\">\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<button type=\"submit\" class=\"btn btn-primary pull-right hidden\" id=\"save-plan-change\">Cambiar el plan</button>\n\t\t</form>\n\t</div>\n</div>\n\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Discount/Discount.vue"
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":27,"vue-hot-reload-api":2}]},{},[29]);
 
 //# sourceMappingURL=admin.js.map
