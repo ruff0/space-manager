@@ -51,8 +51,6 @@ class PlansController extends AdminController
 		]);
 	}
 
-	
-
 	/**
 	 * Store a newly created resource in storage.
 	 *
@@ -99,7 +97,6 @@ class PlansController extends AdminController
 	public function edit(Plan $plans)
 	{
 		$this->current['action'] = 'Actualizar';
-
 
 		return view('admin.plans.edit', [
 			'current' => $this->current,
