@@ -43,7 +43,8 @@ class Plan extends Model implements SluggableInterface
 		'description',
 		'active',
 		'standalone',
-		'plan_type_id'
+		'plan_type_id',
+		'default'
 	];
 
 	/**
@@ -96,6 +97,8 @@ class Plan extends Model implements SluggableInterface
 	 */
 	public static function create(array $attributes = [])
 	{
+		self::cleanDefaults($attributes);
+
 		$plan = parent::create($attributes);
 
 		list($stripePlan) = event(
@@ -118,8 +121,9 @@ class Plan extends Model implements SluggableInterface
 	 */
 	public function update(array $attributes = [], array $options = [])
 	{
-		$plan = parent::update($attributes, $options);
+		self::cleanDefaults($attributes);
 
+		$plan = parent::update($attributes, $options);
 		// Extract this out of here
 		if (isset($attributes['resources'])) {
 			$resources = [];
@@ -205,7 +209,14 @@ class Plan extends Model implements SluggableInterface
 		return "/images/placeholder.jpg";
 	}
 
-
+	/**
+	 * @return mixed
+	 */
+	public static function byDefault()
+	{
+		$plan = new static;
+		return $plan->where('default', true)->first();
+	}
 	#######################################################################################
 	# Relations
 	#######################################################################################
@@ -241,5 +252,17 @@ class Plan extends Model implements SluggableInterface
 	public function images()
 	{
 		return $this->morphToMany(Image::class, 'imageable');
+	}
+
+	protected static function cleanDefaults(&$attributes)
+	{
+		if (isset($attributes['default']) && $attributes['default'] && $attributes['active']) {
+			foreach (parent::all() as $plan) {
+				$plan->default = false;
+				$plan->save();
+			}
+
+			$attributes['default'] = true;
+		}
 	}
 }

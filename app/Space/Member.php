@@ -249,6 +249,9 @@ class Member extends Model
 		return $entity;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getCurrency()
 	{
 		return "eur";

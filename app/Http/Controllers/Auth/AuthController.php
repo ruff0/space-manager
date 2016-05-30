@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Space\Member;
+use App\Space\Plan;
 use App\User\User;
+use Carbon\Carbon;
 use Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
@@ -67,6 +69,17 @@ class AuthController extends Controller
 	{
 		$member = new Member;
 		$member->save();
+
+		$dateFrom = Carbon::now();
+		$dateTo =  Carbon::parse("20991231");
+
+		$subscription = $member->subscriptions()->create([
+			'date_from' => $dateFrom,
+			'date_to'   => $dateTo
+		]);
+
+		$subscription->plan()->associate(Plan::byDefault());
+		$subscription->save();
 
 		return $member->users()->create([
 			'name'     => $data['name'],

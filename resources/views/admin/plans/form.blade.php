@@ -78,7 +78,7 @@
 					</span>
 				</label>
 			</div>
-			@include('forms._validation-error', ['field' => 'price'])
+			@include('forms._validation-error', ['field' => 'active'])
 		</div>
 	</div>
 
@@ -95,7 +95,25 @@
 					</span>
 				</label>
 			</div>
-			@include('forms._validation-error', ['field' => 'price'])
+			@include('forms._validation-error', ['field' => 'standalone'])
+		</div>
+	</div>
+
+
+	<div class="row pb-20">
+		<div class="col-sm-12">
+			<label>Plan es por defecto</label>
+			<div class="checkbox checkbox-switchery">
+				<label for="default">
+				<input name="default" value="1" id="default" type="checkbox" class="switchery"
+					{!! $plan->default || old('default')? 'checked' : null !!}
+				/>
+					<span class="text-muted">
+						Este plan se puede contratar solo o es un adjunto a otro plan
+					</span>
+				</label>
+			</div>
+			@include('forms._validation-error', ['field' => 'default'])
 		</div>
 	</div>
 
