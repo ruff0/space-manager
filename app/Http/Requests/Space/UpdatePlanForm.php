@@ -4,7 +4,7 @@ namespace App\Http\Requests\Space;
 
 use App\Http\Requests\Request;
 
-class CreatePlanForm extends Request
+class UpdatePlanForm extends Request
 {
 	/**
 	 * Determine if the user is authorized to make this request.
@@ -25,8 +25,7 @@ class CreatePlanForm extends Request
 	{
 		return [
 			'name' => 'required',
-			'price' => 'required|numeric',
-			'discounts.*' => 'numeric|size:100'
+			'discounts.*' => 'numeric|max:100'
 		];
 	}
 }

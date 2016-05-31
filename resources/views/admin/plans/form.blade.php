@@ -59,6 +59,7 @@
 		</div>
 	</div>
 
+
 	<div class="row pb-20">
 		<div class="col-sm-12">
 			@include('forms.images', ['entity' => $plan])
@@ -81,7 +82,7 @@
 			@include('forms._validation-error', ['field' => 'active'])
 		</div>
 	</div>
-
+	{{--{{dd($errors)}}--}}
 	<div class="row pb-20">
 		<div class="col-sm-12">
 			<label>Plan es standalone</label>
@@ -91,14 +92,13 @@
 					{!! $plan->standalone || old('standalone')? 'checked' : null !!}
 				/>
 					<span class="text-muted">
-						Este plan se puede contratar solo o es un adjunto a otro plan
+						Este es el plan que se le aplica por defecto a un usuario nuevo
 					</span>
 				</label>
 			</div>
 			@include('forms._validation-error', ['field' => 'standalone'])
 		</div>
 	</div>
-
 
 	<div class="row pb-20">
 		<div class="col-sm-12">
@@ -116,5 +116,50 @@
 			@include('forms._validation-error', ['field' => 'default'])
 		</div>
 	</div>
+
+	<fieldset>
+		<legend>Descuentos</legend>
+		<div class="row pb-20">
+			<div class="col-sm-4 col-lg-4">
+				<label>Planes</label>
+				<div class="input-group">
+					<input type="text"
+					       placeholder="10"
+					       class="form-control"
+					       name="discounts[plans]"
+					       value="{{ old('discounts[plans]',  isset($plan->discounts["plans"]) ?$plan->discounts["plans"]: '') }}"
+					/>
+					<span class="input-group-addon"><i class="icon-percent"></i></span>
+				</div>
+				@include('forms._validation-error', ['field' => 'discounts.plans'])
+			</div>
+			<div class="col-sm-4 col-lg-4">
+				<label>Alquiler de salas</label>
+				<div class="input-group">
+					<input type="text"
+					       placeholder="10"
+					       class="form-control"
+					       name="discounts[bookings]"
+					       value="{{ old('discounts[bookings]', isset($plan->discounts["bookings"]) ?$plan->discounts["bookings"]: '') }}"
+					/>
+					<span class="input-group-addon"><i class="icon-percent"></i></span>
+				</div>
+				@include('forms._validation-error', ['field' => 'discounts.bookings'])
+			</div>
+			<div class="col-sm-4 col-lg-4">
+				<label>Eventos</label>
+				<div class="input-group">
+					<input type="text"
+					       placeholder="10"
+					       class="form-control"
+					       name="discounts[events]"
+					       value="{{ old('discounts[events]', isset($plan->discounts["events"]) ?$plan->discounts["events"]: '') }}"
+					/>
+					<span class="input-group-addon"><i class="icon-percent"></i></span>
+				</div>
+				@include('forms._validation-error', ['field' => 'discounts.events'])
+			</div>
+		</div>
+	</fieldset>
 
 </div>
