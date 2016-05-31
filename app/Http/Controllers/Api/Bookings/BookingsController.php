@@ -10,6 +10,7 @@ use App\Invoices\Models\Line;
 use App\Invoices\QuoteInvoice;
 use App\Invoices\QuoteLine;
 use App\Resources\Models\Resource;
+use App\Space\Member;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -117,12 +118,27 @@ class BookingsController extends Controller
 		]);
 
 		$invoice->addLine($line);
-//
+
+
 		if ($member) {
-			// Discountline
-			// $discountLine = ?¿?¿?
-			// $invoice-addLine($discountLine);
+			$discount = $member->appliedDiscounts('bookings');
+
+			if (Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+				$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
+				$percentage = $discount['percentage'];
+				$total = ($price / $percentage);
+
+				$discountLine = new Line([
+					'price'       => (int) - ($total * 10),
+					'name'        => 'Descuento',
+					'description' => "Descuento aplicado $percentage%",
+					'amount'      => 1
+				]);
+
+				$invoice->addLine($discountLine);
+			}
 		}
+
 		$invoice->save();
 
 		// Make Stripe Charge
@@ -187,15 +203,31 @@ class BookingsController extends Controller
 				$resources['rooms'][] = $resource->resourceable;
 			}
 		}
+		
 		$invoice = new QuoteInvoice();
-
+		
 		$line = new QuoteLine([
 			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
 			'name'        => $bookable->name,
 			'description' => $bookable->description
 		]);
-
 		$invoice->addLine($line);
+
+		$member = Auth::user()->member;
+		$discount = $member->appliedDiscounts('bookings');
+
+		if(Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+			$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
+			$percentage = $discount['percentage'];
+			$total = ($price  / $percentage);
+			$line = new QuoteLine([
+				'price' => - ($total * 10),
+				'name'  => "Descuento $percentage%",
+				'description' => "Descuento aplicado $percentage%"
+			]);
+			$invoice->addLine($line);
+		}
+
 
 
 		if (Auth::user()) {

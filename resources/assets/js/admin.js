@@ -2,12 +2,16 @@
  * Main Plugins
  */
 var Vue = require('vue'),
-	VueResource = require('vue-resource');
+		VueResource = require('vue-resource');
 /**
  * Components
  */
 var Calendar = {
 	Scheduler: require('./components/Calendar/Scheduler.vue'),
+}
+
+var Discounts = {
+	Discount: require('./components/Discount/Discount.vue'),
 }
 
 /**
@@ -29,5 +33,6 @@ var v = new Vue({
 	methods: {},
 	components: {
 		'scheduler': Calendar.Scheduler,
+		'discount': Discounts.Discount,
 	},
 });

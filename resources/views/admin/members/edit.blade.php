@@ -31,6 +31,7 @@
 
 				<div class="col-sm-3">
 					@include('admin.plans.partials.panel-plans-form', ['entity' => $member])
+					@include('admin.discounts.partials.panel-discounts-form', ['entity' => $member])
 				</div>
 			</div>
 		</div>

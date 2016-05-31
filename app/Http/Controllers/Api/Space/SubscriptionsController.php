@@ -195,11 +195,23 @@ class SubscriptionsController extends Controller
 		]);
 
 		$invoice->addLine($line);
-//
+
 		if ($member) {
-			// Discountline
-			// $discountLine = ?¿?¿?
-			// $invoice-addLine($discountLine);
+			$discount = $member->appliedDiscounts('plans');
+
+			if (Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+				$percentage = $discount['percentage'];
+				$total = ($price / $percentage);
+
+				$discountLine = new Line([
+					'price'       => (int) - ($total * 10),
+					'name'        => 'Descuento',
+					'description' => "Descuento aplicado $percentage%",
+					'amount'      => 1
+				]);
+
+				$invoice->addLine($discountLine);
+			}
 		}
 		$invoice->save();
 
@@ -276,9 +288,20 @@ class SubscriptionsController extends Controller
 
 
 		if (Auth::user()) {
-			// Discountline
-			// $discountLine = ?¿?¿?
-			// $invoice-addLine($discountLine);
+			$member = Auth::user()->member;
+			$discount = $member->appliedDiscounts('plans');
+
+			if (Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+				$price = $plan->priceForStripe();
+				$percentage = $discount['percentage'];
+				$total = ($price / $percentage);
+				$line = new QuoteLine([
+					'price'       => -($total * 10),
+					'name' => "Descuento",
+					'description' => "Descuento aplicado $percentage%"
+				]);
+				$invoice->addLine($line);
+			}
 		}
 
 //		dd($invoice);

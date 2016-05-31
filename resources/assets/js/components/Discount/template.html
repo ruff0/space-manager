@@ -1,0 +1,69 @@
+<div class="panel-heading">
+	<h6 class="panel-title">
+		<a data-toggle="collapse" href="#collapse-group1">Descuentos</a>
+	</h6>
+</div>
+<div id="collapse-group1" class="panel-collapse collapse in">
+	<div class="panel-body">
+		<form action="">
+			<div class="row pb-20">
+				<div class="col-sm-12">
+					<label>Subscripción</label>
+				</div>
+				<div class="col-lg-3">
+					<div class="input-group">
+						<input type="text" class="form-control" v-model="discounts.plans.percentage">
+						<span class="input-group-addon"><i class="icon-percent"></i></span>
+					</div>
+				</div>
+				<div class="col-lg-9">
+					<div class="input-group">
+						<input type="text" class="form-control pickadate-date" placeholder="Fecha limite"
+									 v-model="discounts.plans.date_to">
+						<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="row pb-20">
+				<div class="col-sm-12">
+					<label>Salas</label>
+				</div>
+				<div class="col-lg-3">
+					<div class="input-group">
+						<input type="text" class="form-control" v-model="discounts.bookings.percentage">
+						<span class="input-group-addon"><i class="icon-percent"></i></span>
+					</div>
+				</div>
+				<div class="col-lg-9">
+					<div class="input-group">
+						<input type="text" class="form-control pickadate-date" placeholder="Fecha limite"
+									 v-model="discounts.bookings.date_to">
+						<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="row pb-20">
+				<div class="col-sm-12">
+					<label>Eventos</label>
+				</div>
+				<div class="col-lg-3">
+					<div class="input-group">
+						<input type="text" class="form-control" v-model="discounts.events.percentage">
+						<span class="input-group-addon"><i class="icon-percent"></i></span>
+					</div>
+				</div>
+				<div class="col-lg-9">
+					<div class="input-group">
+						<input type="text" name="events" class="form-control pickadate-date" placeholder="Fecha limite"
+									 v-model="discounts.events.date_to">
+						<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+					</div>
+				</div>
+			</div>
+			<button type="button" role="button" class="btn btn-primary pull-right" @click.prevent="save">Guardar descuentos</button>
+		</form>
+	</div>
+</div>
+
