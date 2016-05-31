@@ -17,6 +17,11 @@
 		<!-- Page container -->
 		<div class="page-container">
 			@yield('content')
+
+
+			@if($user->member->hasPlan() && $user->member->currentPlan())
+				@include('subscriptions.partials._cancelSubscription-modal')
+			@endif
 		</div>
 		<!-- /page container -->
 
@@ -27,6 +32,13 @@
 		@yield('vendor-scripts')
 		<script type="text/javascript" src="/js/app.js"></script>
 		<!-- /core JS files -->
+
+		@if(session('cancelSubscription'))
+			<script>
+				App = App || {};
+				App.cancelSubscription = true;
+			</script>
+		@endif
 
 		@yield('page-scripts')
 	</body>

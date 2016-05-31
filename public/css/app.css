@@ -39634,6 +39634,9 @@ label.thumb-label input[type=radio] {
   -webkit-filter: blur(20px) grayscale(80%);
   filter: blur(20px) grayscale(80%);
 }
+.dropdown-menu-lg {
+  min-width: 220px;
+}
 .col-xs-1,
 .col-sm-1,
 .col-md-1,

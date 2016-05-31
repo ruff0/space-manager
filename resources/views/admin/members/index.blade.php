@@ -73,7 +73,13 @@
 								</div>
 							</td>
 							<td>
-								<span class="text-muted">{{$member->currentPlan()->name}}</span>
+								@if($member->currentPlan())
+									<span class="text-muted">{{$member->currentPlan()->name}}</span>
+								@else
+									@inject('plan', 'App\Space\Plan')
+									<span class="text-muted">	{{ $plan->byDefault()->name}}</span>
+								@endif
+
 							</td>
 							<td>
 									<a href="#" class="label
