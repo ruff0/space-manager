@@ -19,7 +19,7 @@
 			@yield('content')
 
 
-			@if($user->member->hasPlan() && $user->member->currentPlan())
+			@if(isset($user) && $user->member->hasPlan() && $user->member->currentPlan())
 				@include('subscriptions.partials._cancelSubscription-modal')
 			@endif
 		</div>
