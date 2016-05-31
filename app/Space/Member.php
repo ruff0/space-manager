@@ -290,7 +290,7 @@ class Member extends Model
 			return $this->subscriptions->first()->plan;
 	}
 
-	public function appliedDiscounts()
+	public function appliedDiscounts($type = null)
 	{
 		$finalDiscounts = [
 			'plans'    => [
@@ -313,6 +313,11 @@ class Member extends Model
 				'percentage' => $discount->percentage,
 				'date_to' => $discount->date_to->format('l\, d M\, Y')
 			];
+		}
+
+		if($type && isset($finalDiscounts[$type]))
+		{
+			return collect($finalDiscounts[$type]);
 		}
 
 

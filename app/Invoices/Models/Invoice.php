@@ -27,14 +27,34 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Invoice extends Model
 {
+	/**
+	 * @var int
+	 */
 	public $vat_percentage = 21;
 
+	/**
+	 * @var string
+	 */
 	public $currency = "€";
 
+	/**
+	 * @var string
+	 */
 	protected $table = 'invoices';
 
+	/**
+	 * @var array
+	 */
 	protected $fillable = ["paid"];
 
+	/**
+	 * @var array
+	 */
+	protected $invoiceLines = [];
+
+	/**
+	 * @var array
+	 */
 	protected $appends = [
 		'subtotalFormated',
 		'totalFormated',
@@ -60,11 +80,18 @@ class Invoice extends Model
 	  $this->company_identity = $member->company_identity;
 	}
 
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
 	public function member()
 	{
 		return $this->belongsTo(Member::class);
 	}
-	
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
 	public function lines()
 	{
 		return $this->hasMany(Line::class);
@@ -75,6 +102,7 @@ class Invoice extends Model
 	 */
 	public function addLine(Line $line)
 	{
+		array_push($this->invoiceLines, $line);
 		$this->lines()->create($line->toArray());
 		$this->calculateTotals();
 	}
@@ -155,30 +183,46 @@ class Invoice extends Model
 	 */
 	private function calculateSubtotal()
 	{
-		foreach ($this->lines as $line) {
+		$this->subtotal = 0;
+
+		foreach ($this->invoiceLines as $line)
+		{
 			$this->subtotal += $line->totalPrice();
 		}
 	}
 
+	/**
+	 * 
+	 */
 	private function calculateVat()
 	{
 		$this->tax = ($this->subtotal * ($this->vat_percentage / 100));
 		$this->vat = $this->vat_percentage;
 	}
 
+	/**
+	 * 
+	 */
 	private function calculateTotal()
 	{
 		$this->total = ($this->subtotal * (1 + ($this->vat_percentage / 100)));
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getTotalForStripe()
 	{
 		return (int) $this->total;
 	}
 
+	/**
+	 * @param null $stripe_charge_id
+	 *
+	 * @return mixed
+	 */
 	public static function findInvoiceByStripeCharge($stripe_charge_id = null)
 	{
 		return self::where('charge_id', $stripe_charge_id)->first();
 	}
-
 }
