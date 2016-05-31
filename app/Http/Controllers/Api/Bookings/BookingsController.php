@@ -131,14 +131,13 @@ class BookingsController extends Controller
 				$discountLine = new Line([
 					'price'       => (int) - ($total * 10),
 					'name'        => 'Descuento',
-					'description' => '',
+					'description' => "Descuento aplicado $percentage%",
 					'amount'      => 1
 				]);
 
 				$invoice->addLine($discountLine);
 			}
 		}
-
 
 		$invoice->save();
 
@@ -223,8 +222,8 @@ class BookingsController extends Controller
 			$total = ($price  / $percentage);
 			$line = new QuoteLine([
 				'price' => - ($total * 10),
-				'name'  => 'Descuento',
-				'description' => ''
+				'name'  => "Descuento $percentage%",
+				'description' => "Descuento aplicado $percentage%"
 			]);
 			$invoice->addLine($line);
 		}
