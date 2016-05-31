@@ -100,7 +100,13 @@ $el.steps({
 						})
 
 						$.each(result.available, function(key, bookable){
+							var totalPrice = bookable.discount.price || bookable.totalPrice;
+							var message = bookable.message + "<br>" + bookable.discount.message;
+
 							$('[data-bookable='+ bookable.id +']').removeClass('notavailable');
+							$('[data-bookable=' + bookable.id + ']').find('.times').html(bookable.times)
+							$('[data-bookable=' + bookable.id + ']').find('.total-price').html(totalPrice)
+							$('[data-bookable=' + bookable.id + ']').find('.message').html(message)
 						})
 					},
 					error: function (result) {

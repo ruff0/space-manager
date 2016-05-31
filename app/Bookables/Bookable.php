@@ -19,6 +19,7 @@ use Cviebrock\EloquentSluggable\SluggableInterface;
  * @property string totalPrice
  * @property string message
  * @property mixed  images
+ * @property float  discount
  */
 class Bookable extends Model implements SluggableInterface
 {
@@ -138,9 +139,10 @@ class Bookable extends Model implements SluggableInterface
 	 */
 	public function calculatePrice($hours, $timeFrom, $timeTo)
 	{
-		$this->times = $timeTo->format('H:i') . " - " . $timeFrom->format('H:i') . " (" . $hours . " Horas)";
+		$this->times = $timeFrom->format('H:i') . " - " . $timeTo->format('H:i') . " (" . $hours . " Horas)";
 		$this->message = $this->messageForTimeFrame($hours, $timeFrom, $timeTo);
 		$this->totalPrice = $this->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo) . ' €';
+		$this->discount = $this->calculateIfDiscount($this->totalPrice);
 	}
 
 
@@ -313,6 +315,32 @@ class Bookable extends Model implements SluggableInterface
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param $totalPrice
+	 *
+	 * @return float
+	 */
+	private function calculateIfDiscount($totalPrice)
+	{
+		$discount = auth()->user()->member->hasDiscount('bookings');
+		$discountPrice = 0;
+		$percentage = 0;
+		$message = "";
+
+		if($discount)
+		{
+			$discountPrice = $totalPrice - (($totalPrice / 100) * $discount['percentage']);
+			$percentage = $discount['percentage'];
+			$message = "Se te aplica un {$percentage}% de descuento";
+		}
+
+		return [
+			'message' => $message,
+			'percentage' => $percentage,
+			'price' => $discountPrice . ' €'
+		];
 	}
 
 
