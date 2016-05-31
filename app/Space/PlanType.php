@@ -18,6 +18,7 @@ class PlanType extends Model implements SluggableInterface
 	 */
 	protected $fillable = [
 		'name',
+		'show',
 		'slug',
 		'description',
 		'active',

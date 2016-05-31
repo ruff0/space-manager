@@ -262,6 +262,9 @@ class Plan extends Model implements SluggableInterface
 		return $this->morphToMany(Image::class, 'imageable');
 	}
 
+	/**
+	 * @param $attributes
+	 */
 	protected static function cleanDefaults(&$attributes)
 	{
 		if (isset($attributes['default']) && $attributes['default'] && $attributes['active']) {

@@ -39616,7 +39616,7 @@ label.thumb-label input[type=radio] {
   transition: all .5s;
 }
 .thumbnail.selected {
-  box-shadow: 0 1px 5px #00838F, 0 1px 5px #00838F !important;
+  box-shadow: 0 2px 15px #00838F, 0 1px 5px #00838F !important;
 }
 .thumbnail.selected img {
   transition: all .5s;

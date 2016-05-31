@@ -49,4 +49,21 @@
 			@include('forms._validation-error', ['field' => 'active'])
 		</div>
 	</div>
+
+	<div class="row pb-20">
+		<div class="col-sm-12">
+			<label>Seleccionable</label>
+			<div class="checkbox checkbox-switchery">
+				<label for="show">
+				<input name="show" id="show" type="checkbox" class="switchery" value="1"
+					{!! $plantype->show || old('show')? 'checked' : null !!}
+				/>
+					<span class="text-muted">
+						Se debe de mostrar este tipo de plan para el usuario?
+					</span>
+				</label>
+			</div>
+			@include('forms._validation-error', ['field' => 'show'])
+		</div>
+	</div>
 </div>
