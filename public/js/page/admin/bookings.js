@@ -32,11 +32,11 @@ $('.bookings-list').DataTable({
 	columnDefs: [
 		{
 			type: "natural",
-			width: '100px',
+			width: '5%',
 			targets: 0
 		},
 		{
-			width: '20%',
+			visible: false,
 			targets: 1
 		},
 		{
@@ -44,28 +44,15 @@ $('.bookings-list').DataTable({
 			targets: 2
 		},
 		{
-			width: '10%',
-			targets: 2
-		},
-		{
-			width: '10%',
-			targets: 4
-		},
-		{
-			width: '10%',
-			targets: 5
-		},
-		{
-			orderDataType: 'dom-text',
-			type: 'string',
-			targets: 5
+			width: '20%',
+			targets: 3
 		},
 		{
 			width: '15%',
 			targets: [4, 5]
 		}
 	],
-	order: [[0, 'asc']],
+	order: [[1, 'desc']],
 	dom: '<"datatable-header"fl><"datatable-scroll-lg"t><"datatable-footer"ip>',
 	language: {
 		search: '<span>Filtro:</span> _INPUT_',
@@ -79,16 +66,15 @@ $('.bookings-list').DataTable({
 		var rows = api.rows({page: 'current'}).nodes();
 		var last = null;
 
-		// Grouod rows
-		// api.column(1, {page:'current'}).data().each(function (group, i) {
-		//     if (last !== group) {
-		//         $(rows).eq(i).before(
-		//             '<tr class="active border-double"><td colspan="8" class="text-semibold">'+group+'</td></tr>'
-		//         );
-		//
-		//         last = group;
-		//     }
-		// });
+		//Grouod rows
+		api.column(1, {page:'current'}).data().each(function (group, i) {
+		    if (last !== group) {
+		        $(rows).eq(i).before(
+		            '<tr class="active border-double"><td colspan="8" class="text-semibold">'+group+'</td></tr>'
+		        )
+		        last = group;
+		    }
+		});
 
 		// Datepicker
 		$(".datepicker").datepicker({
@@ -103,12 +89,12 @@ $('.bookings-list').DataTable({
 		});
 
 		// Reverse last 3 dropdowns orientation
-		$(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').addClass('dropup');
+		// $(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').addClass('dropup');
 	},
 	preDrawCallback: function (settings) {
 
 		// Reverse last 3 dropdowns orientation
-		$(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').removeClass('dropup');
+		// $(this).find('tbody tr').slice(-3).find('.dropdown, .btn-group').removeClass('dropup');
 
 		// Destroy Select2
 		$('.select').select2().select2('destroy');

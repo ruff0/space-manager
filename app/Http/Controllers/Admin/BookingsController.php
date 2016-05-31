@@ -29,7 +29,7 @@ class BookingsController extends AdminController
 	public function index()
 	{
 		$this->current['action'] = 'Listado';
-		$bookings = Booking::all();
+		$bookings = Booking::orderBy('time_from', 'desc')->get();
 
 		return view('admin.bookings.index', [
 			'current'   => $this->current,

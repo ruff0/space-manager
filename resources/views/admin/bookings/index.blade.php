@@ -14,7 +14,7 @@
 		<div class="content pb-20">
 			<div class="panel panel-white">
 				<div class="panel-heading">
-					<h6 class="panel-title">Tamaños de Sala</h6>
+					<h6 class="panel-title">Alquileres</h6>
 					<div class="heading-elements">
 						<ul class="icons-list">
 							<li><a data-action="collapse"></a></li>
@@ -26,6 +26,7 @@
 					<thead>
 					<tr>
 						<th>#</th>
+						<th>Mes</th>
 						<th>Nombre</th>
 						<th>Sala</th>
 						<th>Fecha de la Reserva</th>
@@ -40,8 +41,14 @@
 					@foreach($bookings as $booking)
 						<tr data-plan="{{$booking->id}}">
 							<td>#{{$booking->id}}</td>
+							<td>{{$booking->time_from->format('Y F')}}</td>
 							<td>{{$booking->member->fullname()}}</td>
-							<td>{{$booking->bookable->name}}</td>
+							<td>
+								{{$booking->resource->resourceable->name}}  <br>
+								<span class="text-muted">
+									{{$booking->bookable->name}}
+								</span>
+							</td>
 							<td>
 								<div class="text-muted">
 									{{$booking->time_from->format('j M \d\e Y')}}
