@@ -21,13 +21,22 @@ class SubscriptionsController extends Controller
 	 */
 	public function create()
 	{
-		$plantypes = PlanType::with('plans')->where('active', true)->get();
+		$plantypes = PlanType::with('plans')
+				->where('active', true)
+				->where('show', true)
+				->get();
 
 		return view('subscriptions.create', [
 			'plantypes' => $plantypes
 		]);
 	}
 
+	/**
+	 * @param Subscription $subscriptions
+	 * @param Request      $request
+	 *
+	 * @return $this|\Illuminate\Http\RedirectResponse
+	 */
 	public function cancel(Subscription $subscriptions, Request $request)
 	{
 		if ($subscriptions->member_id != auth()->user()->member->id)

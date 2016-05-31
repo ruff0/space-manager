@@ -41,6 +41,7 @@ class Plan extends Model implements SluggableInterface
 		'name',
 		'price',
 		'description',
+		'discounts',
 		'active',
 		'standalone',
 		'plan_type_id',
@@ -55,6 +56,13 @@ class Plan extends Model implements SluggableInterface
 	protected $sluggable = [
 		'build_from' => 'name',
 		'save_to'    => 'slug',
+	];
+
+	/**
+	 * @var array
+	 */
+	protected $casts = [
+		'discounts' => 'json'
 	];
 
 	/**
@@ -254,6 +262,9 @@ class Plan extends Model implements SluggableInterface
 		return $this->morphToMany(Image::class, 'imageable');
 	}
 
+	/**
+	 * @param $attributes
+	 */
 	protected static function cleanDefaults(&$attributes)
 	{
 		if (isset($attributes['default']) && $attributes['default'] && $attributes['active']) {

@@ -169,6 +169,13 @@ class Member extends Model
 		return $this->hasMany(Discount::class);
 	}
 
+	/**
+	 * @param $type
+	 */
+	public function hasDiscount($type)
+	{
+		return $this->discounts()->where('type', $type)->first();
+	}
 
 	/**
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany

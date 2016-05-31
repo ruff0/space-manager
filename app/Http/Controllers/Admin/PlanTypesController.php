@@ -31,7 +31,7 @@ class PlanTypesController extends AdminController
 		$plantypes = PlanType::all();
 
 		return view('admin.plantypes.index', [
-			'current'       => $this->current,
+			'current'   => $this->current,
 			'plantypes' => $plantypes
 		]);
 	}
@@ -47,7 +47,7 @@ class PlanTypesController extends AdminController
 		$plantype = new PlanType;
 
 		return view('admin.plantypes.create', [
-			'current'      => $this->current,
+			'current'  => $this->current,
 			'plantype' => $plantype
 		]);
 	}
@@ -62,6 +62,14 @@ class PlanTypesController extends AdminController
 	 */
 	public function store(CreatePlanTypeForm $request)
 	{
+		if (!$request->has('active')) {
+			$request->offsetSet('active', false);
+		}
+
+		if (!$request->has('show')) {
+			$request->offsetSet('show', false);
+		}
+
 		$plantype = PlanType::create($request->all());
 
 		if ($request->has('images')) {
@@ -100,7 +108,7 @@ class PlanTypesController extends AdminController
 		$this->current['action'] = 'Actualizar';
 
 		return view('admin.plantypes.edit', [
-			'current'      => $this->current,
+			'current'  => $this->current,
 			'plantype' => $plantypes
 		]);
 	}
@@ -109,15 +117,19 @@ class PlanTypesController extends AdminController
 	 * Update the specified resource in storage.
 	 *
 	 * @param  \Illuminate\Http\Request $request
-	 * @param PlanType              $plantypes
+	 * @param PlanType                  $plantypes
 	 *
 	 * @return \Illuminate\Http\Response
 	 *
 	 */
 	public function update(Request $request, PlanType $plantypes)
 	{
-			if (!$request->has('active')) {
+		if (!$request->has('active')) {
 			$request->offsetSet('active', false);
+		}
+
+		if (!$request->has('show')) {
+			$request->offsetSet('show', false);
 		}
 
 		$plantypes->update(
@@ -138,7 +150,7 @@ class PlanTypesController extends AdminController
 	 *
 	 * @param PlanType $plantypes
 	 *
-	 * @param Request      $request
+	 * @param Request  $request
 	 *
 	 * @return \Illuminate\Http\Response
 	 */

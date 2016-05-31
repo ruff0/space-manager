@@ -1,6 +1,8 @@
 <?php $type = isset($type) ? $type : null ?>
 
 
+
+
 <div class="panel panel-white panel-collapsed">
 	@inject('resources', 'App\Resources\Models\Resource')
 	<div class="panel-heading">
