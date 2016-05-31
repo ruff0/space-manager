@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\Space\CreatePlanForm;
+use App\Http\Requests\Space\UpdatePlanForm;
 use App\Space\Plan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -108,11 +109,12 @@ class PlansController extends AdminController
 	 * Update the specified resource in storage.
 	 *
 	 *
-	 * @param Plan                      $plans
+	 * @param UpdatePlanForm $request
+	 * @param Plan                          $plans
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(CreatePlanForm $request, Plan $plans)
+	public function update(UpdatePlanForm $request, Plan $plans)
 	{
 		$plans->update(
 			$request->all()
