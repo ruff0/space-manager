@@ -174,7 +174,7 @@ class SubscriptionsController extends Controller
 		$member = Auth::user()->member;
 
 
-		$invoice = Invoice::create(['paid' => 0]);
+		$invoice = Invoice::create(['paid' => 0, 'type' => 'plan']);
 		$invoice->toMember($member);
 
 		// Default price
@@ -213,6 +213,7 @@ class SubscriptionsController extends Controller
 				$invoice->addLine($discountLine);
 			}
 		}
+		
 		$invoice->save();
 
 		// Make Stripe Charge

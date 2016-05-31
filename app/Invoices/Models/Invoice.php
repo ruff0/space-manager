@@ -45,7 +45,7 @@ class Invoice extends Model
 	/**
 	 * @var array
 	 */
-	protected $fillable = ["paid"];
+	protected $fillable = ["paid", "type"];
 
 	/**
 	 * @var array
@@ -224,5 +224,13 @@ class Invoice extends Model
 	public static function findInvoiceByStripeCharge($stripe_charge_id = null)
 	{
 		return self::where('charge_id', $stripe_charge_id)->first();
+	}
+
+	/**
+	 * @param string $type
+	 */
+	public function getLastInvoiceOfType($type = 'plan')
+	{
+		return $this->where('type', $type)->last();
 	}
 }

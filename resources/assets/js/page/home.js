@@ -1,5 +1,6 @@
 var defaults = {
 	needsMemberData: false,
+	cancelSubscription: false,
 	needsPaymentMethod: false
 };
 
@@ -17,6 +18,12 @@ if (App && App.needsMemberData) {
 
 if (App && App.needsPaymentMethod) {
 	$('#needsPaymentMethod').modal({
+		show: true
+	});
+}
+
+if (App && App.cancelSubscription) {
+	$('#cancelSubscription').modal({
 		show: true
 	});
 }

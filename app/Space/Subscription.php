@@ -5,6 +5,10 @@ namespace App\Space;
 use App\Resources\Models\Resource;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property mixed member_id
+ * @property bool  date_to
+ */
 class Subscription extends Model
 {
 	protected $table = 'subscriptions';
@@ -35,5 +39,10 @@ class Subscription extends Model
 	public function member()
 	{
 		return $this->belongsTo(Member::class);
+	}
+
+	public function finish()
+	{
+		return $this->date_to; 		
 	}
 }

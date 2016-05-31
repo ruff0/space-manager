@@ -8,7 +8,17 @@
 			<div class="col-sm-6">
 				<h6 class="text-semibold no-margin-top">{{$member->companyName()}}</h6>
 				<ul class="list list-unstyled">
-					<li>Plan actual: <span class="text-semibold">{{$member->currentPlan()->name}}</span></li>
+					<li>
+						Plan actual: <br>
+						<span class="text-semibold">
+							@if($member->currentPlan())
+								{{$member->currentPlan()->name}}
+							@else
+								@inject('plan', 'App\Space\Plan')
+								{{ $plan->byDefault()->name}}
+							@endif
+						</span>
+					</li>
 				</ul>
 			</div>
 
@@ -27,7 +37,12 @@
 			<div class="col-sm-12 mt-20">
 				<div class="thumbnail no-padding plans">
 					<div class="thumb">
-						<img src="/images/placeholder.jpg" alt="">
+						@if($member->currentPlan())
+							<img src="{{$member->currentPlan()->mainImage()}}" alt="">
+						@else
+							@inject('plan', 'App\Space\Plan')
+							<img src="{{$plan->byDefault()->mainImage()}}" alt="">
+						@endif
 					</div>
 				</div>
 			</div>
@@ -50,11 +65,27 @@
 						<i class="icon-menu7"></i>
 						<span class="caret"></span>
 					</a>
-					<ul class="dropdown-menu dropdown-menu-right">
-						<li><a href="#"><i class="icon-file-eye"></i> Ver Factura</a></li>
-						<li><a href="#"><i class="icon-file-download"></i> Descargar factura</a></li>
-						<li class="divider"></li>
-						<li><a href="#"><i class="icon-cross2"></i> Cancelar suscripción</a></li>
+					<ul class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
+						<li>
+							<a href="{{route('invoices.show', ['id' => $member->getCurrentSubscriptionInvoice()->id ])}}">
+								<i class="icon-file-eye"></i>
+								Ver última factura
+							</a>
+						</li>
+						<li>
+							<a href="{{route('invoices.download', ['id' => $member->getCurrentSubscriptionInvoice()->id ])}}">
+								<i class="icon-file-download"></i>Descargar última factura
+							</a>
+						</li>
+						@if($member->currentPlan() && !$member->isOnGracePeriod())
+							<li class="divider"></li>
+							<li>
+								<a href="#" role="button" data-toggle="modal" data-target="#cancelSubscription">
+									<i class="icon-cross2"></i>
+									Cancelar suscripción
+								</a>
+							</li>
+						@endif
 					</ul>
 				</li>
 			</ul>

@@ -108,7 +108,7 @@ class BookingsController extends Controller
 		$hours = $timeFrom->diffInHours($timeTo);
 
 
-		$invoice = Invoice::create(['paid' => 0]);
+		$invoice = Invoice::create(['paid' => 0, 'type' => 'booking']);
 		$invoice->toMember($member);
 		$line = new Line([
 			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),

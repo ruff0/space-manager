@@ -63,6 +63,11 @@ Route::group(['middleware' => ['auth']], function () {
 		Route::resource('subscriptions', 'SubscriptionsController', [
 			'only' => ['create']
 		]);
+
+		Route::post('subscriptions/{subscriptions}/cancel', [
+			'as' => 'subscriptions.cancel',
+			'uses' => 'SubscriptionsController@cancel'
+		]);
 	});
 
 	Route::group(['namespace' => 'Invoices'], function () {

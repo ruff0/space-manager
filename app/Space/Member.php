@@ -5,7 +5,9 @@ namespace App\Space;
 use App\Bookings\Booking;
 use App\Events\Space\MemberFilledData;
 use App\Events\Space\MemberRegistered;
+use App\Invoices\Models\Invoice;
 use App\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Cashier\Billable;
 use Laravel\Cashier\StripeGateway;
@@ -286,10 +288,50 @@ class Member extends Model
 	 */
 	public function currentPlan()
 	{
-		if($this->subscriptions)
-			return $this->subscriptions->first()->plan;
+		if($this->currentSubscription())
+			return $this->currentSubscription()->plan;
 	}
 
+	/**
+	 * Returns the current subscription instance
+	 *
+	 * @return mixed
+	 */
+	public function currentSubscription()
+	{
+		if($this->subscriptions->count())
+			return $this->subscriptions->first();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasPlan()
+	{
+		if(!$this->currentPlan() || $this->onPlan(Plan::byDefault()))
+			return false;
+
+		return true;
+	}
+
+	/**
+	 *
+	 */
+	public function isOnGracePeriod()
+	{
+	  if($this->hasPlan()) {
+		 return ($this->currentSubscription()->finish()->isFuture() ||
+		         $this->currentSubscription()->finish()->isToday()) ;
+	  }
+
+		return false;
+	}
+
+	/**
+	 * @param null $type
+	 *
+	 * @return \Illuminate\Support\Collection|string
+	 */
 	public function appliedDiscounts($type = null)
 	{
 		$finalDiscounts = [
@@ -322,6 +364,16 @@ class Member extends Model
 
 
 		return collect($finalDiscounts)->toJson();
+	}
+
+	public function getCurrentSubscriptionInvoice()
+	{
+		$invoice = Invoice::where('member_id', $this->id)
+		                   ->where('number', '<>', 'null')
+		                   ->where('paid', true)
+												->get()
+		                   ->last();
+		return $invoice;
 	}
 
 
