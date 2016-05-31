@@ -199,12 +199,12 @@ class SubscriptionsController extends Controller
 		if ($member) {
 			$discount = $member->appliedDiscounts('plans');
 
-			if (Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+			if ($discount['percentage'] && Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 				$percentage = $discount['percentage'];
-				$total = ($price / $percentage);
+				$total = ($price / 100) * $percentage;
 
 				$discountLine = new Line([
-					'price'       => (int) - ($total * 10),
+					'price'       => (int) - $total,
 					'name'        => 'Descuento',
 					'description' => "Descuento aplicado $percentage%",
 					'amount'      => 1
@@ -221,6 +221,19 @@ class SubscriptionsController extends Controller
 			"currency" => $member->getCurrency(),
 			"customer" => $member->id
 		]);
+
+		foreach($plan->discounts as $type => $discount)
+		{
+			if(!$member->hasDiscount($type))
+			{
+				$member->discounts()->create([
+					'percentage' => $discount,
+					'date_from'  => Carbon::now(),
+					'date_to'    => Carbon::parse("2099-12-31 00:00:00"),
+					'type'       => $type
+				]);
+			}
+		}
 
 		$invoice->charge_id = $charge->id;
 		$invoice->save();
@@ -292,12 +305,12 @@ class SubscriptionsController extends Controller
 			$member = Auth::user()->member;
 			$discount = $member->appliedDiscounts('plans');
 
-			if (Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+			if ($discount['percentage'] && Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 				$price = $plan->priceForStripe();
 				$percentage = $discount['percentage'];
-				$total = ($price / $percentage);
+				$total = ($price / 100 )* $percentage;
 				$line = new QuoteLine([
-					'price'       => -($total * 10),
+					'price'       => - $total,
 					'name' => "Descuento",
 					'description' => "Descuento aplicado $percentage%"
 				]);
@@ -305,7 +318,6 @@ class SubscriptionsController extends Controller
 			}
 		}
 
-//		dd($invoice);
 		return $invoice->toJson();
 	}
 }

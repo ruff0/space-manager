@@ -28,6 +28,12 @@ class SubscriptionsController extends Controller
 		]);
 	}
 
+	/**
+	 * @param Subscription $subscriptions
+	 * @param Request      $request
+	 *
+	 * @return $this|\Illuminate\Http\RedirectResponse
+	 */
 	public function cancel(Subscription $subscriptions, Request $request)
 	{
 		if ($subscriptions->member_id != auth()->user()->member->id)

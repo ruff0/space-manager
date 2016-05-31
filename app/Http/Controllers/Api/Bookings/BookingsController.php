@@ -126,10 +126,10 @@ class BookingsController extends Controller
 			if (Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 				$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 				$percentage = $discount['percentage'];
-				$total = ($price / $percentage);
+				$total = ($price / 100) * $percentage ;
 
 				$discountLine = new Line([
-					'price'       => (int) - ($total * 10),
+					'price'       => (int) - $total,
 					'name'        => 'Descuento',
 					'description' => "Descuento aplicado $percentage%",
 					'amount'      => 1
@@ -219,24 +219,15 @@ class BookingsController extends Controller
 		if(Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 			$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 			$percentage = $discount['percentage'];
-			$total = ($price  / $percentage);
+			$total = ($price / 100) * $percentage;
 			$line = new QuoteLine([
-				'price' => - ($total * 10),
+				'price' => - $total,
 				'name'  => "Descuento $percentage%",
 				'description' => "Descuento aplicado $percentage%"
 			]);
 			$invoice->addLine($line);
 		}
 
-
-
-		if (Auth::user()) {
-			// Discountline
-			// $discountLine = ?¿?¿?
-			// $invoice-addLine($discountLine);
-		}
-
-//		dd($invoice);
 		return $invoice->toJson();
 	}
 }
