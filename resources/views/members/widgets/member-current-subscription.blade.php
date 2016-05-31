@@ -15,7 +15,7 @@
 								{{$member->currentPlan()->name}}
 							@else
 								@inject('plan', 'App\Space\Plan')
-								{{ $plan->byDefault()->name}}
+								{{ $plan->byDefault()->name }}
 							@endif
 						</span>
 					</li>
@@ -65,15 +65,16 @@
 						<i class="icon-menu7"></i>
 						<span class="caret"></span>
 					</a>
-					<ul class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
+					@if($invoice =  $member->getCurrentSubscriptionInvoice())
+						<ul class="dropdown-menu dropdown-menu-right dropdown-menu-lg">
 						<li>
-							<a href="{{route('invoices.show', ['id' => $member->getCurrentSubscriptionInvoice()->id ])}}">
+							<a href="{{route('invoices.show', ['id' => $invoice->id ])}}">
 								<i class="icon-file-eye"></i>
 								Ver última factura
 							</a>
 						</li>
 						<li>
-							<a href="{{route('invoices.download', ['id' => $member->getCurrentSubscriptionInvoice()->id ])}}">
+							<a href="{{route('invoices.download', ['id' => $invoice->id ])}}">
 								<i class="icon-file-download"></i>Descargar última factura
 							</a>
 						</li>
@@ -87,6 +88,7 @@
 							</li>
 						@endif
 					</ul>
+					@endif
 				</li>
 			</ul>
 		</div>
