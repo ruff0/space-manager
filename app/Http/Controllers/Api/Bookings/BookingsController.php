@@ -164,6 +164,9 @@ class BookingsController extends Controller
 		$booking->resource()->associate($rooms->first());
 		$booking->save();
 
+		$invoice->payable_id = $booking->id;
+		$invoice->save();
+
 		return response()->json([
 			'success' => [
 				'messages' => [

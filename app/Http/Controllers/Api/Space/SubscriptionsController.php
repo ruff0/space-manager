@@ -247,6 +247,9 @@ class SubscriptionsController extends Controller
 		$subscription->resource()->associate($room);
 		$subscription->save();
 
+		$invoice->payable_id = $subscription->id;
+		$invoice->save();
+		
 		return response()->json([
 			'success' => [
 				'messages' => [
