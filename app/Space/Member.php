@@ -290,6 +290,11 @@ class Member extends Model
 			return $this->subscriptions->first()->plan;
 	}
 
+	/**
+	 * @param null $type
+	 *
+	 * @return \Illuminate\Support\Collection|string
+	 */
 	public function appliedDiscounts($type = null)
 	{
 		$finalDiscounts = [

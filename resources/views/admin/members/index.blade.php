@@ -73,7 +73,7 @@
 								</div>
 							</td>
 							<td>
-								<span class="text-muted">Free</span>
+								<span class="text-muted">{{$member->currentPlan()->name}}</span>
 							</td>
 							<td>
 									<a href="#" class="label
