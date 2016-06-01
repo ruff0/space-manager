@@ -5,8 +5,8 @@
 		<div class="icon-object border-warning text-warning">
 			<i class="icon-lock2"></i>
 		</div>
-		<h5 class="content-group">Ingresa en tu cuenta
-			<small class="display-block">Tus credenciales</small>
+		<h5 class="content-group">Enter the community
+			<small class="display-block"></small>
 		</h5>
 	</div>
 
