@@ -39,6 +39,10 @@ class MembersController extends Controller
 
 		$members->update($data);
 
+		if ($request->has('redirect')) {
+			return redirect()->route($request->get('redirect'));
+		}
+
 		return redirect()->route('members.edit', [ $members->id ]);
 	}
 }

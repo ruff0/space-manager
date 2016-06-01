@@ -6,7 +6,7 @@
 			<div class="col-sm-4">
 				<label>Nombre</label>
 				<input type="text"
-				       placeholder="Antonio"
+				       placeholder=""
 				       class="form-control"
 				       name="name"
 				       value="{{ old('name', $member->name) }}"
@@ -17,7 +17,7 @@
 			<div class="col-sm-4">
 				<label>Apellidos</label>
 				<input type="text"
-				       placeholder="Gómez Pérez"
+				       placeholder=""
 				       class="form-control"
 				       name="lastname"
 				       value="{{old('lastname', $member->lastname)}}"
@@ -28,7 +28,7 @@
 			<div class="col-sm-4">
 				<label>NIF / NIE</label>
 				<input type="text"
-				       placeholder="00000000N"
+				       placeholder=""
 				       class="form-control"
 				       name="identity"
 				       value="{{old('identity', $member->identity)}}"
@@ -42,7 +42,7 @@
 			<div class="col-sm-4">
 				<label>Email</label>
 				<input type="email"
-				       placeholder="usuario@email.com"
+				       placeholder=""
 				       class="form-control"
 				       name="email"
 				       value="{{old('email', $member->email?:$user->email)}}"
@@ -53,8 +53,7 @@
 			<div class="col-sm-4">
 				<label>Móvil</label>
 				<input type="text"
-				       placeholder="965-12-34-56"
-				       data-mask="965-12-34-56"
+				       placeholder=""
 				       class="form-control"
 				       name="mobile"
 				       value="{{old('mobile', $member->mobile)}}"
@@ -65,8 +64,7 @@
 			<div class="col-sm-4">
 				<label>Télefono</label>
 				<input type="text"
-				       placeholder="666-12-34-56"
-				       data-mask="666-12-34-56"
+				       placeholder=""
 				       class="form-control"
 				       name="phone"
 				       value="{{old('phone', $member->phone)}}"
@@ -80,7 +78,7 @@
 			<div class="col-sm-6">
 				<label>Dirección</label>
 				<input type="text"
-				       placeholder="c/La Paz 12"
+				       placeholder=""
 				       class="form-control"
 				       name="address_line1"
 				       value="{{old('address_line1', $member->address_line1)}}"
@@ -91,7 +89,7 @@
 			<div class="col-sm-6">
 				<label>&nbsp;</label>
 				<input type="text"
-				       placeholder="Bloque 2, 1º Izq."
+				       placeholder=""
 				       class="form-control"
 				       name="address_line2"
 				       value="{{old('address_line2', $member->address_line2)}}"
@@ -106,7 +104,7 @@
 			<div class="col-sm-4">
 				<label>Ciudad</label>
 				<input type="text"
-				       placeholder="Alicante"
+				       placeholder=""
 				       class="form-control"
 				       name="city"
 				       value="{{old('city', $member->city)}}"
@@ -117,7 +115,7 @@
 			<div class="col-sm-4">
 				<label>Provincia</label>
 				<input type="text"
-				       placeholder="Alicante"
+				       placeholder=""
 				       class="form-control"
 				       name="state"
 				       value="{{old('state', $member->state)}}"
@@ -128,7 +126,7 @@
 			<div class="col-sm-4">
 				<label>Código postal</label>
 				<input type="text"
-				       placeholder="03001"
+				       placeholder=""
 				       class="form-control"
 				       name="zip"
 				       value="{{old('zip', $member->zip)}}"
@@ -145,7 +143,7 @@
 			<div class="col-sm-8">
 				<label>Razón Sócial</label>
 				<input type="text"
-				       placeholder="Mi mega empresa S.L."
+				       placeholder=""
 				       class="form-control"
 				       name="company_name"
 				       value="{{old('company_name', $member->company_name ?: '')}}"
@@ -156,7 +154,7 @@
 			<div class="col-sm-4">
 				<label>CIF</label>
 				<input type="text"
-				       placeholder="B00000000N"
+				       placeholder=""
 				       class="form-control"
 				       name="company_identity"
 				       value="{{old('company_identity', $member->company_identity ?: '')}}"

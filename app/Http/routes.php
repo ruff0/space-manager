@@ -49,7 +49,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 
 Route::group(['middleware' => ['auth']], function () {
 	Route::get('/', 'HomeController@index');
-	Route::get('/home', 'HomeController@index');
+	Route::get('/home', ['as' => 'home', 'uses' => 'HomeController@index']);
 
 	/**
 	 * Bookables Routes
