@@ -20,7 +20,7 @@
 					<div class="col-lg-8 col-lg-offset-2">
 						<div class="panel panel-white p-20">
 							<div class="panel-heading">
-								<h6 class="panel-title">Reserva tu sala o puesto</h6>
+								<h6 class="panel-title">Reserva tu espacio</h6>
 							</div>
 
 							<form class="steps-basic row"
@@ -29,21 +29,22 @@
 							      data-token="{{csrf_token()}}"
 							      method="POST"
 							>
-								<h6>¿Salas o despachos?</h6>
+								<h6>¿Qué buscas?</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 									<div class="row mt-20 pt-20">
 										<div class="col-md-6 col-md-offset-3">
 											<div class="errors alert alert-danger" style="display:none;"></div>
 										</div>
 										@foreach($bookableTypes as $type)
-											<div class="col-md-2 col-md-offset-3 col-lg-3 col-lg-offset-2">
+											<div class="col-md-2 col-lg-3">
 												<div class="thumbnail no-padding">
 													<div class="thumb">
 														<img src="{{$type->mainImage()}}" alt="">
 														<div class="caption-overflow">
 																<span>
-																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
+																	<label class="thumb-label btn bg-info-400 btn-icon btn-xs legitRipple">
 																		<i class="icon-plus2"></i>
+																		<i class="icon-checkmark"></i>
 																		<input type="radio" name="bookable-type" class="styled" value="{{$type->id}}">
 																	</label>
 																</span>
@@ -61,7 +62,7 @@
 										@endforeach
 									</div>
 								</fieldset>
-								<h6>¿Que sala quieres alquilar?</h6>
+								<h6>¿Cuando?</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 									<div class="row">
 										<div class="col-md-8 col-md-offset-2">
@@ -154,7 +155,7 @@
 										@endforeach
 									</div>
 								</fieldset>
-								<h6>¿Detalles del pedido?</h6>
+								<h6>Detalles del pedido</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 
 									<div>

@@ -20,11 +20,33 @@ label.thumb-label {
 		transition: all .5s;
 	}
 
+	.icon-checkmark {
+		display: none;
+	}
+
 	&.selected {
-		box-shadow: 0 2px 15px @color-info-800, 0 1px 5px @color-info-800 !important;
+		box-shadow: 5px 5px 5px @color-info-800, -5px -5px 5px @color-info-800,
+								5px -5px 5px @color-info-800, -5px 5px 5px @color-info-800 !important;
+
+		.icon-checkmark {
+			display: block;
+		}
+		.icon-plus2 {
+			display: none;
+		}
+	}
+	&.not-selected {
 		img {
 			transition: all .5s;
 			filter: blur(2px);
+			filter: grayscale(80%);
+		}
+
+		.icon-checkmark {
+			display: none;
+		}
+		.icon-plus2 {
+			display: block;
 		}
 	}
 
