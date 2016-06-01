@@ -22,17 +22,23 @@
 							<div class="content pt-20 ">
 								<div class="col-md-12 text-center mt-20">
 									<h2>Hola {{$user->fullName()}}</h2>
-									<h3 class="text-red">Bienvenido a Ideas Meeting Point</h3>
+									<h3 class="text-red">Bienvenido a ULab • Ideas Meeting Point</h3>
 								</div>
 								<div class="col-sm-12 text-center mt-20">
-									<h3 class="text-red mt-20">¿QUE QUIERES HACER?</h3>
+									<h3 class="text-red mt-20">¿QUÉ QUIERES HACER?</h3>
 								</div>
 
-								<div class="col-sm-4 col-sm-offset-4 text-center mt-20">
-									@if(!$user->member->hasPlan())
-										<a href="/subscriptions/create" class="mt-20 mb-20 pb-20 pt-20 btn btn-small btn-warning btn-block">Contratar una subscripción mensual</a>
-									@endif
-									<a href="/bookings/create" class="mt-20 mb-20 pb-20 pt-20 btn btn-small btn-info btn-block">Alquilar una sala</a>
+								@if(!$user->member->hasPlan())
+									<div class="col-sm-3 col-sm-offset-3 text-center mt-20">
+										<a href="/subscriptions/create" class="mt-20 mb-20 pb-20 pt-20 btn btn-small btn-warning btn-block">
+											Reserva tu plan
+										</a>
+									</div>
+								@endif
+								<div class="@if(!$user->member->hasPlan()) col-sm-3 @else col-sm-4 col-sm-offset-4  @endif text-center mt-20">
+									<a href="/bookings/create" class="mt-20 mb-20 pb-20 pt-20 btn btn-small btn-warning btn-block">
+										Reserva tu espacio
+									</a>
 								</div>
 							</div>
 						</div>
