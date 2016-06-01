@@ -31,12 +31,14 @@
 							>
 								<h6>¿Qué buscas?</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
-									<div class="row mt-20 pt-20">
-										<div class="col-md-6 col-md-offset-3">
+									<div class="row">
+										<div class="col-md-12">
 											<div class="errors alert alert-danger" style="display:none;"></div>
 										</div>
+									</div>
+									<div class="flexbox-container mt-20 pt-20">
 										@foreach($bookableTypes as $type)
-											<div class="col-md-2 col-lg-3">
+											<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4">
 												<div class="thumbnail no-padding">
 													<div class="thumb">
 														<img src="{{$type->mainImage()}}" alt="">
@@ -54,78 +56,64 @@
 													<div class="caption text-center">
 														<h6 class="text-semibold no-margin">
 															{{$type->name}}
-															<small class="display-block">{{$type->name}}</small>
+															<small class="display-block">
+																{{--{{$type->description}}--}}
+															</small>
 														</h6>
 													</div>
 												</div>
 											</div>
 										@endforeach
 									</div>
+
 								</fieldset>
 								<h6>¿Cuando?</h6>
-								<fieldset class="col-md-12" style="min-height:50vh">
+								<fieldset class="col-md-12 search-form pt-20" style="min-height:50vh">
 									<div class="row">
-										<div class="col-md-8 col-md-offset-2">
-											<div class="errors alert alert-danger" style="display:none;"></div>
-										</div>
-										<div class="col-md-3">
+										<div class="col-md-12">
+										<div class="errors alert alert-danger" style="display:none;"></div>
+									</div>
+									</div>
+									<div class=" flexbox-container">
+										<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4">
 											<div class="form-group">
-												<label>Fecha</label>
-												<div class="input-group">
-													<span class="input-group-addon"><i class="icon-calendar5"></i></span>
-													<input type="text" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
-												</div>
+												<label for="date">Fecha</label>
+													<input type="text" id="date" name="date" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
 											</div>
 										</div>
-
-										<div class="col-md-3">
+										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4">
 											<div class="form-group">
 												<label>Hora inicio</label>
-												<div class="input-group">
-													<span class="input-group-addon"><i class="icon-alarm"></i></span>
-													<input type="text" placeholder="¿Desde que hora?" class="form-control pickatime-from">
-												</div>
-
+													<input type="text" placeholder="¿A qué hora empieza?" class="form-control pickatime-from">
 											</div>
 										</div>
-
-										<div class="col-md-3">
+										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4">
 											<div class="form-group">
 												<label>Hora fin</label>
-												<div class="input-group">
-													<span class="input-group-addon"><i class="icon-alarm"></i></span>
-													<input type="text" placeholder="¿Desde que hora?"
-													       class="form-control pickatime-to">
-												</div>
+													<input type="text" placeholder="¿A qué hora termina?" class="form-control pickatime-to">
 											</div>
 										</div>
-
-										<div class="col-md-3">
-											<div class="form-group">
-												<label>&nbsp;</label>
-												<button type="button" class="btn btn-block btn-warning" id="search">Buscar</button>
-											</div>
-										</div>
-
+									</div>
+									<div class=" flexbox-container pt-20 pb-20">
 										@foreach($bookableTypes as $type)
 											@foreach($type->bookables as $bookable)
-												{{--<div class="col-md-2">--}}
-													{{--<label class="bookables" >--}}
-														{{----}}
-														{{--{{$bookable->name}}--}}
-													{{--</label>--}}
-												{{--</div>--}}
-												<div class="col-md-3 col-sm-2">
-													<div class="thumbnail no-padding bookables blocked" data-bookableType="{{$type->id}}"
+												{{--<div class="">--}}
+													<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4 thumbnail no-padding bookables blocked" data-bookableType="{{$type->id}}"
 													     data-bookable="{{$bookable->id}}">
 														<div class="thumb">
 															<img src="{{$bookable->mainImage()}}" alt="">
 															<div class="caption-overflow">
 																<p class="times text-center pt-20 mt-20"></p>
 																<span>
-																	<label class="thumb-label btn bg-success-400 btn-icon btn-xs legitRipple">
-																		Reservar <i class="icon-cross2"></i>
-																		<b class="total-price text-center"></b>
+																	<label class="thumb-label btn bg-info-400 btn-icon btn-xs legitRipple">
+
+																		<div class="plus">
+																			Reservar <i class="icon-cross2"></i>
+																			<b class="total-price text-center"></b>
+																		</div>
+
+																		<i class="icon-checkmark"></i>
+
 																		<input type="radio" name="bookable" class="styled" value="{{$bookable->id}}">
 																	</label>
 																</span>
@@ -146,16 +134,18 @@
 														<div class="caption text-center">
 															<h6 class="text-semibold no-margin">
 																{{$bookable->name}}
-																<small class="display-block">{{$bookable->name}}</small>
+																<small class="display-block">
+																	{{--{{$bookable->description}}--}}
+																</small>
 															</h6>
 														</div>
 													</div>
-												</div>
+												{{--</div>--}}
 											@endforeach
 										@endforeach
 									</div>
 								</fieldset>
-								<h6>Detalles del pedido</h6>
+								<h6>Detalles</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 
 									<div>

@@ -6,7 +6,11 @@ $.ajaxSetup({
 	}
 });
 
-var data = {};
+var data = {
+	date: null,
+	time_from:null,
+	time_to:null
+};
 var bookables = {};
 
 $el.steps({
@@ -79,42 +83,44 @@ $el.steps({
 			});
 
 
-			$("button#search").on('click', function (e) {
-				e.preventDefault();
-				data.date = $("[name=date]").val()
+			$('input[type="text"]').on('change', function (e) {
+				data.date = $("[name=datedate]").val()
 				data.time_from = $("[name=time-from]").val()
 				data.time_to = $("[name=time-to]").val()
 
-				$.ajax({
-					data: data,
-					url: '/api/bookings',
-					type: 'GET',
-					dataType: 'json',
-					success: function (result) {
-						$(".bookables").removeClass('blocked');
+				if (data.date && data.time_from && data.time_to)
+				{
+					$.ajax({
+						data: data,
+						url: '/api/bookings',
+						type: 'GET',
+						dataType: 'json',
+						success: function (result) {
+							$(".bookables").removeClass('blocked');
 
-						$.each(result.notavailable, function(key, bookable){
-							$('[data-bookable='+ bookable.id +']').addClass('notavailable');
-							$('[data-bookable=' + bookable.id + ']').removeClass('selected')
-							$('[data-bookable=' + bookable.id + '] input[type=radio]').prop('checked', false);
-						})
+							$.each(result.notavailable, function (key, bookable) {
+								$('[data-bookable=' + bookable.id + ']').addClass('notavailable');
+								$('[data-bookable=' + bookable.id + ']').removeClass('selected')
+								$('[data-bookable=' + bookable.id + '] input[type=radio]').prop('checked', false);
+							})
 
-						$.each(result.available, function(key, bookable){
-							var totalPrice = bookable.discount.price || bookable.totalPrice;
-							var message = bookable.message + "<br>" + bookable.discount.message;
+							$.each(result.available, function (key, bookable) {
+								var totalPrice = bookable.discount.percentage > 0 ? bookable.discount.price : bookable.totalPrice;
+								var message = bookable.message;
+								if (bookable.discount.percentage > 0)
+									message += "<br>" + bookable.discount.message;
 
-							$('[data-bookable='+ bookable.id +']').removeClass('notavailable');
-							$('[data-bookable=' + bookable.id + ']').find('.times').html(bookable.times)
-							$('[data-bookable=' + bookable.id + ']').find('.total-price').html(totalPrice)
-							$('[data-bookable=' + bookable.id + ']').find('.message').html(message)
-						})
-					},
-					error: function (result) {
-						// console.log(result);
-					},
-				});
-
-
+								$('[data-bookable=' + bookable.id + ']').removeClass('notavailable');
+								$('[data-bookable=' + bookable.id + ']').find('.times').html(bookable.times)
+								$('[data-bookable=' + bookable.id + ']').find('.total-price').html(totalPrice)
+								$('[data-bookable=' + bookable.id + ']').find('.message').html(message)
+							})
+						},
+						error: function (result) {
+							// console.log(result);
+						},
+					});
+				}
 			});
 
 			return true;
@@ -136,7 +142,7 @@ $el.steps({
 				dataType: 'json',
 				type: 'POST',  // user.destroy
 				success: function (result) {
-					$("#vat_percentage").empty().html(result.vatPercentage);
+					$("#vat_percentage").empty().html(result.vatPercentage + "%");
 					$("#vat").empty().html(result.vatFormated);
 					$("#total").empty().html(result.totalFormated);
 					$("#subtotal").empty().html(result.subtotalFormated);
