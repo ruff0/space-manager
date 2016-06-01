@@ -2,7 +2,8 @@
 <form action="{{ url('/login?form=login') }}" role="form" method="POST">
 	{!! csrf_field() !!}
 	<div class="text-center">
-		<div class="icon-object border-slate-300 text-slate-300"><i class="icon-reading"></i>
+		<div class="icon-object border-warning text-warning">
+			<i class="icon-lock2"></i>
 		</div>
 		<h5 class="content-group">Ingresa en tu cuenta
 			<small class="display-block">Tus credenciales</small>
@@ -45,7 +46,7 @@
 					       checked="checked"
 					       name="remember"
 					/>
-					Recuerdame
+					Recuérdame
 				</label>
 			</div>
 
@@ -56,7 +57,7 @@
 	</div>
 
 	<div class="form-group">
-		<button type="submit" class="btn bg-info-400 btn-block">Login <i
+		<button type="submit" class="btn btn-warning btn-block">Login <i
 				class="icon-arrow-right14 position-right"></i></button>
 	</div>
 </form>

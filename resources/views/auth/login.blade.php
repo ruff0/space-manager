@@ -22,7 +22,7 @@
 					</li>
 					<li class="@if(old('form') == 'register') active @endif">
 						<a href="#register" data-toggle="tab">
-							<h6>Registrate</h6>
+							<h6>Regístrate</h6>
 						</a>
 					</li>
 				</ul>

@@ -1,8 +1,8 @@
 <form action="{{ url('/register?form=register') }}" method="POST">
 	{!! csrf_field() !!}
 	<div class="text-center">
-		<div class="icon-object border-success text-success">
-			<i class="icon-plus3"></i>
+		<div class="icon-object border-warning text-warning">
+			<i class="icon-pencil6"></i>
 		</div>
 		<h5 class="content-group">Crea tu cuenta
 			<small class="display-block">
@@ -26,7 +26,7 @@
 	<div class="form-group has-feedback has-feedback-left">
 		<input type="text"
 		       class="form-control"
-		       placeholder="Tu Email"
+		       placeholder="Tu email"
 		       name="email"
 		       @if(old('form') == 'register') value="{{ old('email') }}" @endif
 		/>
@@ -68,18 +68,18 @@
 		<div class="checkbox">
 			<label>
 				<input type="checkbox" class="styled" checked="checked">
-				Suscribeme a la newsletter mensual
+				Suscríbeme a la newsletter mensual
 			</label>
 		</div>
 
 		<div class="checkbox">
 			<label>
 				<input type="checkbox" class="styled">
-				Acepto <a href="#">los terminos y condiciones del servicio</a>
+				Acepto <a href="#">los términos y condiciones del servicio</a>
 			</label>
 		</div>
 	</div>
 
-	<button type="submit" class="btn bg-indigo-400 btn-block">Registrame <i
+	<button type="submit" class="btn btn-warning btn-block">Regístrame <i
 			class="icon-circle-right2 position-right"></i></button>
 </form>

@@ -1,4 +1,4 @@
 <span class="help-block text-center no-margin">
-	By continuing, you're confirming that you've read our
-	<a href="#">Terms &amp; Conditions</a> and <a href="#">Cookie Policy</a>
+	Continuando aceptas que has leido y aceptas nuestros
+	<a href="#">Terminos &amp; condiciones</a> y <a href="#">Politica de Cookies</a>
 </span>
