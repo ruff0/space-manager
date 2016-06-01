@@ -40504,6 +40504,11 @@ label.thumb-label input[type=radio] {
     flex-wrap: nowrap;
   }
 }
+.secure-payment {
+  display: inline-block;
+  max-height: 50px;
+  max-width: 150px;
+}
 .col-xs-1,
 .col-sm-1,
 .col-md-1,

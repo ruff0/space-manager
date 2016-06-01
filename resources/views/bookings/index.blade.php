@@ -187,9 +187,8 @@
 											</table>
 										</div>
 									</div>
-									<div class="mt-20 pt-20 mb-20 pb-20 col-md-2 pull-right no-padding">
-										<img src="/images/secure_payment.png" class="img-responsive" alt="Secure payment">
-									</div>
+
+									<div class="mt-20 pt-20 mb-20 pb-20 col-md-2 pull-right no-padding"></div>
 								</fieldset>
 							</form>
 						</div>

@@ -134,6 +134,11 @@ $el.steps({
 			$(".errors").empty().hide()
 			data.bookable = $('input[name=bookable]:checked').val();
 
+			$(".actions.clearfix").prepend(
+				'<div class="pull-left no-padding secure-payment">'+
+					'<img src="/images/secure_payment.png" class="img-responsive" alt="Secure payment">'+
+				'</div>'
+			);
 			var $return = false;
 
 			$.ajax({
@@ -175,7 +180,7 @@ $el.steps({
 
 		// Needed in some cases if the user went back (clean up)
 		if (currentIndex < newIndex) {
-
+			$('.actions.clearfix .sercure-payment').remove()
 			// // To remove error styles
 			// form.find(".body:eq(" + newIndex + ") label.error").remove();
 			// form.find(".body:eq(" + newIndex + ") .error").removeClass("error");
