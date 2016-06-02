@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Space\Member;
 use App\Space\Plan;
+use App\User\Profile;
 use App\User\User;
 use Carbon\Carbon;
 use Validator;
@@ -81,10 +82,14 @@ class AuthController extends Controller
 		$subscription->plan()->associate(Plan::byDefault());
 		$subscription->save();
 
-		return $member->users()->create([
+		$user =  $member->users()->create([
 			'name'     => $data['name'],
 			'email'    => $data['email'],
 			'password' => bcrypt($data['password']),
 		]);
+
+		$user->profile()->create([]);
+
+		return $user;
 	}
 }
