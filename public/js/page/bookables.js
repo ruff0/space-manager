@@ -26,10 +26,15 @@ $el.steps({
 	onStepChanging: function (event, currentIndex, newIndex) {
 		// Allways allow previous action even if the current form is not valid!
 		if (currentIndex > newIndex) {
+			$('.secure-payment').remove();
 			return true;
 		}
 
 		// Forbid next action on "Warning" step if the user is to young
+		if (newIndex === 0) {
+			$('input[type="text"]').off('change');
+		}
+
 		if (newIndex === 1) {
 			if($('input[name=bookable-type]:checked').length <= 0)
 			{
@@ -38,7 +43,18 @@ $el.steps({
 			}
 			$(".errors").empty().hide()
 			data.type = $('input[name=bookable-type]:checked').val();
-			// var $return = false;
+
+
+			// Remove the inputs we don't
+
+			$('[data-notVisible]').show();
+			var toRemove = $('input[name=bookable-type]:checked').data('bookabletypenotvisible');
+			var itemsToRemove = $('[data-notVisible="' + toRemove + '"]');
+			if(itemsToRemove.length > 0 ){
+				itemsToRemove.hide();
+			}
+
+
 
 			$('.bookables').hide();
 			$('.bookables[data-bookableType=' + data.type + ']').show()
@@ -82,13 +98,22 @@ $el.steps({
 				hiddenSuffix: '-to'
 			});
 
-
 			$('input[type="text"]').on('change', function (e) {
+
+				if (itemsToRemove.length == 0) {
+					data.time_from = null;
+					data.time_to = null;
+				}
+
 				data.date = $("[name=datedate]").val()
 				data.time_from = $("[name=time-from]").val()
 				data.time_to = $("[name=time-to]").val()
 
-				if (data.date && data.time_from && data.time_to)
+				if (itemsToRemove.length > 0) {
+					data.time_from = '0800';
+					data.time_to = '2100';
+				}
+				if (data.date != "" && data.time_from != "" && data.time_to != "")
 				{
 					$.ajax({
 						data: data,
@@ -180,7 +205,6 @@ $el.steps({
 
 		// Needed in some cases if the user went back (clean up)
 		if (currentIndex < newIndex) {
-			$('.actions.clearfix .sercure-payment').remove()
 			// // To remove error styles
 			// form.find(".body:eq(" + newIndex + ") label.error").remove();
 			// form.find(".body:eq(" + newIndex + ") .error").removeClass("error");
