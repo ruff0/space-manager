@@ -20,6 +20,7 @@ use Cviebrock\EloquentSluggable\SluggableInterface;
  * @property string message
  * @property mixed  images
  * @property float  discount
+ * @property mixed  raw_price
  */
 class Bookable extends Model implements SluggableInterface
 {
@@ -142,6 +143,7 @@ class Bookable extends Model implements SluggableInterface
 		$this->times = $timeFrom->format('H:i') . " - " . $timeTo->format('H:i') . " (" . $hours . " Horas)";
 		$this->message = $this->messageForTimeFrame($hours, $timeFrom, $timeTo);
 		$this->totalPrice = $this->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo) . ' €';
+		$this->raw_price = $this->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 		$this->discount = $this->calculateIfDiscount($this->totalPrice);
 	}
 

@@ -47,7 +47,8 @@
 																	<label class="thumb-label btn bg-info-400 btn-icon btn-xs legitRipple">
 																		<i class="icon-plus2"></i>
 																		<i class="icon-checkmark"></i>
-																		<input type="radio" name="bookable-type" class="styled" value="{{$type->id}}">
+																		<input type="radio" name="bookable-type" class="styled" value="{{$type->id}}"
+																		       data-bookableTypeNotVisible="{{$type->slug}}" >
 																	</label>
 																</span>
 														</div>
@@ -81,13 +82,15 @@
 													<input type="text" id="date" name="date" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
 											</div>
 										</div>
-										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4">
+										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4"
+										     data-notVisible="coworking">
 											<div class="form-group">
 												<label>Hora inicio</label>
 													<input type="text" placeholder="¿A qué hora empieza?" class="form-control pickatime-from">
 											</div>
 										</div>
-										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4">
+										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4"
+										     data-notVisible="coworking">
 											<div class="form-group">
 												<label>Hora fin</label>
 													<input type="text" placeholder="¿A qué hora termina?" class="form-control pickatime-to">
@@ -95,10 +98,13 @@
 										</div>
 									</div>
 									<div class=" flexbox-container pt-20 pb-20">
+										{{--{!! dd($bookableTypes) !!}--}}
 										@foreach($bookableTypes as $type)
 											@foreach($type->bookables as $bookable)
 												{{--<div class="">--}}
-													<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4 thumbnail no-padding bookables blocked" data-bookableType="{{$type->id}}"
+													<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4
+																			thumbnail no-padding bookables blocked"
+													     data-bookableType="{{$type->id}}"
 													     data-bookable="{{$bookable->id}}">
 														<div class="thumb">
 															<img src="{{$bookable->mainImage()}}" alt="">
