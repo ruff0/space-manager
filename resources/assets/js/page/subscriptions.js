@@ -22,6 +22,7 @@ $el.steps({
 
 		// Always allow previous action even if the current form is not valid!
 		if (currentIndex > newIndex) {
+			$('.secure-payment').remove();
 			return true;
 		}
 
@@ -133,6 +134,12 @@ $el.steps({
 				$(".errors").empty().html("<li>Debes de seleccionar el puesto o sala que quieres contratar</li>").fadeIn(500)
 				return false;
 			}
+
+			$(".actions.clearfix").prepend(
+				'<div class="pull-left no-padding secure-payment">' +
+				'<img src="/images/secure_payment.png" class="img-responsive" alt="Secure payment">' +
+				'</div>'
+			);
 
 			data.room = $('input[name=room]:checked').val();
 
@@ -290,8 +297,12 @@ $('.file-styled').uniform({
 
 $("label.thumb-label").off('click').on('click', function(e){
 	$el = $(e.currentTarget);
+	$el.parents('fieldset').find(".thumbnail").addClass('not-selected');
+	$el.parents('fieldset').find(".thumb-label").addClass('bg-info-400').removeClass('bg-success-400');
+
 	$el.parents('fieldset').find('.thumbnail').removeClass('selected')
-	$el.parents('.thumbnail').addClass('selected')
+	$el.parents('.thumbnail').removeClass('not-selected').addClass('selected')
+	$('.selected .thumb-label').addClass('bg-success-400').removeClass('bg-info-400')
 })
 
 $("label[data-time]").off('click').on('click', function(e){

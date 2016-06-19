@@ -48,7 +48,7 @@
 																		<i class="icon-plus2"></i>
 																		<i class="icon-checkmark"></i>
 																		<input type="radio" name="bookable-type" class="styled" value="{{$type->id}}"
-																		       data-bookableTypeNotVisible="{{$type->slug}}" >
+																		       data-bookableTypeNotVisible="{{$type->slug}}">
 																	</label>
 																</span>
 														</div>
@@ -68,32 +68,33 @@
 									</div>
 
 								</fieldset>
-								<h6>¿Cuando?</h6>
+								<h6>¿Cuándo?</h6>
 								<fieldset class="col-md-12 search-form pt-20" style="min-height:50vh">
 									<div class="row">
 										<div class="col-md-12">
-										<div class="errors alert alert-danger" style="display:none;"></div>
+											<div class="errors alert alert-danger" style="display:none;"></div>
+										</div>
 									</div>
-									</div>
-									<div class=" flexbox-container">
+									<div class="flexbox-container">
 										<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4">
 											<div class="form-group">
 												<label for="date">Fecha</label>
-													<input type="text" id="date" name="date" class="form-control pickadate-date" placeholder="¿Elije una fecha?">
+												<input type="text" id="date" name="date" class="form-control pickadate-date"
+												       placeholder="¿Elije una fecha?">
 											</div>
 										</div>
 										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4"
 										     data-notVisible="coworking">
 											<div class="form-group">
 												<label>Hora inicio</label>
-													<input type="text" placeholder="¿A qué hora empieza?" class="form-control pickatime-from">
+												<input type="text" placeholder="¿A qué hora empieza?" class="form-control pickatime-from">
 											</div>
 										</div>
 										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4"
 										     data-notVisible="coworking">
 											<div class="form-group">
 												<label>Hora fin</label>
-													<input type="text" placeholder="¿A qué hora termina?" class="form-control pickatime-to">
+												<input type="text" placeholder="¿A qué hora termina?" class="form-control pickatime-to">
 											</div>
 										</div>
 									</div>
@@ -102,14 +103,14 @@
 										@foreach($bookableTypes as $type)
 											@foreach($type->bookables as $bookable)
 												{{--<div class="">--}}
-													<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4
+												<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4
 																			thumbnail no-padding bookables blocked"
-													     data-bookableType="{{$type->id}}"
-													     data-bookable="{{$bookable->id}}">
-														<div class="thumb">
-															<img src="{{$bookable->mainImage()}}" alt="">
-															<div class="caption-overflow">
-																<p class="times text-center pt-20 mt-20"></p>
+												     data-bookableType="{{$type->id}}"
+												     data-bookable="{{$bookable->id}}">
+													<div class="thumb">
+														<img src="{{$bookable->mainImage()}}" alt="">
+														<div class="caption-overflow">
+															<p class="times text-center pt-20 mt-20"></p>
 																<span>
 																	<label class="thumb-label btn bg-info-400 btn-icon btn-xs legitRipple">
 
@@ -124,11 +125,11 @@
 																	</label>
 																</span>
 
-																<p class="pt-20 mt-20"></p>
-																<p class="message text-center pt-20 mt-20"></p>
-															</div>
+															<p class="pt-20 mt-20"></p>
+															<p class="message text-center pt-20 mt-20"></p>
 														</div>
-														<div class="caption info">
+													</div>
+													<div class="caption info">
 															<span class="pull-left">
 																<i class="icon-user"></i>
 																{{$bookable->max_occupants }}
@@ -136,16 +137,16 @@
 															<span class="pull-right">
 																@currencyFormat($bookable->pricePerHour())/Hora
 															</span>
-														</div>
-														<div class="caption text-center">
-															<h6 class="text-semibold no-margin">
-																{{$bookable->name}}
-																<small class="display-block">
-																	{{--{{$bookable->description}}--}}
-																</small>
-															</h6>
-														</div>
 													</div>
+													<div class="caption text-center">
+														<h6 class="text-semibold no-margin">
+															{{$bookable->name}}
+															<small class="display-block">
+																{{--{{$bookable->description}}--}}
+															</small>
+														</h6>
+													</div>
+												</div>
 												{{--</div>--}}
 											@endforeach
 										@endforeach

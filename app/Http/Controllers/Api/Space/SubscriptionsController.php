@@ -24,17 +24,15 @@ class SubscriptionsController extends Controller
 		$available = [];
 		if ($request->has('date_from') && $request->has('type')) {
 			$dateFrom = Carbon::parse(Carbon::now());
-			$dateTo = $request->has('date_to')? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
+			$dateTo = $request->has('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
 			$plans = PlanType::find($request->get('type'))->plans()->get();
-			foreach ($plans as $plan)
-			{
-				foreach ($plan->roomResources() as $resource)
-				{
+			foreach ($plans as $plan) {
+				foreach ($plan->roomResources() as $resource) {
 					$settings = $resource->settings;
 					$subscriptions = $resource->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
 						$q->where(function ($q) use ($dateFrom, $dateTo) {
 							$q->where('date_from', '>=', $dateFrom)
-								->where('date_to', '<=', $dateTo);
+							  ->where('date_to', '<=', $dateTo);
 						});
 //						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
 //							  $q->where('date_from', '<', $dateTo)
@@ -46,11 +44,9 @@ class SubscriptionsController extends Controller
 //						  });
 					});
 
-					if($subscriptions->count() == 0)
-					{
+					if ($subscriptions->count() == 0) {
 						foreach ($resource->plans as $plan) {
-							if(!in_array($plan->id, $available))
-							{
+							if (!in_array($plan->id, $available)) {
 								$available[] = $plan->id;
 							}
 						}
@@ -60,7 +56,7 @@ class SubscriptionsController extends Controller
 		}
 
 		return [
-			'available' => PlanType::find($request->get('type'))->plans()->whereIn('id', $available)->get(),
+			'available'    => PlanType::find($request->get('type'))->plans()->whereIn('id', $available)->get(),
 			'notavailable' => PlanType::find($request->get('type'))->plans()->whereNotIn('id', $available)->get()
 		];
 	}
@@ -73,12 +69,10 @@ class SubscriptionsController extends Controller
 
 		if ($request->has('date_from') && $request->has('type')) {
 			$dateFrom = Carbon::parse($request->get('date_from'));
-			$dateTo = $request->has('date_to')? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
+			$dateTo = $request->has('date_to') ? Carbon::parse($request->get('date_to')) : Carbon::parse("20991231");
 			$plans = PlanType::find($request->get('type'))->plans()->get();
-			foreach ($plans as $plan)
-			{
-				foreach ($plan->roomResources() as $resource)
-				{
+			foreach ($plans as $plan) {
+				foreach ($plan->roomResources() as $resource) {
 					$settings = $resource->settings;
 					$subscriptions = $resource->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
 						$q->where(function ($q) use ($dateFrom, $dateTo) {
@@ -96,8 +90,7 @@ class SubscriptionsController extends Controller
 					})->get();
 
 
-					if($plan->id == $request->get('plan'))
-					{
+					if ($plan->id == $request->get('plan')) {
 						if ($subscriptions->count() === 0) {
 							if (!array_key_exists($resource->resourceable->id, $available)) {
 								$available[$resource->resourceable->id] = $resource->resourceable;
@@ -160,8 +153,7 @@ class SubscriptionsController extends Controller
 //			  });
 		})->first();
 
-		if($isBooked)
-		{
+		if ($isBooked) {
 			return response()->json([
 				'error' => [
 					'messages' => [
@@ -204,7 +196,7 @@ class SubscriptionsController extends Controller
 				$total = ($price / 100) * $percentage;
 
 				$discountLine = new Line([
-					'price'       => (int) - $total,
+					'price'       => (int)-$total,
 					'name'        => 'Descuento',
 					'description' => "Descuento aplicado $percentage%",
 					'amount'      => 1
@@ -213,7 +205,7 @@ class SubscriptionsController extends Controller
 				$invoice->addLine($discountLine);
 			}
 		}
-		
+
 		$invoice->save();
 
 		// Make Stripe Charge
@@ -222,10 +214,8 @@ class SubscriptionsController extends Controller
 			"customer" => $member->id
 		]);
 
-		foreach($plan->discounts as $type => $discount)
-		{
-			if(!$member->hasDiscount($type))
-			{
+		foreach ($plan->discounts as $type => $discount) {
+			if (!$member->hasDiscount($type)) {
 				$member->discounts()->create([
 					'percentage' => $discount,
 					'date_from'  => Carbon::now(),
@@ -249,7 +239,7 @@ class SubscriptionsController extends Controller
 
 		$invoice->payable_id = $subscription->id;
 		$invoice->save();
-		
+
 		return response()->json([
 			'success' => [
 				'messages' => [
@@ -294,10 +284,10 @@ class SubscriptionsController extends Controller
 		}
 
 		$line = new QuoteLine([
-			'price'       => (int) $price,
+			'price'       => (int)$price,
 			'name'        => $plan->name,
 			'description' => $plan->description .
-			                 "<br/> " . $room->name . " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  ".
+			                 "<br/> " . $room->name . " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  " .
 			                 "<br/> <small>Reserva a partir del {$dateFrom->format('d/m/Y')}</small>"
 		]);
 
@@ -311,10 +301,10 @@ class SubscriptionsController extends Controller
 			if ($discount['percentage'] && Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 				$price = $plan->priceForStripe();
 				$percentage = $discount['percentage'];
-				$total = ($price / 100 )* $percentage;
+				$total = ($price / 100) * $percentage;
 				$line = new QuoteLine([
-					'price'       => - $total,
-					'name' => "Descuento",
+					'price'       => -$total,
+					'name'        => "Descuento",
 					'description' => "Descuento aplicado $percentage%"
 				]);
 				$invoice->addLine($line);
