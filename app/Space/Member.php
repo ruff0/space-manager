@@ -226,6 +226,27 @@ class Member extends Model
 	}
 
 	/**
+	 * @param $type
+	 * @param $timeFrom
+	 *
+	 * @return
+	 */
+	public function hasPassForType($type, $timeFrom)
+	{
+		return $this->passes()->where('bookable_id', $type)
+			->where('date_to', '>=', $timeFrom)
+			->where('hours', '>', 0)
+			->first();
+	}
+
+
+	public function decrementPassFor($type, $hours)
+	{
+		if($hours)
+			$this->passes()->where('bookable_id', $type)->first()->decrement('hours', $hours);
+	}
+
+	/**
 	 * Whether this member has users assigned or not
 	 *
 	 * @return mixed

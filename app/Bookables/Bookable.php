@@ -313,7 +313,7 @@ class Bookable extends Model implements SluggableInterface
 	 *
 	 * @return bool
 	 */
-	private function isPartTime($hours, $timeFrom, $timeTo)
+	public function isPartTime($hours, $timeFrom, $timeTo)
 	{
 		$limitFrom = Carbon::create($timeFrom->year, $timeFrom->month, $timeFrom->day, 15, 01, 0);
 		$limitTo = Carbon::create($timeFrom->year, $timeFrom->month, $timeFrom->day, 15, 59, 0);

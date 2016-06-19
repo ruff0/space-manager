@@ -119,17 +119,43 @@ class BookingsController extends Controller
 
 		$invoice->addLine($line);
 
+		$passHours = 0;
 
 		if ($member) {
 			$discount = $member->appliedDiscounts('bookings');
 
-			if (Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+			if ($pass = $member->hasPassForType($bookable->id, $timeFrom)) {
+				if (!$bookable->isPartTime($hours, $timeFrom, $timeTo) && $hours < 6 && $pass->hours) {
+
+					if ($pass->hours < $hours) {
+						$passHours = $pass->hours;
+					} else {
+						$passHours = $hours;
+					}
+
+					$price = $bookable->calculatePriceForTimeFrame($passHours, $timeFrom, $timeTo, true);
+					$percentage = 100;
+					$total = ($price / 100) * $percentage;
+					$line = new Line([
+						'price'       => -$total,
+						'name'        => "Bono por horas ({$passHours} hrs.)",
+						'description' => "Descuento aplicado por bono de horas ({$passHours} hrs.)",
+						'amount'      => 1
+					]);
+					$invoice->addLine($line);
+				}
+			}
+
+
+
+			if ((($pass && $pass->hours < $hours) || (!$pass)) &&
+			    $discount && Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 				$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
+
 				$percentage = $discount['percentage'];
 				$total = ($price / 100) * $percentage ;
-
 				$discountLine = new Line([
-					'price'       => (int) - $total,
+					'price'       => (int) -$total,
 					'name'        => 'Descuento',
 					'description' => "Descuento aplicado $percentage%",
 					'amount'      => 1
@@ -142,17 +168,22 @@ class BookingsController extends Controller
 		$invoice->save();
 
 		// Make Stripe Charge
-		$charge = $member->charge($invoice->getTotalForStripe(), [
-			"currency" => $member->getCurrency(),
-			"customer" => $member->id
-		]);
+		if($passHours && $invoice->getTotalForStripe() )
+		{
+			$charge = $member->charge($invoice->getTotalForStripe(), [
+				"currency" => $member->getCurrency(),
+				"customer" => $member->id
+			]);
+			$invoice->charge_id = $charge->id;
+		}
 
-		$invoice->charge_id = $charge->id;
 		$invoice->save();
 
 		$rooms = collect($resources['rooms']);
 
 		$rooms->first();
+
+		$member->decrementPassFor($bookable->id, $passHours);
 
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
@@ -191,11 +222,9 @@ class BookingsController extends Controller
 		$hours  = $timeFrom->diffInHours($timeTo);
 
 		$bookable = Bookable::findOrFail($request->get('bookable'));
-
 		$resources = [
 			'rooms' => []
 		];
-
 
 		$bookable->calculatePrice($hours, $timeFrom, $timeTo);
 
@@ -212,14 +241,37 @@ class BookingsController extends Controller
 		$line = new QuoteLine([
 			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
 			'name'        => $bookable->name,
-			'description' => $bookable->description
+			'description' => $bookable->description .
+			                 "<br/> <small>Reserva el dia {$timeFrom->format('d/m/Y')}</small>".
+			                 "<br/> <small>Desde {$timeFrom->format('H:i')} - Hasta {$timeTo->format('H:i')} • ({$hours} hrs.)  "
 		]);
 		$invoice->addLine($line);
 
 		$member = Auth::user()->member;
 		$discount = $member->appliedDiscounts('bookings');
 
-		if(Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+		if($pass = $member->hasPassForType($bookable->id, $timeFrom))
+		{
+			if (!$bookable->isPartTime($hours, $timeFrom, $timeTo) &&  $hours < 6 && $pass->hours) {
+				if ($pass->hours < $hours)	$passHours = $pass->hours;
+				else $passHours = $hours;
+
+				$price = $bookable->calculatePriceForTimeFrame($passHours, $timeFrom, $timeTo, true);
+				$percentage = 100;
+				$total = ($price / 100) * $percentage;
+				$line = new QuoteLine([
+					'price'       => -$total,
+					'name'        => "Bono por horas ({$passHours} hrs.)",
+					'description' => "Descuento aplicado por bono de horas ({$passHours} hrs.)"
+				]);
+				$invoice->addLine($line);
+			}
+		}
+
+		if( (($pass && $pass->hours < $hours ) || (!$pass)) &&
+			$discount && Carbon::parse($discount['date_to'])->gte(Carbon::now())
+		)
+		{
 			$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 			$percentage = $discount['percentage'];
 			$total = ($price / 100) * $percentage;
