@@ -27,6 +27,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 			'as'   => 'api.members.discounts.store',
 			'uses' => 'MemberDiscountsController@store'
 		]);
+		
+		Route::resource('members.passes','MemberPassesController', [
+			'except' => ['show', 'create', 'edit']
+		]);
 
 		Route::get('/subscriptions', 'SubscriptionsController@index');
 		Route::post('/subscriptions', 'SubscriptionsController@store');
@@ -42,6 +46,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	});
 
 	Route::group(['namespace' => 'Bookables'], function () {
+		Route::get('/bookables', 'BookablesController@index');
 		Route::get('/bookables/{bookables}', 'BookablesController@show');
 	});
 });

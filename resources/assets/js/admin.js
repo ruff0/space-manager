@@ -3,6 +3,10 @@
  */
 var Vue = require('vue'),
 		VueResource = require('vue-resource');
+
+import Block  from './directives/Block'
+
+
 /**
  * Components
  */
@@ -13,6 +17,9 @@ var Calendar = {
 var Discounts = {
 	Discount: require('./components/Discount/Discount.vue'),
 }
+var Passes = {
+	Pass: require('./components/Pass'),
+}
 
 /**
  * Vue Config
@@ -20,9 +27,16 @@ var Discounts = {
 Vue.config.debug = true;
 
 /**
+ * Directives
+ */
+Vue.directive('block', Block);
+
+
+/**
  * Vue Services
  */
 Vue.use(VueResource);
+
 /**
  * Vue instance
  */
@@ -34,5 +48,6 @@ var v = new Vue({
 	components: {
 		'scheduler': Calendar.Scheduler,
 		'discount': Discounts.Discount,
+		'pass': Passes.Pass,
 	},
 });

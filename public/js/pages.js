@@ -1167,6 +1167,7 @@ $('.members-list').DataTable({
 		});
 
 		// Select2
+	
 		$('.select').select2({
 			width: '150px',
 			minimumResultsForSearch: Infinity
@@ -1205,7 +1206,6 @@ $('#plan_id').change(function(e){
 	var select = e.currentTarget
 
 	value = select.options[select.selectedIndex].value;
-	console.log(value, select.dataset.value)
 	if(value != select.dataset.value)
 	{
 		el.style.setProperty("display", 'inline-block', 'important');

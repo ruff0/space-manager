@@ -1,17 +1,23 @@
 {
   "private": true,
   "devDependencies": {
+    "babel-preset-es2015": "^6.9.0",
     "gulp": "^3.9.1",
     "laravel-elixir-vueify": "^1.0.3",
     "lodash": "^4.11.1",
     "strip": "^3.0.0",
     "stripe": "^4.5.0",
     "vue": "^1.0.21",
-    "vue-resource": "^0.7.0"
+    "vue-resource": "^0.7.0",
+    "vuestrap-icons": "^0.5.3"
   },
   "dependencies": {
     "bootstrap-sass": "^3.0.0",
+    "gritcode-components": "^0.4.7",
     "laravel-elixir": "^5.0.0",
     "stylus": "^0.54.3"
+  },
+  "scripts": {
+    "new-component": "cd resources/assets/js/components && vue init boudydegeer/vue-component-webpack --clone"
   }
 }

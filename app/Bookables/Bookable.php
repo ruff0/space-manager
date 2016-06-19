@@ -8,6 +8,7 @@ use App\Resources\Models\ClassRoom;
 use App\Resources\Models\MeetingRoom;
 use App\Resources\Models\Resource;
 use App\Resources\Models\Spot;
+use App\Space\Pass;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
@@ -220,6 +221,14 @@ class Bookable extends Model implements SluggableInterface
 		return $this->belongsTo(BookableType::class, 'bookable_type_id');
 	}
 
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
+	public function passes()
+	{
+		return $this->belongsTo(Pass::class);
+	}
+
 
 	/**
 	 * Get all of the resources for the post.
@@ -304,7 +313,7 @@ class Bookable extends Model implements SluggableInterface
 	 *
 	 * @return bool
 	 */
-	private function isPartTime($hours, $timeFrom, $timeTo)
+	public function isPartTime($hours, $timeFrom, $timeTo)
 	{
 		$limitFrom = Carbon::create($timeFrom->year, $timeFrom->month, $timeFrom->day, 15, 01, 0);
 		$limitTo = Carbon::create($timeFrom->year, $timeFrom->month, $timeFrom->day, 15, 59, 0);

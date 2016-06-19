@@ -298,7 +298,7 @@ class SubscriptionsController extends Controller
 			'name'        => $plan->name,
 			'description' => $plan->description .
 			                 "<br/> " . $room->name . " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  ".
-			                 "<br/> <small>reserva apartir del {$dateFrom->format('d/m/Y')}</small>"
+			                 "<br/> <small>Reserva a partir del {$dateFrom->format('d/m/Y')}</small>"
 		]);
 
 		$invoice->addLine($line);

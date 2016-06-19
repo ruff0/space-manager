@@ -10,6 +10,21 @@ use App\Http\Controllers\Controller;
 
 class BookablesController extends Controller
 {
+	/**
+	 * @return mixed
+	 */
+	public function index()
+	{
+		$bookables = Bookable::whereActive(true)->get();
+
+		return $bookables;
+	}
+
+	/**
+	 * @param Bookable $bookables
+	 *
+	 * @return Bookable
+	 */
 	public function show(Bookable $bookables)
 	{
 		$resources = [

@@ -152,7 +152,9 @@ class Member extends Model
 		return $this->is_company;
 	}
 
-
+	#######################################################################################
+	# Relations
+	#######################################################################################
 	/**
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
@@ -167,6 +169,14 @@ class Member extends Model
 	public function discounts()
 	{
 		return $this->hasMany(Discount::class);
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function passes()
+	{
+		return $this->hasMany(Pass::class);
 	}
 
 	/**
@@ -213,6 +223,27 @@ class Member extends Model
 	public function mainUser()
 	{
 		return $this->users()->first();
+	}
+
+	/**
+	 * @param $type
+	 * @param $timeFrom
+	 *
+	 * @return
+	 */
+	public function hasPassForType($type, $timeFrom)
+	{
+		return $this->passes()->where('bookable_id', $type)
+			->where('date_to', '>=', $timeFrom)
+			->where('hours', '>', 0)
+			->first();
+	}
+
+
+	public function decrementPassFor($type, $hours)
+	{
+		if($hours)
+			$this->passes()->where('bookable_id', $type)->first()->decrement('hours', $hours);
 	}
 
 	/**
