@@ -152,7 +152,9 @@ class Member extends Model
 		return $this->is_company;
 	}
 
-
+	#######################################################################################
+	# Relations
+	#######################################################################################
 	/**
 	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
@@ -167,6 +169,14 @@ class Member extends Model
 	public function discounts()
 	{
 		return $this->hasMany(Discount::class);
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function passes()
+	{
+		return $this->hasMany(Pass::class);
 	}
 
 	/**

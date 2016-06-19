@@ -8,6 +8,7 @@ use App\Resources\Models\ClassRoom;
 use App\Resources\Models\MeetingRoom;
 use App\Resources\Models\Resource;
 use App\Resources\Models\Spot;
+use App\Space\Pass;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\SluggableTrait;
@@ -218,6 +219,14 @@ class Bookable extends Model implements SluggableInterface
 	public function types()
 	{
 		return $this->belongsTo(BookableType::class, 'bookable_type_id');
+	}
+
+	/**
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
+	public function passes()
+	{
+		return $this->belongsTo(Pass::class);
 	}
 
 
