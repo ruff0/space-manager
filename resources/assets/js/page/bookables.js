@@ -56,6 +56,7 @@ $el.steps({
 
 			// Disable certain dates
 			$('.pickadate-date').pickadate({
+				min: true,
 				disable: [
 					[2015, 8, 3],
 					[2015, 8, 12],
