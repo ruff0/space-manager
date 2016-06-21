@@ -31,12 +31,13 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 		Route::resource('members.passes','MemberPassesController', [
 			'except' => ['show', 'create', 'edit']
 		]);
-
+		
 		Route::get('/subscriptions', 'SubscriptionsController@index');
 		Route::post('/subscriptions', 'SubscriptionsController@store');
 		Route::post('/subscriptions/calculate', 'SubscriptionsController@calculate');
 		Route::post('/subscriptions/rooms', 'SubscriptionsController@rooms');
 	});
+
 
 
 	Route::group(['namespace' => 'Bookings'], function () {
@@ -46,6 +47,11 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	});
 
 	Route::group(['namespace' => 'Bookables'], function () {
+
+		Route::resource('bookable-types', 'BookableTypesController', [
+			'onlyt' => ['index']
+		]);
+
 		Route::get('/bookables', 'BookablesController@index');
 		Route::get('/bookables/{bookables}', 'BookablesController@show');
 	});

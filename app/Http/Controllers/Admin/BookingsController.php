@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Bookables\Bookable;
 use App\Bookings\Booking;
 use App\Http\Controllers\AdminController;
 use App\Invoices\Models\Invoice;
@@ -33,12 +34,25 @@ class BookingsController extends AdminController
 		$bookings = Booking::orderBy('time_from', 'desc')->get();
 
 		return view('admin.bookings.index', [
-			'current'   => $this->current,
+			'current'  => $this->current,
 			'bookings' => $bookings
 		]);
 	}
 
+	/**
+	 *
+	 */
+	public function create()
+	{
+		$booking = new Booking();
+		return view('admin.bookings.create', [
+			'booking' => $booking
+		]);
+	}
 
+	/**
+	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+	 */
 	public function calendar()
 	{
 		$this->current['action'] = 'Calendario';
@@ -48,36 +62,33 @@ class BookingsController extends AdminController
 		$finalResources = [];
 		$finalBookings = [];
 
-		foreach ($resources as $resource)
-		{
+		foreach ($resources as $resource) {
 			$bookable = $resource->bookables->first();
 
-			if($bookable) {
+			if ($bookable) {
 				$type = $bookable->types->first();
 //				dd($type);
-				if($type)
-				{
+				if ($type) {
 					$res = new \stdClass();
 					$res->id = $resource->resourceable_type . $resource->resourceable->id;
 					$res->name = $resource->resourceable->name;
 					$res->type = $bookable->name;
-					$finalResources[] =  $res;
+					$finalResources[] = $res;
 				}
 			}
 		}
 
-		foreach ($bookings as $booking)
-		{
+		foreach ($bookings as $booking) {
 			$invoice = Invoice::where('payable_id', $booking->id)->where('type', 'booking')->first();
 			$paid = $invoice && $invoice->paid;
 
 			$book = new \stdClass();
 			$book->id = $booking->id;
-		  $book->resourceId = $booking->resource->resourceable_type . $booking->resource->resourceable->id;
-		  $book->start = $booking->time_from->format("Y-m-d H:i");
-		  $book->end = $booking->time_to->format("Y-m-d H:i");
-			$book->color = $paid ?'#00BCD4':'#FF5722';
-		  $book->title = $booking->member->fullname() . ' (' . $booking->time_from->diffInHours($booking->time_to) .'hrs.)';
+			$book->resourceId = $booking->resource->resourceable_type . $booking->resource->resourceable->id;
+			$book->start = $booking->time_from->format("Y-m-d H:i");
+			$book->end = $booking->time_to->format("Y-m-d H:i");
+			$book->color = $paid ? '#00BCD4' : '#FF5722';
+			$book->title = $booking->member->fullname() . ' (' . $booking->time_from->diffInHours($booking->time_to) . 'hrs.)';
 
 			array_push($finalBookings, $book);
 		}
@@ -85,8 +96,8 @@ class BookingsController extends AdminController
 //		dd($finalResources);
 
 		return view('admin.bookings.calendar', [
-			'current'  => $this->current,
-			'bookings' => collect($finalBookings),
+			'current'   => $this->current,
+			'bookings'  => collect($finalBookings),
 			'resources' => collect($finalResources),
 		]);
 	}

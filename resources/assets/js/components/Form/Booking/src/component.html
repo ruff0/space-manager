@@ -1,0 +1,56 @@
+<div class="panel panel-white">
+	<div class="panel-heading">
+		<h6 class="panel-title">Crear un alquilable</h6>
+		<div class="heading-elements"></div>
+	</div>
+	<div class="panel-body">
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
+				<label>Tipo de selectable</label>
+				<select name="bookable_type_id" data-placeholder="Selecciona un tipo" class="select">
+					<option></option>
+					<option :value="type.id"
+									v-for="type in types"
+						>
+						{{type.name}}
+					</option>
+				</select>
+			</div>
+		</div>
+
+
+		<div class="row pb-20">
+			<div class="col-sm-4">
+				<label>Fecha</label>
+				<input type="text"
+							 placeholder="Fecha"
+							 class="form-control pickadate-date"
+							 v-model="selected.date"
+							 name="date"
+				/>
+			</div>
+			<div class="col-sm-4">
+				<label>Hora Inicio</label>
+				<input type="text"
+							 placeholder="Hora de inicio"
+							 class="form-control pickatime-from"
+							 v-model="selected.time_from"
+							 name="time_from"
+				/>
+			</div>
+			<div class="col-sm-4">
+				<label>Hora Fin</label>
+				<input type="text"
+							 placeholder="Hora de fin"
+							 class="form-control pickatime-to"
+							 v-model="selected.time_to"
+							 name="time_to"
+				/>
+			</div>
+		</div>
+
+
+		<button type="submit" class="btn btn-primary pull-right">Guardar</button>
+	</div>
+</div>

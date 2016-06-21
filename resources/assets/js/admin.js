@@ -13,7 +13,9 @@ import Block  from './directives/Block'
 var Calendar = {
 	Scheduler: require('./components/Calendar/Scheduler.vue'),
 }
-
+var Form = {
+	Booking: require('./components/Form/Booking')
+}
 var Discounts = {
 	Discount: require('./components/Discount/Discount.vue'),
 }
@@ -49,5 +51,6 @@ var v = new Vue({
 		'scheduler': Calendar.Scheduler,
 		'discount': Discounts.Discount,
 		'pass': Passes.Pass,
+		'booking-form': Form.Booking
 	},
 });
