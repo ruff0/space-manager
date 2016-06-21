@@ -15,7 +15,7 @@ use Laravel\Cashier\StripeGateway;
 /**
  * @property mixed is_company
  * @property mixed identity
- * @property mixed company_identity
+ * @property mixed company_identity                  hasP
  * @property mixed company_name
  * @property mixed name
  * @property mixed address_line1
@@ -347,7 +347,9 @@ class Member extends Model
 	public function hasPlan()
 	{
 		if(!$this->currentPlan() || $this->onPlan(Plan::byDefault()))
+		{
 			return false;
+		}
 
 		return true;
 	}
