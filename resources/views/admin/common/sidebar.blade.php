@@ -47,7 +47,7 @@
 					<li>
 						<a href="{{route('admin.bookables.index')}}" class="legitRipple">
 							<i class="icon-stack2"></i>
-							Alquilables
+							<span>Alquilables</span>
 						</a>
 					</li>
 
@@ -58,13 +58,13 @@
 					<li>
 						<a href="{{route('admin.bookings.calendar')}}" class="legitRipple">
 							<i class="icon-stack2"></i>
-							Calendario de reservas
+							<span>Calendario de reservas</span>
 						</a>
 					</li>
 					<li>
 						<a href="{{route('admin.bookings.index')}}" class="legitRipple">
 							<i class="icon-stack2"></i>
-							Salas & Puestos
+							<span>Salas & Puestos</span>
 						</a>
 					</li>
 
@@ -77,22 +77,22 @@
 						<ul class="hidden-ul" style="display: none;">
 							<li>
 								<a href="{{route('admin.meetingrooms.index')}}" class="legitRipple">
-									Salas de reuniones
+									<span>Salas de reuniones</span>
 								</a>
 							</li>
 							<li>
 								<a href="{{route('admin.classrooms.index')}}" class="legitRipple">
-									Aulas
+									<span>Aulas</span>
 								</a>
 							</li>
 							<li>
 								<a href="{{route('admin.spots.index')}}" class="legitRipple">
-									Puestos
+									<span>Puestos</span>
 								</a>
 							</li>
 							<li>
 								<a href="{{route('admin.offices.index')}}" class="legitRipple">
-									Despachos
+									<span>Despachos</span>
 								</a>
 							</li>
 						</ul>
@@ -112,7 +112,7 @@
 					<li class="">
 						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Planes</span></a>
 						<ul class="hidden-ul" style="display: none;">
-							<li><a href="{{route('admin.plantypes.index')}}" class="legitRipple">Tipo de Suscripciones</a></li>
+							<li><a href="{{route('admin.plantypes.index')}}" class="legitRipple"><span>Tipo de Suscripciones</span></a></li>
 						</ul>
 					</li>
 				</ul>
