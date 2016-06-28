@@ -1,4 +1,6 @@
 import _ from "lodash"
+import TimePicker from "../../TimePicker"
+
 
 export default{
   /**
@@ -64,18 +66,6 @@ export default{
 			hiddenSuffix: ''
 		});
 
-		$('.pickatime-from').pickatime({
-			interval: 60,
-			min: [8, 0],
-			max: [21, 0],
-			// Escape any “rule” characters with an exclamation mark (!).
-			format: 'HH:i ',
-			formatLabel: 'HH:i',
-			formatSubmit: 'HHi',
-			hiddenPrefix: 'time-',
-			hiddenSuffix: 'from'
-		});
-
 		$('.pickatime-to').pickatime({
 			interval: 60,
 			min: [8, 0],
@@ -93,5 +83,7 @@ export default{
    * Child components of this one
    * More info: http://vuejs.org/guide/components.html
    */
-  components: {}
+  components: {
+		TimePicker
+	}
 }

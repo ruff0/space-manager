@@ -28317,7 +28317,8 @@ var Calendar = {
 	Scheduler: require('./components/Calendar/Scheduler.vue')
 };
 var Form = {
-	Booking: require('./components/Form/Booking')
+	Booking: require('./components/Form/Booking'),
+	TimePicker: require('./components/Form/TimePicker')
 };
 var Discounts = {
 	Discount: require('./components/Discount/Discount.vue')
@@ -28353,11 +28354,12 @@ var v = new Vue({
 		'scheduler': Calendar.Scheduler,
 		'discount': Discounts.Discount,
 		'pass': Passes.Pass,
-		'booking-form': Form.Booking
+		'booking-form': Form.Booking,
+		'time-picker': Form.TimePicker
 	}
 });
 
-},{"./components/Calendar/Scheduler.vue":8,"./components/Discount/Discount.vue":9,"./components/Form/Booking":10,"./components/Pass":11,"./directives/Block":12,"vue":5,"vue-resource":4}],8:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":8,"./components/Discount/Discount.vue":9,"./components/Form/Booking":10,"./components/Form/TimePicker":11,"./components/Pass":12,"./directives/Block":13,"vue":5,"vue-resource":4}],8:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert(".Calendar {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.Calendar--List {\n  -webkit-box-flex: 1;\n      -ms-flex: 1 0 0;\n          flex: 1 0 0;\n}\n.Calendar--Calendar {\n  -webkit-box-flex: 1;\n      -ms-flex: 1 0 20em;\n          flex: 1 0 20em;\n  margin: 1em 4em;\n}\n.fc-license-message {\n  display: none !important;\n}\n.fc-head .fc-scroller {\n  min-height: auto !important;\n}\n")
 'use strict';
@@ -28534,15 +28536,19 @@ if (module.hot) {(function () {  module.hot.accept()
 },{"vue":5,"vue-hot-reload-api":3}],10:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _lodash = require('lodash');
+var _lodash = require("lodash");
 
 var _lodash2 = _interopRequireDefault(_lodash);
+
+var _TimePicker = require("../../TimePicker");
+
+var _TimePicker2 = _interopRequireDefault(_TimePicker);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28607,18 +28613,6 @@ exports.default = {
 			hiddenSuffix: ''
 		});
 
-		$('.pickatime-from').pickatime({
-			interval: 60,
-			min: [8, 0],
-			max: [21, 0],
-			// Escape any “rule” characters with an exclamation mark (!).
-			format: 'HH:i ',
-			formatLabel: 'HH:i',
-			formatSubmit: 'HHi',
-			hiddenPrefix: 'time-',
-			hiddenSuffix: 'from'
-		});
-
 		$('.pickatime-to').pickatime({
 			interval: 60,
 			min: [8, 0],
@@ -28637,10 +28631,12 @@ exports.default = {
   * Child components of this one
   * More info: http://vuejs.org/guide/components.html
   */
-	components: {}
+	components: {
+		TimePicker: _TimePicker2.default
+	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear un alquilable</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de selectable</label>\n\t\t\t\t<select name=\"bookable_type_id\" data-placeholder=\"Selecciona un tipo\" class=\"select\">\n\t\t\t\t\t<option></option>\n\t\t\t\t\t<option :value=\"type.id\"\n\t\t\t\t\t\t\t\t\tv-for=\"type in types\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t{{type.name}}\n\t\t\t\t\t</option>\n\t\t\t\t</select>\n\t\t\t</div>\n\t\t</div>\n\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<input type=\"text\"\n\t\t\t\t\t\t\t placeholder=\"Fecha\"\n\t\t\t\t\t\t\t class=\"form-control pickadate-date\"\n\t\t\t\t\t\t\t v-model=\"selected.date\"\n\t\t\t\t\t\t\t name=\"date\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<input type=\"text\"\n\t\t\t\t\t\t\t placeholder=\"Hora de inicio\"\n\t\t\t\t\t\t\t class=\"form-control pickatime-from\"\n\t\t\t\t\t\t\t v-model=\"selected.time_from\"\n\t\t\t\t\t\t\t name=\"time_from\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<input type=\"text\"\n\t\t\t\t\t\t\t placeholder=\"Hora de fin\"\n\t\t\t\t\t\t\t class=\"form-control pickatime-to\"\n\t\t\t\t\t\t\t v-model=\"selected.time_to\"\n\t\t\t\t\t\t\t name=\"time_to\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t</div>\n\n\n\t\t<button type=\"submit\" class=\"btn btn-primary pull-right\">Guardar</button>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear un alquilable</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de selectable</label>\n\t\t\t\t<select name=\"bookable_type_id\" data-placeholder=\"Selecciona un tipo\" class=\"select\">\n\t\t\t\t\t<option></option>\n\t\t\t\t\t<option :value=\"type.id\"\n\t\t\t\t\t\t\t\t\tv-for=\"type in types\"\n\t\t\t\t\t\t>\n\t\t\t\t\t\t{{type.name}}\n\t\t\t\t\t</option>\n\t\t\t\t</select>\n\t\t\t</div>\n\t\t</div>\n\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<input type=\"text\"\n\t\t\t\t\t\t\t placeholder=\"Fecha\"\n\t\t\t\t\t\t\t class=\"form-control pickadate-date\"\n\t\t\t\t\t\t\t v-model=\"selected.date\"\n\t\t\t\t\t\t\t name=\"date\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker></time-picker>\n\t\t\t</div>\n\n\t\t\t<!--<div class=\"col-sm-4\">-->\n\t\t\t\t<!--<label>Hora Inicio</label>-->\n\t\t\t\t<!--<input type=\"text\"-->\n\t\t\t\t\t\t\t <!--placeholder=\"Hora de inicio\"-->\n\t\t\t\t\t\t\t <!--class=\"form-control pickatime-from\"-->\n\t\t\t\t\t\t\t <!--v-model=\"selected.time_from\"-->\n\t\t\t\t\t\t\t <!--name=\"time_from\"-->\n\t\t\t\t<!--/>-->\n\t\t\t<!--</div>-->\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<input type=\"text\"\n\t\t\t\t\t\t\t placeholder=\"Hora de fin\"\n\t\t\t\t\t\t\t class=\"form-control pickatime-to\"\n\t\t\t\t\t\t\t v-model=\"selected.time_to\"\n\t\t\t\t\t\t\t name=\"time_to\"\n\t\t\t\t/>\n\t\t\t</div>\n\t\t</div>\n\n\n\t\t<button type=\"submit\" class=\"btn btn-primary pull-right\">Guardar</button>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -28655,7 +28651,103 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-5bece7b4", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],11:[function(require,module,exports){
+},{"../../TimePicker":11,"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],11:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = {
+	/**
+  * Name of the component
+  * More info: http://vuejs.org/api/#name
+  */
+	name: 'TimePicker',
+
+	/**
+  * The data object for the component it self
+  * More info: http://vuejs.org/api/#data
+  */
+	data: function data() {
+		return {
+			timepicker: null,
+			selected: ''
+		};
+	},
+
+
+	/**
+  *
+  */
+	events: {
+		'set': function set(value) {
+			this.selected = value.select;
+		}
+	},
+	/**
+  * Public properties
+  */
+	props: {
+		interval: { type: Number, default: 60 },
+		min: {
+			type: Array, default: function _default() {
+				return [8, 0];
+			}
+		},
+		max: {
+			type: Array, default: function _default() {
+				return [21, 0];
+			}
+		},
+		format: { type: String, default: 'HH:i' },
+		formatLabel: { type: String, default: 'HH:i' },
+		formatSubmit: { type: String, default: 'HHi' },
+		hiddenPrefix: { type: String, default: '' },
+		hiddenSuffix: { type: String, default: '' }
+	},
+	/**
+  * This is called when the component is ready
+  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+  */
+	ready: function ready() {
+		var self = this;
+
+		this.timepicker = $(this.$el).pickatime({
+			interval: this.interval,
+			min: this.min,
+			max: this.max,
+			// Escape any “rule” characters with an exclamation mark (!).
+			format: this.format,
+			formatLabel: this.formatLabel,
+			formatSubmit: this.formatSubmit,
+			hiddenPrefix: this.hiddenPrefix,
+			hiddenSuffix: this.hiddenSuffix,
+			onSet: function onSet(context) {
+				self.$emit('set', context);
+			}
+		});
+	},
+
+
+	/**
+  * Child components of this one
+  * More info: http://vuejs.org/guide/components.html
+  */
+	components: {}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Hora de inicio\"\n\t\t\t class=\"form-control pickatime-from\"\n\t\t\t name=\"time_from\"\n/>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-4ff5df24", module.exports)
+  } else {
+    hotAPI.update("_v-4ff5df24", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":5,"vue-hot-reload-api":3}],12:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert(".clickable-icon {\n  cursor: pointer;\n}\n.clickable-icon:hover {\n  color: #ff7175;\n}\n")
 'use strict';
@@ -28898,7 +28990,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-683b96ee", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],12:[function(require,module,exports){
+},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
