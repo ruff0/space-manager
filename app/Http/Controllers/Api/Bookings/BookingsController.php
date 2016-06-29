@@ -223,6 +223,7 @@ class BookingsController extends Controller
 	 */
 	public function calculate(Request $request)
 	{
+		sleep(2);
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
 		$hours  = $timeFrom->diffInHours($timeTo);

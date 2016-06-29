@@ -4,8 +4,20 @@
 var Vue = require('vue'),
 		VueResource = require('vue-resource');
 
+/**
+ * Directives
+ */
 import Block  from './directives/Block'
 
+/**
+ * State manager
+ */
+import store from './state/store'
+
+/**
+ * Actions
+ */
+import {SET_LOADING} from './state/mutation-types'
 
 /**
  * Components
@@ -40,11 +52,25 @@ Vue.directive('block', Block);
  */
 Vue.use(VueResource);
 
+
+Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value')
+
+/**
+ * Loading state interceptor
+ */
+Vue.http.interceptors.push((request, next) => {
+	store.dispatch(SET_LOADING, { loading: true, progress: 0 })
+	next((response) => {
+		store.dispatch(SET_LOADING, { loading: false, progress: 1 })
+	})
+});
+
 /**
  * Vue instance
  */
 var v = new Vue({
 	el: 'body',
+	store: store,
 	events: {},
 	data: {},
 	methods: {},

@@ -27,8 +27,8 @@ export default{
 	 */
 	events: {
 		'set': function (picker) {
-			this.$emit('change')
 			this.selected = picker.get('select', 'yyyymmdd')
+			this.$emit('change', this.selected)
 		}
 	},
 

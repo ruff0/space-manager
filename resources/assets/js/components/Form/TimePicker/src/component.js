@@ -20,8 +20,8 @@ export default{
 	 */
 	events: {
 		'set': function (picker) {
-			this.$emit('change')
 			this.selected = picker.get('select', 'HHi')
+			this.$emit('change', this.selected)
 		}
 	},
 	

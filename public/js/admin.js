@@ -27728,11 +27728,656 @@ exports.insert = function (css) {
 }
 
 },{}],11:[function(require,module,exports){
+/*!
+ * Vuex v0.8.2
+ * (c) 2016 Evan You
+ * Released under the MIT License.
+ */
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global.Vuex = factory());
+}(this, function () { 'use strict';
+
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
+
+  var classCallCheck = function (instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  };
+
+  var createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  var toConsumableArray = function (arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  };
+
+  /**
+   * Merge an array of objects into one.
+   *
+   * @param {Array<Object>} arr
+   * @return {Object}
+   */
+
+  function mergeObjects(arr) {
+    return arr.reduce(function (prev, obj) {
+      Object.keys(obj).forEach(function (key) {
+        var existing = prev[key];
+        if (existing) {
+          // allow multiple mutation objects to contain duplicate
+          // handlers for the same mutation type
+          if (Array.isArray(existing)) {
+            existing.push(obj[key]);
+          } else {
+            prev[key] = [prev[key], obj[key]];
+          }
+        } else {
+          prev[key] = obj[key];
+        }
+      });
+      return prev;
+    }, {});
+  }
+
+  /**
+   * Deep clone an object. Faster than JSON.parse(JSON.stringify()).
+   *
+   * @param {*} obj
+   * @return {*}
+   */
+
+  function deepClone(obj) {
+    if (Array.isArray(obj)) {
+      return obj.map(deepClone);
+    } else if (obj && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
+      var cloned = {};
+      var keys = Object.keys(obj);
+      for (var i = 0, l = keys.length; i < l; i++) {
+        var key = keys[i];
+        cloned[key] = deepClone(obj[key]);
+      }
+      return cloned;
+    } else {
+      return obj;
+    }
+  }
+
+  /**
+   * Hacks to get access to Vue internals.
+   * Maybe we should expose these...
+   */
+
+  var Watcher = void 0;
+  function getWatcher(vm) {
+    if (!Watcher) {
+      var noop = function noop() {};
+      var unwatch = vm.$watch(noop, noop);
+      Watcher = vm._watchers[0].constructor;
+      unwatch();
+    }
+    return Watcher;
+  }
+
+  var Dep = void 0;
+  function getDep(vm) {
+    if (!Dep) {
+      Dep = vm._data.__ob__.dep.constructor;
+    }
+    return Dep;
+  }
+
+  var hook = typeof window !== 'undefined' && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
+
+  var devtoolMiddleware = {
+    onInit: function onInit(state, store) {
+      if (!hook) return;
+      hook.emit('vuex:init', store);
+      hook.on('vuex:travel-to-state', function (targetState) {
+        store._dispatching = true;
+        store._vm.state = targetState;
+        store._dispatching = false;
+      });
+    },
+    onMutation: function onMutation(mutation, state) {
+      if (!hook) return;
+      hook.emit('vuex:mutation', mutation, state);
+    }
+  };
+
+  function override (Vue) {
+    var version = Number(Vue.version.split('.')[0]);
+
+    if (version >= 2) {
+      var usesInit = Vue.config._lifecycleHooks.indexOf('init') > -1;
+      Vue.mixin(usesInit ? { init: vuexInit } : { beforeCreate: vuexInit });
+    } else {
+      (function () {
+        // override init and inject vuex init procedure
+        // for 1.x backwards compatibility.
+        var _init = Vue.prototype._init;
+        Vue.prototype._init = function () {
+          var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+          options.init = options.init ? [vuexInit].concat(options.init) : vuexInit;
+          _init.call(this, options);
+        };
+      })();
+    }
+
+    /**
+     * Vuex init hook, injected into each instances init hooks list.
+     */
+
+    function vuexInit() {
+      var options = this.$options;
+      var store = options.store;
+      var vuex = options.vuex;
+      // store injection
+
+      if (store) {
+        this.$store = store;
+      } else if (options.parent && options.parent.$store) {
+        this.$store = options.parent.$store;
+      }
+      // vuex option handling
+      if (vuex) {
+        if (!this.$store) {
+          console.warn('[vuex] store not injected. make sure to ' + 'provide the store option in your root component.');
+        }
+        var state = vuex.state;
+        var actions = vuex.actions;
+        var getters = vuex.getters;
+        // handle deprecated state option
+
+        if (state && !getters) {
+          console.warn('[vuex] vuex.state option will been deprecated in 1.0. ' + 'Use vuex.getters instead.');
+          getters = state;
+        }
+        // getters
+        if (getters) {
+          options.computed = options.computed || {};
+          for (var key in getters) {
+            defineVuexGetter(this, key, getters[key]);
+          }
+        }
+        // actions
+        if (actions) {
+          options.methods = options.methods || {};
+          for (var _key in actions) {
+            options.methods[_key] = makeBoundAction(this.$store, actions[_key], _key);
+          }
+        }
+      }
+    }
+
+    /**
+     * Setter for all getter properties.
+     */
+
+    function setter() {
+      throw new Error('vuex getter properties are read-only.');
+    }
+
+    /**
+     * Define a Vuex getter on an instance.
+     *
+     * @param {Vue} vm
+     * @param {String} key
+     * @param {Function} getter
+     */
+
+    function defineVuexGetter(vm, key, getter) {
+      if (typeof getter !== 'function') {
+        console.warn('[vuex] Getter bound to key \'vuex.getters.' + key + '\' is not a function.');
+      } else {
+        Object.defineProperty(vm, key, {
+          enumerable: true,
+          configurable: true,
+          get: makeComputedGetter(vm.$store, getter),
+          set: setter
+        });
+      }
+    }
+
+    /**
+     * Make a computed getter, using the same caching mechanism of computed
+     * properties. In addition, it is cached on the raw getter function using
+     * the store's unique cache id. This makes the same getter shared
+     * across all components use the same underlying watcher, and makes
+     * the getter evaluated only once during every flush.
+     *
+     * @param {Store} store
+     * @param {Function} getter
+     */
+
+    function makeComputedGetter(store, getter) {
+      var id = store._getterCacheId;
+
+      // cached
+      if (getter[id]) {
+        return getter[id];
+      }
+      var vm = store._vm;
+      var Watcher = getWatcher(vm);
+      var Dep = getDep(vm);
+      var watcher = new Watcher(vm, function (vm) {
+        return getter(vm.state);
+      }, null, { lazy: true });
+      var computedGetter = function computedGetter() {
+        if (watcher.dirty) {
+          watcher.evaluate();
+        }
+        if (Dep.target) {
+          watcher.depend();
+        }
+        return watcher.value;
+      };
+      getter[id] = computedGetter;
+      return computedGetter;
+    }
+
+    /**
+     * Make a bound-to-store version of a raw action function.
+     *
+     * @param {Store} store
+     * @param {Function} action
+     * @param {String} key
+     */
+
+    function makeBoundAction(store, action, key) {
+      if (typeof action !== 'function') {
+        console.warn('[vuex] Action bound to key \'vuex.actions.' + key + '\' is not a function.');
+      }
+      return function vuexBoundAction() {
+        for (var _len = arguments.length, args = Array(_len), _key2 = 0; _key2 < _len; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        return action.call.apply(action, [this, store].concat(args));
+      };
+    }
+
+    // option merging
+    var merge = Vue.config.optionMergeStrategies.computed;
+    Vue.config.optionMergeStrategies.vuex = function (toVal, fromVal) {
+      if (!toVal) return fromVal;
+      if (!fromVal) return toVal;
+      return {
+        getters: merge(toVal.getters, fromVal.getters),
+        state: merge(toVal.state, fromVal.state),
+        actions: merge(toVal.actions, fromVal.actions)
+      };
+    };
+  }
+
+  var Vue = void 0;
+  var uid = 0;
+
+  var Store = function () {
+
+    /**
+     * @param {Object} options
+     *        - {Object} state
+     *        - {Object} actions
+     *        - {Object} mutations
+     *        - {Array} middlewares
+     *        - {Boolean} strict
+     */
+
+    function Store() {
+      var _this = this;
+
+      var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var _ref$state = _ref.state;
+      var state = _ref$state === undefined ? {} : _ref$state;
+      var _ref$mutations = _ref.mutations;
+      var mutations = _ref$mutations === undefined ? {} : _ref$mutations;
+      var _ref$modules = _ref.modules;
+      var modules = _ref$modules === undefined ? {} : _ref$modules;
+      var _ref$middlewares = _ref.middlewares;
+      var middlewares = _ref$middlewares === undefined ? [] : _ref$middlewares;
+      var _ref$strict = _ref.strict;
+      var strict = _ref$strict === undefined ? false : _ref$strict;
+      classCallCheck(this, Store);
+
+      this._getterCacheId = 'vuex_store_' + uid++;
+      this._dispatching = false;
+      this._rootMutations = this._mutations = mutations;
+      this._modules = modules;
+      // bind dispatch to self
+      var dispatch = this.dispatch;
+      this.dispatch = function () {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        dispatch.apply(_this, args);
+      };
+      // use a Vue instance to store the state tree
+      // suppress warnings just in case the user has added
+      // some funky global mixins
+      if (!Vue) {
+        throw new Error('[vuex] must call Vue.use(Vuex) before creating a store instance.');
+      }
+      var silent = Vue.config.silent;
+      Vue.config.silent = true;
+      this._vm = new Vue({
+        data: {
+          state: state
+        }
+      });
+      Vue.config.silent = silent;
+      this._setupModuleState(state, modules);
+      this._setupModuleMutations(modules);
+      this._setupMiddlewares(middlewares, state);
+      // add extra warnings in strict mode
+      if (strict) {
+        this._setupMutationCheck();
+      }
+    }
+
+    /**
+     * Getter for the entire state tree.
+     * Read only.
+     *
+     * @return {Object}
+     */
+
+    createClass(Store, [{
+      key: 'dispatch',
+
+
+      /**
+       * Dispatch an action.
+       *
+       * @param {String} type
+       */
+
+      value: function dispatch(type) {
+        for (var _len2 = arguments.length, payload = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+          payload[_key2 - 1] = arguments[_key2];
+        }
+
+        var silent = false;
+        // compatibility for object actions, e.g. FSA
+        if ((typeof type === 'undefined' ? 'undefined' : _typeof(type)) === 'object' && type.type && arguments.length === 1) {
+          payload = [type.payload];
+          if (type.silent) silent = true;
+          type = type.type;
+        }
+        var mutation = this._mutations[type];
+        var state = this.state;
+        if (mutation) {
+          this._dispatching = true;
+          // apply the mutation
+          if (Array.isArray(mutation)) {
+            mutation.forEach(function (m) {
+              return m.apply(undefined, [state].concat(toConsumableArray(payload)));
+            });
+          } else {
+            mutation.apply(undefined, [state].concat(toConsumableArray(payload)));
+          }
+          this._dispatching = false;
+          if (!silent) this._applyMiddlewares(type, payload);
+        } else {
+          console.warn('[vuex] Unknown mutation: ' + type);
+        }
+      }
+
+      /**
+       * Watch state changes on the store.
+       * Same API as Vue's $watch, except when watching a function,
+       * the function gets the state as the first argument.
+       *
+       * @param {Function} fn
+       * @param {Function} cb
+       * @param {Object} [options]
+       */
+
+    }, {
+      key: 'watch',
+      value: function watch(fn, cb, options) {
+        var _this2 = this;
+
+        if (typeof fn !== 'function') {
+          console.error('Vuex store.watch only accepts function.');
+          return;
+        }
+        return this._vm.$watch(function () {
+          return fn(_this2.state);
+        }, cb, options);
+      }
+
+      /**
+       * Hot update mutations & modules.
+       *
+       * @param {Object} options
+       *        - {Object} [mutations]
+       *        - {Object} [modules]
+       */
+
+    }, {
+      key: 'hotUpdate',
+      value: function hotUpdate() {
+        var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+        var mutations = _ref2.mutations;
+        var modules = _ref2.modules;
+
+        this._rootMutations = this._mutations = mutations || this._rootMutations;
+        this._setupModuleMutations(modules || this._modules);
+      }
+
+      /**
+       * Attach sub state tree of each module to the root tree.
+       *
+       * @param {Object} state
+       * @param {Object} modules
+       */
+
+    }, {
+      key: '_setupModuleState',
+      value: function _setupModuleState(state, modules) {
+        Object.keys(modules).forEach(function (key) {
+          Vue.set(state, key, modules[key].state || {});
+        });
+      }
+
+      /**
+       * Bind mutations for each module to its sub tree and
+       * merge them all into one final mutations map.
+       *
+       * @param {Object} updatedModules
+       */
+
+    }, {
+      key: '_setupModuleMutations',
+      value: function _setupModuleMutations(updatedModules) {
+        var modules = this._modules;
+        var allMutations = [this._rootMutations];
+        Object.keys(updatedModules).forEach(function (key) {
+          modules[key] = updatedModules[key];
+        });
+        Object.keys(modules).forEach(function (key) {
+          var module = modules[key];
+          if (!module || !module.mutations) return;
+          // bind mutations to sub state tree
+          var mutations = {};
+          Object.keys(module.mutations).forEach(function (name) {
+            var original = module.mutations[name];
+            mutations[name] = function (state) {
+              for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+                args[_key3 - 1] = arguments[_key3];
+              }
+
+              original.apply(undefined, [state[key]].concat(args));
+            };
+          });
+          allMutations.push(mutations);
+        });
+        this._mutations = mergeObjects(allMutations);
+      }
+
+      /**
+       * Setup mutation check: if the vuex instance's state is mutated
+       * outside of a mutation handler, we throw en error. This effectively
+       * enforces all mutations to the state to be trackable and hot-reloadble.
+       * However, this comes at a run time cost since we are doing a deep
+       * watch on the entire state tree, so it is only enalbed with the
+       * strict option is set to true.
+       */
+
+    }, {
+      key: '_setupMutationCheck',
+      value: function _setupMutationCheck() {
+        var _this3 = this;
+
+        var Watcher = getWatcher(this._vm);
+        /* eslint-disable no-new */
+        new Watcher(this._vm, 'state', function () {
+          if (!_this3._dispatching) {
+            throw new Error('[vuex] Do not mutate vuex store state outside mutation handlers.');
+          }
+        }, { deep: true, sync: true });
+        /* eslint-enable no-new */
+      }
+
+      /**
+       * Setup the middlewares. The devtools middleware is always
+       * included, since it does nothing if no devtool is detected.
+       *
+       * A middleware can demand the state it receives to be
+       * "snapshots", i.e. deep clones of the actual state tree.
+       *
+       * @param {Array} middlewares
+       * @param {Object} state
+       */
+
+    }, {
+      key: '_setupMiddlewares',
+      value: function _setupMiddlewares(middlewares, state) {
+        var _this4 = this;
+
+        this._middlewares = [devtoolMiddleware].concat(middlewares);
+        this._needSnapshots = middlewares.some(function (m) {
+          return m.snapshot;
+        });
+        if (this._needSnapshots) {
+          console.log('[vuex] One or more of your middlewares are taking state snapshots ' + 'for each mutation. Make sure to use them only during development.');
+        }
+        var initialSnapshot = this._prevSnapshot = this._needSnapshots ? deepClone(state) : null;
+        // call init hooks
+        this._middlewares.forEach(function (m) {
+          if (m.onInit) {
+            m.onInit(m.snapshot ? initialSnapshot : state, _this4);
+          }
+        });
+      }
+
+      /**
+       * Apply the middlewares on a given mutation.
+       *
+       * @param {String} type
+       * @param {Array} payload
+       */
+
+    }, {
+      key: '_applyMiddlewares',
+      value: function _applyMiddlewares(type, payload) {
+        var _this5 = this;
+
+        var state = this.state;
+        var prevSnapshot = this._prevSnapshot;
+        var snapshot = void 0,
+            clonedPayload = void 0;
+        if (this._needSnapshots) {
+          snapshot = this._prevSnapshot = deepClone(state);
+          clonedPayload = deepClone(payload);
+        }
+        this._middlewares.forEach(function (m) {
+          if (m.onMutation) {
+            if (m.snapshot) {
+              m.onMutation({ type: type, payload: clonedPayload }, snapshot, prevSnapshot, _this5);
+            } else {
+              m.onMutation({ type: type, payload: payload }, state, _this5);
+            }
+          }
+        });
+      }
+    }, {
+      key: 'state',
+      get: function get() {
+        return this._vm.state;
+      },
+      set: function set(v) {
+        throw new Error('[vuex] Vuex root state is read only.');
+      }
+    }]);
+    return Store;
+  }();
+
+  function install(_Vue) {
+    if (Vue) {
+      console.warn('[vuex] already installed. Vue.use(Vuex) should be called only once.');
+      return;
+    }
+    Vue = _Vue;
+    override(Vue);
+  }
+
+  // auto install in dist mode
+  if (typeof window !== 'undefined' && window.Vue) {
+    install(window.Vue);
+  }
+
+  var index = {
+    Store: Store,
+    install: install
+  };
+
+  return index;
+
+}));
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var _Block = require('./directives/Block');
 
 var _Block2 = _interopRequireDefault(_Block);
+
+var _store = require('./state/store');
+
+var _store2 = _interopRequireDefault(_store);
+
+var _mutationTypes = require('./state/mutation-types');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27741,6 +28386,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  */
 var Vue = require('vue'),
     VueResource = require('vue-resource');
+
+/**
+ * Directives
+ */
+
+
+/**
+ * State manager
+ */
+
+
+/**
+ * Actions
+ */
+
 
 /**
  * Components
@@ -27774,11 +28434,24 @@ Vue.directive('block', _Block2.default);
  */
 Vue.use(VueResource);
 
+Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+
+/**
+ * Loading state interceptor
+ */
+Vue.http.interceptors.push(function (request, next) {
+	_store2.default.dispatch(_mutationTypes.SET_LOADING, { loading: true, progress: 0 });
+	next(function (response) {
+		_store2.default.dispatch(_mutationTypes.SET_LOADING, { loading: false, progress: 1 });
+	});
+});
+
 /**
  * Vue instance
  */
 var v = new Vue({
 	el: 'body',
+	store: _store2.default,
 	events: {},
 	data: {},
 	methods: {},
@@ -27791,7 +28464,7 @@ var v = new Vue({
 	}
 });
 
-},{"./components/Calendar/Scheduler.vue":13,"./components/Discount/Discount.vue":14,"./components/Form/Booking":15,"./components/Form/TimePicker":19,"./components/Pass":20,"./directives/Block":21,"vue":9,"vue-resource":8}],12:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":14,"./components/Discount/Discount.vue":15,"./components/Form/Booking":16,"./components/Form/TimePicker":20,"./components/Pass":21,"./directives/Block":22,"./state/mutation-types":26,"./state/store":27,"vue":9,"vue-resource":8}],13:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -27805,6 +28478,19 @@ exports.default = {
   */
 	name: 'Button',
 
+	/**
+  * Vuex instance
+  */
+	vuex: {
+		getters: {
+			progress: function progress(state) {
+				return state.loading.progress;
+			},
+			isLoading: function isLoading(state) {
+				return state.loading.isLoading;
+			}
+		}
+	},
 	/**
   * The data object for the component it self
   * More info: http://vuejs.org/api/#data
@@ -27820,8 +28506,12 @@ exports.default = {
   *
   */
 	watch: {
-		progress: function progress(value, oldValue) {
-			this.setProgress(value);
+		progress: {
+			handler: function handler(value) {
+				this.setProgress(value);
+			},
+
+			immediate: true
 		}
 	},
 
@@ -27850,13 +28540,6 @@ exports.default = {
 				return false;
 			}
 		},
-		progress: { type: Number, default: function _default() {
-				return 1;
-			},
-			coerce: function coerce(value) {
-				return parseFloat(value);
-			}
-		},
 		color: { type: String, default: function _default() {
 				return 'default';
 			}
@@ -27868,9 +28551,7 @@ exports.default = {
   * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
   */
 	ready: function ready() {
-		if (this.ladda) {
-			this.loadLadda();
-		}
+		this.load();
 	},
 
 
@@ -27884,23 +28565,33 @@ exports.default = {
   * Methods
   */
 	methods: {
-		loadLadda: function loadLadda() {
-			this.laddaInstance = Ladda.create(this.$el);
+		load: function load() {
+			if (!this.isLoaded() && this.isLadda()) this.laddaInstance = Ladda.create(this.$el);
 		},
-		startLadda: function startLadda() {
-			this.laddaInstance.start();
-			this.setProgress(this.progress);
+		start: function start() {
+			if (this.isLoaded()) this.laddaInstance.start();
+		},
+		stop: function stop() {
+			if (this.isLoaded()) this.laddaInstance.stop();
 		},
 		setProgress: function setProgress(progress) {
-			this.laddaInstance.setProgress(progress);
-			if (progress === 1) {
-				this.laddaInstance.stop();
+			if (this.isLoaded()) {
+				this.laddaInstance.setProgress(progress);
+				if (progress == 1) {
+					this.stop();
+				}
 			}
+		},
+		isLadda: function isLadda() {
+			return this.ladda;
+		},
+		isLoaded: function isLoaded() {
+			return this.laddaInstance;
 		}
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<a type=\"button\" role=\"button\"\n\t\t\t\t@click=\"startLadda\"\n\t\t\t\tclass=\"btn bg-primary\"\n\t\t\t\t:class=\"klass\"\n\t\t\t\t:data-style=\"ladda.style?ladda.style:false\"\n\t\t\t\t:disabled=\"progress\"\n>\n\t<span class=\"ladda-label\">\n\t\t<slot></slot>\n\t</span>\n</a>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<a type=\"button\" role=\"button\"\n\t\t\t\t@click=\"start\"\n\t\t\t\tclass=\"btn bg-primary\"\n\t\t\t\t:class=\"klass\"\n\t\t\t\t:data-style=\"ladda.style?ladda.style:false\"\n\t\t\t\t:disabled=\"isLoading\"\n>\n\t<span class=\"ladda-label\">\n\t\t<slot></slot>\n\t</span>\n</a>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -27916,7 +28607,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],13:[function(require,module,exports){
+},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],14:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert(".Calendar {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.Calendar--List {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 0;\n      -ms-flex: 1 0 0;\n          flex: 1 0 0;\n}\n.Calendar--Calendar {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 20em;\n      -ms-flex: 1 0 20em;\n          flex: 1 0 20em;\n  margin: 1em 4em;\n}\n.fc-license-message {\n  display: none !important;\n}\n.fc-head .fc-scroller {\n  min-height: auto !important;\n}\n")
 'use strict';
 
@@ -28023,7 +28714,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],14:[function(require,module,exports){
+},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28091,7 +28782,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7}],15:[function(require,module,exports){
+},{"vue":9,"vue-hot-reload-api":7}],16:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 "use strict";
 
@@ -28123,6 +28814,8 @@ var _Error = require("../../Error");
 
 var _Error2 = _interopRequireDefault(_Error);
 
+var _actions = require("../../../../state/actions");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
@@ -28133,22 +28826,40 @@ exports.default = {
 	name: 'Booking',
 
 	/**
+  * Vuex instance
+  */
+	vuex: {
+		actions: {
+			addDate: _actions.addDate,
+			addTimeTo: _actions.addTimeTo,
+			addTimeFrom: _actions.addTimeFrom,
+			addType: _actions.addType,
+			addBookable: _actions.addBookable,
+			calculate: _actions.calculate
+		},
+		getters: {
+			loading: function loading(state) {
+				return state.loading.isLoading;
+			},
+			errors: function errors(state) {
+				return state.errors;
+			},
+			resources: function resources(state) {
+				return state.resources;
+			},
+			selected: function selected(state) {
+				return state.booking;
+			}
+		}
+	},
+
+	/**
   * The data object for the component it self
   * More info: http://vuejs.org/api/#data
   */
 	data: function data() {
 		return {
-			types: [],
-			resources: [],
-			progress: 1,
-			errors: [],
-			selected: {
-				type: null,
-				date: null,
-				time_to: null,
-				time_from: null,
-				bookable: null
-			}
+			types: []
 		};
 	},
 
@@ -28165,7 +28876,7 @@ exports.default = {
   */
 	computed: {
 		hasResources: function hasResources() {
-			return this.resources.length === 0;
+			return this.resources.length == 0;
 		}
 	},
 	/**
@@ -28181,10 +28892,8 @@ exports.default = {
 	ready: function ready() {
 		var _this = this;
 
-		this.loading = true;
 		this.$http.get('/api/bookable-types').then(function (response) {
 			_this.types = response.data;
-			_this.loading = false;
 		});
 	},
 
@@ -28204,54 +28913,10 @@ exports.default = {
 	/**
   *
   */
-	methods: {
-		search: function search() {
-			var _this2 = this;
-
-			this.selected._token = this.token;
-			this.loading = true;
-
-			this.$http.get('/api/bookings', {
-				before: function before() {
-					_this2.progress = 0;
-				},
-				params: this.selected
-			}).then(function (response) {
-				_this2.progress = 1;
-				var data = response.data;
-				_this2.resources = data.available.concat(data.notavailable);
-				_this2.errors = [];
-			}, function (response) {
-				if (response.status == 422) {
-					_this2.progress = 1;
-					_this2.errors = response.data;
-				}
-			});
-		},
-		calculate: function calculate() {
-			var _this3 = this;
-
-			this.selected._token = this.token;
-			this.loading = true;
-			this.$http.post('/api/bookings/calculate', this.selected, {
-				before: function before() {
-					_this3.progress = 0;
-				}
-			}).then(function (response) {
-				_this3.progress = 1;
-				var data = response.data;
-				_this3.resources = data.available.concat(data.notavailable);
-			}, function (response) {
-				if (response.status == 422) {
-					_this3.progress = 1;
-					_this3.errors = response.data;
-				}
-			});
-		}
-	}
+	methods: {}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"progress < 1\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\t:selected.sync=\"selected.type\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"search\">\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:selected.sync=\"selected.bookable\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker :selected.sync=\"selected.date\" @change=\"search\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker :selected.sync=\"selected.time_from\" @change=\"search\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker :selected.sync=\"selected.time_to\" @change=\"search\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t:progress=\"progress\"\n\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t@click=\"calculate\"\n\t\t\t\t\t\t\tv-if=\"selected.bookable\"\n\t\t>\n\t\t\tCalcular Precio\n\t\t</u-button>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\">\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t@click=\"calculate\"\n\t\t>\n\t\t\tCalcular Precio\n\t\t</u-button>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -28267,7 +28932,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../../Button":12,"../../DatePicker":16,"../../Error":17,"../../Selectable":18,"../../TimePicker":19,"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],16:[function(require,module,exports){
+},{"../../../../state/actions":23,"../../../Button":13,"../../DatePicker":17,"../../Error":18,"../../Selectable":19,"../../TimePicker":20,"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],17:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -28312,8 +28977,8 @@ exports.default = (_name$ready$data$even = {
   */
 	events: {
 		'set': function set(picker) {
-			this.$emit('change');
 			this.selected = picker.get('select', 'yyyymmdd');
+			this.$emit('change', this.selected);
 		}
 	},
 
@@ -28380,7 +29045,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"babel-runtime/helpers/defineProperty":2,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],17:[function(require,module,exports){
+},{"babel-runtime/helpers/defineProperty":2,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],18:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -28421,7 +29086,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],18:[function(require,module,exports){
+},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],19:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -28456,14 +29121,14 @@ exports.default = {
   */
 	events: {
 		'set': function set(selectable, name, evt) {
-			this.$emit('change');
-
 			if (this.options.length > 0) {
 				var selected = _.find(this.options, function (b) {
 					return b.id == evt.params.data.id;
 				});
 
 				if (selected) this.selected = selected.id;
+
+				this.$emit('change', this.selected);
 			}
 		}
 	},
@@ -28536,7 +29201,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],19:[function(require,module,exports){
+},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28565,8 +29230,8 @@ exports.default = {
   */
 	events: {
 		'set': function set(picker) {
-			this.$emit('change');
 			this.selected = picker.get('select', 'HHi');
+			this.$emit('change', this.selected);
 		}
 	},
 
@@ -28631,7 +29296,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7}],20:[function(require,module,exports){
+},{"vue":9,"vue-hot-reload-api":7}],21:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert(".clickable-icon {\n  cursor: pointer;\n}\n.clickable-icon:hover {\n  color: #ff7175;\n}\n")
 'use strict';
 
@@ -28874,7 +29539,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],21:[function(require,module,exports){
+},{"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28904,6 +29569,313 @@ exports.default = {
 	}
 };
 
-},{}]},{},[11]);
+},{}],23:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.addBookable = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDate = exports.addErrors = exports.addResources = exports.calculate = exports.searchBookables = exports.setLoading = undefined;
+
+var _mutationTypes = require('./mutation-types');
+
+var _bookings = require('./api/bookings');
+
+var _bookings2 = _interopRequireDefault(_bookings);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var setLoading = exports.setLoading = function setLoading(_ref, _ref2) {
+	var dispatch = _ref.dispatch;
+	var state = _ref.state;
+	var loading = _ref2.loading;
+	var progress = _ref2.progress;
+
+	dispatch(_mutationTypes.SET_LOADING, { loading: loading, progress: progress });
+};
+
+var searchBookables = exports.searchBookables = function searchBookables(_ref3) {
+	var dispatch = _ref3.dispatch;
+	var state = _ref3.state;
+
+	var b = state.booking;
+	if (b.date && b.time_to && b.time_from && b.type) {
+		_bookings2.default.getAll(state.booking,
+		// handle success
+		function (resources) {
+			return dispatch(_mutationTypes.ADD_RESOURCES, resources);
+		},
+		// handle error
+		function (errors) {
+			return dispatch(_mutationTypes.ADD_ERRORS, errors);
+		});
+	}
+};
+
+var calculate = exports.calculate = function calculate(_ref4) {
+	var dispatch = _ref4.dispatch;
+	var state = _ref4.state;
+
+	var b = state.booking;
+	if (b.date && b.time_to && b.time_from && b.type && b.bookable) {
+		_bookings2.default.calculate(state.booking,
+		// handle success
+		function (prices) {
+			return dispatch(_mutationTypes.ADD_PRICE, prices);
+		},
+		// handle error
+		function (errors) {
+			return dispatch(_mutationTypes.ADD_ERRORS, errors);
+		});
+	}
+};
+
+var addResources = exports.addResources = function addResources(_ref5, resources) {
+	var dispatch = _ref5.dispatch;
+	var state = _ref5.state;
+
+	dispatch(_mutationTypes.ADD_RESOURCES, resources);
+};
+
+var addErrors = exports.addErrors = function addErrors(_ref6, errors) {
+	var dispatch = _ref6.dispatch;
+	var state = _ref6.state;
+
+	dispatch(_mutationTypes.ADD_ERRORS, errors);
+};
+
+var addDate = exports.addDate = function addDate(_ref7, date) {
+	var dispatch = _ref7.dispatch;
+	var state = _ref7.state;
+
+	dispatch(_mutationTypes.ADD_DATE, date);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addTimeTo = exports.addTimeTo = function addTimeTo(_ref8, timeTo) {
+	var dispatch = _ref8.dispatch;
+	var state = _ref8.state;
+
+	dispatch(_mutationTypes.ADD_TIME_TO, timeTo);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref9, timeFrom) {
+	var dispatch = _ref9.dispatch;
+	var state = _ref9.state;
+
+	dispatch(_mutationTypes.ADD_TIME_FROM, timeFrom);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addType = exports.addType = function addType(_ref10, type) {
+	var dispatch = _ref10.dispatch;
+	var state = _ref10.state;
+
+	dispatch(_mutationTypes.ADD_TYPE, type);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addBookable = exports.addBookable = function addBookable(_ref11, bookable) {
+	var dispatch = _ref11.dispatch;
+	var state = _ref11.state;
+
+	dispatch(_mutationTypes.ADD_BOOKABLE, bookable);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+},{"./api/bookings":24,"./mutation-types":26}],24:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _vue = require('vue');
+
+var _vue2 = _interopRequireDefault(_vue);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+	getAll: function getAll(params, done, error) {
+		return _vue2.default.http.get('/api/bookings', { params: params }).then(function (response) {
+			var data = response.json();
+			done(data.available.concat(data.notavailable));
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	},
+
+	calculate: function calculate(params, done, error) {
+		return _vue2.default.http.post('/api/bookings/calculate', params).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	}
+};
+
+},{"vue":9}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _mutations;
+
+var _mutationTypes = require('../mutation-types');
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * Initial State
+ * @type {{}}
+ */
+var state = {
+	errors: [],
+	resources: [],
+	bookable: null,
+	time_to: null,
+	time_from: null,
+	date: null,
+	type: null
+};
+
+/**
+ * Mutations
+ * @type {{}}
+ */
+var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD_DATE, function (state, date) {
+	state.date = date;
+}), _defineProperty(_mutations, _mutationTypes.ADD_TIME_TO, function (state, timeTo) {
+	state.time_to = timeTo;
+}), _defineProperty(_mutations, _mutationTypes.ADD_TIME_FROM, function (state, timeFrom) {
+	state.time_from = timeFrom;
+}), _defineProperty(_mutations, _mutationTypes.ADD_BOOKABLE, function (state, bookable) {
+	state.bookable = bookable;
+}), _defineProperty(_mutations, _mutationTypes.ADD_TYPE, function (state, type) {
+	state.type = type;
+}), _mutations);
+
+/**
+ * Booking Module
+ */
+exports.default = {
+	state: state,
+	mutations: mutations
+};
+
+},{"../mutation-types":26}],26:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/**
+ * Mutation types for Booking
+ * @type {string}
+ */
+
+var ADD_DATE = exports.ADD_DATE = 'ADD_DATE';
+var ADD_TIME_TO = exports.ADD_TIME_TO = 'ADD_TIME_TO';
+var ADD_TIME_FROM = exports.ADD_TIME_FROM = 'ADD_TIME_FROM';
+var ADD_TYPE = exports.ADD_TYPE = 'ADD_TYPE';
+var ADD_BOOKABLE = exports.ADD_BOOKABLE = 'ADD_BOOKABLE';
+var ADD_ERRORS = exports.ADD_ERRORS = 'ADD_ERRORS';
+var ADD_RESOURCES = exports.ADD_RESOURCES = 'ADD_RESOURCES';
+var SET_LOADING = exports.SET_LOADING = 'SET_LOADING';
+var ADD_PRICE = exports.ADD_PRICE = 'ADD_PRICE';
+
+},{}],27:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _mutations;
+
+var _vue = require('vue');
+
+var _vue2 = _interopRequireDefault(_vue);
+
+var _vuex = require('vuex');
+
+var _vuex2 = _interopRequireDefault(_vuex);
+
+var _mutationTypes = require('./mutation-types');
+
+var _booking = require('./modules/booking');
+
+var _booking2 = _interopRequireDefault(_booking);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+/**
+ * Mutation Types
+ */
+
+
+/**
+ * Middlewares
+ */
+
+/**
+ * Modules
+ */
+
+
+_vue2.default.use(_vuex2.default);
+
+/**
+ * Global app state
+ * @type {{loading: {progress: number, isLoading: boolean}}}
+ */
+var state = {
+	prices: {},
+	resources: [],
+	errors: [],
+	loading: {
+		progress: 1,
+		isLoading: false
+	}
+};
+
+/**
+ * Global app mutations
+ * @type {{}}
+ */
+var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.SET_LOADING, function (state, _ref) {
+	var _ref$loading = _ref.loading;
+	var loading = _ref$loading === undefined ? true : _ref$loading;
+	var _ref$progress = _ref.progress;
+	var progress = _ref$progress === undefined ? 1 : _ref$progress;
+
+	state.loading.isLoading = loading;
+	state.loading.progress = progress;
+}), _defineProperty(_mutations, _mutationTypes.ADD_ERRORS, function (state, errors) {
+	state.errors = errors;
+}), _defineProperty(_mutations, _mutationTypes.ADD_RESOURCES, function (state, resources) {
+	state.resources = resources;
+}), _defineProperty(_mutations, _mutationTypes.ADD_PRICE, function (state, price) {
+	state.prices = price;
+}), _mutations);
+
+exports.default = new _vuex2.default.Store({
+	state: state,
+	mutations: mutations,
+	modules: {
+		booking: _booking2.default
+	}
+});
+
+},{"./modules/booking":25,"./mutation-types":26,"vue":9,"vuex":11}]},{},[12]);
 
 //# sourceMappingURL=admin.js.map

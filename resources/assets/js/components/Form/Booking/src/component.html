@@ -3,15 +3,14 @@
 		<h6 class="panel-title">Crear una reserva</h6>
 		<div class="heading-elements"></div>
 	</div>
-	<div class="panel-body" v-block="progress < 1">
+	<div class="panel-body" v-block="loading">
 
 		<div class="row pb-20">
 			<div class="col-sm-12">
 				<label>Tipo de sala</label>
 				<selectable :options="types"
-										:selected.sync="selected.type"
 										placeholder="Selecciona un tipo"
-										@change="search">
+										@change="addType">
 				</selectable>
 				<form-error :errors="errors.type"></form-error>
 			</div>
@@ -21,11 +20,11 @@
 			<div class="col-sm-12">
 				<label>Recurso</label>
 				<selectable :options="resources"
-										:selected.sync="selected.bookable"
 										:placeholder="Selecciona un recurso"
 										:disabled="hasResources"
 										option-condition-disable="available"
 										:option-condition-oposite="true"
+										@change="addBookable"
 				>
 				</selectable>
 				<form-error :errors="errors.bookable"></form-error>
@@ -35,17 +34,17 @@
 		<div class="row pb-20">
 			<div class="col-sm-4">
 				<label>Fecha</label>
-				<date-picker :selected.sync="selected.date" @change="search"></date-picker>
+				<date-picker  @change="addDate"></date-picker>
 				<form-error :errors="errors.date"></form-error>
 			</div>
 			<div class="col-sm-4">
 				<label>Hora Inicio</label>
-				<time-picker :selected.sync="selected.time_from" @change="search"></time-picker>
+				<time-picker @change="addTimeFrom"></time-picker>
 				<form-error :errors="errors.time_from"></form-error>
 			</div>
 			<div class="col-sm-4">
 				<label>Hora Fin</label>
-				<time-picker :selected.sync="selected.time_to" @change="search"></time-picker>
+				<time-picker @change="addTimeTo"></time-picker>
 				<form-error :errors="errors.time_to"></form-error>
 			</div>
 		</div>
@@ -53,10 +52,8 @@
 		<u-button :ladda="{style:'zoom-in'}"
 							class="pull-right"
 							data-style="zoom-in"
-							:progress="progress"
 							color="primary"
 							@click="calculate"
-							v-if="selected.bookable"
 		>
 			Calcular Precio
 		</u-button>

@@ -5,6 +5,15 @@ export default{
    */
   name: 'Button',
 
+	/**
+	 * Vuex instance
+	 */
+	vuex: {
+		getters: {
+			progress: (state) => state.loading.progress,
+			isLoading: (state) => state.loading.isLoading
+		}
+	},
   /**
    * The data object for the component it self
    * More info: http://vuejs.org/api/#data
@@ -19,8 +28,11 @@ export default{
 	 *
 	 */
 	watch: {
-		progress(value, oldValue) {
-			this.setProgress(value)
+		progress : {
+			handler(value) {
+				this.setProgress(value)
+			},
+			immediate: true
 		}
 	},
 
@@ -43,7 +55,6 @@ export default{
 	props: {
 		ladda : { type: Object, default () { return false } },
 		ripple : { type: Boolean, default(){ return false }},
-		progress : {type: Number, default () { return 1 }, coerce (value) { return parseFloat(value) }},
 		color : { type: String, default(){ return 'default' }}
 	},
 
@@ -52,10 +63,7 @@ export default{
    * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
    */
   ready () {
-		if(this.ladda)
-		{
-			this.loadLadda()
-		}
+		this.load()
   },
 
   /**
@@ -68,19 +76,36 @@ export default{
 	 * Methods
 	 */
 	methods: {
-		loadLadda() {
-			this.laddaInstance = Ladda.create( this.$el )
+		load() {
+			if(!this.isLoaded() && this.isLadda()) this.laddaInstance = Ladda.create(this.$el)
 		},
-		startLadda() {
-			this.laddaInstance.start()
-			this.setProgress(this.progress)
+
+		start() {
+			if(this.isLoaded()) this.laddaInstance.start()
 		},
+
+		stop() {
+			if(this.isLoaded()) this.laddaInstance.stop()
+		},
+
 		setProgress(progress) {
-			this.laddaInstance.setProgress(progress)
-			if (progress === 1) {
-				this.laddaInstance.stop()
+			if (this.isLoaded())
+			{
+				this.laddaInstance.setProgress(progress)
+				if (progress == 1) {
+					this.stop()
+				}
 			}
+		},
+
+		isLadda() {
+			return this.ladda
+		},
+
+		isLoaded() {
+			return this.laddaInstance
 		}
+
 
 	}
 }

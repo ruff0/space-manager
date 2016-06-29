@@ -4,14 +4,37 @@ import DatePicker from "../../DatePicker"
 import Selectable from "../../Selectable"
 import UButton from "../../../Button"
 import FormError from "../../Error"
+import {addDate, addTimeTo, addTimeFrom, addType, addBookable, calculate} from '../../../../state/actions'
 
 
-export default{
+
+
+export default {
   /**
    * Name of the component
    * More info: http://vuejs.org/api/#name
    */
   name: 'Booking',
+
+	/**
+	 * Vuex instance
+	 */
+	vuex: {
+		actions : {
+			addDate,
+			addTimeTo,
+			addTimeFrom,
+			addType,
+			addBookable,
+			calculate
+		},
+		getters: {
+			loading: (state) => state.loading.isLoading,
+			errors: (state) => state.errors,
+			resources: (state) => state.resources,
+			selected: (state) => state.booking
+		}
+	},
 
   /**
    * The data object for the component it self
@@ -19,17 +42,7 @@ export default{
    */
   data () {
     return {
-			types: [],
-			resources: [],
-			progress: 1,
-			errors: [],
-			selected : {
-				type: null,
-				date: null,
-				time_to: null,
-				time_from: null,
-				bookable: null
-			}
+			types: []
     }
   },
 
@@ -45,7 +58,7 @@ export default{
 	 */
 	computed : {
 		hasResources () {
-			return this.resources.length === 0
+			return this.resources.length == 0
 		}
 	},
 	/**
@@ -60,10 +73,8 @@ export default{
    * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
    */
   ready () {
-		this.loading = true
 		this.$http.get('/api/bookable-types').then((response) => {
 			this.types = response.data
-			this.loading = false
 		})
   },
 
@@ -82,49 +93,5 @@ export default{
 	/**
 	 *
 	 */
-	methods: {
-		search () {
-			this.selected._token = this.token
-			this.loading = true
-
-			this.$http.get('/api/bookings', {
-					before: () => {
-						this.progress = 0
-					},
-					params:	this.selected
-				}
-			).then((response) => {
-				this.progress = 1
-				const data = response.data
-				this.resources = data.available.concat(data.notavailable)
-				this.errors = []
-
-			}, (response) => {
-				if(response.status == 422)
-				{
-					this.progress = 1
-					this.errors = response.data
-				}
-			})
-		},
-
-		calculate () {
-			this.selected._token = this.token
-			this.loading = true
-			this.$http.post('/api/bookings/calculate', this.selected, {
-				before: () => {
-					this.progress = 0
-				}
-			}).then((response) => {
-				this.progress = 1
-				const data = response.data
-				this.resources = data.available.concat(data.notavailable)
-			}, (response) => {
-				if (response.status == 422) {
-					this.progress = 1
-					this.errors = response.data
-				}
-			})
-		},
-	}
+	methods: {}
 }

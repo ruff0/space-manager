@@ -26,8 +26,6 @@ export default{
 	 */
 	events: {
 		'set': function (selectable, name, evt) {
-			this.$emit('change')
-			
 			if(this.options.length > 0)
 			{
 				let selected= _.find(this.options, (b) => {
@@ -36,6 +34,8 @@ export default{
 
 				if (selected)
 					this.selected = selected.id
+
+				this.$emit('change', this.selected)
 			}
 		}
 	},
