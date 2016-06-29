@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Bookings;
 
 use App\Bookables\Bookable;
 use App\Bookables\BookableType;
+use App\Http\Requests\Api\BookingsSearchRequest;
 use App\Http\Requests\Bookings\CreateBookingForm;
 use App\Invoices\Models\Invoice;
 use App\Invoices\Models\Line;
@@ -21,7 +22,12 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingsController extends Controller
 {
-	public function index(Request $request)
+	/**
+	 * @param BookingsSearchRequest $request
+	 *
+	 * @return array
+	 */
+	public function index(BookingsSearchRequest $request)
 	{
 		$available = [];
 
@@ -67,8 +73,8 @@ class BookingsController extends Controller
 
 		return [
 			'available' => BookableType::find($request->get('type'))->bookables()
-				->getWithHours($hours, $available, $timeFrom, $timeTo),
-			'notavailable' => BookableType::find($request->get('type'))->bookables()->whereNotIn('id', $available)->get()
+				->availableWithIn($hours, $available, $timeFrom, $timeTo),
+			'notavailable' => BookableType::find($request->get('type'))->bookables()->notAvailableWithIn($available)
 		];
 	}
 

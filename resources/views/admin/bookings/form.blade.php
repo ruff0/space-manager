@@ -1,2 +1,1 @@
-
-<booking-form></booking-form>
+<booking-form token="{{csrf_token()}}"></booking-form>

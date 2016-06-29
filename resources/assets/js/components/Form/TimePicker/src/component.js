@@ -12,33 +12,27 @@ export default{
 	data(){
 		return {
 			timepicker: null,
-			selected: ''
 		}
 	},
 
-	/**
+ /**
 	 *
 	 */
-	events : {
-		'set' : function (value) {
-			this.selected = value.select
+	events: {
+		'set': function (picker) {
+			this.$emit('change')
+			this.selected = picker.get('select', 'HHi')
 		}
 	},
+	
 	/**
 	 * Public properties
 	 */
 	props: {
+		selected: null,
 		interval: {type: Number, default: 60},
-		min: {
-			type: Array, default: () => {
-				return [8, 0]
-			}
-		},
-		max: {
-			type: Array, default: () => {
-				return [21, 0]
-			}
-		},
+		min: { type: Array, default: () => { return [8, 0] } },
+		max: { type: Array, default: () => { return [21, 0] } },
 		format: {type: String, default: 'HH:i'},
 		formatLabel: {type: String, default: 'HH:i'},
 		formatSubmit: {type: String, default: 'HHi'},
@@ -63,7 +57,7 @@ export default{
 			hiddenPrefix: this.hiddenPrefix,
 			hiddenSuffix: this.hiddenSuffix,
 			onSet: function (context) {
-				self.$emit('set', context)
+				self.$emit('set', this)
 			}
 		});
 

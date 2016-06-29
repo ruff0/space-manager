@@ -1,16 +1,11 @@
 export default {
-	bind: function () {
-		// do preparation work
-		// e.g. add event listeners or expensive stuff
-		// that needs to be run only once
-		console.log(this.el)
-	},
+	bind: function () {},
 	update: function (newValue, oldValue) {
 		if (newValue) {
 			$(this.el).block({
 				message: '<i class="icon-spinner10 spinner"></i>',
 				overlayCSS: {
-					backgroundColor: '#1B2024',
+					backgroundColor: '#fafafa',
 					opacity: 0.85,
 					cursor: 'wait'
 				},

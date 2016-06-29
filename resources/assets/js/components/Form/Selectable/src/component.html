@@ -1,0 +1,9 @@
+<select name="bookable_type_id" data-placeholder="{{placeholder}}" class="select" :disabled="disabled">
+	<option></option>
+	<option :value="option.id"
+					v-for="option in options"
+					:disabled="isOptionDisabled(option)"
+	>
+		{{option.name}}
+	</option>
+</select>
