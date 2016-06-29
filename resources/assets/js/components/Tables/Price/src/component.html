@@ -1,0 +1,53 @@
+<div class="panel panel-white" v-if="calculated && resources">
+	<div class="panel-heading">
+		<h6 class="panel-title">Datos de la reserva</h6>
+		<div class="heading-elements"></div>
+	</div>
+	<div class="panel-body" v-block="loading">
+		<div class="table-responsive">
+			<table class="table table-striped">
+				<thead>
+					<tr class="bg-slate-600">
+						<th colspan="2">Concepto</th>
+						<th>Precio</th>
+						<th>Cantidad</th>
+						<th>Total</th>
+					</tr>
+				</thead>
+				<tfoot>
+					<tr>
+						<th colspan="4">Subtotal</th>
+						<th>{{subtotal}}</th>
+					</tr>
+					<tr>
+						<th colspan="4">
+							IVA <span>{{percentage}}</span>
+						</th>
+						<th>{{vat}}</th>
+					</tr>
+					<tr>
+						<th colspan="4">Total</th>
+						<th>{{total}}</th>
+					</tr>
+				</tfoot>
+				<tbody>
+					<tr v-for="line in lines">
+						<td>
+							{{{line.description}}}
+						</td>
+						<td>{{line.image}}</td>
+						<td>
+							{{line.priceFormated}}
+						</td>
+						<td>
+							{{line.amount}}
+						</td>
+						<td>
+							{{line.totalFormated}}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

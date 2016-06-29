@@ -1,7 +1,24 @@
 <div class="panel panel-white">
 	<div class="panel-heading">
 		<h6 class="panel-title">Crear una reserva</h6>
-		<div class="heading-elements"></div>
+		<div class="heading-elements" v-if="resources && calculated">
+			<u-button :ladda="{style:'zoom-in'}"
+								class="pull-right"
+								data-style="zoom-in"
+								color="primary"
+								@click="reserve"
+			>
+				Reservar
+			</u-button>
+			<u-button :ladda="{style:'zoom-in'}"
+								class="pull-right  mr-20"
+								data-style="zoom-in"
+								color="primary"
+								@click="reserveAndPay"
+			>
+				Reservar & pagar
+			</u-button>
+		</div>
 	</div>
 	<div class="panel-body" v-block="loading">
 
@@ -48,14 +65,5 @@
 				<form-error :errors="errors.time_to"></form-error>
 			</div>
 		</div>
-
-		<u-button :ladda="{style:'zoom-in'}"
-							class="pull-right"
-							data-style="zoom-in"
-							color="primary"
-							@click="calculate"
-		>
-			Calcular Precio
-		</u-button>
 	</div>
 </div>

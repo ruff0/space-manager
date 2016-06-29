@@ -6,8 +6,10 @@ import {
 	ADD_BOOKABLE,
 	ADD_ERRORS,
 	ADD_RESOURCES,
+	CLEAR_RESOURCES,
 	SET_LOADING,
-	ADD_PRICE
+	ADD_PRICE,
+	CLEAR_PRICE
 } from './mutation-types'
 import bookings from './api/bookings'
 
@@ -19,6 +21,8 @@ export const setLoading = ({dispatch, state}, {loading, progress}) => {
 export const searchBookables = ({dispatch, state}) => {
 	const b = state.booking
 	if(b.date && b.time_to && b.time_from && b.type) {
+		dispatch(CLEAR_PRICE)
+		dispatch(CLEAR_RESOURCES)
 		bookings.getAll(
 			state.booking,
 			// handle success
@@ -71,6 +75,7 @@ export const addType = ({dispatch, state}, type) => {
 }
 
 export const addBookable = ({dispatch, state}, bookable) => {
+	dispatch(CLEAR_PRICE)
 	dispatch(ADD_BOOKABLE, bookable)
-	searchBookables({dispatch, state})
+	calculate({dispatch, state})
 }

@@ -35,6 +35,9 @@ var Discounts = {
 var Passes = {
 	Pass: require('./components/Pass'),
 }
+var Table = {
+	Price: require('./components/Tables/Price'),
+}
 
 /**
  * Vue Config
@@ -61,7 +64,9 @@ Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAt
 Vue.http.interceptors.push((request, next) => {
 	store.dispatch(SET_LOADING, { loading: true, progress: 0 })
 	next((response) => {
-		store.dispatch(SET_LOADING, { loading: false, progress: 1 })
+		setTimeout(() => {
+			store.dispatch(SET_LOADING, {loading: false, progress: 1})
+		}, 200)
 	})
 });
 
@@ -79,6 +84,7 @@ var v = new Vue({
 		'discount': Discounts.Discount,
 		'pass': Passes.Pass,
 		'booking-form': Form.Booking,
+		'price-table': Table.Price,
 		'time-picker': Form.TimePicker
 	},
 });

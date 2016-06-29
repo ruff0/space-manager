@@ -28418,6 +28418,9 @@ var Discounts = {
 var Passes = {
 	Pass: require('./components/Pass')
 };
+var Table = {
+	Price: require('./components/Tables/Price')
+};
 
 /**
  * Vue Config
@@ -28442,7 +28445,9 @@ Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAt
 Vue.http.interceptors.push(function (request, next) {
 	_store2.default.dispatch(_mutationTypes.SET_LOADING, { loading: true, progress: 0 });
 	next(function (response) {
-		_store2.default.dispatch(_mutationTypes.SET_LOADING, { loading: false, progress: 1 });
+		setTimeout(function () {
+			_store2.default.dispatch(_mutationTypes.SET_LOADING, { loading: false, progress: 1 });
+		}, 200);
 	});
 });
 
@@ -28460,11 +28465,12 @@ var v = new Vue({
 		'discount': Discounts.Discount,
 		'pass': Passes.Pass,
 		'booking-form': Form.Booking,
+		'price-table': Table.Price,
 		'time-picker': Form.TimePicker
 	}
 });
 
-},{"./components/Calendar/Scheduler.vue":14,"./components/Discount/Discount.vue":15,"./components/Form/Booking":16,"./components/Form/TimePicker":20,"./components/Pass":21,"./directives/Block":22,"./state/mutation-types":26,"./state/store":27,"vue":9,"vue-resource":8}],13:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":14,"./components/Discount/Discount.vue":15,"./components/Form/Booking":16,"./components/Form/TimePicker":20,"./components/Pass":21,"./components/Tables/Price":22,"./directives/Block":23,"./state/mutation-types":27,"./state/store":28,"vue":9,"vue-resource":8}],13:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -28849,6 +28855,9 @@ exports.default = {
 			},
 			selected: function selected(state) {
 				return state.booking;
+			},
+			calculated: function calculated(state) {
+				return state.prices.calculated;
 			}
 		}
 	},
@@ -28867,9 +28876,7 @@ exports.default = {
 	/**
   * Public properties
   */
-	props: {
-		token: { type: String, required: true }
-	},
+	props: {},
 
 	/**
   *
@@ -28913,10 +28920,13 @@ exports.default = {
 	/**
   *
   */
-	methods: {}
+	methods: {
+		reserve: function reserve() {},
+		reserveAndPay: function reserveAndPay() {}
+	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\">\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t@click=\"calculate\"\n\t\t>\n\t\t\tCalcular Precio\n\t\t</u-button>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right  mr-20\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\">\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -28932,7 +28942,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../../../state/actions":23,"../../../Button":13,"../../DatePicker":17,"../../Error":18,"../../Selectable":19,"../../TimePicker":20,"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],17:[function(require,module,exports){
+},{"../../../../state/actions":24,"../../../Button":13,"../../DatePicker":17,"../../Error":18,"../../Selectable":19,"../../TimePicker":20,"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],17:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -29132,7 +29142,18 @@ exports.default = {
 			}
 		}
 	},
+	watch: {
+		options: {
+			handler: function handler(value, oldValue) {
+				console.log(value.length == 0);
+				if (value.length == 0 && this.selectable) {
+					this.selectable.val(null).trigger('change');
+				}
+			},
 
+			immediate: true
+		}
+	},
 	/**
   * Public properties
   */
@@ -29162,7 +29183,7 @@ exports.default = {
 	ready: function ready() {
 		var _this = this;
 
-		this.selectable = $('.select').select2({
+		this.selectable = $(this.$el).select2({
 			minimumResultsForSearch: Infinity
 		}).on("select2:select", function (event) {
 			_this.$emit('set', _this, "select2:select", event);
@@ -29185,7 +29206,7 @@ exports.default = {
 
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<select name=\"bookable_type_id\" data-placeholder=\"{{placeholder}}\" class=\"select\" :disabled=\"disabled\">\n\t<option></option>\n\t<option :value=\"option.id\"\n\t\t\t\t\tv-for=\"option in options\"\n\t\t\t\t\t:disabled=\"isOptionDisabled(option)\"\n\t>\n\t\t{{option.name}}\n\t</option>\n</select>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<select name=\"bookable_type_id\" data-placeholder=\"{{placeholder}}\" :disabled=\"disabled\">\n\t<option></option>\n\t<option :value=\"option.id\"\n\t\t\t\t\tv-for=\"option in options\"\n\t\t\t\t\t:disabled=\"isOptionDisabled(option)\"\n\t>\n\t\t{{option.name}}\n\t</option>\n</select>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -29540,6 +29561,96 @@ if (module.hot) {(function () {  module.hot.accept()
   }
 })()}
 },{"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],22:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  /**
+   * Name of the component
+   * More info: http://vuejs.org/api/#name
+   */
+  name: 'PriceTable',
+
+  /**
+   * Vuex instance
+   */
+  vuex: {
+    getters: {
+      loading: function loading(state) {
+        return state.loading.isLoading;
+      },
+      errors: function errors(state) {
+        return state.errors;
+      },
+      prices: function prices(state) {
+        return state.prices;
+      },
+      resources: function resources(state) {
+        return state.resources;
+      },
+      subtotal: function subtotal(state) {
+        return state.prices.subtotalFormated;
+      },
+      total: function total(state) {
+        return state.prices.totalFormated;
+      },
+      vat: function vat(state) {
+        return state.prices.vatFormated;
+      },
+      percentage: function percentage(state) {
+        return state.prices.vatPercentage;
+      },
+      lines: function lines(state) {
+        return state.prices.lines;
+      },
+      calculated: function calculated(state) {
+        return state.prices.calculated;
+      }
+    }
+  },
+  /**
+   * The data object for the component it self
+   * More info: http://vuejs.org/api/#data
+   */
+  data: function data() {
+    return {};
+  },
+
+
+  /**
+   * This is called when the component is ready
+   * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+   */
+  ready: function ready() {},
+
+
+  /**
+   * Child components of this one
+   * More info: http://vuejs.org/guide/components.html
+   */
+  components: {}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\" v-if=\"calculated && resources\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Datos de la reserva</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\t\t<div class=\"table-responsive\">\n\t\t\t<table class=\"table table-striped\">\n\t\t\t\t<thead>\n\t\t\t\t\t<tr class=\"bg-slate-600\">\n\t\t\t\t\t\t<th colspan=\"2\">Concepto</th>\n\t\t\t\t\t\t<th>Precio</th>\n\t\t\t\t\t\t<th>Cantidad</th>\n\t\t\t\t\t\t<th>Total</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</thead>\n\t\t\t\t<tfoot>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Subtotal</th>\n\t\t\t\t\t\t<th>{{subtotal}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">\n\t\t\t\t\t\t\tIVA <span>{{percentage}}</span>\n\t\t\t\t\t\t</th>\n\t\t\t\t\t\t<th>{{vat}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Total</th>\n\t\t\t\t\t\t<th>{{total}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</tfoot>\n\t\t\t\t<tbody>\n\t\t\t\t\t<tr v-for=\"line in lines\">\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{{line.description}}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>{{line.image}}</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.priceFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.amount}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.totalFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</tbody>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n</div>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Tables/Price/src/Component.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["h1 {\n  color: #00a8ed;\n}"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29569,7 +29680,7 @@ exports.default = {
 	}
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29600,6 +29711,8 @@ var searchBookables = exports.searchBookables = function searchBookables(_ref3) 
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type) {
+		dispatch(_mutationTypes.CLEAR_PRICE);
+		dispatch(_mutationTypes.CLEAR_RESOURCES);
 		_bookings2.default.getAll(state.booking,
 		// handle success
 		function (resources) {
@@ -29680,11 +29793,12 @@ var addBookable = exports.addBookable = function addBookable(_ref11, bookable) {
 	var dispatch = _ref11.dispatch;
 	var state = _ref11.state;
 
+	dispatch(_mutationTypes.CLEAR_PRICE);
 	dispatch(_mutationTypes.ADD_BOOKABLE, bookable);
-	searchBookables({ dispatch: dispatch, state: state });
+	calculate({ dispatch: dispatch, state: state });
 };
 
-},{"./api/bookings":24,"./mutation-types":26}],24:[function(require,module,exports){
+},{"./api/bookings":25,"./mutation-types":27}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29720,7 +29834,7 @@ exports.default = {
 	}
 };
 
-},{"vue":9}],25:[function(require,module,exports){
+},{"vue":9}],26:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29771,7 +29885,7 @@ exports.default = {
 	mutations: mutations
 };
 
-},{"../mutation-types":26}],26:[function(require,module,exports){
+},{"../mutation-types":27}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29788,11 +29902,16 @@ var ADD_TIME_FROM = exports.ADD_TIME_FROM = 'ADD_TIME_FROM';
 var ADD_TYPE = exports.ADD_TYPE = 'ADD_TYPE';
 var ADD_BOOKABLE = exports.ADD_BOOKABLE = 'ADD_BOOKABLE';
 var ADD_ERRORS = exports.ADD_ERRORS = 'ADD_ERRORS';
-var ADD_RESOURCES = exports.ADD_RESOURCES = 'ADD_RESOURCES';
-var SET_LOADING = exports.SET_LOADING = 'SET_LOADING';
-var ADD_PRICE = exports.ADD_PRICE = 'ADD_PRICE';
 
-},{}],27:[function(require,module,exports){
+var ADD_RESOURCES = exports.ADD_RESOURCES = 'ADD_RESOURCES';
+var CLEAR_RESOURCES = exports.CLEAR_RESOURCES = 'CLEAR_RESOURCES';
+
+var SET_LOADING = exports.SET_LOADING = 'SET_LOADING';
+
+var ADD_PRICE = exports.ADD_PRICE = 'ADD_PRICE';
+var CLEAR_PRICE = exports.CLEAR_PRICE = 'CLEAR_PRICE';
+
+},{}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29808,6 +29927,10 @@ var _vue2 = _interopRequireDefault(_vue);
 var _vuex = require('vuex');
 
 var _vuex2 = _interopRequireDefault(_vuex);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _mutationTypes = require('./mutation-types');
 
@@ -29838,8 +29961,15 @@ _vue2.default.use(_vuex2.default);
  * Global app state
  * @type {{loading: {progress: number, isLoading: boolean}}}
  */
-var state = {
-	prices: {},
+var initialState = {
+	prices: {
+		lines: [],
+		calculated: false,
+		totalFormated: '',
+		subtotalFormated: '',
+		vatFormated: '',
+		vatPercentage: ''
+	},
 	resources: [],
 	errors: [],
 	loading: {
@@ -29864,18 +29994,23 @@ var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.SET
 	state.errors = errors;
 }), _defineProperty(_mutations, _mutationTypes.ADD_RESOURCES, function (state, resources) {
 	state.resources = resources;
+}), _defineProperty(_mutations, _mutationTypes.CLEAR_RESOURCES, function (state) {
+	state.resources = initialState.resources;
 }), _defineProperty(_mutations, _mutationTypes.ADD_PRICE, function (state, price) {
 	state.prices = price;
+	state.prices.calculated = true;
+}), _defineProperty(_mutations, _mutationTypes.CLEAR_PRICE, function (state) {
+	state.prices = initialState.prices;
 }), _mutations);
 
 exports.default = new _vuex2.default.Store({
-	state: state,
+	state: _lodash2.default.clone(initialState),
 	mutations: mutations,
 	modules: {
 		booking: _booking2.default
 	}
 });
 
-},{"./modules/booking":25,"./mutation-types":26,"vue":9,"vuex":11}]},{},[12]);
+},{"./modules/booking":26,"./mutation-types":27,"lodash":5,"vue":9,"vuex":11}]},{},[12]);
 
 //# sourceMappingURL=admin.js.map

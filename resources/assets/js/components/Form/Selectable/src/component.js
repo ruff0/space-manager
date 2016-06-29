@@ -28,7 +28,7 @@ export default{
 		'set': function (selectable, name, evt) {
 			if(this.options.length > 0)
 			{
-				let selected= _.find(this.options, (b) => {
+				let selected = _.find(this.options, (b) => {
 					return b.id == evt.params.data.id
 				});
 
@@ -39,7 +39,17 @@ export default{
 			}
 		}
 	},
-
+	watch: {
+		options: {
+			handler (value, oldValue) {
+				console.log(value.length == 0)
+				if(value.length == 0 && this.selectable) {
+					this.selectable.val(null).trigger('change')
+				}
+			},
+			immediate: true
+		}
+	},
 	/**
 	 * Public properties
 	 */
@@ -57,11 +67,11 @@ export default{
    * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
    */
   ready () {
-		this.selectable = $('.select').select2({
+		this.selectable = $(this.$el).select2({
 			minimumResultsForSearch: Infinity
 		}).on("select2:select", (event) => {
 			this.$emit('set', this, "select2:select", event)
-		});
+		})
   },
 
   /**

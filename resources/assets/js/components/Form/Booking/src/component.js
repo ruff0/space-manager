@@ -32,7 +32,8 @@ export default {
 			loading: (state) => state.loading.isLoading,
 			errors: (state) => state.errors,
 			resources: (state) => state.resources,
-			selected: (state) => state.booking
+			selected: (state) => state.booking,
+			calculated: (state) => state.prices.calculated
 		}
 	},
 
@@ -49,9 +50,7 @@ export default {
 	/**
 	 * Public properties
 	 */
-	props: {
-		token: { type: String, required: true }
-	},
+	props: {},
 
 	/**
 	 *
@@ -64,9 +63,7 @@ export default {
 	/**
 	 * This is called before the element is rendered on the page
 	 */
-	beforeCompile () {
-
-	},
+	beforeCompile () {},
 
   /**
    * This is called when the component is ready
@@ -93,5 +90,12 @@ export default {
 	/**
 	 *
 	 */
-	methods: {}
+	methods: {
+		reserve(){
+
+		},
+		reserveAndPay(){
+
+		}
+	}
 }
