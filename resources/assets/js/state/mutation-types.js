@@ -17,3 +17,8 @@ export const SET_LOADING = 'SET_LOADING'
 
 export const ADD_PRICE = 'ADD_PRICE'
 export const CLEAR_PRICE = 'CLEAR_PRICE'
+
+export const ADD_MEMBER = 'ADD_MEMBER'
+export const ADD_MEMBERS = 'ADD_MEMBERS'
+
+export const BOOKED = 'BOOKED'

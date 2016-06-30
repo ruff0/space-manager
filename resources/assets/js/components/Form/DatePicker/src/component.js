@@ -1,16 +1,10 @@
 export default{
+
   /**
    * Name of the component
    * More info: http://vuejs.org/api/#name
    */
   name: 'DatePicker',
-
-	/**
-	 * TODO: Call API to get disabled dates.
-	 */
-	ready () {
-
-	},
 
   /**
    * The data object for the component it self
@@ -37,6 +31,7 @@ export default{
 	 */
 	props: {
 		selected: null,
+		value: {coerce: (value) => { return value?moment(value).format('YYYY/MM/DD'):null }},
 		interval: {type: Number, default: 60},
 		disable: {
 			type: Array, default: () => {
@@ -59,7 +54,7 @@ export default{
 		},
 		format: {type: String, default: 'dddd, dd mmm, yyyy'},
 		formatLabel: {type: String, default: 'dddd, dd mmm, yyyy'},
-		formatSubmit: {type: String, default: 'yyyymmdd'},
+		formatSubmit: {type: String, default: 'yyyy/mm/dd'},
 		hiddenPrefix: {type: String, default: ''},
 		hiddenSuffix: {type: String, default: ''}
 	},
@@ -85,6 +80,8 @@ export default{
 				self.$emit('set', this)
 			}
 		});
+
+		// this.datepicker.set('select', this.value, {format: 'yyyymmdd'})
   },
 
   /**

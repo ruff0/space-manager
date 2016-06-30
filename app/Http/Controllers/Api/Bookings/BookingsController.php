@@ -86,7 +86,24 @@ class BookingsController extends Controller
 	 */
 	public function store(CreateBookingForm $request)
 	{
-		if (!auth()->user()->member->hasStripeId()) {
+		if ($request->exists('member') && $request->has('member'))
+		{
+			$member = Member::findOrFail($request->get('member'));
+		}
+		else
+		{
+			$member = Auth::user()->member;
+		}
+
+		$paymentMethod = 'card';
+
+		if($request->has('payment'))
+		{
+			$paymentMethod = $request->get('payment');
+		}
+
+
+		if ($paymentMethod == 'card' && !$member->hasStripeId()) {
 			return response()->json($data = [
 				'error' => [
 					'needsPaymentMethod' => true,
@@ -106,8 +123,6 @@ class BookingsController extends Controller
 				$resources['rooms'][] = $resource->resourceable;
 			}
 		}
-
-		$member = Auth::user()->member;
 
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
@@ -159,38 +174,36 @@ class BookingsController extends Controller
 				$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 
 				$percentage = $discount['percentage'];
-				$total = ($price / 100) * $percentage ;
-				$discountLine = new Line([
-					'price'       => (int) -$total,
-					'name'        => 'Descuento',
-					'description' => "Descuento aplicado $percentage%",
-					'amount'      => 1
-				]);
+				if ($percentage) {
+					$total = ($price / 100) * $percentage;
+					$discountLine = new Line([
+						'price'       => (int)-$total,
+						'name'        => 'Descuento',
+						'description' => "Descuento aplicado $percentage%",
+						'amount'      => 1
+					]);
 
-				$invoice->addLine($discountLine);
+					$invoice->addLine($discountLine);
+				}
 			}
 		}
 
 		$invoice->save();
 
 		// Make Stripe Charge
-		if($passHours && $invoice->getTotalForStripe() )
+		if($paymentMethod == 'card' && $passHours && $invoice->getTotalForStripe() )
 		{
 			$charge = $member->charge($invoice->getTotalForStripe(), [
 				"currency" => $member->getCurrency(),
 				"customer" => $member->id
 			]);
 			$invoice->charge_id = $charge->id;
+			$invoice->save();
 		}
 
-		$invoice->save();
-
 		$rooms = collect($resources['rooms']);
-
 		$rooms->first();
-
 		$member->decrementPassFor($bookable->id, $passHours);
-
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
 			'time_to'   => $timeTo
@@ -223,6 +236,16 @@ class BookingsController extends Controller
 	 */
 	public function calculate(Request $request)
 	{
+		if($request->exists('member') && $request->has('member'))
+		{
+			$member = Member::findOrFail($request->get('member'));
+		}
+		else
+		{
+			$member = Auth::user()->member;
+		}
+
+
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
 		$hours  = $timeFrom->diffInHours($timeTo);
@@ -253,7 +276,6 @@ class BookingsController extends Controller
 		]);
 		$invoice->addLine($line);
 
-		$member = Auth::user()->member;
 		$discount = $member->appliedDiscounts('bookings');
 
 		if($pass = $member->hasPassForType($bookable->id, $timeFrom))
@@ -280,13 +302,16 @@ class BookingsController extends Controller
 		{
 			$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 			$percentage = $discount['percentage'];
-			$total = ($price / 100) * $percentage;
-			$line = new QuoteLine([
-				'price' => - $total,
-				'name'  => "Descuento $percentage%",
-				'description' => "Descuento aplicado $percentage%"
-			]);
-			$invoice->addLine($line);
+		  if($percentage)
+		  {
+			  $total = ($price / 100) * $percentage;
+			  $line = new QuoteLine([
+				  'price'       => -$total,
+				  'name'        => "Descuento $percentage%",
+				  'description' => "Descuento aplicado $percentage%"
+			  ]);
+			  $invoice->addLine($line);
+		  }
 		}
 
 		return $invoice->toJson();

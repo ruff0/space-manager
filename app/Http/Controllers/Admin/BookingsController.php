@@ -51,6 +51,17 @@ class BookingsController extends AdminController
 	}
 
 	/**
+	 *
+	 */
+	public function edit(Booking $bookings)
+	{
+		return view('admin.bookings.edit', [
+			'booking' => $bookings,
+			'invoice' => json_encode([])
+		]);
+	}
+
+	/**
 	 * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
 	 */
 	public function calendar()
@@ -67,7 +78,6 @@ class BookingsController extends AdminController
 
 			if ($bookable) {
 				$type = $bookable->types->first();
-//				dd($type);
 				if ($type) {
 					$res = new \stdClass();
 					$res->id = $resource->resourceable_type . $resource->resourceable->id;
@@ -92,8 +102,6 @@ class BookingsController extends AdminController
 
 			array_push($finalBookings, $book);
 		}
-
-//		dd($finalResources);
 
 		return view('admin.bookings.calendar', [
 			'current'   => $this->current,

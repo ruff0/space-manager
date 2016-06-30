@@ -8,6 +8,7 @@ import {
 	SET_LOADING,
 	ADD_ERRORS,
 	ADD_RESOURCES,
+	ADD_MEMBERS,
 	ADD_PRICE,
 	CLEAR_RESOURCES,
 	CLEAR_PRICE
@@ -39,6 +40,8 @@ const initialState = {
 		vatPercentage: ''
 	},
 	resources: [],
+	members: [],
+	types: [],
 	errors: [],
 	loading: {
 		progress: 1,
@@ -70,6 +73,9 @@ const mutations = {
 	},
 	[CLEAR_PRICE] (state) {
 		state.prices = initialState.prices
+	},
+	[ADD_MEMBERS] (state, members) {
+		state.members = members
 	},
 }
 

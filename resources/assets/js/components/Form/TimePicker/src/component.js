@@ -24,12 +24,12 @@ export default{
 			this.$emit('change', this.selected)
 		}
 	},
-	
 	/**
 	 * Public properties
 	 */
 	props: {
 		selected: null,
+		value: {type: String},
 		interval: {type: Number, default: 60},
 		min: { type: Array, default: () => { return [8, 0] } },
 		max: { type: Array, default: () => { return [21, 0] } },
@@ -58,6 +58,10 @@ export default{
 			hiddenSuffix: this.hiddenSuffix,
 			onSet: function (context) {
 				self.$emit('set', this)
+			},
+			onStart: function () {
+				self.selected = self.value
+				this.set('select', self.value)
 			}
 		});
 

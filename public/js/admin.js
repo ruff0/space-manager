@@ -1,50 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = { "default": require("core-js/library/fn/object/define-property"), __esModule: true };
-},{"core-js/library/fn/object/define-property":3}],2:[function(require,module,exports){
-"use strict";
-
-exports.__esModule = true;
-
-var _defineProperty = require("../core-js/object/define-property");
-
-var _defineProperty2 = _interopRequireDefault(_defineProperty);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = function (obj, key, value) {
-  if (key in obj) {
-    (0, _defineProperty2.default)(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-};
-},{"../core-js/object/define-property":1}],3:[function(require,module,exports){
-var $ = require('../../modules/$');
-module.exports = function defineProperty(it, key, desc){
-  return $.setDesc(it, key, desc);
-};
-},{"../../modules/$":4}],4:[function(require,module,exports){
-var $Object = Object;
-module.exports = {
-  create:     $Object.create,
-  getProto:   $Object.getPrototypeOf,
-  isEnum:     {}.propertyIsEnumerable,
-  getDesc:    $Object.getOwnPropertyDescriptor,
-  setDesc:    $Object.defineProperty,
-  setDescs:   $Object.defineProperties,
-  getKeys:    $Object.keys,
-  getNames:   $Object.getOwnPropertyNames,
-  getSymbols: $Object.getOwnPropertySymbols,
-  each:       [].forEach
-};
-},{}],5:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -16075,7 +16029,7 @@ module.exports = {
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],6:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -16168,7 +16122,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],7:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var Vue // late bind
 var map = Object.create(null)
 var shimmed = false
@@ -16468,7 +16422,7 @@ function format (id) {
   return id.match(/[^\/]+\.vue$/)[0]
 }
 
-},{}],8:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*!
  * vue-resource v0.9.1
  * https://github.com/vuejs/vue-resource
@@ -17781,7 +17735,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 module.exports = plugin;
-},{}],9:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v1.0.21
@@ -27707,7 +27661,7 @@ setTimeout(function () {
 
 module.exports = Vue;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":6}],10:[function(require,module,exports){
+},{"_process":2}],6:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 exports.insert = function (css) {
@@ -27727,7 +27681,7 @@ exports.insert = function (css) {
   return elem
 }
 
-},{}],11:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*!
  * Vuex v0.8.2
  * (c) 2016 Evan You
@@ -28366,7 +28320,7 @@ exports.insert = function (css) {
   return index;
 
 }));
-},{}],12:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var _Block = require('./directives/Block');
@@ -28470,7 +28424,7 @@ var v = new Vue({
 	}
 });
 
-},{"./components/Calendar/Scheduler.vue":14,"./components/Discount/Discount.vue":15,"./components/Form/Booking":16,"./components/Form/TimePicker":20,"./components/Pass":21,"./components/Tables/Price":22,"./directives/Block":23,"./state/mutation-types":27,"./state/store":28,"vue":9,"vue-resource":8}],13:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":10,"./components/Discount/Discount.vue":11,"./components/Form/Booking":12,"./components/Form/TimePicker":16,"./components/Pass":17,"./components/Tables/Price":18,"./directives/Block":19,"./state/mutation-types":24,"./state/store":25,"vue":5,"vue-resource":4}],9:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -28613,7 +28567,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],14:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],10:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert(".Calendar {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.Calendar--List {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 0;\n      -ms-flex: 1 0 0;\n          flex: 1 0 0;\n}\n.Calendar--Calendar {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 20em;\n      -ms-flex: 1 0 20em;\n          flex: 1 0 20em;\n  margin: 1em 4em;\n}\n.fc-license-message {\n  display: none !important;\n}\n.fc-head .fc-scroller {\n  min-height: auto !important;\n}\n")
 'use strict';
 
@@ -28720,7 +28674,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],15:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28788,7 +28742,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7}],16:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3}],12:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 "use strict";
 
@@ -28841,6 +28795,10 @@ exports.default = {
 			addTimeFrom: _actions.addTimeFrom,
 			addType: _actions.addType,
 			addBookable: _actions.addBookable,
+			addBooking: _actions.addBooking,
+			addMember: _actions.addMember,
+			getMembers: _actions.getMembers,
+			makeReservation: _actions.makeReservation,
 			calculate: _actions.calculate
 		},
 		getters: {
@@ -28852,6 +28810,17 @@ exports.default = {
 			},
 			resources: function resources(state) {
 				return state.resources;
+			},
+			members: function members(state) {
+				return state.members;
+			},
+			member: function member(state) {
+				var currentMember = _lodash2.default.find(state.members, function (m) {
+					return m.id == state.booking.member;
+				});
+				if (currentMember) return currentMember;
+
+				return null;
 			},
 			selected: function selected(state) {
 				return state.booking;
@@ -28876,7 +28845,9 @@ exports.default = {
 	/**
   * Public properties
   */
-	props: {},
+	props: {
+		booking: { type: Object }
+	},
 
 	/**
   *
@@ -28889,20 +28860,31 @@ exports.default = {
 	/**
   * This is called before the element is rendered on the page
   */
-	beforeCompile: function beforeCompile() {},
+	beforeCompile: function beforeCompile() {
+		var _this = this;
+
+		this.getMembers();
+		this.$http.get('/api/bookable-types').then(function (response) {
+			_this.types = response.data;
+			if (_this.booking) {
+				_this.addMember(_this.booking.member_id);
+				_this.addType(_this.booking.bookable_id);
+			}
+		});
+		if (this.booking) {
+			this.addBooking(this.booking);
+			setTimeout(function () {
+				_this.addBookable(_this.booking.bookable_id);
+			}, 1500);
+		}
+	},
 
 
 	/**
   * This is called when the component is ready
   * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
   */
-	ready: function ready() {
-		var _this = this;
-
-		this.$http.get('/api/bookable-types').then(function (response) {
-			_this.types = response.data;
-		});
-	},
+	ready: function ready() {},
 
 
 	/**
@@ -28921,12 +28903,16 @@ exports.default = {
   *
   */
 	methods: {
-		reserve: function reserve() {},
-		reserveAndPay: function reserveAndPay() {}
+		reserve: function reserve() {
+			this.makeReservation({ payment: 'cash' });
+		},
+		reserveAndPay: function reserveAndPay() {
+			this.makeReservation({ payment: 'card' });
+		}
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right  mr-20\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\">\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right  mr-20\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\tv-if=\"member.hasCreditCard\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -28942,34 +28928,20 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../../../state/actions":24,"../../../Button":13,"../../DatePicker":17,"../../Error":18,"../../Selectable":19,"../../TimePicker":20,"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],17:[function(require,module,exports){
+},{"../../../../state/actions":20,"../../../Button":9,"../../DatePicker":13,"../../Error":14,"../../Selectable":15,"../../TimePicker":16,"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],13:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+exports.default = {
 
-var _defineProperty2 = require('babel-runtime/helpers/defineProperty');
-
-var _defineProperty3 = _interopRequireDefault(_defineProperty2);
-
-var _name$ready$data$even;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = (_name$ready$data$even = {
 	/**
   * Name of the component
   * More info: http://vuejs.org/api/#name
   */
 	name: 'DatePicker',
-
-	/**
-  * TODO: Call API to get disabled dates.
-  */
-	ready: function ready() {},
-
 
 	/**
   * The data object for the component it self
@@ -28997,6 +28969,9 @@ exports.default = (_name$ready$data$even = {
   */
 	props: {
 		selected: null,
+		value: { coerce: function coerce(value) {
+				return value ? moment(value).format('YYYY/MM/DD') : null;
+			} },
 		interval: { type: Number, default: 60 },
 		disable: {
 			type: Array, default: function _default() {
@@ -29015,31 +28990,45 @@ exports.default = (_name$ready$data$even = {
 		},
 		format: { type: String, default: 'dddd, dd mmm, yyyy' },
 		formatLabel: { type: String, default: 'dddd, dd mmm, yyyy' },
-		formatSubmit: { type: String, default: 'yyyymmdd' },
+		formatSubmit: { type: String, default: 'yyyy/mm/dd' },
 		hiddenPrefix: { type: String, default: '' },
 		hiddenSuffix: { type: String, default: '' }
-	}
+	},
 
-}, (0, _defineProperty3.default)(_name$ready$data$even, 'ready', function ready() {
-	var self = this;
+	/**
+  * This is called when the component is ready
+  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+  */
+	ready: function ready() {
+		var self = this;
 
-	this.datepicker = $(this.$el).pickadate({
-		interval: this.interval,
-		min: this.min,
-		max: this.max,
-		// Escape any “rule” characters with an exclamation mark (!).
-		format: this.format,
-		formatLabel: this.formatLabel,
-		formatSubmit: this.formatSubmit,
-		hiddenPrefix: this.hiddenPrefix,
-		hiddenSuffix: this.hiddenSuffix,
-		onSet: function onSet(context) {
-			self.$emit('set', this);
-		}
-	});
-}), (0, _defineProperty3.default)(_name$ready$data$even, 'components', {}), _name$ready$data$even);
+		this.datepicker = $(this.$el).pickadate({
+			interval: this.interval,
+			min: this.min,
+			max: this.max,
+			// Escape any “rule” characters with an exclamation mark (!).
+			format: this.format,
+			formatLabel: this.formatLabel,
+			formatSubmit: this.formatSubmit,
+			hiddenPrefix: this.hiddenPrefix,
+			hiddenSuffix: this.hiddenSuffix,
+			onSet: function onSet(context) {
+				self.$emit('set', this);
+			}
+		});
+
+		// this.datepicker.set('select', this.value, {format: 'yyyymmdd'})
+	},
+
+
+	/**
+  * Child components of this one
+  * More info: http://vuejs.org/guide/components.html
+  */
+	components: {}
+};
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Fecha\"\n\t\t\t class=\"form-control pickadate-date\"\n\t\t\t name=\"date\"\n/>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Fecha\"\n\t\t\t class=\"form-control pickadate-date\"\n\t\t\t data-value=\"{{value}}\"\n/>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -29055,7 +29044,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"babel-runtime/helpers/defineProperty":2,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],18:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],14:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -29096,13 +29085,20 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],19:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],15:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 exports.default = {
 	/**
   * Name of the component
@@ -29132,7 +29128,7 @@ exports.default = {
 	events: {
 		'set': function set(selectable, name, evt) {
 			if (this.options.length > 0) {
-				var selected = _.find(this.options, function (b) {
+				var selected = _lodash2.default.find(this.options, function (b) {
 					return b.id == evt.params.data.id;
 				});
 
@@ -29144,14 +29140,21 @@ exports.default = {
 	},
 	watch: {
 		options: {
+			immediate: true,
 			handler: function handler(value, oldValue) {
-				console.log(value.length == 0);
 				if (value.length == 0 && this.selectable) {
 					this.selectable.val(null).trigger('change');
+					return;
 				}
-			},
-
-			immediate: true
+			}
+		},
+		value: {
+			immediate: true,
+			handler: function handler(value, oldValue) {
+				if (value && this.selectable) {
+					this.selectable.val(value).trigger('change');
+				}
+			}
 		}
 	},
 	/**
@@ -29159,8 +29162,23 @@ exports.default = {
   */
 	props: {
 		selected: null,
+		value: { default: function _default() {
+				return null;
+			} },
+		searchbox: { type: Boolean, default: function _default() {
+				return false;
+			} },
 		options: { type: Array, default: function _default() {
 				return [];
+			} },
+		optionsLabel: { type: String, default: function _default() {
+				return 'name';
+			} },
+		withImage: { type: Boolean, default: function _default() {
+				return true;
+			} },
+		imageNode: { type: String, default: function _default() {
+				return 'image';
 			} },
 		placeholder: { type: String, default: function _default() {
 				return 'Selecciona …';
@@ -29174,7 +29192,6 @@ exports.default = {
 		optionConditionOposite: { type: Boolean, default: function _default() {
 				return false;
 			} }
-
 	},
 	/**
   * This is called when the component is ready
@@ -29183,11 +29200,11 @@ exports.default = {
 	ready: function ready() {
 		var _this = this;
 
-		this.selectable = $(this.$el).select2({
-			minimumResultsForSearch: Infinity
-		}).on("select2:select", function (event) {
+		var options = this.selectable = $(this.$el).select2(this.composeOptions()).on("select2:select", function (event) {
 			_this.$emit('set', _this, "select2:select", event);
 		});
+
+		this.selectable.val(this.value).trigger('change');
 	},
 
 
@@ -29201,12 +29218,32 @@ exports.default = {
 		isOptionDisabled: function isOptionDisabled(option) {
 			var disabled = option[this.optionConditionDisable];
 			return this.optionConditionOposite ? !disabled : disabled;
+		},
+		composeOptions: function composeOptions() {
+			var options = {};
+
+			if (!this.searchbox) options.minimumResultsForSearch = Infinity;
+
+			options.templateResult = this.formatState;
+
+			return options;
+		},
+		formatState: function formatState(state) {
+			var selected = _lodash2.default.find(this.options, function (b) {
+				return b.id == state.id;
+			});
+
+			if (this.withImage && selected && selected[this.imageNode]) {
+				var $state = $('<span><img src="' + selected[this.imageNode] + '"/> ' + state.text + '</span>');
+				return $state;
+			}
+			return state.text;
 		}
 	}
 
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<select name=\"bookable_type_id\" data-placeholder=\"{{placeholder}}\" :disabled=\"disabled\">\n\t<option></option>\n\t<option :value=\"option.id\"\n\t\t\t\t\tv-for=\"option in options\"\n\t\t\t\t\t:disabled=\"isOptionDisabled(option)\"\n\t>\n\t\t{{option.name}}\n\t</option>\n</select>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<select name=\"bookable_type_id\" data-placeholder=\"{{placeholder}}\" :disabled=\"disabled\">\n\t<option></option>\n\t<option :value=\"option.id\"\n\t\t\t\t\tv-for=\"option in options\"\n\t\t\t\t\t:selected=\"value == option.id\"\n\t\t\t\t\t:disabled=\"isOptionDisabled(option)\"\n\t>\n\t\t{{option[optionsLabel]}}\n\t</option>\n</select>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -29222,7 +29259,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],20:[function(require,module,exports){
+},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29255,12 +29292,12 @@ exports.default = {
 			this.$emit('change', this.selected);
 		}
 	},
-
 	/**
   * Public properties
   */
 	props: {
 		selected: null,
+		value: { type: String },
 		interval: { type: Number, default: 60 },
 		min: { type: Array, default: function _default() {
 				return [8, 0];
@@ -29293,6 +29330,10 @@ exports.default = {
 			hiddenSuffix: this.hiddenSuffix,
 			onSet: function onSet(context) {
 				self.$emit('set', this);
+			},
+			onStart: function onStart() {
+				self.selected = self.value;
+				this.set('select', self.value);
 			}
 		});
 	},
@@ -29305,7 +29346,7 @@ exports.default = {
 	components: {}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Hora de inicio\"\n\t\t\t class=\"form-control pickatime-from\"\n\t\t\t name=\"time\"\n/>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Hora de inicio\"\n\t\t\t class=\"form-control pickatime-from\"\n\t\t\t name=\"time\"\n\t\t\t data-value=\"{{time}}\"\n/>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -29317,7 +29358,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7}],21:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3}],17:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert(".clickable-icon {\n  cursor: pointer;\n}\n.clickable-icon:hover {\n  color: #ff7175;\n}\n")
 'use strict';
 
@@ -29560,7 +29601,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"lodash":5,"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],22:[function(require,module,exports){
+},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],18:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
@@ -29634,7 +29675,7 @@ exports.default = {
   components: {}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\" v-if=\"calculated && resources\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Datos de la reserva</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\t\t<div class=\"table-responsive\">\n\t\t\t<table class=\"table table-striped\">\n\t\t\t\t<thead>\n\t\t\t\t\t<tr class=\"bg-slate-600\">\n\t\t\t\t\t\t<th colspan=\"2\">Concepto</th>\n\t\t\t\t\t\t<th>Precio</th>\n\t\t\t\t\t\t<th>Cantidad</th>\n\t\t\t\t\t\t<th>Total</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</thead>\n\t\t\t\t<tfoot>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Subtotal</th>\n\t\t\t\t\t\t<th>{{subtotal}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">\n\t\t\t\t\t\t\tIVA <span>{{percentage}}</span>\n\t\t\t\t\t\t</th>\n\t\t\t\t\t\t<th>{{vat}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Total</th>\n\t\t\t\t\t\t<th>{{total}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</tfoot>\n\t\t\t\t<tbody>\n\t\t\t\t\t<tr v-for=\"line in lines\">\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{{line.description}}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>{{line.image}}</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.priceFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.amount}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.totalFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</tbody>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\" v-if=\"calculated && resources\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Datos de la reserva</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\t\t<div class=\"table-responsive\">\n\t\t\t<table class=\"table table-striped\">\n\t\t\t\t<thead>\n\t\t\t\t\t<tr class=\"bg-slate-600\">\n\t\t\t\t\t\t<th colspan=\"2\">Concepto</th>\n\t\t\t\t\t\t<th>Precio</th>\n\t\t\t\t\t\t<th>Cantidad</th>\n\t\t\t\t\t\t<th>Total</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</thead>\n\t\t\t\t<tfoot>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Subtotal</th>\n\t\t\t\t\t\t<th>{{subtotal}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">\n\t\t\t\t\t\t\tIVA <span>{{percentage}}</span>\n\t\t\t\t\t\t</th>\n\t\t\t\t\t\t<th>{{vat}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Total</th>\n\t\t\t\t\t\t<th>{{total}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</tfoot>\n\t\t\t\t<tbody>\n\t\t\t\t\t<tr v-for=\"line in lines\">\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t<span>{{line.name}}</span>\n\t\t\t\t\t\t\t<br>\n\t\t\t\t\t\t\t<span class='text-muted'>\n\t\t\t\t\t\t\t\t{{{line.description}}}\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>{{line.image}}</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.priceFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.amount}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.totalFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</tbody>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -29650,7 +29691,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":9,"vue-hot-reload-api":7,"vueify-insert-css":10}],23:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29680,19 +29721,27 @@ exports.default = {
 	}
 };
 
-},{}],24:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.addBookable = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDate = exports.addErrors = exports.addResources = exports.calculate = exports.searchBookables = exports.setLoading = undefined;
+exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.setLoading = undefined;
 
 var _mutationTypes = require('./mutation-types');
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _bookings = require('./api/bookings');
 
 var _bookings2 = _interopRequireDefault(_bookings);
+
+var _members = require('./api/members');
+
+var _members2 = _interopRequireDefault(_members);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29705,9 +29754,25 @@ var setLoading = exports.setLoading = function setLoading(_ref, _ref2) {
 	dispatch(_mutationTypes.SET_LOADING, { loading: loading, progress: progress });
 };
 
-var searchBookables = exports.searchBookables = function searchBookables(_ref3) {
+var makeReservation = exports.makeReservation = function makeReservation(_ref3, data) {
 	var dispatch = _ref3.dispatch;
 	var state = _ref3.state;
+
+	data = _lodash2.default.merge(data, state.booking);
+	_bookings2.default.store(data,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.BOOKED, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var searchBookables = exports.searchBookables = function searchBookables(_ref4) {
+	var dispatch = _ref4.dispatch;
+	var state = _ref4.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type) {
@@ -29725,9 +29790,9 @@ var searchBookables = exports.searchBookables = function searchBookables(_ref3) 
 	}
 };
 
-var calculate = exports.calculate = function calculate(_ref4) {
-	var dispatch = _ref4.dispatch;
-	var state = _ref4.state;
+var calculate = exports.calculate = function calculate(_ref5) {
+	var dispatch = _ref5.dispatch;
+	var state = _ref5.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type && b.bookable) {
@@ -29743,62 +29808,96 @@ var calculate = exports.calculate = function calculate(_ref4) {
 	}
 };
 
-var addResources = exports.addResources = function addResources(_ref5, resources) {
-	var dispatch = _ref5.dispatch;
-	var state = _ref5.state;
+var getMembers = exports.getMembers = function getMembers(_ref6) {
+	var dispatch = _ref6.dispatch;
+	var state = _ref6.state;
+
+	_members2.default.getAll({},
+	// handle success
+	function (members) {
+		return dispatch(_mutationTypes.ADD_MEMBERS, members);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var addResources = exports.addResources = function addResources(_ref7, resources) {
+	var dispatch = _ref7.dispatch;
+	var state = _ref7.state;
 
 	dispatch(_mutationTypes.ADD_RESOURCES, resources);
 };
 
-var addErrors = exports.addErrors = function addErrors(_ref6, errors) {
-	var dispatch = _ref6.dispatch;
-	var state = _ref6.state;
+var addErrors = exports.addErrors = function addErrors(_ref8, errors) {
+	var dispatch = _ref8.dispatch;
+	var state = _ref8.state;
 
 	dispatch(_mutationTypes.ADD_ERRORS, errors);
 };
 
-var addDate = exports.addDate = function addDate(_ref7, date) {
-	var dispatch = _ref7.dispatch;
-	var state = _ref7.state;
+var addDate = exports.addDate = function addDate(_ref9, date) {
+	var dispatch = _ref9.dispatch;
+	var state = _ref9.state;
 
 	dispatch(_mutationTypes.ADD_DATE, date);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addTimeTo = exports.addTimeTo = function addTimeTo(_ref8, timeTo) {
-	var dispatch = _ref8.dispatch;
-	var state = _ref8.state;
+var addTimeTo = exports.addTimeTo = function addTimeTo(_ref10, timeTo) {
+	var dispatch = _ref10.dispatch;
+	var state = _ref10.state;
 
 	dispatch(_mutationTypes.ADD_TIME_TO, timeTo);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref9, timeFrom) {
-	var dispatch = _ref9.dispatch;
-	var state = _ref9.state;
+var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref11, timeFrom) {
+	var dispatch = _ref11.dispatch;
+	var state = _ref11.state;
 
 	dispatch(_mutationTypes.ADD_TIME_FROM, timeFrom);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addType = exports.addType = function addType(_ref10, type) {
-	var dispatch = _ref10.dispatch;
-	var state = _ref10.state;
+var addType = exports.addType = function addType(_ref12, type) {
+	var dispatch = _ref12.dispatch;
+	var state = _ref12.state;
 
 	dispatch(_mutationTypes.ADD_TYPE, type);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addBookable = exports.addBookable = function addBookable(_ref11, bookable) {
-	var dispatch = _ref11.dispatch;
-	var state = _ref11.state;
+var addMember = exports.addMember = function addMember(_ref13, user) {
+	var dispatch = _ref13.dispatch;
+	var state = _ref13.state;
+
+	dispatch(_mutationTypes.ADD_MEMBER, user);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addBookable = exports.addBookable = function addBookable(_ref14, bookable) {
+	var dispatch = _ref14.dispatch;
+	var state = _ref14.state;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
 	dispatch(_mutationTypes.ADD_BOOKABLE, bookable);
 	calculate({ dispatch: dispatch, state: state });
 };
 
-},{"./api/bookings":25,"./mutation-types":27}],25:[function(require,module,exports){
+var addBooking = exports.addBooking = function addBooking(_ref15, booking) {
+	var dispatch = _ref15.dispatch;
+	var state = _ref15.state;
+
+	dispatch(_mutationTypes.CLEAR_PRICE);
+	dispatch(_mutationTypes.ADD_DATE, moment(new Date(booking.time_from)).format("YYYYMMDD"));
+	dispatch(_mutationTypes.ADD_TIME_FROM, moment(new Date(booking.time_from)).format("HHmm"));
+	dispatch(_mutationTypes.ADD_TIME_TO, moment(new Date(booking.time_to)).format("HHmm"));
+	calculate({ dispatch: dispatch, state: state });
+};
+
+},{"./api/bookings":21,"./api/members":22,"./mutation-types":24,"lodash":1}],21:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29831,10 +29930,45 @@ exports.default = {
 				error(response.data);
 			}
 		});
+	},
+
+	store: function store(params, done, error) {
+		return _vue2.default.http.post('/api/bookings', params).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422 || response.status == 404 || response.status == 500) {
+				error(response.data);
+			}
+		});
 	}
 };
 
-},{"vue":9}],26:[function(require,module,exports){
+},{"vue":5}],22:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _vue = require('vue');
+
+var _vue2 = _interopRequireDefault(_vue);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+	getAll: function getAll(params, done, error) {
+		return _vue2.default.http.get('/api/members', { params: params }).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	}
+};
+
+},{"vue":5}],23:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29858,7 +29992,8 @@ var state = {
 	time_to: null,
 	time_from: null,
 	date: null,
-	type: null
+	type: null,
+	member: null
 };
 
 /**
@@ -29866,15 +30001,23 @@ var state = {
  * @type {{}}
  */
 var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD_DATE, function (state, date) {
+	console.log(_mutationTypes.ADD_DATE, date);
 	state.date = date;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TIME_TO, function (state, timeTo) {
+	console.log(_mutationTypes.ADD_TIME_TO, timeTo);
 	state.time_to = timeTo;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TIME_FROM, function (state, timeFrom) {
+	console.log(_mutationTypes.ADD_TIME_FROM, timeFrom);
 	state.time_from = timeFrom;
 }), _defineProperty(_mutations, _mutationTypes.ADD_BOOKABLE, function (state, bookable) {
+	console.log(_mutationTypes.ADD_BOOKABLE, bookable);
 	state.bookable = bookable;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TYPE, function (state, type) {
+	console.log(_mutationTypes.ADD_TYPE, type);
 	state.type = type;
+}), _defineProperty(_mutations, _mutationTypes.ADD_MEMBER, function (state, member) {
+	console.log(_mutationTypes.ADD_MEMBER, member);
+	state.member = member;
 }), _mutations);
 
 /**
@@ -29885,7 +30028,7 @@ exports.default = {
 	mutations: mutations
 };
 
-},{"../mutation-types":27}],27:[function(require,module,exports){
+},{"../mutation-types":24}],24:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29911,7 +30054,12 @@ var SET_LOADING = exports.SET_LOADING = 'SET_LOADING';
 var ADD_PRICE = exports.ADD_PRICE = 'ADD_PRICE';
 var CLEAR_PRICE = exports.CLEAR_PRICE = 'CLEAR_PRICE';
 
-},{}],28:[function(require,module,exports){
+var ADD_MEMBER = exports.ADD_MEMBER = 'ADD_MEMBER';
+var ADD_MEMBERS = exports.ADD_MEMBERS = 'ADD_MEMBERS';
+
+var BOOKED = exports.BOOKED = 'BOOKED';
+
+},{}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -29971,6 +30119,8 @@ var initialState = {
 		vatPercentage: ''
 	},
 	resources: [],
+	members: [],
+	types: [],
 	errors: [],
 	loading: {
 		progress: 1,
@@ -30001,6 +30151,8 @@ var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.SET
 	state.prices.calculated = true;
 }), _defineProperty(_mutations, _mutationTypes.CLEAR_PRICE, function (state) {
 	state.prices = initialState.prices;
+}), _defineProperty(_mutations, _mutationTypes.ADD_MEMBERS, function (state, members) {
+	state.members = members;
 }), _mutations);
 
 exports.default = new _vuex2.default.Store({
@@ -30011,6 +30163,6 @@ exports.default = new _vuex2.default.Store({
 	}
 });
 
-},{"./modules/booking":26,"./mutation-types":27,"lodash":5,"vue":9,"vuex":11}]},{},[12]);
+},{"./modules/booking":23,"./mutation-types":24,"lodash":1,"vue":5,"vuex":7}]},{},[8]);
 
 //# sourceMappingURL=admin.js.map

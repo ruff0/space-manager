@@ -31,6 +31,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 		Route::resource('members.passes','MemberPassesController', [
 			'except' => ['show', 'create', 'edit']
 		]);
+
+		Route::resource('members','MembersController', [
+			'only' => ['index']
+		]);
 		
 		Route::get('/subscriptions', 'SubscriptionsController@index');
 		Route::post('/subscriptions', 'SubscriptionsController@store');

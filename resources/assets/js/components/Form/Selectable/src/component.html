@@ -2,8 +2,9 @@
 	<option></option>
 	<option :value="option.id"
 					v-for="option in options"
+					:selected="value == option.id"
 					:disabled="isOptionDisabled(option)"
 	>
-		{{option.name}}
+		{{option[optionsLabel]}}
 	</option>
 </select>

@@ -33,7 +33,11 @@
 				<tbody>
 					<tr v-for="line in lines">
 						<td>
-							{{{line.description}}}
+							<span>{{line.name}}</span>
+							<br>
+							<span class='text-muted'>
+								{{{line.description}}}
+							</span>
 						</td>
 						<td>{{line.image}}</td>
 						<td>

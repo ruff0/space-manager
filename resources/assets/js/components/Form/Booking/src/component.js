@@ -4,7 +4,19 @@ import DatePicker from "../../DatePicker"
 import Selectable from "../../Selectable"
 import UButton from "../../../Button"
 import FormError from "../../Error"
-import {addDate, addTimeTo, addTimeFrom, addType, addBookable, calculate} from '../../../../state/actions'
+
+import {
+	addDate,
+	addTimeTo,
+	addTimeFrom,
+	addType,
+	addBookable,
+	addBooking,
+	getMembers,
+	addMember,
+	calculate,
+	makeReservation
+} from '../../../../state/actions'
 
 
 
@@ -26,12 +38,25 @@ export default {
 			addTimeFrom,
 			addType,
 			addBookable,
+			addBooking,
+			addMember,
+			getMembers,
+			makeReservation,
 			calculate
 		},
 		getters: {
 			loading: (state) => state.loading.isLoading,
 			errors: (state) => state.errors,
 			resources: (state) => state.resources,
+			members: (state) => state.members,
+			member: (state) => {
+				let currentMember = _.find(state.members, (m) => {
+					return m.id == state.booking.member
+				});
+				if(currentMember) return currentMember
+
+				return null
+			},
 			selected: (state) => state.booking,
 			calculated: (state) => state.prices.calculated
 		}
@@ -50,7 +75,9 @@ export default {
 	/**
 	 * Public properties
 	 */
-	props: {},
+	props: {
+		booking: {type: Object}
+	},
 
 	/**
 	 *
@@ -63,17 +90,31 @@ export default {
 	/**
 	 * This is called before the element is rendered on the page
 	 */
-	beforeCompile () {},
+	beforeCompile () {
+		this.getMembers()
+		this.$http.get('/api/bookable-types').then((response) => {
+			this.types = response.data
+			if (this.booking) {
+				this.addMember(this.booking.member_id)
+				this.addType(this.booking.bookable_id)
+
+			}
+		})
+		if (this.booking) {
+			this.addBooking(this.booking)
+			setTimeout(()=>{
+				this.addBookable(this.booking.bookable_id)
+			}, 1500)
+		}
+	},
 
   /**
    * This is called when the component is ready
    * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
    */
   ready () {
-		this.$http.get('/api/bookable-types').then((response) => {
-			this.types = response.data
-		})
-  },
+
+	},
 
   /**
    * Child components of this one
@@ -91,11 +132,11 @@ export default {
 	 *
 	 */
 	methods: {
-		reserve(){
-
+		reserve () {
+			this.makeReservation({ payment: 'cash' })
 		},
-		reserveAndPay(){
-
+		reserveAndPay () {
+			this.makeReservation({ payment: 'card' })
 		}
 	}
 }

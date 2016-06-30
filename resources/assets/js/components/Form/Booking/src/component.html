@@ -15,6 +15,7 @@
 								data-style="zoom-in"
 								color="primary"
 								@click="reserveAndPay"
+								v-if="member.hasCreditCard"
 			>
 				Reservar & pagar
 			</u-button>
@@ -24,10 +25,28 @@
 
 		<div class="row pb-20">
 			<div class="col-sm-12">
+				<label>Miembro</label>
+				<selectable :options="members"
+										placeholder="Selecciona un miembro"
+										options-label="fullname"
+										:searchbox="true"
+										image-node="avatar"
+										@change="addMember"
+										:value="selected.member"
+				>
+				</selectable>
+				<form-error :errors="errors.type"></form-error>
+			</div>
+		</div>
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
 				<label>Tipo de sala</label>
 				<selectable :options="types"
 										placeholder="Selecciona un tipo"
-										@change="addType">
+										@change="addType"
+										:value="selected.type"
+				>
 				</selectable>
 				<form-error :errors="errors.type"></form-error>
 			</div>
@@ -42,6 +61,7 @@
 										option-condition-disable="available"
 										:option-condition-oposite="true"
 										@change="addBookable"
+										:value="selected.bookable"
 				>
 				</selectable>
 				<form-error :errors="errors.bookable"></form-error>
@@ -51,17 +71,17 @@
 		<div class="row pb-20">
 			<div class="col-sm-4">
 				<label>Fecha</label>
-				<date-picker  @change="addDate"></date-picker>
+				<date-picker  @change="addDate" :value="selected.date"></date-picker>
 				<form-error :errors="errors.date"></form-error>
 			</div>
 			<div class="col-sm-4">
 				<label>Hora Inicio</label>
-				<time-picker @change="addTimeFrom"></time-picker>
+				<time-picker @change="addTimeFrom" :value="selected.time_from"></time-picker>
 				<form-error :errors="errors.time_from"></form-error>
 			</div>
 			<div class="col-sm-4">
 				<label>Hora Fin</label>
-				<time-picker @change="addTimeTo"></time-picker>
+				<time-picker @change="addTimeTo" :value="selected.time_to"></time-picker>
 				<form-error :errors="errors.time_to"></form-error>
 			</div>
 		</div>
