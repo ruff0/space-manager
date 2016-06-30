@@ -56,8 +56,7 @@ class BookingsController extends AdminController
 	public function edit(Booking $bookings)
 	{
 		return view('admin.bookings.edit', [
-			'booking' => $bookings,
-			'invoice' => json_encode([])
+			'booking' => $bookings
 		]);
 	}
 

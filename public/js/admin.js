@@ -28846,7 +28846,7 @@ exports.default = {
   * Public properties
   */
 	props: {
-		booking: { type: Object }
+		booking: {}
 	},
 
 	/**
@@ -28912,7 +28912,7 @@ exports.default = {
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right  mr-20\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\tv-if=\"member.hasCreditCard\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tcancelar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right  mr-20\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\tv-if=\"member.hasCreditCard\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -28969,9 +28969,11 @@ exports.default = {
   */
 	props: {
 		selected: null,
-		value: { coerce: function coerce(value) {
-				return value ? moment(value).format('YYYY/MM/DD') : null;
-			} },
+		value: {
+			coerce: function coerce(value) {
+				return value ? moment(new Date(value)).format('YYYY/MM/DD') : null;
+			}
+		},
 		interval: { type: Number, default: 60 },
 		disable: {
 			type: Array, default: function _default() {
@@ -29891,9 +29893,15 @@ var addBooking = exports.addBooking = function addBooking(_ref15, booking) {
 	var state = _ref15.state;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
-	dispatch(_mutationTypes.ADD_DATE, moment(new Date(booking.time_from)).format("YYYYMMDD"));
-	dispatch(_mutationTypes.ADD_TIME_FROM, moment(new Date(booking.time_from)).format("HHmm"));
-	dispatch(_mutationTypes.ADD_TIME_TO, moment(new Date(booking.time_to)).format("HHmm"));
+
+	var date = booking.time_from ? moment(new Date(booking.time_from)).format("YYYYMMDD") : null;
+	var time_from = booking.time_from ? moment(new Date(booking.time_from)).format("HHmm") : null;
+	var time_to = booking.time_to ? moment(new Date(booking.time_to)).format("HHmm") : null;
+
+	dispatch(_mutationTypes.ADD_DATE, date);
+	dispatch(_mutationTypes.ADD_TIME_FROM, time_from);
+	dispatch(_mutationTypes.ADD_TIME_TO, time_to);
+
 	calculate({ dispatch: dispatch, state: state });
 };
 
@@ -29986,8 +29994,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @type {{}}
  */
 var state = {
-	errors: [],
-	resources: [],
 	bookable: null,
 	time_to: null,
 	time_from: null,
@@ -30001,22 +30007,17 @@ var state = {
  * @type {{}}
  */
 var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD_DATE, function (state, date) {
-	console.log(_mutationTypes.ADD_DATE, date);
+	console.log(date);
 	state.date = date;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TIME_TO, function (state, timeTo) {
-	console.log(_mutationTypes.ADD_TIME_TO, timeTo);
 	state.time_to = timeTo;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TIME_FROM, function (state, timeFrom) {
-	console.log(_mutationTypes.ADD_TIME_FROM, timeFrom);
 	state.time_from = timeFrom;
 }), _defineProperty(_mutations, _mutationTypes.ADD_BOOKABLE, function (state, bookable) {
-	console.log(_mutationTypes.ADD_BOOKABLE, bookable);
 	state.bookable = bookable;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TYPE, function (state, type) {
-	console.log(_mutationTypes.ADD_TYPE, type);
 	state.type = type;
 }), _defineProperty(_mutations, _mutationTypes.ADD_MEMBER, function (state, member) {
-	console.log(_mutationTypes.ADD_MEMBER, member);
 	state.member = member;
 }), _mutations);
 

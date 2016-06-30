@@ -76,7 +76,7 @@ export default {
 	 * Public properties
 	 */
 	props: {
-		booking: {type: Object}
+		booking: {}
 	},
 
 	/**

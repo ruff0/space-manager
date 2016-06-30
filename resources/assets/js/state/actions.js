@@ -112,8 +112,14 @@ export const addBookable = ({dispatch, state}, bookable) => {
 
 export const addBooking = ({dispatch, state}, booking) => {
 	dispatch(CLEAR_PRICE)
-	dispatch(ADD_DATE, moment(new Date(booking.time_from)).format("YYYYMMDD"))
-	dispatch(ADD_TIME_FROM, moment(new Date(booking.time_from)).format("HHmm"))
-	dispatch(ADD_TIME_TO, moment(new Date(booking.time_to)).format("HHmm"))
+
+	const date = booking.time_from ? moment(new Date(booking.time_from)).format("YYYYMMDD") : null
+	const time_from = booking.time_from ? moment(new Date(booking.time_from)).format("HHmm") : null
+	const time_to = booking.time_to ? moment(new Date(booking.time_to)).format("HHmm") : null
+
+	dispatch(ADD_DATE, date)
+	dispatch(ADD_TIME_FROM, time_from)
+	dispatch(ADD_TIME_TO, time_to)
+
 	calculate({dispatch, state})
 }

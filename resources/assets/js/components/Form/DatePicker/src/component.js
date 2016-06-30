@@ -31,7 +31,11 @@ export default{
 	 */
 	props: {
 		selected: null,
-		value: {coerce: (value) => { return value?moment(value).format('YYYY/MM/DD'):null }},
+		value: {
+			coerce: (value) => {
+				return value ? moment( new Date(value) ).format('YYYY/MM/DD') : null
+			}
+		},
 		interval: {type: Number, default: 60},
 		disable: {
 			type: Array, default: () => {
