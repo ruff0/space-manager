@@ -19,6 +19,14 @@ trait HasRoles
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isAdmin()
+	{
+		return $this->hasRole('super-admin') || $this->hasRole('admin');
+	}
+
+	/**
 	 * Assign the given role to the user.
 	 *
 	 * @param  string $role

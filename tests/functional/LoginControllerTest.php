@@ -52,6 +52,7 @@ class LoginTest extends TestCase
 
 	/**
 	 * Registers a user to the application
+	 * @exception
 	 */
 	protected function registerUser()
 	{

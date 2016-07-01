@@ -23,6 +23,14 @@
 					<div class="media-annotation">{{$user->email}}</div>
 				</div>
 
+				<div class="media-right">
+					@foreach($user->roles as $role)
+						<span class="label @if($user->isAdmin()) bg-primary @else bg-blue @endif">
+							{{ $role->label }}
+						</span>
+					@endforeach
+				</div>
+
 			</li>
 		 @endforeach
 		</ul>
