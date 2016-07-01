@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Bookings;
 
 use App\Bookables\Bookable;
 use App\Bookables\BookableType;
+use App\Bookings\Booking;
 use App\Http\Requests\Api\BookingsSearchRequest;
 use App\Http\Requests\Bookings\CreateBookingForm;
 use App\Invoices\Models\Invoice;
@@ -193,12 +194,7 @@ class BookingsController extends Controller
 		// Make Stripe Charge
 		if($paymentMethod == 'card' && $passHours && $invoice->getTotalForStripe() )
 		{
-			$charge = $member->charge($invoice->getTotalForStripe(), [
-				"currency" => $member->getCurrency(),
-				"customer" => $member->id
-			]);
-			$invoice->charge_id = $charge->id;
-			$invoice->save();
+			$invoice->pay();
 		}
 
 		$rooms = collect($resources['rooms']);
@@ -224,6 +220,54 @@ class BookingsController extends Controller
 				]
 			]
 		], 200);
+	}
+
+	/**
+	 * @param Booking $bookings
+	 * @param Request $request
+	 *
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function update(Booking $bookings, Request $request)
+	{
+		
+		if($request->has('action'))
+		{
+			$action = $request->get('action');
+			$bookings->$action($request->all());
+		}
+
+		return response()->json([
+			'success' => [
+				'messages' => [
+					'La reserva se ha marcado como pagada',
+				]
+			]
+		], 200);
+
+	}
+	
+	/**
+	 * @param Booking $bookings
+	 *
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function destroy(Booking $bookings)
+	{
+		if(!$bookings->paid) {
+			$bookings->delete();
+
+			return response()->json($bookings);
+		}
+
+		return response()->json(
+			[
+				'data'=> [
+					'errors' => [
+						'booking' => 'No se ha podido borrar'
+					]
+				]
+			], 421);
 	}
 
 

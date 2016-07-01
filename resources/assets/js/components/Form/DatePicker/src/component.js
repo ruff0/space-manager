@@ -33,7 +33,8 @@ export default{
 		selected: null,
 		value: {
 			coerce: (value) => {
-				return value ? moment( new Date(value) ).format('YYYY/MM/DD') : null
+				const date =  value ? moment( value ).format('YYYY/MM/DD') : null
+				return date
 			}
 		},
 		interval: {type: Number, default: 60},

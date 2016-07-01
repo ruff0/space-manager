@@ -47,6 +47,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	Route::group(['namespace' => 'Bookings'], function () {
 		Route::get('/bookings', 'BookingsController@index');
 		Route::post('/bookings', 'BookingsController@store');
+		Route::patch('/bookings/{bookings}', 'BookingsController@update');
+		Route::delete('/bookings/{bookings}', 'BookingsController@destroy');
 		Route::post('/bookings/calculate', 'BookingsController@calculate');
 	});
 
@@ -120,12 +122,12 @@ Route::group(['middleware' => ['auth']], function () {
 		Route::resource('plans', 'PlansController');
 		Route::resource('members', 'MembersController');
 		Route::resource('bookables', 'BookablesController');
+	
 		Route::get('bookings/calendar', [
 			'as'  => 'admin.bookings.calendar',
 			'uses' => 'BookingsController@calendar'
 		]);
 		Route::resource('bookings', 'BookingsController');
-
 
 		// Resources
 		Route::resource('meetingrooms', 'MeetingRoomsController');

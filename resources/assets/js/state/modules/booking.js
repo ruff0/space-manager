@@ -4,7 +4,9 @@ import {
 	ADD_TIME_FROM,
 	ADD_TYPE,
 	ADD_BOOKABLE,
-	ADD_MEMBER
+	ADD_MEMBER,
+	PAID,
+	UNPAID
 } from '../mutation-types'
 
 /**
@@ -18,6 +20,7 @@ const state = {
 	date: null,
 	type: null,
 	member: null,
+	paid: false
 }
 
 /**
@@ -26,9 +29,7 @@ const state = {
  */
 const mutations = {
 	[ADD_DATE] (state, date) {
-		console.log(date)
 		state.date = date
-
 	},
 	[ADD_TIME_TO] (state, timeTo) {
 		state.time_to = timeTo
@@ -44,6 +45,12 @@ const mutations = {
 	},
 	[ADD_MEMBER] (state, member) {
 		state.member = member
+	},
+	[PAID](state) {
+		state.paid =  true
+	},
+	[UNPAID](state) {
+		state.paid =  false
 	}
 }
 

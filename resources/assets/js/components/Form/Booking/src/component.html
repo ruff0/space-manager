@@ -2,30 +2,53 @@
 	<div class="panel-heading">
 		<h6 class="panel-title">Crear una reserva</h6>
 		<div class="heading-elements" v-if="resources && calculated">
+
+			<u-button :ladda="{style:'zoom-in'}"
+								class="pull-right mr-10"
+								data-style="zoom-in"
+								color="primary"
+								@click="cancel"
+								v-if="canBeCanceled"
+			>
+				Cancelar
+			</u-button>
+
 			<u-button :ladda="{style:'zoom-in'}"
 								class="pull-right"
 								data-style="zoom-in"
 								color="primary"
 								@click="reserve"
+								v-if="!canBeCanceled && canMakeReservation"
 			>
 				Reservar
 			</u-button>
 			<u-button :ladda="{style:'zoom-in'}"
-								class="pull-right"
-								data-style="zoom-in"
-								color="primary"
-								@click="reserve"
-			>
-				cancelar
-			</u-button>
-			<u-button :ladda="{style:'zoom-in'}"
-								class="pull-right  mr-20"
+								class="pull-right mr-10"
 								data-style="zoom-in"
 								color="primary"
 								@click="reserveAndPay"
-								v-if="member.hasCreditCard"
+								v-if="!canBeCanceled && canMakeReservation && canPayWithCard"
 			>
 				Reservar & pagar
+			</u-button>
+			<u-button :ladda="{style:'zoom-in'}"
+								class="pull-right mr-10"
+								data-style="zoom-in"
+								color="primary"
+								@click="pay"
+								v-if="canBeCanceled && canPayWithCard"
+			>
+				Cobrar
+			</u-button>
+
+			<u-button :ladda="{style:'zoom-in'}"
+								class="pull-right mr-10"
+								data-style="zoom-in"
+								color="primary"
+								@click="markAsPaid"
+								v-if="canBeCanceled"
+			>
+				Marcar como pagada
 			</u-button>
 		</div>
 	</div>

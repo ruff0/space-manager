@@ -28798,6 +28798,9 @@ exports.default = {
 			addBooking: _actions.addBooking,
 			addMember: _actions.addMember,
 			getMembers: _actions.getMembers,
+			payReservation: _actions.payReservation,
+			cancelReservation: _actions.cancelReservation,
+			markReservationsAsPaid: _actions.markReservationsAsPaid,
 			makeReservation: _actions.makeReservation,
 			calculate: _actions.calculate
 		},
@@ -28855,6 +28858,19 @@ exports.default = {
 	computed: {
 		hasResources: function hasResources() {
 			return this.resources.length == 0;
+		},
+		canBeCanceled: function canBeCanceled() {
+			console.log(moment(new Date()).isBefore(moment(new Date(this.booking.time_from))), !this.isPaid);
+			return moment(new Date()).isBefore(moment(new Date(this.booking.time_from))) && !this.isPaid;
+		},
+		isPaid: function isPaid() {
+			return this.selected.paid;
+		},
+		canMakeReservation: function canMakeReservation() {
+			return !this.booking && this.member ? true : false;
+		},
+		canPayWithCard: function canPayWithCard() {
+			return this.member && this.member.hasCreditCard ? true : false;
 		}
 	},
 	/**
@@ -28908,11 +28924,20 @@ exports.default = {
 		},
 		reserveAndPay: function reserveAndPay() {
 			this.makeReservation({ payment: 'card' });
+		},
+		pay: function pay() {
+			this.payReservation(this.booking.id);
+		},
+		cancel: function cancel() {
+			this.cancelReservation(this.booking.id);
+		},
+		markAsPaid: function markAsPaid() {
+			this.markReservationsAsPaid(this.booking.id);
 		}
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t>\n\t\t\t\tcancelar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right  mr-20\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\tv-if=\"member.hasCreditCard\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"cancel\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled\"\n\t\t\t>\n\t\t\t\tCancelar\n\t\t\t</u-button>\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t\t\t\t\t\tv-if=\"!canBeCanceled && canMakeReservation\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\tv-if=\"!canBeCanceled && canMakeReservation && canPayWithCard\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"pay\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && canPayWithCard\"\n\t\t\t>\n\t\t\t\tCobrar\n\t\t\t</u-button>\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"markAsPaid\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled\"\n\t\t\t>\n\t\t\t\tMarcar como pagada\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -28971,7 +28996,8 @@ exports.default = {
 		selected: null,
 		value: {
 			coerce: function coerce(value) {
-				return value ? moment(new Date(value)).format('YYYY/MM/DD') : null;
+				var date = value ? moment(value).format('YYYY/MM/DD') : null;
+				return date;
 			}
 		},
 		interval: { type: Number, default: 60 },
@@ -29729,7 +29755,7 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.setLoading = undefined;
+exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
 
 var _mutationTypes = require('./mutation-types');
 
@@ -29756,9 +29782,66 @@ var setLoading = exports.setLoading = function setLoading(_ref, _ref2) {
 	dispatch(_mutationTypes.SET_LOADING, { loading: loading, progress: progress });
 };
 
-var makeReservation = exports.makeReservation = function makeReservation(_ref3, data) {
+var payReservation = exports.payReservation = function payReservation(_ref3, id) {
 	var dispatch = _ref3.dispatch;
 	var state = _ref3.state;
+
+	var data = _lodash2.default.merge({
+		payment: 'card',
+		action: 'pay',
+		id: id
+	}, state.booking);
+
+	_bookings2.default.patch(data,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.PAID, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var cancelReservation = exports.cancelReservation = function cancelReservation(_ref4, id) {
+	var dispatch = _ref4.dispatch;
+	var state = _ref4.state;
+
+	_bookings2.default.cancel(id,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.CANCELED, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var markReservationsAsPaid = exports.markReservationsAsPaid = function markReservationsAsPaid(_ref5, id) {
+	var dispatch = _ref5.dispatch;
+	var state = _ref5.state;
+
+	var data = _lodash2.default.merge({
+		payment: 'cash',
+		action: 'markAsPaid',
+		id: id
+	});
+
+	_bookings2.default.patch(data,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.PAID, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var makeReservation = exports.makeReservation = function makeReservation(_ref6, data) {
+	var dispatch = _ref6.dispatch;
+	var state = _ref6.state;
 
 	data = _lodash2.default.merge(data, state.booking);
 	_bookings2.default.store(data,
@@ -29772,9 +29855,9 @@ var makeReservation = exports.makeReservation = function makeReservation(_ref3, 
 	});
 };
 
-var searchBookables = exports.searchBookables = function searchBookables(_ref4) {
-	var dispatch = _ref4.dispatch;
-	var state = _ref4.state;
+var searchBookables = exports.searchBookables = function searchBookables(_ref7) {
+	var dispatch = _ref7.dispatch;
+	var state = _ref7.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type) {
@@ -29792,9 +29875,9 @@ var searchBookables = exports.searchBookables = function searchBookables(_ref4) 
 	}
 };
 
-var calculate = exports.calculate = function calculate(_ref5) {
-	var dispatch = _ref5.dispatch;
-	var state = _ref5.state;
+var calculate = exports.calculate = function calculate(_ref8) {
+	var dispatch = _ref8.dispatch;
+	var state = _ref8.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type && b.bookable) {
@@ -29810,9 +29893,9 @@ var calculate = exports.calculate = function calculate(_ref5) {
 	}
 };
 
-var getMembers = exports.getMembers = function getMembers(_ref6) {
-	var dispatch = _ref6.dispatch;
-	var state = _ref6.state;
+var getMembers = exports.getMembers = function getMembers(_ref9) {
+	var dispatch = _ref9.dispatch;
+	var state = _ref9.state;
 
 	_members2.default.getAll({},
 	// handle success
@@ -29825,72 +29908,72 @@ var getMembers = exports.getMembers = function getMembers(_ref6) {
 	});
 };
 
-var addResources = exports.addResources = function addResources(_ref7, resources) {
-	var dispatch = _ref7.dispatch;
-	var state = _ref7.state;
+var addResources = exports.addResources = function addResources(_ref10, resources) {
+	var dispatch = _ref10.dispatch;
+	var state = _ref10.state;
 
 	dispatch(_mutationTypes.ADD_RESOURCES, resources);
 };
 
-var addErrors = exports.addErrors = function addErrors(_ref8, errors) {
-	var dispatch = _ref8.dispatch;
-	var state = _ref8.state;
+var addErrors = exports.addErrors = function addErrors(_ref11, errors) {
+	var dispatch = _ref11.dispatch;
+	var state = _ref11.state;
 
 	dispatch(_mutationTypes.ADD_ERRORS, errors);
 };
 
-var addDate = exports.addDate = function addDate(_ref9, date) {
-	var dispatch = _ref9.dispatch;
-	var state = _ref9.state;
+var addDate = exports.addDate = function addDate(_ref12, date) {
+	var dispatch = _ref12.dispatch;
+	var state = _ref12.state;
 
 	dispatch(_mutationTypes.ADD_DATE, date);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addTimeTo = exports.addTimeTo = function addTimeTo(_ref10, timeTo) {
-	var dispatch = _ref10.dispatch;
-	var state = _ref10.state;
+var addTimeTo = exports.addTimeTo = function addTimeTo(_ref13, timeTo) {
+	var dispatch = _ref13.dispatch;
+	var state = _ref13.state;
 
 	dispatch(_mutationTypes.ADD_TIME_TO, timeTo);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref11, timeFrom) {
-	var dispatch = _ref11.dispatch;
-	var state = _ref11.state;
+var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref14, timeFrom) {
+	var dispatch = _ref14.dispatch;
+	var state = _ref14.state;
 
 	dispatch(_mutationTypes.ADD_TIME_FROM, timeFrom);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addType = exports.addType = function addType(_ref12, type) {
-	var dispatch = _ref12.dispatch;
-	var state = _ref12.state;
+var addType = exports.addType = function addType(_ref15, type) {
+	var dispatch = _ref15.dispatch;
+	var state = _ref15.state;
 
 	dispatch(_mutationTypes.ADD_TYPE, type);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addMember = exports.addMember = function addMember(_ref13, user) {
-	var dispatch = _ref13.dispatch;
-	var state = _ref13.state;
+var addMember = exports.addMember = function addMember(_ref16, user) {
+	var dispatch = _ref16.dispatch;
+	var state = _ref16.state;
 
 	dispatch(_mutationTypes.ADD_MEMBER, user);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addBookable = exports.addBookable = function addBookable(_ref14, bookable) {
-	var dispatch = _ref14.dispatch;
-	var state = _ref14.state;
+var addBookable = exports.addBookable = function addBookable(_ref17, bookable) {
+	var dispatch = _ref17.dispatch;
+	var state = _ref17.state;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
 	dispatch(_mutationTypes.ADD_BOOKABLE, bookable);
 	calculate({ dispatch: dispatch, state: state });
 };
 
-var addBooking = exports.addBooking = function addBooking(_ref15, booking) {
-	var dispatch = _ref15.dispatch;
-	var state = _ref15.state;
+var addBooking = exports.addBooking = function addBooking(_ref18, booking) {
+	var dispatch = _ref18.dispatch;
+	var state = _ref18.state;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
 
@@ -29901,6 +29984,7 @@ var addBooking = exports.addBooking = function addBooking(_ref15, booking) {
 	dispatch(_mutationTypes.ADD_DATE, date);
 	dispatch(_mutationTypes.ADD_TIME_FROM, time_from);
 	dispatch(_mutationTypes.ADD_TIME_TO, time_to);
+	dispatch(booking.paid ? _mutationTypes.PAID : _mutationTypes.UNPAID);
 
 	calculate({ dispatch: dispatch, state: state });
 };
@@ -29923,6 +30007,26 @@ exports.default = {
 		return _vue2.default.http.get('/api/bookings', { params: params }).then(function (response) {
 			var data = response.json();
 			done(data.available.concat(data.notavailable));
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	},
+
+	patch: function patch(params, done, error) {
+		return _vue2.default.http.patch('/api/bookings/' + params.id, params).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	},
+
+	cancel: function cancel(id, done, error) {
+		return _vue2.default.http.delete('/api/bookings/' + id).then(function (response) {
+			done(response.json());
 		}, function (response) {
 			if (response.status == 422) {
 				error(response.data);
@@ -29999,7 +30103,8 @@ var state = {
 	time_from: null,
 	date: null,
 	type: null,
-	member: null
+	member: null,
+	paid: false
 };
 
 /**
@@ -30007,7 +30112,6 @@ var state = {
  * @type {{}}
  */
 var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD_DATE, function (state, date) {
-	console.log(date);
 	state.date = date;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TIME_TO, function (state, timeTo) {
 	state.time_to = timeTo;
@@ -30019,6 +30123,10 @@ var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD
 	state.type = type;
 }), _defineProperty(_mutations, _mutationTypes.ADD_MEMBER, function (state, member) {
 	state.member = member;
+}), _defineProperty(_mutations, _mutationTypes.PAID, function (state) {
+	state.paid = true;
+}), _defineProperty(_mutations, _mutationTypes.UNPAID, function (state) {
+	state.paid = false;
 }), _mutations);
 
 /**
@@ -30059,6 +30167,9 @@ var ADD_MEMBER = exports.ADD_MEMBER = 'ADD_MEMBER';
 var ADD_MEMBERS = exports.ADD_MEMBERS = 'ADD_MEMBERS';
 
 var BOOKED = exports.BOOKED = 'BOOKED';
+var PAID = exports.PAID = 'PAID';
+var UNPAID = exports.UNPAID = 'UNPAID';
+var CANCELED = exports.CANCELED = 'CANCELED';
 
 },{}],25:[function(require,module,exports){
 'use strict';

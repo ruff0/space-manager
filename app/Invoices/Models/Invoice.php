@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property mixed is_company
  * @property int   tax
  * @property mixed subtotal
+ * @property mixed member
+ * @property  charge_id
  */
 class Invoice extends Model
 {
@@ -232,5 +234,33 @@ class Invoice extends Model
 	public function getLastInvoiceOfType($type = 'plan')
 	{
 		return $this->where('type', $type)->last();
+	}
+
+	public function pay()
+	{
+		if(is_null($this->charge_id))
+		{
+			$charge = $this->member->charge($this->getTotalForStripe(), [
+				"currency" => $this->member->getCurrency(),
+				"customer" => $this->member->id
+			]);
+			$this->charge_id = $charge->id;
+			$this->save();
+		}
+	}
+
+	public function markAsPaid($method = 'card')
+	{
+		$lastInvoice = $this->where('paid', true)->max('number');
+
+		if($lastInvoice) {
+			$this->paid = 1;
+			$this->number = $lastInvoice + 1;
+			$this->payment_method = $method;
+
+			$this->save();
+
+			return $this;
+		}
 	}
 }

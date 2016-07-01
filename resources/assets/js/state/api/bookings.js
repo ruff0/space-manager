@@ -18,6 +18,36 @@ export default {
 			)
 	},
 
+	patch: (params, done, error) => {
+		return Vue.http
+			.patch('/api/bookings/' + params.id, params)
+			.then(
+				(response) => {
+					done(response.json())
+				},
+				(response) => {
+					if (response.status == 422) {
+						error(response.data)
+					}
+				}
+			)
+	},
+
+	cancel: (id, done, error) => {
+		return Vue.http
+			.delete('/api/bookings/' + id )
+			.then(
+				(response) => {
+					done(response.json())
+				},
+				(response) => {
+					if (response.status == 422) {
+						error(response.data)
+					}
+				}
+			)
+	},
+
 	calculate: (params , done, error) => {
 		return Vue.http
 			.post('/api/bookings/calculate', params)

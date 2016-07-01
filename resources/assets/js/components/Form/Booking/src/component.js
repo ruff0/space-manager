@@ -15,6 +15,9 @@ import {
 	getMembers,
 	addMember,
 	calculate,
+	payReservation,
+	cancelReservation,
+	markReservationsAsPaid,
 	makeReservation
 } from '../../../../state/actions'
 
@@ -41,6 +44,9 @@ export default {
 			addBooking,
 			addMember,
 			getMembers,
+			payReservation,
+			cancelReservation,
+			markReservationsAsPaid,
 			makeReservation,
 			calculate
 		},
@@ -85,6 +91,19 @@ export default {
 	computed : {
 		hasResources () {
 			return this.resources.length == 0
+		},
+		canBeCanceled () {
+			console.log(moment(new Date()).isBefore(moment(new Date(this.booking.time_from))), !this.isPaid)
+			return moment(new Date()).isBefore(moment(new Date(this.booking.time_from))) && !this.isPaid
+		},
+		isPaid() {
+			return this.selected.paid
+		},
+		canMakeReservation(){
+			return (!this.booking && this.member)? true : false
+		},
+		canPayWithCard() {
+			return (this.member && this.member.hasCreditCard)? true: false;
 		}
 	},
 	/**
@@ -137,6 +156,15 @@ export default {
 		},
 		reserveAndPay () {
 			this.makeReservation({ payment: 'card' })
+		},
+		pay () {
+			this.payReservation(this.booking.id)
+		},
+		cancel () {
+			this.cancelReservation(this.booking.id)
+		},
+		markAsPaid () {
+			this.markReservationsAsPaid(this.booking.id)
 		}
 	}
 }

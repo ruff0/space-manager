@@ -12,6 +12,9 @@ import {
 	ADD_MEMBER,
 	ADD_MEMBERS,
 	BOOKED,
+	PAID,
+	UNPAID,
+	CANCELED,
 	CLEAR_PRICE
 } from './mutation-types'
 import _ from 'lodash'
@@ -20,6 +23,48 @@ import members from './api/members'
 
 export const setLoading = ({dispatch, state}, {loading, progress}) => {
 	dispatch(SET_LOADING, {loading, progress})
+}
+
+export const payReservation = ({dispatch, state}, id) => {
+	const data = _.merge({
+		payment: 'card',
+		action: 'pay',
+		id
+	}, state.booking)
+
+	bookings.patch(
+		data,
+		// handle success
+		(resources) => dispatch(PAID, data),
+		// handle error
+		(errors) => dispatch(ADD_ERRORS, errors)
+	)
+}
+
+export const cancelReservation = ({dispatch, state}, id) => {
+	bookings.cancel(
+		id,
+		// handle success
+		(resources) => dispatch(CANCELED, data),
+		// handle error
+		(errors) => dispatch(ADD_ERRORS, errors)
+	)
+}
+
+export const markReservationsAsPaid = ({dispatch, state}, id) => {
+	const data = _.merge({
+		payment: 'cash',
+		action: 'markAsPaid',
+		id
+	})
+	
+	bookings.patch(
+		data,
+		// handle success
+		(resources) => dispatch(PAID, data),
+		// handle error
+		(errors) => dispatch(ADD_ERRORS, errors)
+	)
 }
 
 export const makeReservation = ({dispatch, state}, data) => {
@@ -120,6 +165,7 @@ export const addBooking = ({dispatch, state}, booking) => {
 	dispatch(ADD_DATE, date)
 	dispatch(ADD_TIME_FROM, time_from)
 	dispatch(ADD_TIME_TO, time_to)
+	dispatch(booking.paid ? PAID : UNPAID)
 
 	calculate({dispatch, state})
 }

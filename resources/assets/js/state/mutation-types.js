@@ -22,3 +22,6 @@ export const ADD_MEMBER = 'ADD_MEMBER'
 export const ADD_MEMBERS = 'ADD_MEMBERS'
 
 export const BOOKED = 'BOOKED'
+export const PAID = 'PAID'
+export const UNPAID = 'UNPAID'
+export const CANCELED = 'CANCELED'
