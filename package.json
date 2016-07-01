@@ -5,11 +5,13 @@
     "gulp": "^3.9.1",
     "laravel-elixir-vueify": "^1.0.3",
     "lodash": "^4.11.1",
+    "pickadate": "^3.5.6",
     "strip": "^3.0.0",
     "stripe": "^4.5.0",
     "vue": "^1.0.21",
-    "vue-resource": "^0.7.0",
-    "vuestrap-icons": "^0.5.3"
+    "vue-resource": "^0.9.1",
+    "vuestrap-icons": "^0.5.3",
+    "vuex": "^0.8.2"
   },
   "dependencies": {
     "bootstrap-sass": "^3.0.0",

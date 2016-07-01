@@ -1,0 +1,129 @@
+<div class="panel panel-white">
+	<div class="panel-heading">
+		<h6 class="panel-title">
+			{{title}}
+			<span class="text-highlight bg-primary" v-if="hasChanged && !isNew">
+				{{message}}
+			</span>
+		</h6>
+		<div class="heading-elements" v-if="resources && calculated">
+			<div class="button-set pull-right">
+				<u-button :ladda="{style:'zoom-in'}"
+									class="pull-right"
+									data-style="zoom-in"
+									color="primary"
+									@click="cancel"
+									v-if="canBeCanceled && !hasChanged"
+				>
+					Cancelar
+				</u-button>
+
+				<u-button :ladda="{style:'zoom-in'}"
+									class="pull-right mr-10"
+									data-style="zoom-in"
+									color="primary"
+									@click="reserve"
+									v-if="(!canBeCanceled && canMakeReservation) || hasChanged"
+				>
+					Reservar
+				</u-button>
+				<u-button :ladda="{style:'zoom-in'}"
+									class="pull-right mr-10"
+									data-style="zoom-in"
+									color="primary"
+									@click="reserveAndPay"
+									v-if="(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)"
+				>
+					Reservar & pagar
+				</u-button>
+				<u-button :ladda="{style:'zoom-in'}"
+									class="pull-right mr-10"
+									data-style="zoom-in"
+									color="primary"
+									@click="pay"
+									v-if="canBeCanceled && canPayWithCard && !hasChanged"
+				>
+					Cobrar
+				</u-button>
+
+				<u-button :ladda="{style:'zoom-in'}"
+									class="pull-right mr-10"
+									data-style="zoom-in"
+									color="primary"
+									@click="markAsPaid"
+									v-if="canBeCanceled && !hasChanged"
+				>
+					Marcar como pagada
+				</u-button>
+			</div>
+
+		</div>
+	</div>
+	<div class="panel-body" v-block="loading">
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
+				<label>Miembro</label>
+				<selectable :options="members"
+										placeholder="Selecciona un miembro"
+										options-label="fullname"
+										:searchbox="true"
+										:disabled="isPaid"
+										image-node="avatar"
+										@change="addMember"
+										:value="selected.member"
+				>
+				</selectable>
+				<form-error :errors="errors.type"></form-error>
+			</div>
+		</div>
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
+				<label>Tipo de sala</label>
+				<selectable :options="types"
+										placeholder="Selecciona un tipo"
+										:disabled="isPaid"
+										@change="addType"
+										:value="selected.type"
+				>
+				</selectable>
+				<form-error :errors="errors.type"></form-error>
+			</div>
+		</div>
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
+				<label>Recurso</label>
+				<selectable :options="resources"
+										:placeholder="Selecciona un recurso"
+										:disabled="hasResources || isPaid"
+										option-condition-disable="available"
+										:option-condition-oposite="true"
+										@change="addBookable"
+										:value="selected.bookable"
+				>
+				</selectable>
+				<form-error :errors="errors.bookable"></form-error>
+			</div>
+		</div>
+
+		<div class="row pb-20">
+			<div class="col-sm-4">
+				<label>Fecha</label>
+				<date-picker  @change="addDate" :value="selected.date" :disabled="isPaid"></date-picker>
+				<form-error :errors="errors.date"></form-error>
+			</div>
+			<div class="col-sm-4">
+				<label>Hora Inicio</label>
+				<time-picker @change="addTimeFrom" :value="selected.time_from" :disabled="isPaid"></time-picker>
+				<form-error :errors="errors.time_from"></form-error>
+			</div>
+			<div class="col-sm-4">
+				<label>Hora Fin</label>
+				<time-picker @change="addTimeTo" :value="selected.time_to" :disabled="isPaid"></time-picker>
+				<form-error :errors="errors.time_to"></form-error>
+			</div>
+		</div>
+	</div>
+</div>

@@ -16423,623 +16423,23 @@ function format (id) {
 }
 
 },{}],4:[function(require,module,exports){
-/**
- * Before Interceptor.
+/*!
+ * vue-resource v0.9.1
+ * https://github.com/vuejs/vue-resource
+ * Released under the MIT License.
  */
 
-var _ = require('../util');
+'use strict';
 
-module.exports = {
-
-    request: function (request) {
-
-        if (_.isFunction(request.beforeSend)) {
-            request.beforeSend.call(this, request);
-        }
-
-        return request;
-    }
-
-};
-
-},{"../util":27}],5:[function(require,module,exports){
-/**
- * Base client.
- */
-
-var _ = require('../../util');
-var Promise = require('../../promise');
-var xhrClient = require('./xhr');
-
-module.exports = function (request) {
-
-    var response = (request.client || xhrClient)(request);
-
-    return Promise.resolve(response).then(function (response) {
-
-        if (response.headers) {
-
-            var headers = parseHeaders(response.headers);
-
-            response.headers = function (name) {
-
-                if (name) {
-                    return headers[_.toLower(name)];
-                }
-
-                return headers;
-            };
-
-        }
-
-        response.ok = response.status >= 200 && response.status < 300;
-
-        return response;
-    });
-
-};
-
-function parseHeaders(str) {
-
-    var headers = {}, value, name, i;
-
-    if (_.isString(str)) {
-        _.each(str.split('\n'), function (row) {
-
-            i = row.indexOf(':');
-            name = _.trim(_.toLower(row.slice(0, i)));
-            value = _.trim(row.slice(i + 1));
-
-            if (headers[name]) {
-
-                if (_.isArray(headers[name])) {
-                    headers[name].push(value);
-                } else {
-                    headers[name] = [headers[name], value];
-                }
-
-            } else {
-
-                headers[name] = value;
-            }
-
-        });
-    }
-
-    return headers;
-}
-
-},{"../../promise":20,"../../util":27,"./xhr":8}],6:[function(require,module,exports){
-/**
- * JSONP client.
- */
-
-var _ = require('../../util');
-var Promise = require('../../promise');
-
-module.exports = function (request) {
-    return new Promise(function (resolve) {
-
-        var callback = '_jsonp' + Math.random().toString(36).substr(2), response = {request: request, data: null}, handler, script;
-
-        request.params[request.jsonp] = callback;
-        request.cancel = function () {
-            handler({type: 'cancel'});
-        };
-
-        script = document.createElement('script');
-        script.src = _.url(request);
-        script.type = 'text/javascript';
-        script.async = true;
-
-        window[callback] = function (data) {
-            response.data = data;
-        };
-
-        handler = function (event) {
-
-            if (event.type === 'load' && response.data !== null) {
-                response.status = 200;
-            } else if (event.type === 'error') {
-                response.status = 404;
-            } else {
-                response.status = 0;
-            }
-
-            resolve(response);
-
-            delete window[callback];
-            document.body.removeChild(script);
-        };
-
-        script.onload = handler;
-        script.onerror = handler;
-
-        document.body.appendChild(script);
-    });
-};
-
-},{"../../promise":20,"../../util":27}],7:[function(require,module,exports){
-/**
- * XDomain client (Internet Explorer).
- */
-
-var _ = require('../../util');
-var Promise = require('../../promise');
-
-module.exports = function (request) {
-    return new Promise(function (resolve) {
-
-        var xdr = new XDomainRequest(), response = {request: request}, handler;
-
-        request.cancel = function () {
-            xdr.abort();
-        };
-
-        xdr.open(request.method, _.url(request), true);
-
-        handler = function (event) {
-
-            response.data = xdr.responseText;
-            response.status = xdr.status;
-            response.statusText = xdr.statusText;
-
-            resolve(response);
-        };
-
-        xdr.timeout = 0;
-        xdr.onload = handler;
-        xdr.onabort = handler;
-        xdr.onerror = handler;
-        xdr.ontimeout = function () {};
-        xdr.onprogress = function () {};
-
-        xdr.send(request.data);
-    });
-};
-
-},{"../../promise":20,"../../util":27}],8:[function(require,module,exports){
-/**
- * XMLHttp client.
- */
-
-var _ = require('../../util');
-var Promise = require('../../promise');
-
-module.exports = function (request) {
-    return new Promise(function (resolve) {
-
-        var xhr = new XMLHttpRequest(), response = {request: request}, handler;
-
-        request.cancel = function () {
-            xhr.abort();
-        };
-
-        xhr.open(request.method, _.url(request), true);
-
-        handler = function (event) {
-
-            response.data = xhr.responseText;
-            response.status = xhr.status;
-            response.statusText = xhr.statusText;
-            response.headers = xhr.getAllResponseHeaders();
-
-            resolve(response);
-        };
-
-        xhr.timeout = 0;
-        xhr.onload = handler;
-        xhr.onabort = handler;
-        xhr.onerror = handler;
-        xhr.ontimeout = function () {};
-        xhr.onprogress = function () {};
-
-        if (_.isPlainObject(request.xhr)) {
-            _.extend(xhr, request.xhr);
-        }
-
-        if (_.isPlainObject(request.upload)) {
-            _.extend(xhr.upload, request.upload);
-        }
-
-        _.each(request.headers || {}, function (value, header) {
-            xhr.setRequestHeader(header, value);
-        });
-
-        xhr.send(request.data);
-    });
-};
-
-},{"../../promise":20,"../../util":27}],9:[function(require,module,exports){
-/**
- * CORS Interceptor.
- */
-
-var _ = require('../util');
-var xdrClient = require('./client/xdr');
-var xhrCors = 'withCredentials' in new XMLHttpRequest();
-var originUrl = _.url.parse(location.href);
-
-module.exports = {
-
-    request: function (request) {
-
-        if (request.crossOrigin === null) {
-            request.crossOrigin = crossOrigin(request);
-        }
-
-        if (request.crossOrigin) {
-
-            if (!xhrCors) {
-                request.client = xdrClient;
-            }
-
-            request.emulateHTTP = false;
-        }
-
-        return request;
-    }
-
-};
-
-function crossOrigin(request) {
-
-    var requestUrl = _.url.parse(_.url(request));
-
-    return (requestUrl.protocol !== originUrl.protocol || requestUrl.host !== originUrl.host);
-}
-
-},{"../util":27,"./client/xdr":7}],10:[function(require,module,exports){
-/**
- * Header Interceptor.
- */
-
-var _ = require('../util');
-
-module.exports = {
-
-    request: function (request) {
-
-        request.method = request.method.toUpperCase();
-        request.headers = _.extend({}, _.http.headers.common,
-            !request.crossOrigin ? _.http.headers.custom : {},
-            _.http.headers[request.method.toLowerCase()],
-            request.headers
-        );
-
-        if (_.isPlainObject(request.data) && /^(GET|JSONP)$/i.test(request.method)) {
-            _.extend(request.params, request.data);
-            delete request.data;
-        }
-
-        return request;
-    }
-
-};
-
-},{"../util":27}],11:[function(require,module,exports){
-/**
- * Service for sending network requests.
- */
-
-var _ = require('../util');
-var Client = require('./client');
-var Promise = require('../promise');
-var interceptor = require('./interceptor');
-var jsonType = {'Content-Type': 'application/json'};
-
-function Http(url, options) {
-
-    var client = Client, request, promise;
-
-    Http.interceptors.forEach(function (handler) {
-        client = interceptor(handler, this.$vm)(client);
-    }, this);
-
-    options = _.isObject(url) ? url : _.extend({url: url}, options);
-    request = _.merge({}, Http.options, this.$options, options);
-    promise = client(request).bind(this.$vm).then(function (response) {
-
-        return response.ok ? response : Promise.reject(response);
-
-    }, function (response) {
-
-        if (response instanceof Error) {
-            _.error(response);
-        }
-
-        return Promise.reject(response);
-    });
-
-    if (request.success) {
-        promise.success(request.success);
-    }
-
-    if (request.error) {
-        promise.error(request.error);
-    }
-
-    return promise;
-}
-
-Http.options = {
-    method: 'get',
-    data: '',
-    params: {},
-    headers: {},
-    xhr: null,
-    upload: null,
-    jsonp: 'callback',
-    beforeSend: null,
-    crossOrigin: null,
-    emulateHTTP: false,
-    emulateJSON: false,
-    timeout: 0
-};
-
-Http.interceptors = [
-    require('./before'),
-    require('./timeout'),
-    require('./jsonp'),
-    require('./method'),
-    require('./mime'),
-    require('./header'),
-    require('./cors')
-];
-
-Http.headers = {
-    put: jsonType,
-    post: jsonType,
-    patch: jsonType,
-    delete: jsonType,
-    common: {'Accept': 'application/json, text/plain, */*'},
-    custom: {'X-Requested-With': 'XMLHttpRequest'}
-};
-
-['get', 'put', 'post', 'patch', 'delete', 'jsonp'].forEach(function (method) {
-
-    Http[method] = function (url, data, success, options) {
-
-        if (_.isFunction(data)) {
-            options = success;
-            success = data;
-            data = undefined;
-        }
-
-        if (_.isObject(success)) {
-            options = success;
-            success = undefined;
-        }
-
-        return this(url, _.extend({method: method, data: data, success: success}, options));
-    };
-});
-
-module.exports = _.http = Http;
-
-},{"../promise":20,"../util":27,"./before":4,"./client":5,"./cors":9,"./header":10,"./interceptor":12,"./jsonp":13,"./method":14,"./mime":15,"./timeout":16}],12:[function(require,module,exports){
-/**
- * Interceptor factory.
- */
-
-var _ = require('../util');
-var Promise = require('../promise');
-
-module.exports = function (handler, vm) {
-
-    return function (client) {
-
-        if (_.isFunction(handler)) {
-            handler = handler.call(vm, Promise);
-        }
-
-        return function (request) {
-
-            if (_.isFunction(handler.request)) {
-                request = handler.request.call(vm, request);
-            }
-
-            return when(request, function (request) {
-                return when(client(request), function (response) {
-
-                    if (_.isFunction(handler.response)) {
-                        response = handler.response.call(vm, response);
-                    }
-
-                    return response;
-                });
-            });
-        };
-    };
-};
-
-function when(value, fulfilled, rejected) {
-
-    var promise = Promise.resolve(value);
-
-    if (arguments.length < 2) {
-        return promise;
-    }
-
-    return promise.then(fulfilled, rejected);
-}
-
-},{"../promise":20,"../util":27}],13:[function(require,module,exports){
-/**
- * JSONP Interceptor.
- */
-
-var jsonpClient = require('./client/jsonp');
-
-module.exports = {
-
-    request: function (request) {
-
-        if (request.method == 'JSONP') {
-            request.client = jsonpClient;
-        }
-
-        return request;
-    }
-
-};
-
-},{"./client/jsonp":6}],14:[function(require,module,exports){
-/**
- * HTTP method override Interceptor.
- */
-
-module.exports = {
-
-    request: function (request) {
-
-        if (request.emulateHTTP && /^(PUT|PATCH|DELETE)$/i.test(request.method)) {
-            request.headers['X-HTTP-Method-Override'] = request.method;
-            request.method = 'POST';
-        }
-
-        return request;
-    }
-
-};
-
-},{}],15:[function(require,module,exports){
-/**
- * Mime Interceptor.
- */
-
-var _ = require('../util');
-
-module.exports = {
-
-    request: function (request) {
-
-        if (request.emulateJSON && _.isPlainObject(request.data)) {
-            request.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-            request.data = _.url.params(request.data);
-        }
-
-        if (_.isObject(request.data) && /FormData/i.test(request.data.toString())) {
-            delete request.headers['Content-Type'];
-        }
-
-        if (_.isPlainObject(request.data)) {
-            request.data = JSON.stringify(request.data);
-        }
-
-        return request;
-    },
-
-    response: function (response) {
-
-        try {
-            response.data = JSON.parse(response.data);
-        } catch (e) {}
-
-        return response;
-    }
-
-};
-
-},{"../util":27}],16:[function(require,module,exports){
-/**
- * Timeout Interceptor.
- */
-
-module.exports = function () {
-
-    var timeout;
-
-    return {
-
-        request: function (request) {
-
-            if (request.timeout) {
-                timeout = setTimeout(function () {
-                    request.cancel();
-                }, request.timeout);
-            }
-
-            return request;
-        },
-
-        response: function (response) {
-
-            clearTimeout(timeout);
-
-            return response;
-        }
-
-    };
-};
-
-},{}],17:[function(require,module,exports){
-/**
- * Install plugin.
- */
-
-function install(Vue) {
-
-    var _ = require('./util');
-
-    _.config = Vue.config;
-    _.warning = Vue.util.warn;
-    _.nextTick = Vue.util.nextTick;
-
-    Vue.url = require('./url');
-    Vue.http = require('./http');
-    Vue.resource = require('./resource');
-    Vue.Promise = require('./promise');
-
-    Object.defineProperties(Vue.prototype, {
-
-        $url: {
-            get: function () {
-                return _.options(Vue.url, this, this.$options.url);
-            }
-        },
-
-        $http: {
-            get: function () {
-                return _.options(Vue.http, this, this.$options.http);
-            }
-        },
-
-        $resource: {
-            get: function () {
-                return Vue.resource.bind(this);
-            }
-        },
-
-        $promise: {
-            get: function () {
-                return function (executor) {
-                    return new Vue.Promise(executor, this);
-                }.bind(this);
-            }
-        }
-
-    });
-}
-
-if (window.Vue) {
-    Vue.use(install);
-}
-
-module.exports = install;
-
-},{"./http":11,"./promise":20,"./resource":21,"./url":22,"./util":27}],18:[function(require,module,exports){
 /**
  * Promises/A+ polyfill v1.1.4 (https://github.com/bramstein/promis)
  */
 
-var _ = require('../util');
-
 var RESOLVED = 0;
 var REJECTED = 1;
-var PENDING  = 2;
+var PENDING = 2;
 
-function Promise(executor) {
+function Promise$2(executor) {
 
     this.state = PENDING;
     this.value = undefined;
@@ -17058,21 +16458,22 @@ function Promise(executor) {
     }
 }
 
-Promise.reject = function (r) {
-    return new Promise(function (resolve, reject) {
+Promise$2.reject = function (r) {
+    return new Promise$2(function (resolve, reject) {
         reject(r);
     });
 };
 
-Promise.resolve = function (x) {
-    return new Promise(function (resolve, reject) {
+Promise$2.resolve = function (x) {
+    return new Promise$2(function (resolve, reject) {
         resolve(x);
     });
 };
 
-Promise.all = function all(iterable) {
-    return new Promise(function (resolve, reject) {
-        var count = 0, result = [];
+Promise$2.all = function all(iterable) {
+    return new Promise$2(function (resolve, reject) {
+        var count = 0,
+            result = [];
 
         if (iterable.length === 0) {
             resolve(result);
@@ -17090,22 +16491,22 @@ Promise.all = function all(iterable) {
         }
 
         for (var i = 0; i < iterable.length; i += 1) {
-            Promise.resolve(iterable[i]).then(resolver(i), reject);
+            Promise$2.resolve(iterable[i]).then(resolver(i), reject);
         }
     });
 };
 
-Promise.race = function race(iterable) {
-    return new Promise(function (resolve, reject) {
+Promise$2.race = function race(iterable) {
+    return new Promise$2(function (resolve, reject) {
         for (var i = 0; i < iterable.length; i += 1) {
-            Promise.resolve(iterable[i]).then(resolve, reject);
+            Promise$2.resolve(iterable[i]).then(resolve, reject);
         }
     });
 };
 
-var p = Promise.prototype;
+var p$1 = Promise$2.prototype;
 
-p.resolve = function resolve(x) {
+p$1.resolve = function resolve(x) {
     var promise = this;
 
     if (promise.state === PENDING) {
@@ -17124,7 +16525,6 @@ p.resolve = function resolve(x) {
                         promise.resolve(x);
                     }
                     called = true;
-
                 }, function (r) {
                     if (!called) {
                         promise.reject(r);
@@ -17146,7 +16546,7 @@ p.resolve = function resolve(x) {
     }
 };
 
-p.reject = function reject(reason) {
+p$1.reject = function reject(reason) {
     var promise = this;
 
     if (promise.state === PENDING) {
@@ -17160,10 +16560,10 @@ p.reject = function reject(reason) {
     }
 };
 
-p.notify = function notify() {
+p$1.notify = function notify() {
     var promise = this;
 
-    _.nextTick(function () {
+    nextTick(function () {
         if (promise.state !== PENDING) {
             while (promise.deferred.length) {
                 var deferred = promise.deferred.shift(),
@@ -17194,40 +16594,291 @@ p.notify = function notify() {
     });
 };
 
-p.then = function then(onResolved, onRejected) {
+p$1.then = function then(onResolved, onRejected) {
     var promise = this;
 
-    return new Promise(function (resolve, reject) {
+    return new Promise$2(function (resolve, reject) {
         promise.deferred.push([onResolved, onRejected, resolve, reject]);
         promise.notify();
     });
 };
 
-p.catch = function (onRejected) {
+p$1.catch = function (onRejected) {
     return this.then(undefined, onRejected);
 };
 
-module.exports = Promise;
+var PromiseObj = window.Promise || Promise$2;
 
-},{"../util":27}],19:[function(require,module,exports){
+function Promise$1(executor, context) {
+
+    if (executor instanceof PromiseObj) {
+        this.promise = executor;
+    } else {
+        this.promise = new PromiseObj(executor.bind(context));
+    }
+
+    this.context = context;
+}
+
+Promise$1.all = function (iterable, context) {
+    return new Promise$1(PromiseObj.all(iterable), context);
+};
+
+Promise$1.resolve = function (value, context) {
+    return new Promise$1(PromiseObj.resolve(value), context);
+};
+
+Promise$1.reject = function (reason, context) {
+    return new Promise$1(PromiseObj.reject(reason), context);
+};
+
+Promise$1.race = function (iterable, context) {
+    return new Promise$1(PromiseObj.race(iterable), context);
+};
+
+var p = Promise$1.prototype;
+
+p.bind = function (context) {
+    this.context = context;
+    return this;
+};
+
+p.then = function (fulfilled, rejected) {
+
+    if (fulfilled && fulfilled.bind && this.context) {
+        fulfilled = fulfilled.bind(this.context);
+    }
+
+    if (rejected && rejected.bind && this.context) {
+        rejected = rejected.bind(this.context);
+    }
+
+    return new Promise$1(this.promise.then(fulfilled, rejected), this.context);
+};
+
+p.catch = function (rejected) {
+
+    if (rejected && rejected.bind && this.context) {
+        rejected = rejected.bind(this.context);
+    }
+
+    return new Promise$1(this.promise.catch(rejected), this.context);
+};
+
+p.finally = function (callback) {
+
+    return this.then(function (value) {
+        callback.call(this);
+        return value;
+    }, function (reason) {
+        callback.call(this);
+        return PromiseObj.reject(reason);
+    });
+};
+
+var debug = false;
+var util = {};
+var array = [];
+function Util (Vue) {
+    util = Vue.util;
+    debug = Vue.config.debug || !Vue.config.silent;
+}
+
+function warn(msg) {
+    if (typeof console !== 'undefined' && debug) {
+        console.warn('[VueResource warn]: ' + msg);
+    }
+}
+
+function error(msg) {
+    if (typeof console !== 'undefined') {
+        console.error(msg);
+    }
+}
+
+function nextTick(cb, ctx) {
+    return util.nextTick(cb, ctx);
+}
+
+function trim(str) {
+    return str.replace(/^\s*|\s*$/g, '');
+}
+
+var isArray = Array.isArray;
+
+function isString(val) {
+    return typeof val === 'string';
+}
+
+function isBoolean(val) {
+    return val === true || val === false;
+}
+
+function isFunction(val) {
+    return typeof val === 'function';
+}
+
+function isObject(obj) {
+    return obj !== null && typeof obj === 'object';
+}
+
+function isPlainObject(obj) {
+    return isObject(obj) && Object.getPrototypeOf(obj) == Object.prototype;
+}
+
+function isFormData(obj) {
+    return typeof FormData !== 'undefined' && obj instanceof FormData;
+}
+
+function when(value, fulfilled, rejected) {
+
+    var promise = Promise$1.resolve(value);
+
+    if (arguments.length < 2) {
+        return promise;
+    }
+
+    return promise.then(fulfilled, rejected);
+}
+
+function options(fn, obj, opts) {
+
+    opts = opts || {};
+
+    if (isFunction(opts)) {
+        opts = opts.call(obj);
+    }
+
+    return merge(fn.bind({ $vm: obj, $options: opts }), fn, { $options: opts });
+}
+
+function each(obj, iterator) {
+
+    var i, key;
+
+    if (typeof obj.length == 'number') {
+        for (i = 0; i < obj.length; i++) {
+            iterator.call(obj[i], obj[i], i);
+        }
+    } else if (isObject(obj)) {
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                iterator.call(obj[key], obj[key], key);
+            }
+        }
+    }
+
+    return obj;
+}
+
+var assign = Object.assign || _assign;
+
+function merge(target) {
+
+    var args = array.slice.call(arguments, 1);
+
+    args.forEach(function (source) {
+        _merge(target, source, true);
+    });
+
+    return target;
+}
+
+function defaults(target) {
+
+    var args = array.slice.call(arguments, 1);
+
+    args.forEach(function (source) {
+
+        for (var key in source) {
+            if (target[key] === undefined) {
+                target[key] = source[key];
+            }
+        }
+    });
+
+    return target;
+}
+
+function _assign(target) {
+
+    var args = array.slice.call(arguments, 1);
+
+    args.forEach(function (source) {
+        _merge(target, source);
+    });
+
+    return target;
+}
+
+function _merge(target, source, deep) {
+    for (var key in source) {
+        if (deep && (isPlainObject(source[key]) || isArray(source[key]))) {
+            if (isPlainObject(source[key]) && !isPlainObject(target[key])) {
+                target[key] = {};
+            }
+            if (isArray(source[key]) && !isArray(target[key])) {
+                target[key] = [];
+            }
+            _merge(target[key], source[key], deep);
+        } else if (source[key] !== undefined) {
+            target[key] = source[key];
+        }
+    }
+}
+
+function root (options, next) {
+
+    var url = next(options);
+
+    if (isString(options.root) && !url.match(/^(https?:)?\//)) {
+        url = options.root + '/' + url;
+    }
+
+    return url;
+}
+
+function query (options, next) {
+
+    var urlParams = Object.keys(Url.options.params),
+        query = {},
+        url = next(options);
+
+    each(options.params, function (value, key) {
+        if (urlParams.indexOf(key) === -1) {
+            query[key] = value;
+        }
+    });
+
+    query = Url.params(query);
+
+    if (query) {
+        url += (url.indexOf('?') == -1 ? '?' : '&') + query;
+    }
+
+    return url;
+}
+
 /**
  * URL Template v2.0.6 (https://github.com/bramstein/url-template)
  */
 
-exports.expand = function (url, params, variables) {
+function expand(url, params, variables) {
 
-    var tmpl = this.parse(url), expanded = tmpl.expand(params);
+    var tmpl = parse(url),
+        expanded = tmpl.expand(params);
 
     if (variables) {
         variables.push.apply(variables, tmpl.vars);
     }
 
     return expanded;
-};
+}
 
-exports.parse = function (template) {
+function parse(template) {
 
-    var operators = ['+', '#', '.', '/', ';', '?', '&'], variables = [];
+    var operators = ['+', '#', '.', '/', ';', '?', '&'],
+        variables = [];
 
     return {
         vars: variables,
@@ -17235,7 +16886,8 @@ exports.parse = function (template) {
             return template.replace(/\{([^\{\}]+)\}|([^\{\}]+)/g, function (_, expression, literal) {
                 if (expression) {
 
-                    var operator = null, values = [];
+                    var operator = null,
+                        values = [];
 
                     if (operators.indexOf(expression.charAt(0)) !== -1) {
                         operator = expression.charAt(0);
@@ -17244,7 +16896,7 @@ exports.parse = function (template) {
 
                     expression.split(/,/g).forEach(function (variable) {
                         var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
-                        values.push.apply(values, exports.getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
+                        values.push.apply(values, getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
                         variables.push(tmp[1]);
                     });
 
@@ -17262,20 +16914,20 @@ exports.parse = function (template) {
                     } else {
                         return values.join(',');
                     }
-
                 } else {
-                    return exports.encodeReserved(literal);
+                    return encodeReserved(literal);
                 }
             });
         }
     };
-};
+}
 
-exports.getValues = function (context, operator, key, modifier) {
+function getValues(context, operator, key, modifier) {
 
-    var value = context[key], result = [];
+    var value = context[key],
+        result = [];
 
-    if (this.isDefined(value) && value !== '') {
+    if (isDefined(value) && value !== '') {
         if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
             value = value.toString();
 
@@ -17283,37 +16935,37 @@ exports.getValues = function (context, operator, key, modifier) {
                 value = value.substring(0, parseInt(modifier, 10));
             }
 
-            result.push(this.encodeValue(operator, value, this.isKeyOperator(operator) ? key : null));
+            result.push(encodeValue(operator, value, isKeyOperator(operator) ? key : null));
         } else {
             if (modifier === '*') {
                 if (Array.isArray(value)) {
-                    value.filter(this.isDefined).forEach(function (value) {
-                        result.push(this.encodeValue(operator, value, this.isKeyOperator(operator) ? key : null));
-                    }, this);
+                    value.filter(isDefined).forEach(function (value) {
+                        result.push(encodeValue(operator, value, isKeyOperator(operator) ? key : null));
+                    });
                 } else {
                     Object.keys(value).forEach(function (k) {
-                        if (this.isDefined(value[k])) {
-                            result.push(this.encodeValue(operator, value[k], k));
+                        if (isDefined(value[k])) {
+                            result.push(encodeValue(operator, value[k], k));
                         }
-                    }, this);
+                    });
                 }
             } else {
                 var tmp = [];
 
                 if (Array.isArray(value)) {
-                    value.filter(this.isDefined).forEach(function (value) {
-                        tmp.push(this.encodeValue(operator, value));
-                    }, this);
+                    value.filter(isDefined).forEach(function (value) {
+                        tmp.push(encodeValue(operator, value));
+                    });
                 } else {
                     Object.keys(value).forEach(function (k) {
-                        if (this.isDefined(value[k])) {
+                        if (isDefined(value[k])) {
                             tmp.push(encodeURIComponent(k));
-                            tmp.push(this.encodeValue(operator, value[k].toString()));
+                            tmp.push(encodeValue(operator, value[k].toString()));
                         }
-                    }, this);
+                    });
                 }
 
-                if (this.isKeyOperator(operator)) {
+                if (isKeyOperator(operator)) {
                     result.push(encodeURIComponent(key) + '=' + tmp.join(','));
                 } else if (tmp.length !== 0) {
                     result.push(tmp.join(','));
@@ -17331,284 +16983,73 @@ exports.getValues = function (context, operator, key, modifier) {
     }
 
     return result;
-};
+}
 
-exports.isDefined = function (value) {
+function isDefined(value) {
     return value !== undefined && value !== null;
-};
+}
 
-exports.isKeyOperator = function (operator) {
+function isKeyOperator(operator) {
     return operator === ';' || operator === '&' || operator === '?';
-};
+}
 
-exports.encodeValue = function (operator, value, key) {
+function encodeValue(operator, value, key) {
 
-    value = (operator === '+' || operator === '#') ? this.encodeReserved(value) : encodeURIComponent(value);
+    value = operator === '+' || operator === '#' ? encodeReserved(value) : encodeURIComponent(value);
 
     if (key) {
         return encodeURIComponent(key) + '=' + value;
     } else {
         return value;
     }
-};
+}
 
-exports.encodeReserved = function (str) {
+function encodeReserved(str) {
     return str.split(/(%[0-9A-Fa-f]{2})/g).map(function (part) {
         if (!/%[0-9A-Fa-f]/.test(part)) {
             part = encodeURI(part);
         }
         return part;
     }).join('');
-};
-
-},{}],20:[function(require,module,exports){
-/**
- * Promise adapter.
- */
-
-var _ = require('./util');
-var PromiseObj = window.Promise || require('./lib/promise');
-
-function Promise(executor, context) {
-
-    if (executor instanceof PromiseObj) {
-        this.promise = executor;
-    } else {
-        this.promise = new PromiseObj(executor.bind(context));
-    }
-
-    this.context = context;
 }
 
-Promise.all = function (iterable, context) {
-    return new Promise(PromiseObj.all(iterable), context);
-};
+function template (options) {
 
-Promise.resolve = function (value, context) {
-    return new Promise(PromiseObj.resolve(value), context);
-};
+    var variables = [],
+        url = expand(options.url, options.params, variables);
 
-Promise.reject = function (reason, context) {
-    return new Promise(PromiseObj.reject(reason), context);
-};
-
-Promise.race = function (iterable, context) {
-    return new Promise(PromiseObj.race(iterable), context);
-};
-
-var p = Promise.prototype;
-
-p.bind = function (context) {
-    this.context = context;
-    return this;
-};
-
-p.then = function (fulfilled, rejected) {
-
-    if (fulfilled && fulfilled.bind && this.context) {
-        fulfilled = fulfilled.bind(this.context);
-    }
-
-    if (rejected && rejected.bind && this.context) {
-        rejected = rejected.bind(this.context);
-    }
-
-    this.promise = this.promise.then(fulfilled, rejected);
-
-    return this;
-};
-
-p.catch = function (rejected) {
-
-    if (rejected && rejected.bind && this.context) {
-        rejected = rejected.bind(this.context);
-    }
-
-    this.promise = this.promise.catch(rejected);
-
-    return this;
-};
-
-p.finally = function (callback) {
-
-    return this.then(function (value) {
-            callback.call(this);
-            return value;
-        }, function (reason) {
-            callback.call(this);
-            return PromiseObj.reject(reason);
-        }
-    );
-};
-
-p.success = function (callback) {
-
-    _.warn('The `success` method has been deprecated. Use the `then` method instead.');
-
-    return this.then(function (response) {
-        return callback.call(this, response.data, response.status, response) || response;
-    });
-};
-
-p.error = function (callback) {
-
-    _.warn('The `error` method has been deprecated. Use the `catch` method instead.');
-
-    return this.catch(function (response) {
-        return callback.call(this, response.data, response.status, response) || response;
-    });
-};
-
-p.always = function (callback) {
-
-    _.warn('The `always` method has been deprecated. Use the `finally` method instead.');
-
-    var cb = function (response) {
-        return callback.call(this, response.data, response.status, response) || response;
-    };
-
-    return this.then(cb, cb);
-};
-
-module.exports = Promise;
-
-},{"./lib/promise":18,"./util":27}],21:[function(require,module,exports){
-/**
- * Service for interacting with RESTful services.
- */
-
-var _ = require('./util');
-
-function Resource(url, params, actions, options) {
-
-    var self = this, resource = {};
-
-    actions = _.extend({},
-        Resource.actions,
-        actions
-    );
-
-    _.each(actions, function (action, name) {
-
-        action = _.merge({url: url, params: params || {}}, options, action);
-
-        resource[name] = function () {
-            return (self.$http || _.http)(opts(action, arguments));
-        };
+    variables.forEach(function (key) {
+        delete options.params[key];
     });
 
-    return resource;
+    return url;
 }
 
-function opts(action, args) {
-
-    var options = _.extend({}, action), params = {}, data, success, error;
-
-    switch (args.length) {
-
-        case 4:
-
-            error = args[3];
-            success = args[2];
-
-        case 3:
-        case 2:
-
-            if (_.isFunction(args[1])) {
-
-                if (_.isFunction(args[0])) {
-
-                    success = args[0];
-                    error = args[1];
-
-                    break;
-                }
-
-                success = args[1];
-                error = args[2];
-
-            } else {
-
-                params = args[0];
-                data = args[1];
-                success = args[2];
-
-                break;
-            }
-
-        case 1:
-
-            if (_.isFunction(args[0])) {
-                success = args[0];
-            } else if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
-                data = args[0];
-            } else {
-                params = args[0];
-            }
-
-            break;
-
-        case 0:
-
-            break;
-
-        default:
-
-            throw 'Expected up to 4 arguments [params, data, success, error], got ' + args.length + ' arguments';
-    }
-
-    options.data = data;
-    options.params = _.extend({}, options.params, params);
-
-    if (success) {
-        options.success = success;
-    }
-
-    if (error) {
-        options.error = error;
-    }
-
-    return options;
-}
-
-Resource.actions = {
-
-    get: {method: 'GET'},
-    save: {method: 'POST'},
-    query: {method: 'GET'},
-    update: {method: 'PUT'},
-    remove: {method: 'DELETE'},
-    delete: {method: 'DELETE'}
-
-};
-
-module.exports = _.resource = Resource;
-
-},{"./util":27}],22:[function(require,module,exports){
 /**
  * Service for URL templating.
  */
 
-var _ = require('../util');
 var ie = document.documentMode;
 var el = document.createElement('a');
 
 function Url(url, params) {
 
-    var options = url, transform;
+    var self = this || {},
+        options = url,
+        transform;
 
-    if (_.isString(url)) {
-        options = {url: url, params: params};
+    if (isString(url)) {
+        options = { url: url, params: params };
     }
 
-    options = _.merge({}, Url.options, this.$options, options);
+    options = merge({}, Url.options, self.$options, options);
 
     Url.transforms.forEach(function (handler) {
-        transform = factory(handler, transform, this.$vm);
-    }, this);
+        transform = factory(handler, transform, self.$vm);
+    });
 
     return transform(options);
-};
+}
 
 /**
  * Url options.
@@ -17624,12 +17065,7 @@ Url.options = {
  * Url transforms.
  */
 
-Url.transforms = [
-    require('./template'),
-    require('./legacy'),
-    require('./query'),
-    require('./root')
-];
+Url.transforms = [template, query, root];
 
 /**
  * Encodes a Url parameter string.
@@ -17639,11 +17075,12 @@ Url.transforms = [
 
 Url.params = function (obj) {
 
-    var params = [], escape = encodeURIComponent;
+    var params = [],
+        escape = encodeURIComponent;
 
     params.add = function (key, value) {
 
-        if (_.isFunction(value)) {
+        if (isFunction(value)) {
             value = value();
         }
 
@@ -17694,11 +17131,13 @@ function factory(handler, next, vm) {
 
 function serialize(params, obj, scope) {
 
-    var array = _.isArray(obj), plain = _.isPlainObject(obj), hash;
+    var array = isArray(obj),
+        plain = isPlainObject(obj),
+        hash;
 
-    _.each(obj, function (value, key) {
+    each(obj, function (value, key) {
 
-        hash = _.isObject(value) || _.isArray(value);
+        hash = isObject(value) || isArray(value);
 
         if (scope) {
             key = scope + '[' + (plain || hash ? key : '') + ']';
@@ -17714,243 +17153,589 @@ function serialize(params, obj, scope) {
     });
 }
 
-module.exports = _.url = Url;
+function xdrClient (request) {
+    return new Promise$1(function (resolve) {
 
-},{"../util":27,"./legacy":23,"./query":24,"./root":25,"./template":26}],23:[function(require,module,exports){
-/**
- * Legacy Transform.
- */
+        var xdr = new XDomainRequest(),
+            handler = function (event) {
 
-var _ = require('../util');
+            var response = request.respondWith(xdr.responseText, {
+                status: xdr.status,
+                statusText: xdr.statusText
+            });
 
-module.exports = function (options, next) {
+            resolve(response);
+        };
 
-    var variables = [], url = next(options);
+        request.abort = function () {
+            return xdr.abort();
+        };
 
-    url = url.replace(/(\/?):([a-z]\w*)/gi, function (match, slash, name) {
-
-        _.warn('The `:' + name + '` parameter syntax has been deprecated. Use the `{' + name + '}` syntax instead.');
-
-        if (options.params[name]) {
-            variables.push(name);
-            return slash + encodeUriSegment(options.params[name]);
-        }
-
-        return '';
+        xdr.open(request.method, request.getUrl(), true);
+        xdr.timeout = 0;
+        xdr.onload = handler;
+        xdr.onerror = handler;
+        xdr.ontimeout = function () {};
+        xdr.onprogress = function () {};
+        xdr.send(request.getBody());
     });
-
-    variables.forEach(function (key) {
-        delete options.params[key];
-    });
-
-    return url;
-};
-
-function encodeUriSegment(value) {
-
-    return encodeUriQuery(value, true).
-        replace(/%26/gi, '&').
-        replace(/%3D/gi, '=').
-        replace(/%2B/gi, '+');
 }
 
-function encodeUriQuery(value, spaces) {
+var ORIGIN_URL = Url.parse(location.href);
+var SUPPORTS_CORS = 'withCredentials' in new XMLHttpRequest();
 
-    return encodeURIComponent(value).
-        replace(/%40/gi, '@').
-        replace(/%3A/gi, ':').
-        replace(/%24/g, '$').
-        replace(/%2C/gi, ',').
-        replace(/%20/g, (spaces ? '%20' : '+'));
+function cors (request, next) {
+
+    if (!isBoolean(request.crossOrigin) && crossOrigin(request)) {
+        request.crossOrigin = true;
+    }
+
+    if (request.crossOrigin) {
+
+        if (!SUPPORTS_CORS) {
+            request.client = xdrClient;
+        }
+
+        delete request.emulateHTTP;
+    }
+
+    next();
 }
 
-},{"../util":27}],24:[function(require,module,exports){
-/**
- * Query Parameter Transform.
- */
+function crossOrigin(request) {
 
-var _ = require('../util');
+    var requestUrl = Url.parse(Url(request));
 
-module.exports = function (options, next) {
-
-    var urlParams = Object.keys(_.url.options.params), query = {}, url = next(options);
-
-   _.each(options.params, function (value, key) {
-        if (urlParams.indexOf(key) === -1) {
-            query[key] = value;
-        }
-    });
-
-    query = _.url.params(query);
-
-    if (query) {
-        url += (url.indexOf('?') == -1 ? '?' : '&') + query;
-    }
-
-    return url;
-};
-
-},{"../util":27}],25:[function(require,module,exports){
-/**
- * Root Prefix Transform.
- */
-
-var _ = require('../util');
-
-module.exports = function (options, next) {
-
-    var url = next(options);
-
-    if (_.isString(options.root) && !url.match(/^(https?:)?\//)) {
-        url = options.root + '/' + url;
-    }
-
-    return url;
-};
-
-},{"../util":27}],26:[function(require,module,exports){
-/**
- * URL Template (RFC 6570) Transform.
- */
-
-var UrlTemplate = require('../lib/url-template');
-
-module.exports = function (options) {
-
-    var variables = [], url = UrlTemplate.expand(options.url, options.params, variables);
-
-    variables.forEach(function (key) {
-        delete options.params[key];
-    });
-
-    return url;
-};
-
-},{"../lib/url-template":19}],27:[function(require,module,exports){
-/**
- * Utility functions.
- */
-
-var _ = exports, array = [], console = window.console;
-
-_.warn = function (msg) {
-    if (console && _.warning && (!_.config.silent || _.config.debug)) {
-        console.warn('[VueResource warn]: ' + msg);
-    }
-};
-
-_.error = function (msg) {
-    if (console) {
-        console.error(msg);
-    }
-};
-
-_.trim = function (str) {
-    return str.replace(/^\s*|\s*$/g, '');
-};
-
-_.toLower = function (str) {
-    return str ? str.toLowerCase() : '';
-};
-
-_.isArray = Array.isArray;
-
-_.isString = function (val) {
-    return typeof val === 'string';
-};
-
-_.isFunction = function (val) {
-    return typeof val === 'function';
-};
-
-_.isObject = function (obj) {
-    return obj !== null && typeof obj === 'object';
-};
-
-_.isPlainObject = function (obj) {
-    return _.isObject(obj) && Object.getPrototypeOf(obj) == Object.prototype;
-};
-
-_.options = function (fn, obj, options) {
-
-    options = options || {};
-
-    if (_.isFunction(options)) {
-        options = options.call(obj);
-    }
-
-    return _.merge(fn.bind({$vm: obj, $options: options}), fn, {$options: options});
-};
-
-_.each = function (obj, iterator) {
-
-    var i, key;
-
-    if (typeof obj.length == 'number') {
-        for (i = 0; i < obj.length; i++) {
-            iterator.call(obj[i], obj[i], i);
-        }
-    } else if (_.isObject(obj)) {
-        for (key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                iterator.call(obj[key], obj[key], key);
-            }
-        }
-    }
-
-    return obj;
-};
-
-_.defaults = function (target, source) {
-
-    for (var key in source) {
-        if (target[key] === undefined) {
-            target[key] = source[key];
-        }
-    }
-
-    return target;
-};
-
-_.extend = function (target) {
-
-    var args = array.slice.call(arguments, 1);
-
-    args.forEach(function (arg) {
-        merge(target, arg);
-    });
-
-    return target;
-};
-
-_.merge = function (target) {
-
-    var args = array.slice.call(arguments, 1);
-
-    args.forEach(function (arg) {
-        merge(target, arg, true);
-    });
-
-    return target;
-};
-
-function merge(target, source, deep) {
-    for (var key in source) {
-        if (deep && (_.isPlainObject(source[key]) || _.isArray(source[key]))) {
-            if (_.isPlainObject(source[key]) && !_.isPlainObject(target[key])) {
-                target[key] = {};
-            }
-            if (_.isArray(source[key]) && !_.isArray(target[key])) {
-                target[key] = [];
-            }
-            merge(target[key], source[key], deep);
-        } else if (source[key] !== undefined) {
-            target[key] = source[key];
-        }
-    }
+    return requestUrl.protocol !== ORIGIN_URL.protocol || requestUrl.host !== ORIGIN_URL.host;
 }
 
-},{}],28:[function(require,module,exports){
+function body (request, next) {
+
+    if (request.emulateJSON && isPlainObject(request.body)) {
+        request.body = Url.params(request.body);
+        request.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    }
+
+    if (isFormData(request.body)) {
+        delete request.headers['Content-Type'];
+    }
+
+    if (isPlainObject(request.body)) {
+        request.body = JSON.stringify(request.body);
+    }
+
+    next(function (response) {
+
+        var contentType = response.headers['Content-Type'];
+
+        if (isString(contentType) && contentType.indexOf('application/json') === 0) {
+
+            try {
+                response.data = response.json();
+            } catch (e) {
+                response.data = null;
+            }
+        } else {
+            response.data = response.text();
+        }
+    });
+}
+
+function jsonpClient (request) {
+    return new Promise$1(function (resolve) {
+
+        var name = request.jsonp || 'callback',
+            callback = '_jsonp' + Math.random().toString(36).substr(2),
+            body = null,
+            handler,
+            script;
+
+        handler = function (event) {
+
+            var status = 0;
+
+            if (event.type === 'load' && body !== null) {
+                status = 200;
+            } else if (event.type === 'error') {
+                status = 404;
+            }
+
+            resolve(request.respondWith(body, { status: status }));
+
+            delete window[callback];
+            document.body.removeChild(script);
+        };
+
+        request.params[name] = callback;
+
+        window[callback] = function (result) {
+            body = JSON.stringify(result);
+        };
+
+        script = document.createElement('script');
+        script.src = request.getUrl();
+        script.type = 'text/javascript';
+        script.async = true;
+        script.onload = handler;
+        script.onerror = handler;
+
+        document.body.appendChild(script);
+    });
+}
+
+function jsonp (request, next) {
+
+    if (request.method == 'JSONP') {
+        request.client = jsonpClient;
+    }
+
+    next(function (response) {
+
+        if (request.method == 'JSONP') {
+            response.data = response.json();
+        }
+    });
+}
+
+function before (request, next) {
+
+    if (isFunction(request.before)) {
+        request.before.call(this, request);
+    }
+
+    next();
+}
+
+/**
+ * HTTP method override Interceptor.
+ */
+
+function method (request, next) {
+
+    if (request.emulateHTTP && /^(PUT|PATCH|DELETE)$/i.test(request.method)) {
+        request.headers['X-HTTP-Method-Override'] = request.method;
+        request.method = 'POST';
+    }
+
+    next();
+}
+
+function header (request, next) {
+
+    request.method = request.method.toUpperCase();
+    request.headers = assign({}, Http.headers.common, !request.crossOrigin ? Http.headers.custom : {}, Http.headers[request.method.toLowerCase()], request.headers);
+
+    next();
+}
+
+/**
+ * Timeout Interceptor.
+ */
+
+function timeout (request, next) {
+
+    var timeout;
+
+    if (request.timeout) {
+        timeout = setTimeout(function () {
+            request.cancel();
+        }, request.timeout);
+    }
+
+    next(function (response) {
+
+        clearTimeout(timeout);
+    });
+}
+
+function xhrClient (request) {
+    return new Promise$1(function (resolve) {
+
+        var xhr = new XMLHttpRequest(),
+            handler = function (event) {
+
+            var response = request.respondWith('response' in xhr ? xhr.response : xhr.responseText, {
+                status: xhr.status === 1223 ? 204 : xhr.status, // IE9 status bug
+                statusText: xhr.status === 1223 ? 'No Content' : trim(xhr.statusText),
+                headers: parseHeaders(xhr.getAllResponseHeaders())
+            });
+
+            resolve(response);
+        };
+
+        request.abort = function () {
+            return xhr.abort();
+        };
+
+        xhr.open(request.method, request.getUrl(), true);
+        xhr.timeout = 0;
+        xhr.onload = handler;
+        xhr.onerror = handler;
+
+        if (request.progress) {
+            if (request.method === 'GET') {
+                xhr.addEventListener('progress', request.progress);
+            } else if (/^(POST|PUT)$/i.test(request.method)) {
+                xhr.upload.addEventListener('progress', request.progress);
+            }
+        }
+
+        if (request.credentials === true) {
+            xhr.withCredentials = true;
+        }
+
+        each(request.headers || {}, function (value, header) {
+            xhr.setRequestHeader(header, value);
+        });
+
+        xhr.send(request.getBody());
+    });
+}
+
+function parseHeaders(str) {
+
+    var headers = {},
+        value,
+        name,
+        i;
+
+    each(trim(str).split('\n'), function (row) {
+
+        i = row.indexOf(':');
+        name = trim(row.slice(0, i));
+        value = trim(row.slice(i + 1));
+
+        if (headers[name]) {
+
+            if (isArray(headers[name])) {
+                headers[name].push(value);
+            } else {
+                headers[name] = [headers[name], value];
+            }
+        } else {
+
+            headers[name] = value;
+        }
+    });
+
+    return headers;
+}
+
+function Client (context) {
+
+    var reqHandlers = [sendRequest],
+        resHandlers = [],
+        handler;
+
+    if (!isObject(context)) {
+        context = null;
+    }
+
+    function Client(request) {
+        return new Promise$1(function (resolve) {
+
+            function exec() {
+
+                handler = reqHandlers.pop();
+
+                if (isFunction(handler)) {
+                    handler.call(context, request, next);
+                } else {
+                    warn('Invalid interceptor of type ' + typeof handler + ', must be a function');
+                    next();
+                }
+            }
+
+            function next(response) {
+                when(response, function (response) {
+
+                    if (isFunction(response)) {
+
+                        resHandlers.unshift(response);
+                    } else if (isObject(response)) {
+
+                        resHandlers.forEach(function (handler) {
+                            handler.call(context, response);
+                        });
+
+                        resolve(response);
+
+                        return;
+                    }
+
+                    exec();
+                });
+            }
+
+            exec();
+        }, context);
+    }
+
+    Client.use = function (handler) {
+        reqHandlers.push(handler);
+    };
+
+    return Client;
+}
+
+function sendRequest(request, resolve) {
+
+    var client = request.client || xhrClient;
+
+    resolve(client(request));
+}
+
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+/**
+ * HTTP Response.
+ */
+
+var Response = function () {
+    function Response(body, _ref) {
+        var url = _ref.url;
+        var headers = _ref.headers;
+        var status = _ref.status;
+        var statusText = _ref.statusText;
+        classCallCheck(this, Response);
+
+
+        this.url = url;
+        this.body = body;
+        this.headers = headers || {};
+        this.status = status || 0;
+        this.statusText = statusText || '';
+        this.ok = status >= 200 && status < 300;
+    }
+
+    Response.prototype.text = function text() {
+        return this.body;
+    };
+
+    Response.prototype.blob = function blob() {
+        return new Blob([this.body]);
+    };
+
+    Response.prototype.json = function json() {
+        return JSON.parse(this.body);
+    };
+
+    return Response;
+}();
+
+var Request = function () {
+    function Request(options) {
+        classCallCheck(this, Request);
+
+
+        this.method = 'GET';
+        this.body = null;
+        this.params = {};
+        this.headers = {};
+
+        assign(this, options);
+    }
+
+    Request.prototype.getUrl = function getUrl() {
+        return Url(this);
+    };
+
+    Request.prototype.getBody = function getBody() {
+        return this.body;
+    };
+
+    Request.prototype.respondWith = function respondWith(body, options) {
+        return new Response(body, assign(options || {}, { url: this.getUrl() }));
+    };
+
+    return Request;
+}();
+
+/**
+ * Service for sending network requests.
+ */
+
+var CUSTOM_HEADERS = { 'X-Requested-With': 'XMLHttpRequest' };
+var COMMON_HEADERS = { 'Accept': 'application/json, text/plain, */*' };
+var JSON_CONTENT_TYPE = { 'Content-Type': 'application/json;charset=utf-8' };
+
+function Http(options) {
+
+    var self = this || {},
+        client = Client(self.$vm);
+
+    defaults(options || {}, self.$options, Http.options);
+
+    Http.interceptors.forEach(function (handler) {
+        client.use(handler);
+    });
+
+    return client(new Request(options)).then(function (response) {
+
+        return response.ok ? response : Promise$1.reject(response);
+    }, function (response) {
+
+        if (response instanceof Error) {
+            error(response);
+        }
+
+        return Promise$1.reject(response);
+    });
+}
+
+Http.options = {};
+
+Http.headers = {
+    put: JSON_CONTENT_TYPE,
+    post: JSON_CONTENT_TYPE,
+    patch: JSON_CONTENT_TYPE,
+    delete: JSON_CONTENT_TYPE,
+    custom: CUSTOM_HEADERS,
+    common: COMMON_HEADERS
+};
+
+Http.interceptors = [before, timeout, method, body, jsonp, header, cors];
+
+['get', 'delete', 'head', 'jsonp'].forEach(function (method) {
+
+    Http[method] = function (url, options) {
+        return this(assign(options || {}, { url: url, method: method }));
+    };
+});
+
+['post', 'put', 'patch'].forEach(function (method) {
+
+    Http[method] = function (url, body, options) {
+        return this(assign(options || {}, { url: url, method: method, body: body }));
+    };
+});
+
+function Resource(url, params, actions, options) {
+
+    var self = this || {},
+        resource = {};
+
+    actions = assign({}, Resource.actions, actions);
+
+    each(actions, function (action, name) {
+
+        action = merge({ url: url, params: params || {} }, options, action);
+
+        resource[name] = function () {
+            return (self.$http || Http)(opts(action, arguments));
+        };
+    });
+
+    return resource;
+}
+
+function opts(action, args) {
+
+    var options = assign({}, action),
+        params = {},
+        body;
+
+    switch (args.length) {
+
+        case 2:
+
+            params = args[0];
+            body = args[1];
+
+            break;
+
+        case 1:
+
+            if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+                body = args[0];
+            } else {
+                params = args[0];
+            }
+
+            break;
+
+        case 0:
+
+            break;
+
+        default:
+
+            throw 'Expected up to 4 arguments [params, body], got ' + args.length + ' arguments';
+    }
+
+    options.body = body;
+    options.params = assign({}, options.params, params);
+
+    return options;
+}
+
+Resource.actions = {
+
+    get: { method: 'GET' },
+    save: { method: 'POST' },
+    query: { method: 'GET' },
+    update: { method: 'PUT' },
+    remove: { method: 'DELETE' },
+    delete: { method: 'DELETE' }
+
+};
+
+function plugin(Vue) {
+
+    if (plugin.installed) {
+        return;
+    }
+
+    Util(Vue);
+
+    Vue.url = Url;
+    Vue.http = Http;
+    Vue.resource = Resource;
+    Vue.Promise = Promise$1;
+
+    Object.defineProperties(Vue.prototype, {
+
+        $url: {
+            get: function () {
+                return options(Vue.url, this, this.$options.url);
+            }
+        },
+
+        $http: {
+            get: function () {
+                return options(Vue.http, this, this.$options.http);
+            }
+        },
+
+        $resource: {
+            get: function () {
+                return Vue.resource.bind(this);
+            }
+        },
+
+        $promise: {
+            get: function () {
+                var _this = this;
+
+                return function (executor) {
+                    return new Vue.Promise(executor, _this);
+                };
+            }
+        }
+
+    });
+}
+
+if (typeof window !== 'undefined' && window.Vue) {
+    window.Vue.use(plugin);
+}
+
+module.exports = plugin;
+},{}],5:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v1.0.21
@@ -27876,7 +27661,7 @@ setTimeout(function () {
 
 module.exports = Vue;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":2}],29:[function(require,module,exports){
+},{"_process":2}],6:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 exports.insert = function (css) {
@@ -27896,12 +27681,657 @@ exports.insert = function (css) {
   return elem
 }
 
-},{}],30:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+/*!
+ * Vuex v0.8.2
+ * (c) 2016 Evan You
+ * Released under the MIT License.
+ */
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global.Vuex = factory());
+}(this, function () { 'use strict';
+
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
+  };
+
+  var classCallCheck = function (instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  };
+
+  var createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+  var toConsumableArray = function (arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  };
+
+  /**
+   * Merge an array of objects into one.
+   *
+   * @param {Array<Object>} arr
+   * @return {Object}
+   */
+
+  function mergeObjects(arr) {
+    return arr.reduce(function (prev, obj) {
+      Object.keys(obj).forEach(function (key) {
+        var existing = prev[key];
+        if (existing) {
+          // allow multiple mutation objects to contain duplicate
+          // handlers for the same mutation type
+          if (Array.isArray(existing)) {
+            existing.push(obj[key]);
+          } else {
+            prev[key] = [prev[key], obj[key]];
+          }
+        } else {
+          prev[key] = obj[key];
+        }
+      });
+      return prev;
+    }, {});
+  }
+
+  /**
+   * Deep clone an object. Faster than JSON.parse(JSON.stringify()).
+   *
+   * @param {*} obj
+   * @return {*}
+   */
+
+  function deepClone(obj) {
+    if (Array.isArray(obj)) {
+      return obj.map(deepClone);
+    } else if (obj && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
+      var cloned = {};
+      var keys = Object.keys(obj);
+      for (var i = 0, l = keys.length; i < l; i++) {
+        var key = keys[i];
+        cloned[key] = deepClone(obj[key]);
+      }
+      return cloned;
+    } else {
+      return obj;
+    }
+  }
+
+  /**
+   * Hacks to get access to Vue internals.
+   * Maybe we should expose these...
+   */
+
+  var Watcher = void 0;
+  function getWatcher(vm) {
+    if (!Watcher) {
+      var noop = function noop() {};
+      var unwatch = vm.$watch(noop, noop);
+      Watcher = vm._watchers[0].constructor;
+      unwatch();
+    }
+    return Watcher;
+  }
+
+  var Dep = void 0;
+  function getDep(vm) {
+    if (!Dep) {
+      Dep = vm._data.__ob__.dep.constructor;
+    }
+    return Dep;
+  }
+
+  var hook = typeof window !== 'undefined' && window.__VUE_DEVTOOLS_GLOBAL_HOOK__;
+
+  var devtoolMiddleware = {
+    onInit: function onInit(state, store) {
+      if (!hook) return;
+      hook.emit('vuex:init', store);
+      hook.on('vuex:travel-to-state', function (targetState) {
+        store._dispatching = true;
+        store._vm.state = targetState;
+        store._dispatching = false;
+      });
+    },
+    onMutation: function onMutation(mutation, state) {
+      if (!hook) return;
+      hook.emit('vuex:mutation', mutation, state);
+    }
+  };
+
+  function override (Vue) {
+    var version = Number(Vue.version.split('.')[0]);
+
+    if (version >= 2) {
+      var usesInit = Vue.config._lifecycleHooks.indexOf('init') > -1;
+      Vue.mixin(usesInit ? { init: vuexInit } : { beforeCreate: vuexInit });
+    } else {
+      (function () {
+        // override init and inject vuex init procedure
+        // for 1.x backwards compatibility.
+        var _init = Vue.prototype._init;
+        Vue.prototype._init = function () {
+          var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+          options.init = options.init ? [vuexInit].concat(options.init) : vuexInit;
+          _init.call(this, options);
+        };
+      })();
+    }
+
+    /**
+     * Vuex init hook, injected into each instances init hooks list.
+     */
+
+    function vuexInit() {
+      var options = this.$options;
+      var store = options.store;
+      var vuex = options.vuex;
+      // store injection
+
+      if (store) {
+        this.$store = store;
+      } else if (options.parent && options.parent.$store) {
+        this.$store = options.parent.$store;
+      }
+      // vuex option handling
+      if (vuex) {
+        if (!this.$store) {
+          console.warn('[vuex] store not injected. make sure to ' + 'provide the store option in your root component.');
+        }
+        var state = vuex.state;
+        var actions = vuex.actions;
+        var getters = vuex.getters;
+        // handle deprecated state option
+
+        if (state && !getters) {
+          console.warn('[vuex] vuex.state option will been deprecated in 1.0. ' + 'Use vuex.getters instead.');
+          getters = state;
+        }
+        // getters
+        if (getters) {
+          options.computed = options.computed || {};
+          for (var key in getters) {
+            defineVuexGetter(this, key, getters[key]);
+          }
+        }
+        // actions
+        if (actions) {
+          options.methods = options.methods || {};
+          for (var _key in actions) {
+            options.methods[_key] = makeBoundAction(this.$store, actions[_key], _key);
+          }
+        }
+      }
+    }
+
+    /**
+     * Setter for all getter properties.
+     */
+
+    function setter() {
+      throw new Error('vuex getter properties are read-only.');
+    }
+
+    /**
+     * Define a Vuex getter on an instance.
+     *
+     * @param {Vue} vm
+     * @param {String} key
+     * @param {Function} getter
+     */
+
+    function defineVuexGetter(vm, key, getter) {
+      if (typeof getter !== 'function') {
+        console.warn('[vuex] Getter bound to key \'vuex.getters.' + key + '\' is not a function.');
+      } else {
+        Object.defineProperty(vm, key, {
+          enumerable: true,
+          configurable: true,
+          get: makeComputedGetter(vm.$store, getter),
+          set: setter
+        });
+      }
+    }
+
+    /**
+     * Make a computed getter, using the same caching mechanism of computed
+     * properties. In addition, it is cached on the raw getter function using
+     * the store's unique cache id. This makes the same getter shared
+     * across all components use the same underlying watcher, and makes
+     * the getter evaluated only once during every flush.
+     *
+     * @param {Store} store
+     * @param {Function} getter
+     */
+
+    function makeComputedGetter(store, getter) {
+      var id = store._getterCacheId;
+
+      // cached
+      if (getter[id]) {
+        return getter[id];
+      }
+      var vm = store._vm;
+      var Watcher = getWatcher(vm);
+      var Dep = getDep(vm);
+      var watcher = new Watcher(vm, function (vm) {
+        return getter(vm.state);
+      }, null, { lazy: true });
+      var computedGetter = function computedGetter() {
+        if (watcher.dirty) {
+          watcher.evaluate();
+        }
+        if (Dep.target) {
+          watcher.depend();
+        }
+        return watcher.value;
+      };
+      getter[id] = computedGetter;
+      return computedGetter;
+    }
+
+    /**
+     * Make a bound-to-store version of a raw action function.
+     *
+     * @param {Store} store
+     * @param {Function} action
+     * @param {String} key
+     */
+
+    function makeBoundAction(store, action, key) {
+      if (typeof action !== 'function') {
+        console.warn('[vuex] Action bound to key \'vuex.actions.' + key + '\' is not a function.');
+      }
+      return function vuexBoundAction() {
+        for (var _len = arguments.length, args = Array(_len), _key2 = 0; _key2 < _len; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
+        return action.call.apply(action, [this, store].concat(args));
+      };
+    }
+
+    // option merging
+    var merge = Vue.config.optionMergeStrategies.computed;
+    Vue.config.optionMergeStrategies.vuex = function (toVal, fromVal) {
+      if (!toVal) return fromVal;
+      if (!fromVal) return toVal;
+      return {
+        getters: merge(toVal.getters, fromVal.getters),
+        state: merge(toVal.state, fromVal.state),
+        actions: merge(toVal.actions, fromVal.actions)
+      };
+    };
+  }
+
+  var Vue = void 0;
+  var uid = 0;
+
+  var Store = function () {
+
+    /**
+     * @param {Object} options
+     *        - {Object} state
+     *        - {Object} actions
+     *        - {Object} mutations
+     *        - {Array} middlewares
+     *        - {Boolean} strict
+     */
+
+    function Store() {
+      var _this = this;
+
+      var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var _ref$state = _ref.state;
+      var state = _ref$state === undefined ? {} : _ref$state;
+      var _ref$mutations = _ref.mutations;
+      var mutations = _ref$mutations === undefined ? {} : _ref$mutations;
+      var _ref$modules = _ref.modules;
+      var modules = _ref$modules === undefined ? {} : _ref$modules;
+      var _ref$middlewares = _ref.middlewares;
+      var middlewares = _ref$middlewares === undefined ? [] : _ref$middlewares;
+      var _ref$strict = _ref.strict;
+      var strict = _ref$strict === undefined ? false : _ref$strict;
+      classCallCheck(this, Store);
+
+      this._getterCacheId = 'vuex_store_' + uid++;
+      this._dispatching = false;
+      this._rootMutations = this._mutations = mutations;
+      this._modules = modules;
+      // bind dispatch to self
+      var dispatch = this.dispatch;
+      this.dispatch = function () {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        dispatch.apply(_this, args);
+      };
+      // use a Vue instance to store the state tree
+      // suppress warnings just in case the user has added
+      // some funky global mixins
+      if (!Vue) {
+        throw new Error('[vuex] must call Vue.use(Vuex) before creating a store instance.');
+      }
+      var silent = Vue.config.silent;
+      Vue.config.silent = true;
+      this._vm = new Vue({
+        data: {
+          state: state
+        }
+      });
+      Vue.config.silent = silent;
+      this._setupModuleState(state, modules);
+      this._setupModuleMutations(modules);
+      this._setupMiddlewares(middlewares, state);
+      // add extra warnings in strict mode
+      if (strict) {
+        this._setupMutationCheck();
+      }
+    }
+
+    /**
+     * Getter for the entire state tree.
+     * Read only.
+     *
+     * @return {Object}
+     */
+
+    createClass(Store, [{
+      key: 'dispatch',
+
+
+      /**
+       * Dispatch an action.
+       *
+       * @param {String} type
+       */
+
+      value: function dispatch(type) {
+        for (var _len2 = arguments.length, payload = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+          payload[_key2 - 1] = arguments[_key2];
+        }
+
+        var silent = false;
+        // compatibility for object actions, e.g. FSA
+        if ((typeof type === 'undefined' ? 'undefined' : _typeof(type)) === 'object' && type.type && arguments.length === 1) {
+          payload = [type.payload];
+          if (type.silent) silent = true;
+          type = type.type;
+        }
+        var mutation = this._mutations[type];
+        var state = this.state;
+        if (mutation) {
+          this._dispatching = true;
+          // apply the mutation
+          if (Array.isArray(mutation)) {
+            mutation.forEach(function (m) {
+              return m.apply(undefined, [state].concat(toConsumableArray(payload)));
+            });
+          } else {
+            mutation.apply(undefined, [state].concat(toConsumableArray(payload)));
+          }
+          this._dispatching = false;
+          if (!silent) this._applyMiddlewares(type, payload);
+        } else {
+          console.warn('[vuex] Unknown mutation: ' + type);
+        }
+      }
+
+      /**
+       * Watch state changes on the store.
+       * Same API as Vue's $watch, except when watching a function,
+       * the function gets the state as the first argument.
+       *
+       * @param {Function} fn
+       * @param {Function} cb
+       * @param {Object} [options]
+       */
+
+    }, {
+      key: 'watch',
+      value: function watch(fn, cb, options) {
+        var _this2 = this;
+
+        if (typeof fn !== 'function') {
+          console.error('Vuex store.watch only accepts function.');
+          return;
+        }
+        return this._vm.$watch(function () {
+          return fn(_this2.state);
+        }, cb, options);
+      }
+
+      /**
+       * Hot update mutations & modules.
+       *
+       * @param {Object} options
+       *        - {Object} [mutations]
+       *        - {Object} [modules]
+       */
+
+    }, {
+      key: 'hotUpdate',
+      value: function hotUpdate() {
+        var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+        var mutations = _ref2.mutations;
+        var modules = _ref2.modules;
+
+        this._rootMutations = this._mutations = mutations || this._rootMutations;
+        this._setupModuleMutations(modules || this._modules);
+      }
+
+      /**
+       * Attach sub state tree of each module to the root tree.
+       *
+       * @param {Object} state
+       * @param {Object} modules
+       */
+
+    }, {
+      key: '_setupModuleState',
+      value: function _setupModuleState(state, modules) {
+        Object.keys(modules).forEach(function (key) {
+          Vue.set(state, key, modules[key].state || {});
+        });
+      }
+
+      /**
+       * Bind mutations for each module to its sub tree and
+       * merge them all into one final mutations map.
+       *
+       * @param {Object} updatedModules
+       */
+
+    }, {
+      key: '_setupModuleMutations',
+      value: function _setupModuleMutations(updatedModules) {
+        var modules = this._modules;
+        var allMutations = [this._rootMutations];
+        Object.keys(updatedModules).forEach(function (key) {
+          modules[key] = updatedModules[key];
+        });
+        Object.keys(modules).forEach(function (key) {
+          var module = modules[key];
+          if (!module || !module.mutations) return;
+          // bind mutations to sub state tree
+          var mutations = {};
+          Object.keys(module.mutations).forEach(function (name) {
+            var original = module.mutations[name];
+            mutations[name] = function (state) {
+              for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+                args[_key3 - 1] = arguments[_key3];
+              }
+
+              original.apply(undefined, [state[key]].concat(args));
+            };
+          });
+          allMutations.push(mutations);
+        });
+        this._mutations = mergeObjects(allMutations);
+      }
+
+      /**
+       * Setup mutation check: if the vuex instance's state is mutated
+       * outside of a mutation handler, we throw en error. This effectively
+       * enforces all mutations to the state to be trackable and hot-reloadble.
+       * However, this comes at a run time cost since we are doing a deep
+       * watch on the entire state tree, so it is only enalbed with the
+       * strict option is set to true.
+       */
+
+    }, {
+      key: '_setupMutationCheck',
+      value: function _setupMutationCheck() {
+        var _this3 = this;
+
+        var Watcher = getWatcher(this._vm);
+        /* eslint-disable no-new */
+        new Watcher(this._vm, 'state', function () {
+          if (!_this3._dispatching) {
+            throw new Error('[vuex] Do not mutate vuex store state outside mutation handlers.');
+          }
+        }, { deep: true, sync: true });
+        /* eslint-enable no-new */
+      }
+
+      /**
+       * Setup the middlewares. The devtools middleware is always
+       * included, since it does nothing if no devtool is detected.
+       *
+       * A middleware can demand the state it receives to be
+       * "snapshots", i.e. deep clones of the actual state tree.
+       *
+       * @param {Array} middlewares
+       * @param {Object} state
+       */
+
+    }, {
+      key: '_setupMiddlewares',
+      value: function _setupMiddlewares(middlewares, state) {
+        var _this4 = this;
+
+        this._middlewares = [devtoolMiddleware].concat(middlewares);
+        this._needSnapshots = middlewares.some(function (m) {
+          return m.snapshot;
+        });
+        if (this._needSnapshots) {
+          console.log('[vuex] One or more of your middlewares are taking state snapshots ' + 'for each mutation. Make sure to use them only during development.');
+        }
+        var initialSnapshot = this._prevSnapshot = this._needSnapshots ? deepClone(state) : null;
+        // call init hooks
+        this._middlewares.forEach(function (m) {
+          if (m.onInit) {
+            m.onInit(m.snapshot ? initialSnapshot : state, _this4);
+          }
+        });
+      }
+
+      /**
+       * Apply the middlewares on a given mutation.
+       *
+       * @param {String} type
+       * @param {Array} payload
+       */
+
+    }, {
+      key: '_applyMiddlewares',
+      value: function _applyMiddlewares(type, payload) {
+        var _this5 = this;
+
+        var state = this.state;
+        var prevSnapshot = this._prevSnapshot;
+        var snapshot = void 0,
+            clonedPayload = void 0;
+        if (this._needSnapshots) {
+          snapshot = this._prevSnapshot = deepClone(state);
+          clonedPayload = deepClone(payload);
+        }
+        this._middlewares.forEach(function (m) {
+          if (m.onMutation) {
+            if (m.snapshot) {
+              m.onMutation({ type: type, payload: clonedPayload }, snapshot, prevSnapshot, _this5);
+            } else {
+              m.onMutation({ type: type, payload: payload }, state, _this5);
+            }
+          }
+        });
+      }
+    }, {
+      key: 'state',
+      get: function get() {
+        return this._vm.state;
+      },
+      set: function set(v) {
+        throw new Error('[vuex] Vuex root state is read only.');
+      }
+    }]);
+    return Store;
+  }();
+
+  function install(_Vue) {
+    if (Vue) {
+      console.warn('[vuex] already installed. Vue.use(Vuex) should be called only once.');
+      return;
+    }
+    Vue = _Vue;
+    override(Vue);
+  }
+
+  // auto install in dist mode
+  if (typeof window !== 'undefined' && window.Vue) {
+    install(window.Vue);
+  }
+
+  var index = {
+    Store: Store,
+    install: install
+  };
+
+  return index;
+
+}));
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var _Block = require('./directives/Block');
 
 var _Block2 = _interopRequireDefault(_Block);
+
+var _store = require('./state/store');
+
+var _store2 = _interopRequireDefault(_store);
+
+var _mutationTypes = require('./state/mutation-types');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27912,17 +28342,38 @@ var Vue = require('vue'),
     VueResource = require('vue-resource');
 
 /**
+ * Directives
+ */
+
+
+/**
+ * State manager
+ */
+
+
+/**
+ * Actions
+ */
+
+
+/**
  * Components
  */
 var Calendar = {
 	Scheduler: require('./components/Calendar/Scheduler.vue')
 };
-
+var Form = {
+	Booking: require('./components/Form/Booking'),
+	TimePicker: require('./components/Form/TimePicker')
+};
 var Discounts = {
 	Discount: require('./components/Discount/Discount.vue')
 };
 var Passes = {
 	Pass: require('./components/Pass')
+};
+var Table = {
+	Price: require('./components/Tables/Price')
 };
 
 /**
@@ -27940,22 +28391,183 @@ Vue.directive('block', _Block2.default);
  */
 Vue.use(VueResource);
 
+Vue.http.headers.common['X-CSRF-TOKEN'] = document.querySelector('#token').getAttribute('value');
+
+/**
+ * Loading state interceptor
+ */
+Vue.http.interceptors.push(function (request, next) {
+	_store2.default.dispatch(_mutationTypes.SET_LOADING, { loading: true, progress: 0 });
+	next(function (response) {
+		setTimeout(function () {
+			_store2.default.dispatch(_mutationTypes.SET_LOADING, { loading: false, progress: 1 });
+		}, 200);
+	});
+});
+
 /**
  * Vue instance
  */
 var v = new Vue({
 	el: 'body',
+	store: _store2.default,
 	events: {},
 	data: {},
 	methods: {},
 	components: {
 		'scheduler': Calendar.Scheduler,
 		'discount': Discounts.Discount,
-		'pass': Passes.Pass
+		'pass': Passes.Pass,
+		'booking-form': Form.Booking,
+		'price-table': Table.Price,
+		'time-picker': Form.TimePicker
 	}
 });
 
-},{"./components/Calendar/Scheduler.vue":31,"./components/Discount/Discount.vue":32,"./components/Pass":33,"./directives/Block":34,"vue":28,"vue-resource":17}],31:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":10,"./components/Discount/Discount.vue":11,"./components/Form/Booking":12,"./components/Form/TimePicker":16,"./components/Pass":17,"./components/Tables/Price":18,"./directives/Block":19,"./state/mutation-types":24,"./state/store":25,"vue":5,"vue-resource":4}],9:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = {
+	/**
+  * Name of the component
+  * More info: http://vuejs.org/api/#name
+  */
+	name: 'Button',
+
+	/**
+  * Vuex instance
+  */
+	vuex: {
+		getters: {
+			progress: function progress(state) {
+				return state.loading.progress;
+			},
+			isLoading: function isLoading(state) {
+				return state.loading.isLoading;
+			}
+		}
+	},
+	/**
+  * The data object for the component it self
+  * More info: http://vuejs.org/api/#data
+  */
+	data: function data() {
+		return {
+			laddaInstance: null
+		};
+	},
+
+
+	/**
+  *
+  */
+	watch: {
+		progress: {
+			handler: function handler(value) {
+				this.setProgress(value);
+			},
+
+			immediate: true
+		}
+	},
+
+	/**
+  * Computed properties
+  */
+	computed: {
+		klass: function klass() {
+			return {
+				'btn-ladda btn-ladda-progress': this.ladda,
+				'legitRipple': this.ripple,
+				'btn-loading': this.loading
+			};
+		}
+	},
+
+	/**
+  * Public Properties
+  */
+	props: {
+		ladda: { type: Object, default: function _default() {
+				return false;
+			}
+		},
+		ripple: { type: Boolean, default: function _default() {
+				return false;
+			}
+		},
+		color: { type: String, default: function _default() {
+				return 'default';
+			}
+		}
+	},
+
+	/**
+  * This is called when the component is ready
+  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+  */
+	ready: function ready() {
+		this.load();
+	},
+
+
+	/**
+  * Child components of this one
+  * More info: http://vuejs.org/guide/components.html
+  */
+	components: {},
+
+	/**
+  * Methods
+  */
+	methods: {
+		load: function load() {
+			if (!this.isLoaded() && this.isLadda()) this.laddaInstance = Ladda.create(this.$el);
+		},
+		start: function start() {
+			if (this.isLoaded()) this.laddaInstance.start();
+		},
+		stop: function stop() {
+			if (this.isLoaded()) this.laddaInstance.stop();
+		},
+		setProgress: function setProgress(progress) {
+			if (this.isLoaded()) {
+				this.laddaInstance.setProgress(progress);
+				if (progress == 1) {
+					this.stop();
+				}
+			}
+		},
+		isLadda: function isLadda() {
+			return this.ladda;
+		},
+		isLoaded: function isLoaded() {
+			return this.laddaInstance;
+		}
+	}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<a type=\"button\" role=\"button\"\n\t\t\t\t@click=\"start\"\n\t\t\t\tclass=\"btn bg-primary\"\n\t\t\t\t:class=\"klass\"\n\t\t\t\t:data-style=\"ladda.style?ladda.style:false\"\n\t\t\t\t:disabled=\"isLoading\"\n>\n\t<span class=\"ladda-label\">\n\t\t<slot></slot>\n\t</span>\n</a>"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Button/src/Component.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["h1 {\n  color: #00a8ed;\n}"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],10:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert(".Calendar {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.Calendar--List {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 0;\n      -ms-flex: 1 0 0;\n          flex: 1 0 0;\n}\n.Calendar--Calendar {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1 0 20em;\n      -ms-flex: 1 0 20em;\n          flex: 1 0 20em;\n  margin: 1em 4em;\n}\n.fc-license-message {\n  display: none !important;\n}\n.fc-head .fc-scroller {\n  min-height: auto !important;\n}\n")
 'use strict';
 
@@ -27986,10 +28598,13 @@ exports.default = {
 				}
 			},
 			eventClick: function eventClick(calEvent, jsEvent, view) {
-				console.log(view);
+				window.location = '/admin/bookings/' + calEvent.id + '/edit';
+			},
+			eventMouseover: function eventMouseover(calEvent, jsEvent, view) {
+				console.log(calEvent);
 			},
 			eventLimit: true,
-			editable: true,
+			editable: false,
 			weekends: true,
 			aspectRatio: 3,
 			scrollTime: '08:00',
@@ -28029,17 +28644,10 @@ exports.default = {
 				field: 'name'
 			}],
 			resources: function resources(callback) {
-				//				var resources = [];
-				//				for(bookable of me.resources) resources.push(bookable.resource);
-
 				callback(me.resources);
 			},
 
 			events: function events(start, end, timezone, callback) {
-				//				var events = [];
-				//				console.log(me.bookings)
-				//				for(booking of me.bookings) events.push(booking.event);
-
 				callback(me.events);
 			}
 		});
@@ -28062,7 +28670,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":28,"vue-hot-reload-api":3,"vueify-insert-css":29}],32:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -28130,7 +28738,674 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":28,"vue-hot-reload-api":3}],33:[function(require,module,exports){
+},{"vue":5,"vue-hot-reload-api":3}],12:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _lodash = require("lodash");
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _TimePicker = require("../../TimePicker");
+
+var _TimePicker2 = _interopRequireDefault(_TimePicker);
+
+var _DatePicker = require("../../DatePicker");
+
+var _DatePicker2 = _interopRequireDefault(_DatePicker);
+
+var _Selectable = require("../../Selectable");
+
+var _Selectable2 = _interopRequireDefault(_Selectable);
+
+var _Button = require("../../../Button");
+
+var _Button2 = _interopRequireDefault(_Button);
+
+var _Error = require("../../Error");
+
+var _Error2 = _interopRequireDefault(_Error);
+
+var _actions = require("../../../../state/actions");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+	/**
+  * Name of the component
+  * More info: http://vuejs.org/api/#name
+  */
+	name: 'Booking',
+
+	/**
+  * Vuex instance
+  */
+	vuex: {
+		actions: {
+			addDate: _actions.addDate,
+			addTimeTo: _actions.addTimeTo,
+			addTimeFrom: _actions.addTimeFrom,
+			addType: _actions.addType,
+			addBookable: _actions.addBookable,
+			addBooking: _actions.addBooking,
+			addMember: _actions.addMember,
+			getMembers: _actions.getMembers,
+			payReservation: _actions.payReservation,
+			cancelReservation: _actions.cancelReservation,
+			markReservationsAsPaid: _actions.markReservationsAsPaid,
+			makeReservation: _actions.makeReservation,
+			calculate: _actions.calculate
+		},
+		getters: {
+			loading: function loading(state) {
+				return state.loading.isLoading;
+			},
+			errors: function errors(state) {
+				return state.errors;
+			},
+			resources: function resources(state) {
+				return state.resources;
+			},
+			members: function members(state) {
+				return state.members;
+			},
+			member: function member(state) {
+				var currentMember = _lodash2.default.find(state.members, function (m) {
+					return m.id == state.booking.member;
+				});
+				if (currentMember) return currentMember;
+
+				return null;
+			},
+			selected: function selected(state) {
+				return state.booking;
+			},
+			calculated: function calculated(state) {
+				return state.prices.calculated;
+			},
+			hasChanged: function hasChanged(state) {
+				return state.booking.hasChanged;
+			}
+		}
+	},
+
+	/**
+  * The data object for the component it self
+  * More info: http://vuejs.org/api/#data
+  */
+	data: function data() {
+		return {
+			types: []
+		};
+	},
+
+
+	/**
+  * Public properties
+  */
+	props: {
+		booking: {}
+	},
+
+	/**
+  *
+  */
+	computed: {
+		isNew: function isNew() {
+			return this.booking.isNew;
+		},
+		hasResources: function hasResources() {
+			return this.resources.length == 0;
+		},
+		canBeCanceled: function canBeCanceled() {
+			return moment(new Date()).isBefore(moment(new Date(this.booking.time_from))) && !this.isPaid;
+		},
+		isPaid: function isPaid() {
+			return this.selected.paid;
+		},
+		canMakeReservation: function canMakeReservation() {
+			return !this.isNew && this.member ? true : false;
+		},
+		canPayWithCard: function canPayWithCard() {
+			return this.member && this.member.hasCreditCard ? true : false;
+		},
+		message: function message() {
+			return !this.isNew ? 'Ten en cuenta que al haber editado estas creando un reserva nueva!!!' : '';
+		},
+		title: function title() {
+			return !this.isNew && this.hasChanged ? "Editar reserva" : "Crear una reserva";
+		}
+	},
+	/**
+  * This is called before the element is rendered on the page
+  */
+	beforeCompile: function beforeCompile() {
+		var _this = this;
+
+		this.getMembers();
+		this.$http.get('/api/bookable-types').then(function (response) {
+			_this.types = response.data;
+			if (!_this.isNew) {
+				_this.addMember(_this.booking.member_id);
+				_this.addType(_this.booking.bookable_id);
+			}
+		});
+		if (!this.isNew) {
+			this.addBooking(this.booking);
+			setTimeout(function () {
+				_this.addBookable(_this.booking.bookable_id, false);
+			}, 1500);
+		}
+	},
+
+
+	/**
+  * This is called when the component is ready
+  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+  */
+	ready: function ready() {},
+
+
+	/**
+  * Child components of this one
+  * More info: http://vuejs.org/guide/components.html
+  */
+	components: {
+		TimePicker: _TimePicker2.default,
+		DatePicker: _DatePicker2.default,
+		Selectable: _Selectable2.default,
+		UButton: _Button2.default,
+		FormError: _Error2.default
+	},
+
+	/**
+  *
+  */
+	methods: {
+		reserve: function reserve() {
+			this.makeReservation({ payment: 'cash' });
+		},
+		reserveAndPay: function reserveAndPay() {
+			this.makeReservation({ payment: 'card' });
+		},
+		pay: function pay() {
+			this.payReservation(this.booking.id);
+		},
+		cancel: function cancel() {
+			this.cancelReservation(this.booking.id);
+		},
+		markAsPaid: function markAsPaid() {
+			this.markReservationsAsPaid(this.booking.id);
+		}
+	}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<div class=\"button-set pull-right\">\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"cancel\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tReservar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)\"\n\t\t\t\t>\n\t\t\t\t\tReservar & pagar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"pay\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && canPayWithCard && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCobrar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"markAsPaid\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tMarcar como pagada\n\t\t\t\t</u-button>\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources || isPaid\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\" :disabled=\"isPaid\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Form/Booking/src/Component.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["h1 {\n  color: #00a8ed;\n}"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"../../../../state/actions":20,"../../../Button":9,"../../DatePicker":13,"../../Error":14,"../../Selectable":15,"../../TimePicker":16,"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],13:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = {
+
+	/**
+  * Name of the component
+  * More info: http://vuejs.org/api/#name
+  */
+	name: 'DatePicker',
+
+	/**
+  * The data object for the component it self
+  * More info: http://vuejs.org/api/#data
+  */
+	data: function data() {
+		return {
+			datepicker: null
+		};
+	},
+
+
+	/**
+  *
+  */
+	events: {
+		'set': function set(picker) {
+			this.selected = picker.get('select', 'yyyymmdd');
+			this.$emit('change', this.selected);
+		}
+	},
+
+	/**
+  * Public properties
+  */
+	props: {
+		disabled: {
+			type: Boolean, default: function _default() {
+				return false;
+			}
+		},
+		selected: null,
+		value: {
+			coerce: function coerce(value) {
+				var date = value ? moment(value).format('YYYY/MM/DD') : null;
+				return date;
+			}
+		},
+		interval: { type: Number, default: 60 },
+		disable: {
+			type: Array, default: function _default() {
+				return [[2015, 8, 3], [2015, 8, 12], [2015, 8, 20]];
+			}
+		},
+		min: {
+			type: Array, default: function _default() {
+				return true;
+			}
+		},
+		max: {
+			type: Array, default: function _default() {
+				return undefined;
+			}
+		},
+		format: { type: String, default: 'dddd, dd mmm, yyyy' },
+		formatLabel: { type: String, default: 'dddd, dd mmm, yyyy' },
+		formatSubmit: { type: String, default: 'yyyy/mm/dd' },
+		hiddenPrefix: { type: String, default: '' },
+		hiddenSuffix: { type: String, default: '' }
+	},
+
+	/**
+  * This is called when the component is ready
+  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+  */
+	ready: function ready() {
+		var self = this;
+
+		this.datepicker = $(this.$el).pickadate({
+			interval: this.interval,
+			min: this.min,
+			max: this.max,
+			editable: this.disabled,
+			// Escape any “rule” characters with an exclamation mark (!).
+			format: this.format,
+			formatLabel: this.formatLabel,
+			formatSubmit: this.formatSubmit,
+			hiddenPrefix: this.hiddenPrefix,
+			hiddenSuffix: this.hiddenSuffix,
+			onSet: function onSet(context) {
+				self.$emit('set', this);
+			}
+		});
+
+		// this.datepicker.set('select', this.value, {format: 'yyyymmdd'})
+	},
+
+
+	/**
+  * Child components of this one
+  * More info: http://vuejs.org/guide/components.html
+  */
+	components: {}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Fecha\"\n\t\t\t class=\"form-control pickadate-date\"\n\t\t\t data-value=\"{{value}}\"\n\t\t\t :disabled=\"disabled\"\n/>"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Form/DatePicker/src/Component.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["h1 {\n  color: #00a8ed;\n}"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],14:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  /**
+   * Name of the component
+   * More info: http://vuejs.org/api/#name
+   */
+  name: 'FormError',
+
+  /**
+   * Public properties
+   */
+  props: {
+    errors: { type: Array, default: function _default() {
+        return [];
+      }
+    }
+  }
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<label class=\"validation-error-label\" v-for=\"error in errors\" v-if=\"errors\">\n\t{{error}}\n</label>"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Form/Error/src/Component.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["h1 {\n  color: #00a8ed;\n}"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],15:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+	/**
+  * Name of the component
+  * More info: http://vuejs.org/api/#name
+  */
+	name: 'Selectable',
+
+	/**
+  * The data object for the component it self
+  * More info: http://vuejs.org/api/#data
+  */
+	data: function data() {
+		return {
+			selectable: null
+		};
+	},
+
+
+	/**
+  *
+  */
+	computed: {},
+
+	/**
+  *
+  */
+	events: {
+		'set': function set(selectable, name, evt) {
+			if (this.options.length > 0) {
+				var selected = _lodash2.default.find(this.options, function (b) {
+					return b.id == evt.params.data.id;
+				});
+
+				if (selected) this.selected = selected.id;
+
+				this.$emit('change', this.selected);
+			}
+		}
+	},
+	watch: {
+		options: {
+			immediate: true,
+			handler: function handler(value, oldValue) {
+				if (value.length == 0 && this.selectable) {
+					this.selectable.val(null).trigger('change');
+					return;
+				}
+			}
+		},
+		value: {
+			immediate: true,
+			handler: function handler(value, oldValue) {
+				if (value && this.selectable) {
+					this.selectable.val(value).trigger('change');
+				}
+			}
+		}
+	},
+	/**
+  * Public properties
+  */
+	props: {
+		selected: null,
+		value: { default: function _default() {
+				return null;
+			} },
+		searchbox: { type: Boolean, default: function _default() {
+				return false;
+			} },
+		options: { type: Array, default: function _default() {
+				return [];
+			} },
+		optionsLabel: { type: String, default: function _default() {
+				return 'name';
+			} },
+		withImage: { type: Boolean, default: function _default() {
+				return true;
+			} },
+		imageNode: { type: String, default: function _default() {
+				return 'image';
+			} },
+		placeholder: { type: String, default: function _default() {
+				return 'Selecciona …';
+			} },
+		disabled: { type: Boolean, default: function _default() {
+				return false;
+			} },
+		optionConditionDisable: { type: String, default: function _default() {
+				return true;
+			} },
+		optionConditionOposite: { type: Boolean, default: function _default() {
+				return false;
+			} }
+	},
+	/**
+  * This is called when the component is ready
+  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+  */
+	ready: function ready() {
+		var _this = this;
+
+		var options = this.selectable = $(this.$el).select2(this.composeOptions()).on("select2:select", function (event) {
+			_this.$emit('set', _this, "select2:select", event);
+		});
+
+		this.selectable.val(this.value).trigger('change');
+	},
+
+
+	/**
+  * Child components of this one
+  * More info: http://vuejs.org/guide/components.html
+  */
+	components: {},
+
+	methods: {
+		isOptionDisabled: function isOptionDisabled(option) {
+			var disabled = option[this.optionConditionDisable];
+			return this.optionConditionOposite ? !disabled : disabled;
+		},
+		composeOptions: function composeOptions() {
+			var options = {};
+
+			if (!this.searchbox) options.minimumResultsForSearch = Infinity;
+
+			options.templateResult = this.formatState;
+
+			return options;
+		},
+		formatState: function formatState(state) {
+			var selected = _lodash2.default.find(this.options, function (b) {
+				return b.id == state.id;
+			});
+
+			if (this.withImage && selected && selected[this.imageNode]) {
+				var $state = $('<span><img src="' + selected[this.imageNode] + '"/> ' + state.text + '</span>');
+				return $state;
+			}
+			return state.text;
+		}
+	}
+
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<select name=\"bookable_type_id\" data-placeholder=\"{{placeholder}}\" :disabled=\"disabled\">\n\t<option></option>\n\t<option :value=\"option.id\"\n\t\t\t\t\tv-for=\"option in options\"\n\t\t\t\t\t:selected=\"value == option.id\"\n\t\t\t\t\t:disabled=\"isOptionDisabled(option)\"\n\t>\n\t\t{{option[optionsLabel]}}\n\t</option>\n</select>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Form/Selectable/src/Component.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["h1 {\n  color: #00a8ed;\n}"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],16:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.default = {
+	/**
+  * Name of the component
+  * More info: http://vuejs.org/api/#name
+  */
+	name: 'TimePicker',
+
+	/**
+  * The data object for the component it self
+  * More info: http://vuejs.org/api/#data
+  */
+	data: function data() {
+		return {
+			timepicker: null
+		};
+	},
+
+
+	/**
+  *
+  */
+	events: {
+		'set': function set(picker) {
+			this.selected = picker.get('select', 'HHi');
+			this.$emit('change', this.selected);
+		}
+	},
+	/**
+  * Public properties
+  */
+	props: {
+		disabled: {
+			type: Boolean, default: function _default() {
+				return false;
+			}
+		},
+		selected: null,
+		value: { type: String },
+		interval: { type: Number, default: 60 },
+		min: { type: Array, default: function _default() {
+				return [8, 0];
+			} },
+		max: { type: Array, default: function _default() {
+				return [21, 0];
+			} },
+		format: { type: String, default: 'HH:i' },
+		formatLabel: { type: String, default: 'HH:i' },
+		formatSubmit: { type: String, default: 'HHi' },
+		hiddenPrefix: { type: String, default: '' },
+		hiddenSuffix: { type: String, default: '' }
+	},
+	/**
+  * This is called when the component is ready
+  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+  */
+	ready: function ready() {
+		var self = this;
+
+		this.timepicker = $(this.$el).pickatime({
+			interval: this.interval,
+			min: this.min,
+			max: this.max,
+			editable: this.disabled,
+			// Escape any “rule” characters with an exclamation mark (!).
+			format: this.format,
+			formatLabel: this.formatLabel,
+			formatSubmit: this.formatSubmit,
+			hiddenPrefix: this.hiddenPrefix,
+			hiddenSuffix: this.hiddenSuffix,
+			onSet: function onSet(context) {
+				self.$emit('set', this);
+			},
+			onStart: function onStart() {
+				self.selected = self.value;
+				this.set('select', self.value);
+			}
+		});
+	},
+
+
+	/**
+  * Child components of this one
+  * More info: http://vuejs.org/guide/components.html
+  */
+	components: {}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Hora de inicio\"\n\t\t\t class=\"form-control pickatime-from\"\n\t\t\t name=\"time\"\n\t\t\t data-value=\"{{time}}\"\n\t\t\t :disabled=\"disabled\"\n/>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Form/TimePicker/src/Component.vue"
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":5,"vue-hot-reload-api":3}],17:[function(require,module,exports){
 var __vueify_style__ = require("vueify-insert-css").insert(".clickable-icon {\n  cursor: pointer;\n}\n.clickable-icon:hover {\n  color: #ff7175;\n}\n")
 'use strict';
 
@@ -28373,25 +29648,110 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"lodash":1,"vue":28,"vue-hot-reload-api":3,"vueify-insert-css":29}],34:[function(require,module,exports){
+},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],18:[function(require,module,exports){
+var __vueify_style__ = require("vueify-insert-css").insert("h1 {\n  color: #00a8ed;\n}")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  /**
+   * Name of the component
+   * More info: http://vuejs.org/api/#name
+   */
+  name: 'PriceTable',
+
+  /**
+   * Vuex instance
+   */
+  vuex: {
+    getters: {
+      loading: function loading(state) {
+        return state.loading.isLoading;
+      },
+      errors: function errors(state) {
+        return state.errors;
+      },
+      prices: function prices(state) {
+        return state.prices;
+      },
+      resources: function resources(state) {
+        return state.resources;
+      },
+      subtotal: function subtotal(state) {
+        return state.prices.subtotalFormated;
+      },
+      total: function total(state) {
+        return state.prices.totalFormated;
+      },
+      vat: function vat(state) {
+        return state.prices.vatFormated;
+      },
+      percentage: function percentage(state) {
+        return state.prices.vatPercentage;
+      },
+      lines: function lines(state) {
+        return state.prices.lines;
+      },
+      calculated: function calculated(state) {
+        return state.prices.calculated;
+      }
+    }
+  },
+  /**
+   * The data object for the component it self
+   * More info: http://vuejs.org/api/#data
+   */
+  data: function data() {
+    return {};
+  },
+
+
+  /**
+   * This is called when the component is ready
+   * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+   */
+  ready: function ready() {},
+
+
+  /**
+   * Child components of this one
+   * More info: http://vuejs.org/guide/components.html
+   */
+  components: {}
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\" v-if=\"calculated && resources\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Datos de la reserva</h6>\n\t\t<div class=\"heading-elements\"></div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\t\t<div class=\"table-responsive\">\n\t\t\t<table class=\"table table-striped\">\n\t\t\t\t<thead>\n\t\t\t\t\t<tr class=\"bg-slate-600\">\n\t\t\t\t\t\t<th colspan=\"2\">Concepto</th>\n\t\t\t\t\t\t<th>Precio</th>\n\t\t\t\t\t\t<th>Cantidad</th>\n\t\t\t\t\t\t<th>Total</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</thead>\n\t\t\t\t<tfoot>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Subtotal</th>\n\t\t\t\t\t\t<th>{{subtotal}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">\n\t\t\t\t\t\t\tIVA <span>{{percentage}}</span>\n\t\t\t\t\t\t</th>\n\t\t\t\t\t\t<th>{{vat}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<th colspan=\"4\">Total</th>\n\t\t\t\t\t\t<th>{{total}}</th>\n\t\t\t\t\t</tr>\n\t\t\t\t</tfoot>\n\t\t\t\t<tbody>\n\t\t\t\t\t<tr v-for=\"line in lines\">\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t<span>{{line.name}}</span>\n\t\t\t\t\t\t\t<br>\n\t\t\t\t\t\t\t<span class='text-muted'>\n\t\t\t\t\t\t\t\t{{{line.description}}}\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>{{line.image}}</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.priceFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.amount}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t{{line.totalFormated}}\n\t\t\t\t\t\t</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</tbody>\n\t\t\t</table>\n\t\t</div>\n\t</div>\n</div>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  var id = "/Users/boudydegeer/Projects/ulab/space/resources/assets/js/components/Tables/Price/src/Component.vue"
+  module.hot.dispose(function () {
+    require("vueify-insert-css").cache["h1 {\n  color: #00a8ed;\n}"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord(id, module.exports)
+  } else {
+    hotAPI.update(id, module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":5,"vue-hot-reload-api":3,"vueify-insert-css":6}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 exports.default = {
-	bind: function bind() {
-		// do preparation work
-		// e.g. add event listeners or expensive stuff
-		// that needs to be run only once
-		console.log(this.el);
-	},
+	bind: function bind() {},
 	update: function update(newValue, oldValue) {
 		if (newValue) {
 			$(this.el).block({
 				message: '<i class="icon-spinner10 spinner"></i>',
 				overlayCSS: {
-					backgroundColor: '#1B2024',
+					backgroundColor: '#fafafa',
 					opacity: 0.85,
 					cursor: 'wait'
 				},
@@ -28408,6 +29768,540 @@ exports.default = {
 	}
 };
 
-},{}]},{},[30]);
+},{}],20:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
+
+var _mutationTypes = require('./mutation-types');
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _bookings = require('./api/bookings');
+
+var _bookings2 = _interopRequireDefault(_bookings);
+
+var _members = require('./api/members');
+
+var _members2 = _interopRequireDefault(_members);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var setLoading = exports.setLoading = function setLoading(_ref, _ref2) {
+	var dispatch = _ref.dispatch;
+	var state = _ref.state;
+	var loading = _ref2.loading;
+	var progress = _ref2.progress;
+
+	dispatch(_mutationTypes.SET_LOADING, { loading: loading, progress: progress });
+};
+
+var payReservation = exports.payReservation = function payReservation(_ref3, id) {
+	var dispatch = _ref3.dispatch;
+	var state = _ref3.state;
+
+	var data = _lodash2.default.merge({
+		payment: 'card',
+		action: 'pay',
+		id: id
+	}, state.booking);
+
+	_bookings2.default.patch(data,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.PAID, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var cancelReservation = exports.cancelReservation = function cancelReservation(_ref4, id) {
+	var dispatch = _ref4.dispatch;
+	var state = _ref4.state;
+
+	_bookings2.default.cancel(id,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.CANCELED, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var markReservationsAsPaid = exports.markReservationsAsPaid = function markReservationsAsPaid(_ref5, id) {
+	var dispatch = _ref5.dispatch;
+	var state = _ref5.state;
+
+	var data = _lodash2.default.merge({
+		payment: 'cash',
+		action: 'markAsPaid',
+		id: id
+	});
+
+	_bookings2.default.patch(data,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.PAID, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var makeReservation = exports.makeReservation = function makeReservation(_ref6, data) {
+	var dispatch = _ref6.dispatch;
+	var state = _ref6.state;
+
+	data = _lodash2.default.merge(data, state.booking);
+	_bookings2.default.store(data,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.BOOKED, data);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var searchBookables = exports.searchBookables = function searchBookables(_ref7) {
+	var dispatch = _ref7.dispatch;
+	var state = _ref7.state;
+
+	var b = state.booking;
+	if (b.date && b.time_to && b.time_from && b.type) {
+		dispatch(_mutationTypes.CLEAR_PRICE);
+		dispatch(_mutationTypes.CLEAR_RESOURCES);
+		_bookings2.default.getAll(state.booking,
+		// handle success
+		function (resources) {
+			return dispatch(_mutationTypes.ADD_RESOURCES, resources);
+		},
+		// handle error
+		function (errors) {
+			return dispatch(_mutationTypes.ADD_ERRORS, errors);
+		});
+	}
+};
+
+var calculate = exports.calculate = function calculate(_ref8, changed) {
+	var dispatch = _ref8.dispatch;
+	var state = _ref8.state;
+
+	var b = state.booking;
+	if (b.date && b.time_to && b.time_from && b.type && b.bookable) {
+		_bookings2.default.calculate(state.booking,
+		// handle success
+		function (prices) {
+			dispatch(_mutationTypes.ADD_PRICE, prices);
+			if (changed) {
+				dispatch(_mutationTypes.BOOKING_HAS_CHANGED, true);
+			}
+		},
+		// handle error
+		function (errors) {
+			return dispatch(_mutationTypes.ADD_ERRORS, errors);
+		});
+	}
+};
+
+var getMembers = exports.getMembers = function getMembers(_ref9) {
+	var dispatch = _ref9.dispatch;
+	var state = _ref9.state;
+
+	_members2.default.getAll({},
+	// handle success
+	function (members) {
+		return dispatch(_mutationTypes.ADD_MEMBERS, members);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+var addResources = exports.addResources = function addResources(_ref10, resources) {
+	var dispatch = _ref10.dispatch;
+	var state = _ref10.state;
+
+	dispatch(_mutationTypes.ADD_RESOURCES, resources);
+};
+
+var addErrors = exports.addErrors = function addErrors(_ref11, errors) {
+	var dispatch = _ref11.dispatch;
+	var state = _ref11.state;
+
+	dispatch(_mutationTypes.ADD_ERRORS, errors);
+};
+
+var addDate = exports.addDate = function addDate(_ref12, date) {
+	var dispatch = _ref12.dispatch;
+	var state = _ref12.state;
+
+	dispatch(_mutationTypes.ADD_DATE, date);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addTimeTo = exports.addTimeTo = function addTimeTo(_ref13, timeTo) {
+	var dispatch = _ref13.dispatch;
+	var state = _ref13.state;
+
+	dispatch(_mutationTypes.ADD_TIME_TO, timeTo);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref14, timeFrom) {
+	var dispatch = _ref14.dispatch;
+	var state = _ref14.state;
+
+	dispatch(_mutationTypes.ADD_TIME_FROM, timeFrom);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addType = exports.addType = function addType(_ref15, type) {
+	var dispatch = _ref15.dispatch;
+	var state = _ref15.state;
+
+	dispatch(_mutationTypes.ADD_TYPE, type);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addMember = exports.addMember = function addMember(_ref16, user) {
+	var dispatch = _ref16.dispatch;
+	var state = _ref16.state;
+
+	dispatch(_mutationTypes.ADD_MEMBER, user);
+	searchBookables({ dispatch: dispatch, state: state });
+};
+
+var addBookable = exports.addBookable = function addBookable(_ref17, bookable) {
+	var dispatch = _ref17.dispatch;
+	var state = _ref17.state;
+	var changed = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
+
+	dispatch(_mutationTypes.CLEAR_PRICE);
+	dispatch(_mutationTypes.ADD_BOOKABLE, bookable);
+	calculate({ dispatch: dispatch, state: state }, changed);
+};
+
+var addBooking = exports.addBooking = function addBooking(_ref18, booking) {
+	var dispatch = _ref18.dispatch;
+	var state = _ref18.state;
+
+	dispatch(_mutationTypes.CLEAR_PRICE);
+
+	var date = booking.time_from ? moment(new Date(booking.time_from)).format("YYYYMMDD") : null;
+	var time_from = booking.time_from ? moment(new Date(booking.time_from)).format("HHmm") : null;
+	var time_to = booking.time_to ? moment(new Date(booking.time_to)).format("HHmm") : null;
+
+	dispatch(_mutationTypes.ADD_DATE, date);
+	dispatch(_mutationTypes.ADD_TIME_FROM, time_from);
+	dispatch(_mutationTypes.ADD_TIME_TO, time_to);
+	dispatch(booking.paid ? _mutationTypes.PAID : _mutationTypes.UNPAID);
+
+	calculate({ dispatch: dispatch, state: state });
+};
+
+},{"./api/bookings":21,"./api/members":22,"./mutation-types":24,"lodash":1}],21:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _vue = require('vue');
+
+var _vue2 = _interopRequireDefault(_vue);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+	getAll: function getAll(params, done, error) {
+		return _vue2.default.http.get('/api/bookings', { params: params }).then(function (response) {
+			var data = response.json();
+			done(data.available.concat(data.notavailable));
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	},
+
+	patch: function patch(params, done, error) {
+		return _vue2.default.http.patch('/api/bookings/' + params.id, params).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	},
+
+	cancel: function cancel(id, done, error) {
+		return _vue2.default.http.delete('/api/bookings/' + id).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	},
+
+	calculate: function calculate(params, done, error) {
+		return _vue2.default.http.post('/api/bookings/calculate', params).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	},
+
+	store: function store(params, done, error) {
+		return _vue2.default.http.post('/api/bookings', params).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422 || response.status == 404 || response.status == 500) {
+				error(response.data);
+			}
+		});
+	}
+};
+
+},{"vue":5}],22:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _vue = require('vue');
+
+var _vue2 = _interopRequireDefault(_vue);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
+	getAll: function getAll(params, done, error) {
+		return _vue2.default.http.get('/api/members', { params: params }).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422) {
+				error(response.data);
+			}
+		});
+	}
+};
+
+},{"vue":5}],23:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _mutations;
+
+var _mutationTypes = require('../mutation-types');
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * Initial State
+ * @type {{}}
+ */
+var state = {
+	hasChanged: false,
+	bookable: null,
+	time_to: null,
+	time_from: null,
+	date: null,
+	type: null,
+	member: null,
+	paid: false
+};
+
+/**
+ * Mutations
+ * @type {{}}
+ */
+var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD_DATE, function (state, date) {
+	state.date = date;
+}), _defineProperty(_mutations, _mutationTypes.ADD_TIME_TO, function (state, timeTo) {
+	state.time_to = timeTo;
+}), _defineProperty(_mutations, _mutationTypes.ADD_TIME_FROM, function (state, timeFrom) {
+	state.time_from = timeFrom;
+}), _defineProperty(_mutations, _mutationTypes.ADD_BOOKABLE, function (state, bookable) {
+	state.bookable = bookable;
+}), _defineProperty(_mutations, _mutationTypes.ADD_TYPE, function (state, type) {
+	state.type = type;
+}), _defineProperty(_mutations, _mutationTypes.ADD_MEMBER, function (state, member) {
+	state.member = member;
+}), _defineProperty(_mutations, _mutationTypes.PAID, function (state) {
+	state.paid = true;
+}), _defineProperty(_mutations, _mutationTypes.UNPAID, function (state) {
+	state.paid = false;
+}), _defineProperty(_mutations, _mutationTypes.BOOKING_HAS_CHANGED, function (state, status) {
+	state.hasChanged = status;
+}), _mutations);
+
+/**
+ * Booking Module
+ */
+exports.default = {
+	state: state,
+	mutations: mutations
+};
+
+},{"../mutation-types":24}],24:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+/**
+ * Mutation types for Booking
+ * @type {string}
+ */
+
+var ADD_DATE = exports.ADD_DATE = 'ADD_DATE';
+var ADD_TIME_TO = exports.ADD_TIME_TO = 'ADD_TIME_TO';
+var ADD_TIME_FROM = exports.ADD_TIME_FROM = 'ADD_TIME_FROM';
+var ADD_TYPE = exports.ADD_TYPE = 'ADD_TYPE';
+var ADD_BOOKABLE = exports.ADD_BOOKABLE = 'ADD_BOOKABLE';
+var BOOKING_HAS_CHANGED = exports.BOOKING_HAS_CHANGED = 'BOOKING_HAS_CHANGED';
+var ADD_ERRORS = exports.ADD_ERRORS = 'ADD_ERRORS';
+
+var ADD_RESOURCES = exports.ADD_RESOURCES = 'ADD_RESOURCES';
+var CLEAR_RESOURCES = exports.CLEAR_RESOURCES = 'CLEAR_RESOURCES';
+
+var SET_LOADING = exports.SET_LOADING = 'SET_LOADING';
+
+var ADD_PRICE = exports.ADD_PRICE = 'ADD_PRICE';
+var CLEAR_PRICE = exports.CLEAR_PRICE = 'CLEAR_PRICE';
+
+var ADD_MEMBER = exports.ADD_MEMBER = 'ADD_MEMBER';
+var ADD_MEMBERS = exports.ADD_MEMBERS = 'ADD_MEMBERS';
+
+var BOOKED = exports.BOOKED = 'BOOKED';
+var PAID = exports.PAID = 'PAID';
+var UNPAID = exports.UNPAID = 'UNPAID';
+var CANCELED = exports.CANCELED = 'CANCELED';
+
+},{}],25:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _mutations;
+
+var _vue = require('vue');
+
+var _vue2 = _interopRequireDefault(_vue);
+
+var _vuex = require('vuex');
+
+var _vuex2 = _interopRequireDefault(_vuex);
+
+var _lodash = require('lodash');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _mutationTypes = require('./mutation-types');
+
+var _booking = require('./modules/booking');
+
+var _booking2 = _interopRequireDefault(_booking);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+/**
+ * Mutation Types
+ */
+
+
+/**
+ * Middlewares
+ */
+
+/**
+ * Modules
+ */
+
+
+_vue2.default.use(_vuex2.default);
+
+/**
+ * Global app state
+ * @type {{loading: {progress: number, isLoading: boolean}}}
+ */
+var initialState = {
+	prices: {
+		lines: [],
+		calculated: false,
+		totalFormated: '',
+		subtotalFormated: '',
+		vatFormated: '',
+		vatPercentage: ''
+	},
+	resources: [],
+	members: [],
+	types: [],
+	errors: [],
+	loading: {
+		progress: 1,
+		isLoading: false
+	}
+};
+
+/**
+ * Global app mutations
+ * @type {{}}
+ */
+var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.SET_LOADING, function (state, _ref) {
+	var _ref$loading = _ref.loading;
+	var loading = _ref$loading === undefined ? true : _ref$loading;
+	var _ref$progress = _ref.progress;
+	var progress = _ref$progress === undefined ? 1 : _ref$progress;
+
+	state.loading.isLoading = loading;
+	state.loading.progress = progress;
+}), _defineProperty(_mutations, _mutationTypes.ADD_ERRORS, function (state, errors) {
+	state.errors = errors;
+}), _defineProperty(_mutations, _mutationTypes.ADD_RESOURCES, function (state, resources) {
+	state.resources = resources;
+}), _defineProperty(_mutations, _mutationTypes.CLEAR_RESOURCES, function (state) {
+	state.resources = initialState.resources;
+}), _defineProperty(_mutations, _mutationTypes.ADD_PRICE, function (state, price) {
+	state.prices = price;
+	state.prices.calculated = true;
+}), _defineProperty(_mutations, _mutationTypes.CLEAR_PRICE, function (state) {
+	state.prices = initialState.prices;
+}), _defineProperty(_mutations, _mutationTypes.ADD_MEMBERS, function (state, members) {
+	state.members = members;
+}), _mutations);
+
+exports.default = new _vuex2.default.Store({
+	state: _lodash2.default.clone(initialState),
+	mutations: mutations,
+	modules: {
+		booking: _booking2.default
+	}
+});
+
+},{"./modules/booking":23,"./mutation-types":24,"lodash":1,"vue":5,"vuex":7}]},{},[8]);
 
 //# sourceMappingURL=admin.js.map

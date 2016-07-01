@@ -124,11 +124,38 @@ class Bookable extends Model implements SluggableInterface
 
 		foreach ($bookables as $bookable) {
 			if ($bookable->resources) {
+				$bookable->available = true;
 				$bookable->time_to = $timeTo->format('H:i');
 				$bookable->time_from = $timeFrom->format('H:i');
 				$bookable->hours = $hours;
 				$bookable->calculatePrice($hours, $timeFrom, $timeTo);
 			}
+		}
+
+		return $bookables;
+	}
+
+	/**
+	 * @param $hours
+	 * @param $available
+	 * @param $timeFrom
+	 * @param $timeTo
+	 */
+	public function scopeAvailableWithIn($query, $hours, $available, $timeFrom, $timeTo)
+	{
+		return $query->getWithHours($hours, $available, $timeFrom, $timeTo);
+	}
+
+	/**
+	 * @param $available
+	 */
+	public function scopeNotAvailableWithIn($query, $available)
+	{
+		$bookables = $query->whereNotIn('id', $available)->get();
+
+		foreach ( $bookables as $bookable )
+		{
+			$bookable->available = false;
 		}
 
 		return $bookables;

@@ -30,11 +30,11 @@
 						<th>Nombre</th>
 						<th>Sala</th>
 						<th>Fecha de la Reserva</th>
-						{{--<th>Pagado</th>--}}
+						<th>Pagado</th>
 						<th>Ultima actualización</th>
-						{{--<th class="text-center text-muted" style="width: 30px;">--}}
-							{{--<i class="icon-checkmark3"></i>--}}
-						{{--</th>--}}
+						<th class="text-center text-muted" style="width: 30px;">
+							<i class="icon-checkmark3"></i>
+						</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -58,40 +58,51 @@
 									hasta : {{$booking->time_to->format('H:i')}}
 								</div>
 							</td>
-							{{--<td>--}}
-									{{--<a href="#" class="label--}}
-										{{--{!! $booking->active ? 'label-success' : 'label-danger' !!}">--}}
-										{{--{!! $booking->active ? 'Activo' : 'Inactivo' !!}--}}
-									{{--</a>--}}
-							{{--</td>--}}
+							<td>
+									<a href="#" class="label
+										{!! $booking->isPaid() ? 'label-success' : 'label-danger' !!}">
+										{!! $booking->isPaid() ? 'Pagado' : 'Sin Pagar' !!}
+									</a>
+							</td>
 							<td>
 								<i class="icon-calendar2 position-left"></i>
 								{{ $booking->updated_at->format('d M Y H:i')  }}
 							</td>
-							{{--<td class="text-center">--}}
-								{{--<ul class="icons-list">--}}
-									{{--<li class="dropdown">--}}
-										{{--<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu9"></i></a>--}}
-										{{--<ul class="dropdown-menu dropdown-menu-right">--}}
-											{{--<li>--}}
-												{{--<a href="{{ route('admin.bookings.edit', [$booking->id]) }}">--}}
-													{{--<i class="icon-pencil7"></i> Editar alquilable--}}
-												{{--</a>--}}
-											{{--</li>--}}
-											{{--<li>--}}
-												{{--<a href="{{route('admin.bookings.destroy', [$booking->id])}}"--}}
-												   {{--role="delete-form"--}}
-													 {{--data-id="{{$booking->id}}"--}}
-													 {{--data-token="{{ csrf_token() }}"--}}
-												{{-->--}}
-													{{--<i class="icon-cross2 position-left"></i>--}}
-													{{--Remove--}}
-												{{--</a>--}}
-											{{--</li>--}}
-										{{--</ul>--}}
-									{{--</li>--}}
-								{{--</ul>--}}
-							{{--</td>--}}
+							<td class="text-center">
+								<ul class="icons-list">
+									<li class="dropdown">
+										<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+										<ul class="dropdown-menu dropdown-menu-right">
+											@if($booking->isPaid())
+											<li>
+												<a href="{{ route('admin.bookings.edit', [$booking->id]) }}">
+													<i class="icon-eye2"></i> Ver
+												</a>
+											</li>
+											@endif
+
+											@if(!$booking->isPaid())
+											<li>
+												<a href="{{ route('admin.bookings.edit', [$booking->id]) }}">
+													<i class="icon-pencil7"></i> Editar
+												</a>
+											</li>
+
+												<li>
+													<a href="{{route('admin.bookings.destroy', [$booking->id])}}"
+													   role="delete-form"
+														 data-id="{{$booking->id}}"
+														 data-token="{{ csrf_token() }}"
+													>
+														<i class="icon-cross2 position-left"></i>
+														Cancelar
+													</a>
+												</li>
+											@endif
+										</ul>
+									</li>
+								</ul>
+							</td>
 						</tr>
 					@endforeach
 

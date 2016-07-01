@@ -55,6 +55,11 @@ class Member extends Model
 	];
 
 	/**
+	 * @var array
+	 */
+	protected $appends = ['fullname', 'hasCreditCard', 'avatar'];
+
+	/**
 	 * Return the user avatar
 	 *
 	 * @param int $size Size for the avatar image
@@ -303,6 +308,30 @@ class Member extends Model
 	public function getCurrency()
 	{
 		return "eur";
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFullNameAttribute()
+	{
+		return $this->fullName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAvatarAttribute()
+	{
+		return $this->avatar();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getHasCreditCardAttribute()
+	{
+		return $this->hasStripeId();
 	}
 
 	/**

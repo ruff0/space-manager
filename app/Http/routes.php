@@ -32,6 +32,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 			'except' => ['show', 'create', 'edit']
 		]);
 
+		Route::resource('members','MembersController', [
+			'only' => ['index']
+		]);
+		
 		Route::get('/subscriptions', 'SubscriptionsController@index');
 		Route::post('/subscriptions', 'SubscriptionsController@store');
 		Route::post('/subscriptions/calculate', 'SubscriptionsController@calculate');
@@ -39,13 +43,21 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	});
 
 
+
 	Route::group(['namespace' => 'Bookings'], function () {
 		Route::get('/bookings', 'BookingsController@index');
 		Route::post('/bookings', 'BookingsController@store');
+		Route::patch('/bookings/{bookings}', 'BookingsController@update');
+		Route::delete('/bookings/{bookings}', 'BookingsController@destroy');
 		Route::post('/bookings/calculate', 'BookingsController@calculate');
 	});
 
 	Route::group(['namespace' => 'Bookables'], function () {
+
+		Route::resource('bookable-types', 'BookableTypesController', [
+			'onlyt' => ['index']
+		]);
+
 		Route::get('/bookables', 'BookablesController@index');
 		Route::get('/bookables/{bookables}', 'BookablesController@show');
 	});
@@ -110,12 +122,12 @@ Route::group(['middleware' => ['auth']], function () {
 		Route::resource('plans', 'PlansController');
 		Route::resource('members', 'MembersController');
 		Route::resource('bookables', 'BookablesController');
+	
 		Route::get('bookings/calendar', [
 			'as'  => 'admin.bookings.calendar',
 			'uses' => 'BookingsController@calendar'
 		]);
 		Route::resource('bookings', 'BookingsController');
-
 
 		// Resources
 		Route::resource('meetingrooms', 'MeetingRoomsController');

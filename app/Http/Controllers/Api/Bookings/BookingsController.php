@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Bookings;
 
 use App\Bookables\Bookable;
 use App\Bookables\BookableType;
+use App\Bookings\Booking;
+use App\Http\Requests\Api\BookingsSearchRequest;
 use App\Http\Requests\Bookings\CreateBookingForm;
 use App\Invoices\Models\Invoice;
 use App\Invoices\Models\Line;
@@ -21,7 +23,12 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingsController extends Controller
 {
-	public function index(Request $request)
+	/**
+	 * @param BookingsSearchRequest $request
+	 *
+	 * @return array
+	 */
+	public function index(BookingsSearchRequest $request)
 	{
 		$available = [];
 
@@ -67,8 +74,8 @@ class BookingsController extends Controller
 
 		return [
 			'available' => BookableType::find($request->get('type'))->bookables()
-				->getWithHours($hours, $available, $timeFrom, $timeTo),
-			'notavailable' => BookableType::find($request->get('type'))->bookables()->whereNotIn('id', $available)->get()
+				->availableWithIn($hours, $available, $timeFrom, $timeTo),
+			'notavailable' => BookableType::find($request->get('type'))->bookables()->notAvailableWithIn($available)
 		];
 	}
 
@@ -80,7 +87,24 @@ class BookingsController extends Controller
 	 */
 	public function store(CreateBookingForm $request)
 	{
-		if (!auth()->user()->member->hasStripeId()) {
+		if ($request->exists('member') && $request->has('member'))
+		{
+			$member = Member::findOrFail($request->get('member'));
+		}
+		else
+		{
+			$member = Auth::user()->member;
+		}
+
+		$paymentMethod = 'card';
+
+		if($request->has('payment'))
+		{
+			$paymentMethod = $request->get('payment');
+		}
+
+
+		if ($paymentMethod == 'card' && !$member->hasStripeId()) {
 			return response()->json($data = [
 				'error' => [
 					'needsPaymentMethod' => true,
@@ -100,8 +124,6 @@ class BookingsController extends Controller
 				$resources['rooms'][] = $resource->resourceable;
 			}
 		}
-
-		$member = Auth::user()->member;
 
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
@@ -145,46 +167,37 @@ class BookingsController extends Controller
 					$invoice->addLine($line);
 				}
 			}
-
-
-
+			
 			if ((($pass && $pass->hours < $hours) || (!$pass)) &&
 			    $discount && Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 				$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 
 				$percentage = $discount['percentage'];
-				$total = ($price / 100) * $percentage ;
-				$discountLine = new Line([
-					'price'       => (int) -$total,
-					'name'        => 'Descuento',
-					'description' => "Descuento aplicado $percentage%",
-					'amount'      => 1
-				]);
+				if ($percentage) {
+					$total = ($price / 100) * $percentage;
+					$discountLine = new Line([
+						'price'       => (int)-$total,
+						'name'        => 'Descuento',
+						'description' => "Descuento aplicado $percentage%",
+						'amount'      => 1
+					]);
 
-				$invoice->addLine($discountLine);
+					$invoice->addLine($discountLine);
+				}
 			}
 		}
 
 		$invoice->save();
 
 		// Make Stripe Charge
-		if($passHours && $invoice->getTotalForStripe() )
+		if($paymentMethod == 'card' && !$passHours && $invoice->getTotalForStripe() )
 		{
-			$charge = $member->charge($invoice->getTotalForStripe(), [
-				"currency" => $member->getCurrency(),
-				"customer" => $member->id
-			]);
-			$invoice->charge_id = $charge->id;
+			$invoice->pay();
 		}
 
-		$invoice->save();
-
 		$rooms = collect($resources['rooms']);
-
 		$rooms->first();
-
 		$member->decrementPassFor($bookable->id, $passHours);
-
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
 			'time_to'   => $timeTo
@@ -207,6 +220,54 @@ class BookingsController extends Controller
 		], 200);
 	}
 
+	/**
+	 * @param Booking $bookings
+	 * @param Request $request
+	 *
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function update(Booking $bookings, Request $request)
+	{
+		
+		if($request->has('action'))
+		{
+			$action = $request->get('action');
+			$bookings->$action($request->all());
+		}
+
+		return response()->json([
+			'success' => [
+				'messages' => [
+					'La reserva se ha marcado como pagada',
+				]
+			]
+		], 200);
+
+	}
+	
+	/**
+	 * @param Booking $bookings
+	 *
+	 * @return \Illuminate\Http\JsonResponse
+	 */
+	public function destroy(Booking $bookings)
+	{
+		if(!$bookings->paid) {
+			$bookings->delete();
+
+			return response()->json($bookings);
+		}
+
+		return response()->json(
+			[
+				'data'=> [
+					'errors' => [
+						'booking' => 'No se ha podido borrar'
+					]
+				]
+			], 421);
+	}
+
 
 	/**
 	 * Returns the row for the billing
@@ -217,6 +278,16 @@ class BookingsController extends Controller
 	 */
 	public function calculate(Request $request)
 	{
+		if($request->exists('member') && $request->has('member'))
+		{
+			$member = Member::findOrFail($request->get('member'));
+		}
+		else
+		{
+			$member = Auth::user()->member;
+		}
+
+
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
 		$hours  = $timeFrom->diffInHours($timeTo);
@@ -247,7 +318,6 @@ class BookingsController extends Controller
 		]);
 		$invoice->addLine($line);
 
-		$member = Auth::user()->member;
 		$discount = $member->appliedDiscounts('bookings');
 
 		if($pass = $member->hasPassForType($bookable->id, $timeFrom))
@@ -274,13 +344,16 @@ class BookingsController extends Controller
 		{
 			$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 			$percentage = $discount['percentage'];
-			$total = ($price / 100) * $percentage;
-			$line = new QuoteLine([
-				'price' => - $total,
-				'name'  => "Descuento $percentage%",
-				'description' => "Descuento aplicado $percentage%"
-			]);
-			$invoice->addLine($line);
+		  if($percentage)
+		  {
+			  $total = ($price / 100) * $percentage;
+			  $line = new QuoteLine([
+				  'price'       => -$total,
+				  'name'        => "Descuento $percentage%",
+				  'description' => "Descuento aplicado $percentage%"
+			  ]);
+			  $invoice->addLine($line);
+		  }
 		}
 
 		return $invoice->toJson();
