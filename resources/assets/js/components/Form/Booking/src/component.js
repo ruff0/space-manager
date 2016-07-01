@@ -105,6 +105,12 @@ export default {
 		},
 		canPayWithCard() {
 			return (this.member && this.member.hasCreditCard)? true: false;
+		},
+		message() {
+			return  this.booking ? 'Ten en cuenta que al haber editado estas creando un reserva nueva!!!': ''
+		},
+		title () {
+			return this.booking && !this.hasChanged ? "Editar reserva" : "Crear una reserva"
 		}
 	},
 	/**
