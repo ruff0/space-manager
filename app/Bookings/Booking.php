@@ -78,6 +78,11 @@ class Booking extends Model
 		return false;
 	}
 
+	public function isPaid()
+	{
+		return $this->getPaidAttribute();
+	}
+
 	/**
 	 * 
 	 */                 
