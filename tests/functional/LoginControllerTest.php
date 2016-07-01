@@ -11,10 +11,10 @@ class LoginTest extends TestCase
 	/**
 	 * @tests
 	 */
-//	public function userCanRegister()
-//	{
-//		$this->registerUser();
-//	}
+	public function userCanRegister()
+	{
+		$this->registerUser();
+	}
 
 	/**
 	 * @test
@@ -26,6 +26,25 @@ class LoginTest extends TestCase
 		$this->seeInDatabase('profiles', [
 			'name' => 'Test',
 			'lastname' => 'User'
+		]);
+
+
+	}
+
+	/**
+	 * @test
+	 */
+	public function registerAssignsCorrectRoleToUser()
+	{
+		$this->registerUser();
+		$this->fillProfile();
+
+		$user = \App\User\User::latest()->first();
+		$role = \App\Auth\Roles\Models\Role::where('name', 'member')->first();
+
+		$this->seeInDatabase('role_user', [
+			'user_id' => $user->id,
+			'role_id' => $role->id
 		]);
 
 
