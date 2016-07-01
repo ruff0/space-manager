@@ -167,9 +167,7 @@ class BookingsController extends Controller
 					$invoice->addLine($line);
 				}
 			}
-
-
-
+			
 			if ((($pass && $pass->hours < $hours) || (!$pass)) &&
 			    $discount && Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
 				$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
@@ -192,7 +190,7 @@ class BookingsController extends Controller
 		$invoice->save();
 
 		// Make Stripe Charge
-		if($paymentMethod == 'card' && $passHours && $invoice->getTotalForStripe() )
+		if($paymentMethod == 'card' && !$passHours && $invoice->getTotalForStripe() )
 		{
 			$invoice->pay();
 		}

@@ -90,6 +90,9 @@ export default {
 	 *
 	 */
 	computed : {
+		isNew() {
+			return this.booking.isNew
+		},
 		hasResources () {
 			return this.resources.length == 0
 		},
@@ -101,16 +104,16 @@ export default {
 			return this.selected.paid
 		},
 		canMakeReservation(){
-			return (!this.booking && this.member)? true : false
+			return (!this.isNew && this.member)? true : false
 		},
 		canPayWithCard() {
 			return (this.member && this.member.hasCreditCard)? true: false;
 		},
 		message() {
-			return  this.booking ? 'Ten en cuenta que al haber editado estas creando un reserva nueva!!!': ''
+			return  !this.isNew ? 'Ten en cuenta que al haber editado estas creando un reserva nueva!!!': ''
 		},
 		title () {
-			return this.booking && !this.hasChanged ? "Editar reserva" : "Crear una reserva"
+			return !this.isNew && this.hasChanged ? "Editar reserva" : "Crear una reserva"
 		}
 	},
 	/**
@@ -120,13 +123,13 @@ export default {
 		this.getMembers()
 		this.$http.get('/api/bookable-types').then((response) => {
 			this.types = response.data
-			if (this.booking) {
+			if (!this.isNew) {
 				this.addMember(this.booking.member_id)
 				this.addType(this.booking.bookable_id)
 
 			}
 		})
-		if (this.booking) {
+		if (!this.isNew) {
 			this.addBooking(this.booking)
 			setTimeout(()=>{
 				this.addBookable(this.booking.bookable_id, false)

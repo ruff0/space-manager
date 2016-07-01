@@ -45,6 +45,7 @@ class BookingsController extends AdminController
 	public function create()
 	{
 		$booking = new Booking();
+
 		return view('admin.bookings.create', [
 			'booking' => $booking
 		]);

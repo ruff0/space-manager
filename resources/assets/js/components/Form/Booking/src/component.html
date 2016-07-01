@@ -2,7 +2,7 @@
 	<div class="panel-heading">
 		<h6 class="panel-title">
 			{{title}}
-			<span class="text-highlight bg-primary" v-if="hasChanged">
+			<span class="text-highlight bg-primary" v-if="hasChanged && !isNew">
 				{{message}}
 			</span>
 		</h6>

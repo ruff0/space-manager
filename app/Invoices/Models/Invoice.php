@@ -236,6 +236,9 @@ class Invoice extends Model
 		return $this->where('type', $type)->last();
 	}
 
+	/**
+	 *
+	 */
 	public function pay()
 	{
 		if(is_null($this->charge_id))
@@ -244,6 +247,7 @@ class Invoice extends Model
 				"currency" => $this->member->getCurrency(),
 				"customer" => $this->member->id
 			]);
+
 			$this->charge_id = $charge->id;
 			$this->save();
 		}

@@ -28,7 +28,7 @@ class Booking extends Model
 	/**
 	 * @var array
 	 */
-	protected $appends = ['paid'];
+	protected $appends = ['paid', 'isNew'];
 
 	/**
 	 * Get all of the owning bookable models.
@@ -78,6 +78,17 @@ class Booking extends Model
 		return false;
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function getIsNewAttribute()
+	{
+		return !$this->exists;
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function isPaid()
 	{
 		return $this->getPaidAttribute();
