@@ -4,6 +4,7 @@ namespace App\User;
 
 use App\Space\Member;
 use App\User\Profile;
+use App\Auth\Roles\Traits\HasRoles;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 
@@ -13,6 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  */
 class User extends Authenticatable
 {
+	use HasRoles;
 	/**
 	 * The attributes that are mass assignable.
 	 *

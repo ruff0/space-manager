@@ -18,6 +18,7 @@ class PlanTypesController extends AdminController
 	{
 		$this->current['model'] = 'Tipos de suscripción';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

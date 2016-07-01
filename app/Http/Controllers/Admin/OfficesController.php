@@ -18,6 +18,7 @@ class OfficesController extends AdminController
 	{
 		$this->current['model'] = 'Oficinas';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

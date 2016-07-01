@@ -20,6 +20,7 @@ class BookablesController extends AdminController
 	{
 		$this->current['model'] = 'Reservas';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

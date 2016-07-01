@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesResources;
+use Illuminate\Support\Facades\Gate;
 
 class AdminController extends BaseController
 {
@@ -27,5 +28,9 @@ class AdminController extends BaseController
     public function __construct()
     {
 
+	  	if(Gate::denies('access::backend'))
+		  {
+			  abort(403);
+		  }
     }
 }

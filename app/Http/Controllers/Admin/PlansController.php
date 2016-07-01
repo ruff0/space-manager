@@ -19,6 +19,7 @@ class PlansController extends AdminController
 	{
 		$this->current['model'] = 'Planes';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

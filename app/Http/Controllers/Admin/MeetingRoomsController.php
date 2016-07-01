@@ -20,6 +20,7 @@ class MeetingRoomsController extends AdminController
 	{
 		$this->current['model'] = 'Salas de reuniones';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

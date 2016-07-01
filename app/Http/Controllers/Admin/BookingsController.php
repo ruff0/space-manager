@@ -20,6 +20,7 @@ class BookingsController extends AdminController
 	{
 		$this->current['model'] = 'Alquileres';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 

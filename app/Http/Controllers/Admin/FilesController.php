@@ -4,15 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Files\File;
 use App\Files\Image;
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 
-class FilesController extends Controller
+class FilesController extends AdminController
 {
 	/**
 	 * Display a listing of the resource.

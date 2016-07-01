@@ -18,6 +18,7 @@ class BookableTypesController extends AdminController
 	{
 		$this->current['model'] = 'Tipos de sala';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

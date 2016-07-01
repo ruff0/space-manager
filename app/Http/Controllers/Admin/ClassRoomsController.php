@@ -17,6 +17,7 @@ class ClassRoomsController extends AdminController
 	{
 		$this->current['model'] = 'Aulas';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

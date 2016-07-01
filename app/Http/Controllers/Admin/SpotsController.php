@@ -17,6 +17,7 @@ class SpotsController extends AdminController
 	{
 		$this->current['model'] = 'Puestos';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**

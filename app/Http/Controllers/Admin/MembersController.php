@@ -21,6 +21,7 @@ class MembersController extends AdminController
 	{
 		$this->current['model'] = 'Miembros';
 		view()->share('current', $this->current);
+		parent::__construct();
 	}
 
 	/**
