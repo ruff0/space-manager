@@ -28598,10 +28598,13 @@ exports.default = {
 				}
 			},
 			eventClick: function eventClick(calEvent, jsEvent, view) {
-				console.log(view);
+				window.location = '/admin/bookings/' + calEvent.id + '/edit';
+			},
+			eventMouseover: function eventMouseover(calEvent, jsEvent, view) {
+				console.log(calEvent);
 			},
 			eventLimit: true,
-			editable: true,
+			editable: false,
 			weekends: true,
 			aspectRatio: 3,
 			scrollTime: '08:00',
@@ -28641,17 +28644,10 @@ exports.default = {
 				field: 'name'
 			}],
 			resources: function resources(callback) {
-				//				var resources = [];
-				//				for(bookable of me.resources) resources.push(bookable.resource);
-
 				callback(me.resources);
 			},
 
 			events: function events(start, end, timezone, callback) {
-				//				var events = [];
-				//				console.log(me.bookings)
-				//				for(booking of me.bookings) events.push(booking.event);
-
 				callback(me.events);
 			}
 		});
