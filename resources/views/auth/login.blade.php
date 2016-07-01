@@ -21,7 +21,7 @@
 						</a>
 					</li>
 					<li class="@if(old('form') == 'register') active @endif">
-						<a href="#register" data-toggle="tab">
+						<a href="#register" data-toggle="tab" name="register">
 							<h6>Regístrate</h6>
 						</a>
 					</li>

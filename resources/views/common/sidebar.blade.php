@@ -4,10 +4,12 @@
 		<img src="{{ $user->avatar(200) }}" alt="" height="200">
 		<div class="caption">
 			<span>
+				@if($user->profile)
 				<a href="{{route('users.profiles.edit', [$user->id, $user->profile->id])}}"
 				   class="btn btn-primary btn-icon btn-xs legitRipple" data-popup="lightbox">
 					<i class="icon-pencil"></i>
 				</a>
+				@endif
 				{{--<a href="#" class="btn bg-success-400 btn-icon btn-xs legitRipple">--}}
 					{{--<i class="icon-link"></i>--}}
 				{{--</a>--}}

@@ -13,7 +13,7 @@
 					@include('members.forms.form')
 				</div>
 				<div class="modal-footer">
-					<button type="submit" class="btn btn-primary">Guardar</button>
+					<button type="submit" class="btn btn-primary" name="save">Guardar</button>
 				</div>
 			</form>
 		</div>

@@ -6,21 +6,69 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class LoginTest extends TestCase
 {
-    use DatabaseMigrations;
+	use DatabaseTransactions;
 
-    /**
-     * @tests
-     */
-    public function user_can_register()
-    {
-        $this->visit('/login');
-        $this->click('Registrate');
-        $this->type('foo', 'name');
-        $this->type('foo@bar.com', 'email');
-        $this->type('P@ssw0rd', 'password');
-        $this->type('P@ssw0rd', 'password_confirmation');
-        $this->press('Registrame');
-        $this->seePageIs('/home');
-        $this->see('Para continuar rellena tu perfil');
-    }
+	/**
+	 * @tests
+	 */
+//	public function userCanRegister()
+//	{
+//		$this->registerUser();
+//	}
+
+	/**
+	 * @test
+	 */
+	public function registerGeneratesCorrectProfile()
+	{
+		$this->registerUser();
+		$this->fillProfile();
+		$this->seeInDatabase('profiles', [
+			'name' => 'Test',
+			'lastname' => 'User'
+		]);
+
+
+	}
+
+	/**
+	 * Registers a user to the application
+	 */
+	protected function registerUser()
+	{
+		$this->visit('/login');
+		$this->click('register');
+		$this->type('testuser', 'name');
+		$this->type('test@user.com', 'email');
+		$this->type('Cuadr1pedo', 'password');
+		$this->type('Cuadr1pedo', 'password_confirmation');
+		$this->check('conditions');
+		$this->press('register');
+		$this->seePageIs('/home');
+		$this->see('Completa tu perfil');
+	}
+
+	/**
+	 * Fills in the user profile
+	 */
+	protected function fillProfile()
+	{
+		$this->seePageIs('/home');
+		$this->type('Test', 'name');
+		$this->type('User', 'lastname');
+		$this->type('0000000K', 'identity');
+		$this->type('666666666', 'mobile');
+		$this->type('966666666', 'phone');
+		$this->type('c/ Test', 'address_line1');
+		$this->type('1ª A', 'address_line2');
+		$this->type('Test', 'city');
+		$this->type('Test', 'state');
+		$this->type('00000', 'zip');
+		$this->type('Empresa Test', 'company_name');
+		$this->type('B00000000C', 'company_identity');
+		$this->press('save');
+
+		$this->seePageIs('/home');
+		$this->see('¿QUÉ QUIERES HACER?');
+	}
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Space\Member;
-use App\User\Profile;
 use Laracasts\Utilities\JavaScript\JavaScriptFacade;
 
 class HomeController extends Controller

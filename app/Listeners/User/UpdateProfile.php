@@ -19,8 +19,10 @@ class UpdateProfile
 	{
 		$member = $event->getMember();
 
-		return $member->mainUser()->profile()->create(
+		$profile =  $member->mainUser()->profile()->create(
 			$member->toArray()
 		);
+
+		return $profile;
 	}
 }

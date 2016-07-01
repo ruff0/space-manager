@@ -88,7 +88,7 @@ class AuthController extends Controller
 			'password' => bcrypt($data['password']),
 		]);
 
-		$user->profile()->create([]);
+		$user->assignRole('member');
 
 		return $user;
 	}

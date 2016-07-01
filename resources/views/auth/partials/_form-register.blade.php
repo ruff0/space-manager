@@ -74,12 +74,12 @@
 
 		<div class="checkbox">
 			<label>
-				<input type="checkbox" class="styled">
+				<input type="checkbox" class="styled" name="conditions">
 				Acepto <a href="#">los términos y condiciones del servicio</a>
 			</label>
 		</div>
 	</div>
 
-	<button type="submit" class="btn btn-warning btn-block">Regístrame <i
+	<button type="submit" class="btn btn-warning btn-block" name="register">Regístrame <i
 			class="icon-circle-right2 position-right"></i></button>
 </form>

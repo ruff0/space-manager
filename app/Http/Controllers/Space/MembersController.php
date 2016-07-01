@@ -28,7 +28,7 @@ class MembersController extends Controller
 	 * @param Member           $members
 	 * @param UpdateMemberForm $request
 	 *
-	 * @return
+	 * @return \Illuminate\Http\RedirectResponse
 	 */
 	public function update(Member $members, UpdateMemberForm $request)
 	{
