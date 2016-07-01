@@ -28,6 +28,11 @@ export default{
 	 * Public properties
 	 */
 	props: {
+		disabled: {
+			type: Boolean, default: () => {
+				return false
+			}
+		},
 		selected: null,
 		value: {type: String},
 		interval: {type: Number, default: 60},
@@ -50,6 +55,7 @@ export default{
 			interval: this.interval,
 			min: this.min,
 			max: this.max,
+			editable: this.disabled,
 			// Escape any “rule” characters with an exclamation mark (!).
 			format: this.format,
 			formatLabel: this.formatLabel,

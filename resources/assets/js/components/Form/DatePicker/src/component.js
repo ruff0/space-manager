@@ -30,6 +30,11 @@ export default{
 	 * Public properties
 	 */
 	props: {
+		disabled: {
+			type: Boolean, default: () => {
+				return false
+			}
+		},
 		selected: null,
 		value: {
 			coerce: (value) => {
@@ -75,6 +80,7 @@ export default{
 			interval: this.interval,
 			min: this.min,
 			max: this.max,
+			editable: this.disabled,
 			// Escape any “rule” characters with an exclamation mark (!).
 			format: this.format,
 			formatLabel: this.formatLabel,

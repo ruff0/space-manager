@@ -5,6 +5,7 @@ import {
 	ADD_TYPE,
 	ADD_BOOKABLE,
 	ADD_MEMBER,
+	BOOKING_HAS_CHANGED,
 	PAID,
 	UNPAID
 } from '../mutation-types'
@@ -14,6 +15,7 @@ import {
  * @type {{}}
  */
 const state = {
+	hasChanged: false,
 	bookable: null,
 	time_to: null,
 	time_from: null,
@@ -51,6 +53,9 @@ const mutations = {
 	},
 	[UNPAID](state) {
 		state.paid =  false
+	},
+	[BOOKING_HAS_CHANGED](state, status) {
+		state.hasChanged =  status
 	}
 }
 

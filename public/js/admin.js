@@ -28830,6 +28830,9 @@ exports.default = {
 			},
 			calculated: function calculated(state) {
 				return state.prices.calculated;
+			},
+			hasChanged: function hasChanged(state) {
+				return state.booking.hasChanged;
 			}
 		}
 	},
@@ -28860,7 +28863,6 @@ exports.default = {
 			return this.resources.length == 0;
 		},
 		canBeCanceled: function canBeCanceled() {
-			console.log(moment(new Date()).isBefore(moment(new Date(this.booking.time_from))), !this.isPaid);
 			return moment(new Date()).isBefore(moment(new Date(this.booking.time_from))) && !this.isPaid;
 		},
 		isPaid: function isPaid() {
@@ -28890,7 +28892,7 @@ exports.default = {
 		if (this.booking) {
 			this.addBooking(this.booking);
 			setTimeout(function () {
-				_this.addBookable(_this.booking.bookable_id);
+				_this.addBookable(_this.booking.bookable_id, false);
 			}, 1500);
 		}
 	},
@@ -28937,7 +28939,7 @@ exports.default = {
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"cancel\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled\"\n\t\t\t>\n\t\t\t\tCancelar\n\t\t\t</u-button>\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t\t\t\t\t\tv-if=\"!canBeCanceled && canMakeReservation\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\tv-if=\"!canBeCanceled && canMakeReservation && canPayWithCard\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"pay\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && canPayWithCard\"\n\t\t\t>\n\t\t\t\tCobrar\n\t\t\t</u-button>\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"markAsPaid\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled\"\n\t\t\t>\n\t\t\t\tMarcar como pagada\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">Crear una reserva</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"cancel\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t>\n\t\t\t\tCancelar\n\t\t\t</u-button>\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || hasChanged\"\n\t\t\t>\n\t\t\t\tReservar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)\"\n\t\t\t>\n\t\t\t\tReservar & pagar\n\t\t\t</u-button>\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"pay\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && canPayWithCard && !hasChanged\"\n\t\t\t>\n\t\t\t\tCobrar\n\t\t\t</u-button>\n\n\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t@click=\"markAsPaid\"\n\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t>\n\t\t\t\tMarcar como pagada\n\t\t\t</u-button>\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources || isPaid\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker  @change=\"addDate\" :value=\"selected.date\" :disabled=\"isPaid\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -28993,6 +28995,11 @@ exports.default = {
   * Public properties
   */
 	props: {
+		disabled: {
+			type: Boolean, default: function _default() {
+				return false;
+			}
+		},
 		selected: null,
 		value: {
 			coerce: function coerce(value) {
@@ -29034,6 +29041,7 @@ exports.default = {
 			interval: this.interval,
 			min: this.min,
 			max: this.max,
+			editable: this.disabled,
 			// Escape any “rule” characters with an exclamation mark (!).
 			format: this.format,
 			formatLabel: this.formatLabel,
@@ -29056,7 +29064,7 @@ exports.default = {
 	components: {}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Fecha\"\n\t\t\t class=\"form-control pickadate-date\"\n\t\t\t data-value=\"{{value}}\"\n/>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Fecha\"\n\t\t\t class=\"form-control pickadate-date\"\n\t\t\t data-value=\"{{value}}\"\n\t\t\t :disabled=\"disabled\"\n/>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -29324,6 +29332,11 @@ exports.default = {
   * Public properties
   */
 	props: {
+		disabled: {
+			type: Boolean, default: function _default() {
+				return false;
+			}
+		},
 		selected: null,
 		value: { type: String },
 		interval: { type: Number, default: 60 },
@@ -29350,6 +29363,7 @@ exports.default = {
 			interval: this.interval,
 			min: this.min,
 			max: this.max,
+			editable: this.disabled,
 			// Escape any “rule” characters with an exclamation mark (!).
 			format: this.format,
 			formatLabel: this.formatLabel,
@@ -29374,7 +29388,7 @@ exports.default = {
 	components: {}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Hora de inicio\"\n\t\t\t class=\"form-control pickatime-from\"\n\t\t\t name=\"time\"\n\t\t\t data-value=\"{{time}}\"\n/>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<input type=\"text\"\n\t\t\t placeholder=\"Hora de inicio\"\n\t\t\t class=\"form-control pickatime-from\"\n\t\t\t name=\"time\"\n\t\t\t data-value=\"{{time}}\"\n\t\t\t :disabled=\"disabled\"\n/>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -29875,7 +29889,7 @@ var searchBookables = exports.searchBookables = function searchBookables(_ref7) 
 	}
 };
 
-var calculate = exports.calculate = function calculate(_ref8) {
+var calculate = exports.calculate = function calculate(_ref8, changed) {
 	var dispatch = _ref8.dispatch;
 	var state = _ref8.state;
 
@@ -29884,7 +29898,10 @@ var calculate = exports.calculate = function calculate(_ref8) {
 		_bookings2.default.calculate(state.booking,
 		// handle success
 		function (prices) {
-			return dispatch(_mutationTypes.ADD_PRICE, prices);
+			dispatch(_mutationTypes.ADD_PRICE, prices);
+			if (changed) {
+				dispatch(_mutationTypes.BOOKING_HAS_CHANGED, true);
+			}
 		},
 		// handle error
 		function (errors) {
@@ -29965,10 +29982,11 @@ var addMember = exports.addMember = function addMember(_ref16, user) {
 var addBookable = exports.addBookable = function addBookable(_ref17, bookable) {
 	var dispatch = _ref17.dispatch;
 	var state = _ref17.state;
+	var changed = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
 	dispatch(_mutationTypes.ADD_BOOKABLE, bookable);
-	calculate({ dispatch: dispatch, state: state });
+	calculate({ dispatch: dispatch, state: state }, changed);
 };
 
 var addBooking = exports.addBooking = function addBooking(_ref18, booking) {
@@ -30098,6 +30116,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @type {{}}
  */
 var state = {
+	hasChanged: false,
 	bookable: null,
 	time_to: null,
 	time_from: null,
@@ -30127,6 +30146,8 @@ var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD
 	state.paid = true;
 }), _defineProperty(_mutations, _mutationTypes.UNPAID, function (state) {
 	state.paid = false;
+}), _defineProperty(_mutations, _mutationTypes.BOOKING_HAS_CHANGED, function (state, status) {
+	state.hasChanged = status;
 }), _mutations);
 
 /**
@@ -30153,6 +30174,7 @@ var ADD_TIME_TO = exports.ADD_TIME_TO = 'ADD_TIME_TO';
 var ADD_TIME_FROM = exports.ADD_TIME_FROM = 'ADD_TIME_FROM';
 var ADD_TYPE = exports.ADD_TYPE = 'ADD_TYPE';
 var ADD_BOOKABLE = exports.ADD_BOOKABLE = 'ADD_BOOKABLE';
+var BOOKING_HAS_CHANGED = exports.BOOKING_HAS_CHANGED = 'BOOKING_HAS_CHANGED';
 var ADD_ERRORS = exports.ADD_ERRORS = 'ADD_ERRORS';
 
 var ADD_RESOURCES = exports.ADD_RESOURCES = 'ADD_RESOURCES';

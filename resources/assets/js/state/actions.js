@@ -4,6 +4,7 @@ import {
 	ADD_TIME_FROM,
 	ADD_TYPE,
 	ADD_BOOKABLE,
+	BOOKING_HAS_CHANGED,
 	ADD_ERRORS,
 	ADD_RESOURCES,
 	CLEAR_RESOURCES,
@@ -93,13 +94,19 @@ export const searchBookables = ({dispatch, state}) => {
 	}
 }
 
-export const calculate = ({dispatch, state}) => {
+export const calculate = ({dispatch, state}, changed) => {
 	const b = state.booking
 	if(b.date && b.time_to && b.time_from && b.type && b.bookable) {
 		bookings.calculate(
 			state.booking,
 			// handle success
-			(prices) => dispatch(ADD_PRICE, prices),
+			(prices) => {
+				dispatch(ADD_PRICE, prices)
+				if(changed)
+				{
+					dispatch(BOOKING_HAS_CHANGED, true)
+				}
+			},
 		  // handle error
 			(errors) => dispatch(ADD_ERRORS, errors)
 		)
@@ -149,10 +156,10 @@ export const addMember = ({dispatch, state}, user) => {
 	searchBookables({dispatch, state})
 }
 
-export const addBookable = ({dispatch, state}, bookable) => {
+export const addBookable = ({dispatch, state}, bookable, changed = true) => {
 	dispatch(CLEAR_PRICE)
 	dispatch(ADD_BOOKABLE, bookable)
-	calculate({dispatch, state})
+	calculate({dispatch, state}, changed)
 }
 
 export const addBooking = ({dispatch, state}, booking) => {

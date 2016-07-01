@@ -4,21 +4,21 @@
 		<div class="heading-elements" v-if="resources && calculated">
 
 			<u-button :ladda="{style:'zoom-in'}"
-								class="pull-right mr-10"
+								class="pull-right"
 								data-style="zoom-in"
 								color="primary"
 								@click="cancel"
-								v-if="canBeCanceled"
+								v-if="canBeCanceled && !hasChanged"
 			>
 				Cancelar
 			</u-button>
 
 			<u-button :ladda="{style:'zoom-in'}"
-								class="pull-right"
+								class="pull-right mr-10"
 								data-style="zoom-in"
 								color="primary"
 								@click="reserve"
-								v-if="!canBeCanceled && canMakeReservation"
+								v-if="(!canBeCanceled && canMakeReservation) || hasChanged"
 			>
 				Reservar
 			</u-button>
@@ -27,7 +27,7 @@
 								data-style="zoom-in"
 								color="primary"
 								@click="reserveAndPay"
-								v-if="!canBeCanceled && canMakeReservation && canPayWithCard"
+								v-if="(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)"
 			>
 				Reservar & pagar
 			</u-button>
@@ -36,7 +36,7 @@
 								data-style="zoom-in"
 								color="primary"
 								@click="pay"
-								v-if="canBeCanceled && canPayWithCard"
+								v-if="canBeCanceled && canPayWithCard && !hasChanged"
 			>
 				Cobrar
 			</u-button>
@@ -46,7 +46,7 @@
 								data-style="zoom-in"
 								color="primary"
 								@click="markAsPaid"
-								v-if="canBeCanceled"
+								v-if="canBeCanceled && !hasChanged"
 			>
 				Marcar como pagada
 			</u-button>
@@ -61,6 +61,7 @@
 										placeholder="Selecciona un miembro"
 										options-label="fullname"
 										:searchbox="true"
+										:disabled="isPaid"
 										image-node="avatar"
 										@change="addMember"
 										:value="selected.member"
@@ -75,6 +76,7 @@
 				<label>Tipo de sala</label>
 				<selectable :options="types"
 										placeholder="Selecciona un tipo"
+										:disabled="isPaid"
 										@change="addType"
 										:value="selected.type"
 				>
@@ -88,7 +90,7 @@
 				<label>Recurso</label>
 				<selectable :options="resources"
 										:placeholder="Selecciona un recurso"
-										:disabled="hasResources"
+										:disabled="hasResources || isPaid"
 										option-condition-disable="available"
 										:option-condition-oposite="true"
 										@change="addBookable"
@@ -102,17 +104,17 @@
 		<div class="row pb-20">
 			<div class="col-sm-4">
 				<label>Fecha</label>
-				<date-picker  @change="addDate" :value="selected.date"></date-picker>
+				<date-picker  @change="addDate" :value="selected.date" :disabled="isPaid"></date-picker>
 				<form-error :errors="errors.date"></form-error>
 			</div>
 			<div class="col-sm-4">
 				<label>Hora Inicio</label>
-				<time-picker @change="addTimeFrom" :value="selected.time_from"></time-picker>
+				<time-picker @change="addTimeFrom" :value="selected.time_from" :disabled="isPaid"></time-picker>
 				<form-error :errors="errors.time_from"></form-error>
 			</div>
 			<div class="col-sm-4">
 				<label>Hora Fin</label>
-				<time-picker @change="addTimeTo" :value="selected.time_to"></time-picker>
+				<time-picker @change="addTimeTo" :value="selected.time_to" :disabled="isPaid"></time-picker>
 				<form-error :errors="errors.time_to"></form-error>
 			</div>
 		</div>

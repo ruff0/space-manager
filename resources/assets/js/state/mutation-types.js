@@ -8,6 +8,7 @@ export const ADD_TIME_TO = 'ADD_TIME_TO'
 export const ADD_TIME_FROM = 'ADD_TIME_FROM'
 export const ADD_TYPE = 'ADD_TYPE'
 export const ADD_BOOKABLE = 'ADD_BOOKABLE'
+export const BOOKING_HAS_CHANGED = 'BOOKING_HAS_CHANGED'
 export const ADD_ERRORS = 'ADD_ERRORS'
 
 export const ADD_RESOURCES = 'ADD_RESOURCES'

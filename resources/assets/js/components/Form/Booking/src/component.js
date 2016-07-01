@@ -64,7 +64,8 @@ export default {
 				return null
 			},
 			selected: (state) => state.booking,
-			calculated: (state) => state.prices.calculated
+			calculated: (state) => state.prices.calculated,
+			hasChanged: (state) => state.booking.hasChanged
 		}
 	},
 
@@ -93,8 +94,8 @@ export default {
 			return this.resources.length == 0
 		},
 		canBeCanceled () {
-			console.log(moment(new Date()).isBefore(moment(new Date(this.booking.time_from))), !this.isPaid)
-			return moment(new Date()).isBefore(moment(new Date(this.booking.time_from))) && !this.isPaid
+			return moment(new Date()).isBefore(moment(new Date(this.booking.time_from)))
+				&& !this.isPaid
 		},
 		isPaid() {
 			return this.selected.paid
@@ -122,7 +123,7 @@ export default {
 		if (this.booking) {
 			this.addBooking(this.booking)
 			setTimeout(()=>{
-				this.addBookable(this.booking.bookable_id)
+				this.addBookable(this.booking.bookable_id, false)
 			}, 1500)
 		}
 	},
