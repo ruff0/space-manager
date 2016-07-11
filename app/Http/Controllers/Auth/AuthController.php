@@ -59,6 +59,25 @@ class AuthController extends Controller
 		]);
 	}
 
+
+	/**
+	 * Get the post register / login redirect path.
+	 *
+	 * @return string
+	 */
+	public function redirectPath()
+	{
+		if(auth()->user()->isAdmin()) {
+			$this->redirectTo = '/admin';
+		}
+
+		if (property_exists($this, 'redirectPath')) {
+			return $this->redirectPath;
+		}
+
+		return property_exists($this, 'redirectTo') ? $this->redirectTo : '/home';
+	}
+
 	/**
 	 * Create a new user instance after a valid registration.
 	 *
