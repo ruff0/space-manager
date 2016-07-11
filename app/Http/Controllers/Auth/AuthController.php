@@ -67,12 +67,12 @@ class AuthController extends Controller
 	 */
 	public function redirectPath()
 	{
-		if(auth()->user()->isAdmin()) {
-			$this->redirectTo = '/admin';
-		}
-
 		if (property_exists($this, 'redirectPath')) {
 			return $this->redirectPath;
+		}
+
+		if (auth()->user()->isAdmin()) {
+			$this->redirectTo = '/admin';
 		}
 
 		return property_exists($this, 'redirectTo') ? $this->redirectTo : '/home';
