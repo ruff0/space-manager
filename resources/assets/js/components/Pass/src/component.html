@@ -1,0 +1,73 @@
+<div class="panel-heading">
+	<h6 class="panel-title">
+		<a data-toggle="collapse" href="#collapse-group1">Bonos de Sala</a>
+	</h6>
+	<div class="heading-elements">
+		<ul class="icons-list">
+			<li>
+				<a role="button" @click.prevent="add"><i class="clickable-icon icon-plus3"></i></a>
+			</li>
+		</ul>
+	</div>
+</div>
+<div id="collapse-group1" class="panel-collapse collapse in">
+	<div class="panel-body" v-block="loading">
+		<form>
+			<div class="row pb-20" v-show="edit">
+				<div class="col-sm-4">
+					<input type="text" class="form-control" v-model="selected.hours" placeholder="Horas">
+				</div>
+
+				<div class="col-sm-8">
+					<select v-model="selected.bookable" data-placeholder="Tipo de sala" class="select">
+						<option v-for="bookable in filteredAvailables" :value="bookable.id">
+							{{bookable.name}}
+						</option>
+					</select>
+				</div>
+				<hr class="pb-20">
+				<div class="col-sm-8">
+					<div class="input-group">
+						<input type="text" class="form-control pickadate-date" placeholder="Fecha limite"
+									 v-model="selected.date_to">
+						<span class="input-group-addon"><i class="icon-calendar5"></i></span>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<button role="button" type="button" class="btn btn-primary pull-right"
+									@click.prevent="save">
+						<i class="icon-checkmark3"></i>
+					</button>
+					<button role="button" type="button" class="btn btn-default pull-right"
+									@click.prevent="reset">
+						<i class="icon-cross2"></i>
+					</button>
+				</div>
+
+			</div>
+			<div class="row pb-20">
+				<div class="alert alert-danger" v-show="selectedToDestroy" transition="fade">
+					Estas seguro que quieres borrar este bono?
+					<span class="pull-right">
+						<i class="clickable-icon icon-cross2" @click="dismiss"></i>
+						<i class="clickable-icon icon-checkmark3 text-success" @click="destroy"></i>
+					</span>
+				</div>
+				<table class="table table-striped">
+					<tr v-for="pass in passes" :class="{'danger' : selectedToDestroy == pass}">
+						<td>{{pass.hours}}hrs.</td>
+						<td>{{pass.bookable.name}}</td>
+						<td>{{pass.date_to | moment }}</td>
+						<td>
+							<i class="clickable-icon icon-minus3"
+								 @click="selectToDestroy(pass)"
+								 :class="{'text-danger': selectedToDestroy == pass}"
+							></i>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</form>
+	</div>
+</div>
+

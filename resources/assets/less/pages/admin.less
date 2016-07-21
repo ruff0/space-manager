@@ -1,0 +1,31 @@
+.resources-list-container {
+	padding: 1em;
+	border-radius: 4px;
+	&.active {
+		min-height: 100px;
+	}
+
+	> li {
+		padding: .5em;
+		background: @color-grey-50;
+		border-left: 2px solid @color-primary-300;
+	}
+}
+
+#image-modal #image-gallery {
+	background-color: @color-slate-50;
+	max-height: 70vh;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+.thumb {
+	max-height: 100px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+
+	&.thumb-slide {
+		max-height: 200px !important;
+	}
+}

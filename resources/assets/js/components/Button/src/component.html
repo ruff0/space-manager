@@ -1,0 +1,11 @@
+<a type="button" role="button"
+				@click="start"
+				class="btn bg-primary"
+				:class="klass"
+				:data-style="ladda.style?ladda.style:false"
+				:disabled="isLoading"
+>
+	<span class="ladda-label">
+		<slot></slot>
+	</span>
+</a>
