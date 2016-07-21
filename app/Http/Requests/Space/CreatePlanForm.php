@@ -26,7 +26,7 @@ class CreatePlanForm extends Request
 		return [
 			'name' => 'required',
 			'price' => 'required|numeric',
-			'discounts.*' => 'numeric|size:100'
+			'discounts.*' => 'numeric|max:100'
 		];
 	}
 }

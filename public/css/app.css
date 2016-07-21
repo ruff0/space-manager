@@ -37539,6 +37539,7 @@ body.home {
   background-image: url("/images/backgrounds/ulab-background.jpg");
 }
 .steps-basic .thumb {
+  background: #2b2f3e;
   min-height: 180px;
 }
 .search-form .form-group label {

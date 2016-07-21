@@ -37,7 +37,7 @@
 										</div>
 									</div>
 									<div class="flexbox-container mt-20 pt-20">
-										@foreach($bookableTypes as $type)
+										@forelse($bookableTypes as $type)
 											<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4">
 												<div class="thumbnail no-padding">
 													<div class="thumb">
@@ -64,7 +64,11 @@
 													</div>
 												</div>
 											</div>
-										@endforeach
+										@empty
+											<div class="alert alert-danger">
+												<h3>Actualmente no hay nada disponible, sentimos las molestias</h3>
+											</div>
+										@endforelse
 									</div>
 
 								</fieldset>
@@ -100,7 +104,7 @@
 									</div>
 									<div class=" flexbox-container pt-20 pb-20">
 										{{--{!! dd($bookableTypes) !!}--}}
-										@foreach($bookableTypes as $type)
+										@forelse($bookableTypes as $type)
 											@foreach($type->bookables as $bookable)
 												{{--<div class="">--}}
 												<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4
@@ -135,7 +139,11 @@
 																{{$bookable->max_occupants }}
 															</span>
 															<span class="pull-right">
-																@currencyFormat($bookable->pricePerHour())/Hora
+																@if($bookable->hasType(1))
+																	@currencyFormat($bookable->priceFullTime())/Dia
+																@else
+																	@currencyFormat($bookable->pricePerHour())/Hora
+																@endif
 															</span>
 													</div>
 													<div class="caption text-center">
@@ -149,7 +157,9 @@
 												</div>
 												{{--</div>--}}
 											@endforeach
-										@endforeach
+										@empty
+											Aki
+										@endforelse
 									</div>
 								</fieldset>
 								<h6>Detalles</h6>

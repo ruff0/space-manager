@@ -38,7 +38,7 @@
 									</div>
 									<div class="row">
 										<div class="flexbox-container mt-20 pt-20">
-											@foreach($plantypes as $type)
+											@forelse($plantypes as $type)
 												<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4">
 													<div class="thumbnail no-padding">
 														<div class="thumb">
@@ -65,7 +65,11 @@
 														</div>
 													</div>
 												</div>
-											@endforeach
+											@empty
+												<div class="alert alert-danger">
+													<h3>Actualmente no hay nada disponible, sentimos las molestias</h3>
+												</div>
+											@endforelse
 										</div>
 									</div>
 								</fieldset>
@@ -136,7 +140,7 @@
 														<div class="caption info">
 															<span class="pull-left">
 																<i class="icon-user"></i>
-																{{$plan->max_occupants }}
+																{{ $plan->maxOccupants() }}
 															</span>
 															<span class="pull-right">
 																@currencyFormat($plan->price)/Mes

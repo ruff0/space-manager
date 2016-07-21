@@ -13,6 +13,7 @@
 					@include('members.forms.form')
 				</div>
 				<div class="modal-footer">
+					<span class="pull-left">Los campos con  <sup>*</sup> son obligatorios</span>
 					<button type="submit" class="btn btn-primary" name="save">Guardar</button>
 				</div>
 			</form>

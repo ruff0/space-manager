@@ -32,7 +32,6 @@ class CreateProfileForm extends Request
 			'state'          => 'required',
 			'zip'            => 'required',
 			'mobile'         => 'required',
-			'phone'          => 'required',
 		];
 	}
 
@@ -52,7 +51,6 @@ class CreateProfileForm extends Request
 			'state'          => 'provincia',
 			'zip'            => 'código postal',
 			'mobile'         => 'móvil',
-			'phone'          => 'télefono',
 		];
 	}
 }

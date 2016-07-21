@@ -4,7 +4,7 @@
 	<div class="form-group">
 		<div class="row">
 			<div class="col-sm-4">
-				<label>Nombre</label>
+				<label>Nombre <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"
@@ -15,7 +15,7 @@
 			</div>
 
 			<div class="col-sm-4">
-				<label>Apellidos</label>
+				<label>Apellidos <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"
@@ -26,7 +26,7 @@
 			</div>
 
 			<div class="col-sm-4">
-				<label>NIF / NIE</label>
+				<label>NIF / NIE <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"
@@ -40,7 +40,7 @@
 	<div class="form-group">
 		<div class="row">
 			<div class="col-sm-4">
-				<label>Email</label>
+				<label>Email <sup>*</sup></label>
 				<input type="email"
 				       placeholder=""
 				       class="form-control"
@@ -51,7 +51,7 @@
 			</div>
 
 			<div class="col-sm-4">
-				<label>Móvil</label>
+				<label>Móvil <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"
@@ -76,7 +76,7 @@
 	<div class="form-group">
 		<div class="row">
 			<div class="col-sm-6">
-				<label>Dirección</label>
+				<label>Dirección <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"
@@ -102,7 +102,7 @@
 	<div class="form-group">
 		<div class="row">
 			<div class="col-sm-4">
-				<label>Ciudad</label>
+				<label>Ciudad <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"
@@ -113,7 +113,7 @@
 			</div>
 
 			<div class="col-sm-4">
-				<label>Provincia</label>
+				<label>Provincia <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"
@@ -124,7 +124,7 @@
 			</div>
 
 			<div class="col-sm-4">
-				<label>Código postal</label>
+				<label>Código postal <sup>*</sup></label>
 				<input type="text"
 				       placeholder=""
 				       class="form-control"

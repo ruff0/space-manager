@@ -169,9 +169,9 @@ class Bookable extends Model implements SluggableInterface
 	public function calculatePrice($hours, $timeFrom, $timeTo)
 	{
 		$this->times = $timeFrom->format('H:i') . " - " . $timeTo->format('H:i') . " (" . $hours . " Horas)";
-		$this->message = $this->messageForTimeFrame($hours, $timeFrom, $timeTo);
 		$this->totalPrice = $this->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo) . ' €';
 		$this->raw_price = $this->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
+		$this->message = $this->messageForTimeFrame($hours, $timeFrom, $timeTo);
 		$this->discount = $this->calculateIfDiscount($this->totalPrice);
 	}
 
@@ -186,7 +186,7 @@ class Bookable extends Model implements SluggableInterface
 	 */
 	public function calculatePriceForTimeFrame($hours, $timeFrom, $timeTo,  $clean = false)
 	{
-		$totalPrice = $this->pricePerHour($clean) * $hours;
+		$totalPrice = 0;
 
 		if ($this->isPartTime($hours, $timeFrom, $timeTo)) {
 			$totalPrice = $this->pricePartTime($clean);
@@ -194,6 +194,10 @@ class Bookable extends Model implements SluggableInterface
 
 		if ($hours >= 6) {
 			$totalPrice = $this->priceFullTime($clean);
+		}
+
+		if ($totalPrice <= 0) {
+			$totalPrice = $this->pricePerHour($clean) * $hours;
 		}
 
 		return $totalPrice;
@@ -211,11 +215,11 @@ class Bookable extends Model implements SluggableInterface
 	{
 		$message = "";
 
-		if ($this->isPartTime($hours, $timeFrom, $timeTo)) {
+		if ($this->isPartTime($hours, $timeFrom, $timeTo) && $this->pricePartTime(true) > 0) {
 			$message = "* Precio de media jornada";
 		}
 
-		if ($hours >= 6) {
+		if ($hours >= 6 && $this->priceFullTime(true)> 0) {
 			$message = "* Precio de jornada completa";
 		}
 

@@ -129,13 +129,13 @@ class Plan extends Model implements SluggableInterface
 	 */
 	public function update(array $attributes = [], array $options = [])
 	{
+
 		self::cleanDefaults($attributes);
 
 		$plan = parent::update($attributes, $options);
 		// Extract this out of here
 		if (isset($attributes['resources'])) {
 			$resources = [];
-
 			foreach ($attributes['resources'] as $key => $resource) {
 				if (isset($resource['settings'])) {
 					$resource['settings'] = json_encode($resource['settings']);
@@ -146,8 +146,7 @@ class Plan extends Model implements SluggableInterface
 			$this->resources()->sync($resources);
 		}
 
-
-		if($plan)
+		if($plan && $this->slug != 'free')
 		{
 			list($stripePlan) = event(
 				new PlanWasUpdated($this)
@@ -275,5 +274,15 @@ class Plan extends Model implements SluggableInterface
 
 			$attributes['default'] = true;
 		}
+	}
+
+	public function maxOccupants()
+	{
+		if( $this->resources->first() && $this->resources->first()->resourceable)
+		{
+			return $this->resources->first()->resourceable->max_occupants;
+		}
+
+		return 0;
 	}
 }

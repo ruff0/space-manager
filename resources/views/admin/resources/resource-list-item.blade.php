@@ -20,6 +20,8 @@
 			{{$resource->resourceable->description}}
 		</div>
 		<div class="media-right media-middle">
+			<input type="hidden" name="resources[]" value="{{  $resource->id }}" />
+
 			@if(isset($type) && $type == 'booking')
 				<div class="form form-inline @if(!$selectedResource) hidden @endif">
 				<div class="form-group">
