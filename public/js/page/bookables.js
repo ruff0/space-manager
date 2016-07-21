@@ -62,6 +62,7 @@ $el.steps({
 					[2015, 8, 12],
 					[2015, 8, 20]
 				],
+
 				// Escape any “rule” characters with an exclamation mark (!).
 				format: 'dddd, dd mmm, yyyy',
 				formatSubmit: 'yyyymmdd',

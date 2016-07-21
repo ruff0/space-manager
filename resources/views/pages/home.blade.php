@@ -31,13 +31,13 @@
 								@if(!$user->member->hasPlan())
 									<div class="col-sm-3 col-sm-offset-3 text-center mt-20">
 										<a href="/subscriptions/create" class="mt-20 mb-20 pb-20 pt-20 btn btn-small btn-warning btn-block">
-											Reserva tu plan
+											Reserva tu plan mensual
 										</a>
 									</div>
 								@endif
 								<div class="@if(!$user->member->hasPlan()) col-sm-3 @else col-sm-4 col-sm-offset-4  @endif text-center mt-20">
 									<a href="/bookings/create" class="mt-20 mb-20 pb-20 pt-20 btn btn-small btn-warning btn-block">
-										Reserva tu espacio
+										Reserva tu espacio por horas
 									</a>
 								</div>
 							</div>

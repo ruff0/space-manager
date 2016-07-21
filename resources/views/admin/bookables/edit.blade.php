@@ -26,7 +26,11 @@
 									<ul class="media-list media-list-container resources-list-container" data-list="selected-resources"
 									    style="min-height: 100px;">
 										@foreach($bookable->resources as $resource)
-											@include('admin.resources.resource-list-item')
+											@include('admin.resources.resource-list-item', [
+												'type' => 'booking',
+												'entity' => $resource,
+												'selectedResource' => true
+											 ])
 										@endforeach
 									</ul>
 								</fieldset>

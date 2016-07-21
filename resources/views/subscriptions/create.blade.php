@@ -157,7 +157,7 @@
 									</div>
 								</fieldset>
 
-								<h6>Elíje</h6>
+								<h6>Elige</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 									<div class="row mt-20 pt-20">
 										<div class="row">

@@ -23,24 +23,33 @@
 			@if(isset($type) && $type == 'booking')
 				<div class="form form-inline @if(!$selectedResource) hidden @endif">
 				<div class="form-group">
-					<label for="">Precio</label>
+					<label for="">Precio (en Euros)</label>
 					<input type="text" class="form-control"
 					       name="resources[{{$resource->id}}][settings][price][hourly]"
-					       value="{{  $resource->settings('price') ? $resource->settings('price')->hourly: "" }}"
+					       value="{{  $resource->settings('price')
+					       ?  number_format($resource->settings('price')->hourly / 100 , 2)
+					       : ""
+					       }}"
 					       placeholder="por hora"
 					/>
 				</div>
 				<div class="form-group form-inline">
 					<input type="text" class="form-control"
 					       name="resources[{{$resource->id}}][settings][price][part_time]"
-					       value="{{  $resource->settings('price') ? $resource->settings('price')->part_time: "" }}"
+					       value="{{  $resource->settings('price')
+					        ? number_format($resource->settings('price')->part_time / 100 , 2)
+					        : ""
+					        }}"
 					       placeholder="media jornada"
 					/>
 				</div>
 				<div class="form-group form-inline">
 					<input type="text" class="form-control"
 					       name="resources[{{$resource->id}}][settings][price][full_time]"
-					       value="{{  $resource->settings('price') ? $resource->settings('price')->full_time: "" }}"
+					       value="{{  $resource->settings('price')
+					       ?  number_format($resource->settings('price')->full_time / 100  , 2 )
+					       : ""
+					       }}"
 					       placeholder="jornada completa"
 					/>
 				</div>

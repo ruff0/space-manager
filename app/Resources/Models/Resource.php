@@ -50,7 +50,10 @@ class Resource extends Model
 		$settings = $this->fromJson($this->pivot->settings, true);
 
 		if ($value && property_exists($settings, $value))
-			 return $settings->$value;
+		{
+			return $settings->$value;
+		}
+
 
 		return $settings;
 	}

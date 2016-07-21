@@ -29,6 +29,7 @@ elixir(function (mix) {
 			'./node_modules/pickadate/lib/compressed/picker.date.js',
 			'./node_modules/pickadate/lib/compressed/picker.time.js',
 			'./node_modules/pickadate/lib/compressed/legacy.js',
+			'./node_modules/pickadate/lib/translations/es_ES.js',
 			'plugins/forms/wizards/steps.min.js',
 			'plugins/forms/validation/validate.min.js',
 			'plugins/extensions/cookie.js',

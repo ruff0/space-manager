@@ -93,6 +93,24 @@
 		</div>
 
 		<div class="row pb-20">
+			<div class="col-sm-4">
+				<label>Fecha</label>
+				<date-picker @change="addDate" :value="selected.date" :disabled="isPaid"></date-picker>
+				<form-error :errors="errors.date"></form-error>
+			</div>
+			<div class="col-sm-4">
+				<label>Hora Inicio</label>
+				<time-picker @change="addTimeFrom" :value="selected.time_from" :disabled="isPaid"></time-picker>
+				<form-error :errors="errors.time_from"></form-error>
+			</div>
+			<div class="col-sm-4">
+				<label>Hora Fin</label>
+				<time-picker @change="addTimeTo" :value="selected.time_to" :disabled="isPaid"></time-picker>
+				<form-error :errors="errors.time_to"></form-error>
+			</div>
+		</div>
+
+		<div class="row pb-20">
 			<div class="col-sm-12">
 				<label>Recurso</label>
 				<selectable :options="resources"
@@ -108,22 +126,6 @@
 			</div>
 		</div>
 
-		<div class="row pb-20">
-			<div class="col-sm-4">
-				<label>Fecha</label>
-				<date-picker  @change="addDate" :value="selected.date" :disabled="isPaid"></date-picker>
-				<form-error :errors="errors.date"></form-error>
-			</div>
-			<div class="col-sm-4">
-				<label>Hora Inicio</label>
-				<time-picker @change="addTimeFrom" :value="selected.time_from" :disabled="isPaid"></time-picker>
-				<form-error :errors="errors.time_from"></form-error>
-			</div>
-			<div class="col-sm-4">
-				<label>Hora Fin</label>
-				<time-picker @change="addTimeTo" :value="selected.time_to" :disabled="isPaid"></time-picker>
-				<form-error :errors="errors.time_to"></form-error>
-			</div>
-		</div>
+
 	</div>
 </div>

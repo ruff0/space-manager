@@ -41,13 +41,13 @@
 					<li>
 						<a href="{{ route('admin.plans.index') }}" class="legitRipple">
 							<i class="icon-cash3"></i>
-							<span>Planes</span>
+							<span>Alquiler mensual</span>
 						</a>
 					</li>
 					<li>
 						<a href="{{route('admin.bookables.index')}}" class="legitRipple">
 							<i class="icon-stack2"></i>
-							<span>Alquilables</span>
+							<span>Alquiler diario</span>
 						</a>
 					</li>
 
@@ -103,14 +103,14 @@
 						<i class="icon-menu" title="Configuración"></i>
 					</li>
 					<li class="">
-						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Alquilables</span></a>
+						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Alquiler diario</span></a>
 						<ul class="hidden-ul" style="display: none;">
-							<li><a href="{{route('admin.bookabletypes.index')}}" class="legitRipple">Tipo de alquilable</a></li>
+							<li><a href="{{route('admin.bookabletypes.index')}}" class="legitRipple">Tipo de alquiler diario</a></li>
 						</ul>
 					</li>
 
 					<li class="">
-						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Planes</span></a>
+						<a href="#" class="has-ul legitRipple"><i class="icon-cog"></i> <span>Alquiler mensual</span></a>
 						<ul class="hidden-ul" style="display: none;">
 							<li><a href="{{route('admin.plantypes.index')}}" class="legitRipple"><span>Tipo de Suscripciones</span></a></li>
 						</ul>

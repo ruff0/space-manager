@@ -80,7 +80,7 @@
 											<div class="form-group">
 												<label for="date">Fecha</label>
 												<input type="text" id="date" name="date" class="form-control pickadate-date"
-												       placeholder="¿Elije una fecha?">
+												       placeholder="¿Elige una fecha?">
 											</div>
 										</div>
 										<div class="flexbox-item-sm-2 flexbox-item-xs-10 flexbox-item-xsh-4"
