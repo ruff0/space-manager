@@ -375,12 +375,14 @@ class Member extends Model
 	 */
 	public function hasPlan()
 	{
-		if(!$this->currentPlan() || $this->onPlan(Plan::byDefault()))
+		$return  = true;
+
+		if($this->currentPlan())
 		{
-			return false;
+			$return = false;
 		}
 
-		return true;
+		return $return;
 	}
 
 	/**
