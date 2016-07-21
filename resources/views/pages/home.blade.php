@@ -40,6 +40,15 @@
 										Reserva tu espacio por horas
 									</a>
 								</div>
+
+								<div class="col-md-6 text-center mt-20 col-md-offset-3">
+									@if($user->isAdmin())
+										<div class="alert alert-warning">
+											<strong>Ten encuenta que estas logeado como usuario administrador!</strong> <br/>
+											No deberias de hacer reservas desde aqui con este usuario. <a href="{{url('/logout')}}">Cerrar sesión</a>
+										</div>
+									@endif
+								</div>
 							</div>
 						</div>
 					</div>
