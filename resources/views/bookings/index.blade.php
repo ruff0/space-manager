@@ -215,8 +215,8 @@
 						<div class="alert alert-info ">
 							<h4>Hola {{$user->fullname()}}</h4> <br>
 							<p>
-								Para cualquier duda o consulta puedes contactar nos por
-								telefono <a href="tel:+34966444114">+34 966 444 114</a> o
+								Para cualquier duda o consulta puedes contactarnos por
+								teléfono <a href="tel:+34966444114">+34 966 444 114</a> o
 								por email <a href="mailto:info@ulab.es">info@ulab.es</a>.
 							</p>
 
