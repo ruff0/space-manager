@@ -98,3 +98,28 @@
 		</div>
 	</div>
 </div>
+
+
+<div class="panel panel-white panel-collapsed">
+	@inject('resources', 'App\Resources\Models\Resource')
+	<div class="panel-heading">
+		<h6 class="panel-title">
+			Puestos Virtuales disponibles
+			<small>({{$resources->ofType("virtual")->notSelectedBy($entity)->count()}})</small>
+		</h6>
+		<div class="heading-elements">
+			<ul class="icons-list">
+				<li><a data-action="collapse"></a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="collapse-group3" class="panel-collapse collapse in">
+		<div class="panel-body">
+			<ul class="media-list media-list-container resources-list-container" data-list="available-resources">
+				@foreach($resources->ofType("virtual")->notSelectedBy($entity)->get() as $resource)
+					@include('admin.resources.resource-list-item', ['type' => $type])
+				@endforeach
+			</ul>
+		</div>
+	</div>
+</div>

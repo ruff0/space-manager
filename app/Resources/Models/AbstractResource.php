@@ -13,6 +13,14 @@ class AbstractResource extends Model implements SluggableInterface
 
 	use SluggableTrait;
 
+
+	/**
+	 * Has infinite resources
+	 *
+	 * @var bool
+	 */
+	protected $infinite = false;
+
 	/**
 	 * Sluggable field build array
 	 *
@@ -137,5 +145,14 @@ class AbstractResource extends Model implements SluggableInterface
 		}
 
 		return $deleted;
+	}
+
+	/**
+	 * Has this one infinite resources
+	 * @return bool
+	 */
+	public function hasInfiniteResources()
+	{
+		return $this->infinite;
 	}
 }

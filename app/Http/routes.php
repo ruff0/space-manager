@@ -133,6 +133,7 @@ Route::group(['middleware' => ['auth']], function () {
 		Route::resource('meetingrooms', 'MeetingRoomsController');
 		Route::resource('classrooms', 'ClassRoomsController');
 		Route::resource('spots', 'SpotsController');
+		Route::resource('virtuals', 'VirtualsController');
 		Route::resource('offices', 'OfficesController');
 
 		// Configs

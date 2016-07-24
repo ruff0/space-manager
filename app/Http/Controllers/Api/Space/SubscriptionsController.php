@@ -77,21 +77,12 @@ class SubscriptionsController extends Controller
 					$subscriptions = $resource->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
 						$q->where(function ($q) use ($dateFrom, $dateTo) {
 							$q->where('date_from', '>=', $dateFrom);
-//							  ->where('date_to', '<=', $dateTo);
 						});
-//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//							  $q->where('date_from', '<', $dateTo)
-//							    ->where('date_to', '>', $dateTo);
-//						  })
-//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//							  $q->where('date_from', '<', $dateFrom)
-//							    ->where('date_to', '>', $dateFrom);
-//						  });
 					})->get();
 
 
 					if ($plan->id == $request->get('plan')) {
-						if ($subscriptions->count() === 0) {
+						if ($subscriptions->count() === 0 || $resource->resourceable->hasInfiniteResources()) {
 							if (!array_key_exists($resource->resourceable->id, $available)) {
 								$available[$resource->resourceable->id] = $resource->resourceable;
 							}
@@ -137,21 +128,17 @@ class SubscriptionsController extends Controller
 
 		$plan = Plan::findOrFail($request->get('plan'));
 		$room = $plan->resources()->where('resources.resourceable_id', $request->get('room'))->first();
-//		dd($room);
 		$isBooked = $room->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
 			$q->where(function ($q) use ($dateFrom, $dateTo) {
 				$q->where('date_from', '>=', $dateFrom);
-//				  ->where('date_to', '<=', $dateTo);
 			});
-//			  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//				  $q->where('date_from', '<', $dateTo)
-//				    ->where('date_to', '>', $dateTo);
-//			  })
-//			  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//				  $q->where('date_from', '<', $dateFrom)
-//				    ->where('date_to', '>', $dateFrom);
-//			  });
 		})->first();
+
+		if($room->resourceable->hasInfiniteResources())
+		{
+			$isBooked = false;
+		}
+
 
 		if ($isBooked) {
 			return response()->json([
