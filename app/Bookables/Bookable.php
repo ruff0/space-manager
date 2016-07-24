@@ -389,5 +389,34 @@ class Bookable extends Model implements SluggableInterface
 		];
 	}
 
+	public function firstWithoutBookings($hours, $timeFrom, $timeTo)
+	{
+		$available = [];
+		foreach ($this->roomResources() as $resource) {
+			$bookings = $resource->bookings()->where(function ($q) use ($timeFrom, $timeTo) {
+				$q->where(function ($q) use ($timeFrom, $timeTo) {
+					$q->where('time_from', '>=', $timeFrom)
+					  ->where('time_to', '<=', $timeTo);
+				})
+				  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
+					  $q->where('time_from', '<', $timeTo)
+					    ->where('time_to', '>', $timeTo);
+				  })
+				  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
+					  $q->where('time_from', '<', $timeFrom)
+					    ->where('time_to', '>', $timeFrom);
+				  });
+			});
 
+			if ($bookings->count() == 0) {
+				foreach ($resource->bookables as $bookable) {
+					if (!in_array($bookable->id, $available)) {
+						return $resource;
+					}
+				}
+			}
+		}
+
+		throw new \Exception('No resource available');
+	}
 }

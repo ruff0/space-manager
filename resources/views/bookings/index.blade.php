@@ -3,6 +3,7 @@
 @section('body-class', 'home')
 
 @section('page-scripts')
+	<script>$(".steps-basic").hide()</script>
 	<script src="/js/page/bookables.js"></script>
 @endsection
 

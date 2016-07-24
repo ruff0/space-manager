@@ -270,11 +270,13 @@ class SubscriptionsController extends Controller
 			$price = ($plan->priceForStripe() / 30) * $daysToCharge;
 		}
 
+		$description = $room->hasInfiniteResources() ? "" : " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  ";
+
 		$line = new QuoteLine([
 			'price'       => (int)$price,
 			'name'        => $plan->name,
 			'description' => $plan->description .
-			                 "<br/> " . $room->name . " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  " .
+			                 "<br/> " . $room->name . $description .
 			                 "<br/> <small>Reserva a partir del {$dateFrom->format('d/m/Y')}</small>"
 		]);
 

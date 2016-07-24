@@ -29,7 +29,6 @@ $el.steps({
 			$('.secure-payment').remove();
 			return true;
 		}
-
 		if (newIndex === 1) {
 			$(".bookables").addClass('blocked');
 			if($('input[name=bookable-type]:checked').length <= 0)
@@ -141,6 +140,16 @@ $el.steps({
 									$('[data-bookable=' + bookable.id + ']').addClass('notavailable');
 								}
 							})
+
+							if(result.available.length == 0 )
+							{
+								$('.errors.alert.alert-danger').html('Actualmente no hay nada disponible para la fecha y hora escogida, ' +
+									'prueba con otra fecha y hora.').show()
+							}
+							else
+							{
+								$('.errors.alert.alert-danger').html().hide()
+							}
 						},
 						error: function (result) {
 							// console.log(result);
@@ -206,6 +215,7 @@ $el.steps({
 
 		// Needed in some cases if the user went back (clean up)
 		if (currentIndex < newIndex) {
+			$(".errors").empty().hide()
 			// // To remove error styles
 			// form.find(".body:eq(" + newIndex + ") label.error").remove();
 			// form.find(".body:eq(" + newIndex + ") .error").removeClass("error");
@@ -313,4 +323,7 @@ $("label.thumb-label").off('click').on('click', function(e){
 	$el.parents('.thumbnail').removeClass('not-selected').addClass('selected')
 	$('.selected .thumb-label').addClass('bg-success-400').removeClass('bg-info-400')
 })
+$(".steps-basic").show()
+$(window).on('ready', function(){
 
+});

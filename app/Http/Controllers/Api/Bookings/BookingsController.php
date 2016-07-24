@@ -119,20 +119,11 @@ class BookingsController extends Controller
 		}
 
 		$bookable = Bookable::findOrFail($request->get('bookable'));
-		$resources = ['rooms' => []];
-
-		foreach ($bookable->resources as $resource) {
-			$settings = $resource->settings;
-			if ($resource->ofType('room')) {
-				$resources['rooms'][] = $resource->resourceable;
-			}
-		}
-
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
 		$hours = $timeFrom->diffInHours($timeTo);
 
-
+		$resource = $bookable->firstWithoutBookings($hours, $timeFrom, $timeTo);
 		$invoice = Invoice::create(['paid' => 0, 'type' => 'booking']);
 		$invoice->toMember($member);
 		$line = new Line([
@@ -141,7 +132,6 @@ class BookingsController extends Controller
 			'description' => $bookable->description,
 			'amount'      => 1
 		]);
-
 		$invoice->addLine($line);
 
 		$passHours = 0;
@@ -198,7 +188,6 @@ class BookingsController extends Controller
 			$invoice->pay();
 		}
 
-		$rooms = collect($resources['rooms']);
 		$member->decrementPassFor($bookable->id, $passHours);
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
@@ -206,7 +195,7 @@ class BookingsController extends Controller
 		]);
 
 		$booking->bookable()->associate($bookable->id);
-		$booking->resource()->associate($rooms->first()->resourceables()->first()->id);
+		$booking->resource()->associate($resource->id);
 		$booking->save();
 
 		$invoice->payable_id = $booking;
