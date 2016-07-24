@@ -29344,6 +29344,8 @@ exports.default = {
 	vuex: {
 		actions: {
 			addDate: _actions.addDate,
+			addPersons: _actions.addPersons,
+			addDistribution: _actions.addDistribution,
 			addTimeTo: _actions.addTimeTo,
 			addTimeFrom: _actions.addTimeFrom,
 			addType: _actions.addType,
@@ -29369,6 +29371,9 @@ exports.default = {
 			},
 			members: function members(state) {
 				return state.members;
+			},
+			distributions: function distributions(state) {
+				return state.distributions;
 			},
 			member: function member(state) {
 				var currentMember = _lodash2.default.find(state.members, function (m) {
@@ -29405,7 +29410,8 @@ exports.default = {
   * Public properties
   */
 	props: {
-		booking: {}
+		booking: {},
+		persons: null
 	},
 
 	/**
@@ -29448,7 +29454,7 @@ exports.default = {
 			_this.types = response.data;
 			if (!_this.isNew) {
 				_this.addMember(_this.booking.member_id);
-				_this.addType(_this.booking.bookable_id);
+				_this.addType(_this.booking.type);
 			}
 		});
 		if (!this.isNew) {
@@ -29484,9 +29490,11 @@ exports.default = {
   */
 	methods: {
 		reserve: function reserve() {
+			this.addPersons(this.persons);
 			this.makeReservation({ payment: 'cash' });
 		},
 		reserveAndPay: function reserveAndPay() {
+			this.addPersons(this.persons);
 			this.makeReservation({ payment: 'card' });
 		},
 		pay: function pay() {
@@ -29501,7 +29509,7 @@ exports.default = {
 	}
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<div class=\"button-set pull-right\">\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"cancel\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tReservar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)\"\n\t\t\t\t>\n\t\t\t\t\tReservar & pagar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"pay\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && canPayWithCard && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCobrar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"markAsPaid\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tMarcar como pagada\n\t\t\t\t</u-button>\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker @change=\"addDate\" :value=\"selected.date\" :disabled=\"isPaid\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources || isPaid\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<div class=\"button-set pull-right\">\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"cancel\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"reserve\"\n\t\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tReservar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"reserveAndPay\"\n\t\t\t\t\t\t\t\t\tv-if=\"(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)\"\n\t\t\t\t>\n\t\t\t\t\tReservar & pagar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"pay\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && canPayWithCard && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCobrar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t\t\t\tclass=\"pull-right mr-10\"\n\t\t\t\t\t\t\t\t\tdata-style=\"zoom-in\"\n\t\t\t\t\t\t\t\t\tcolor=\"primary\"\n\t\t\t\t\t\t\t\t\t@click=\"markAsPaid\"\n\t\t\t\t\t\t\t\t\tv-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tMarcar como pagada\n\t\t\t\t</u-button>\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Miembro</label>\n\t\t\t\t<selectable :options=\"members\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un miembro\"\n\t\t\t\t\t\t\t\t\t\toptions-label=\"fullname\"\n\t\t\t\t\t\t\t\t\t\t:searchbox=\"true\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\timage-node=\"avatar\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addMember\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.member\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Tipo de sala</label>\n\t\t\t\t<selectable :options=\"types\"\n\t\t\t\t\t\t\t\t\t\tplaceholder=\"Selecciona un tipo\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"isPaid\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addType\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.type\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Fecha</label>\n\t\t\t\t<date-picker @change=\"addDate\" :value=\"selected.date\" :disabled=\"isPaid\"></date-picker>\n\t\t\t\t<form-error :errors=\"errors.date\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Inicio</label>\n\t\t\t\t<time-picker @change=\"addTimeFrom\" :value=\"selected.time_from\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_from\"></form-error>\n\t\t\t</div>\n\t\t\t<div class=\"col-sm-4\">\n\t\t\t\t<label>Hora Fin</label>\n\t\t\t\t<time-picker @change=\"addTimeTo\" :value=\"selected.time_to\" :disabled=\"isPaid\"></time-picker>\n\t\t\t\t<form-error :errors=\"errors.time_to\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"resources\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona un recurso\"\n\t\t\t\t\t\t\t\t\t\t:disabled=\"hasResources || isPaid\"\n\t\t\t\t\t\t\t\t\t\toption-condition-disable=\"available\"\n\t\t\t\t\t\t\t\t\t\t:option-condition-oposite=\"true\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addBookable\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.bookable\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\" v-if=\"selected.type == 4\">\n\t\t\t<div class=\"col-sm-6\">\n\t\t\t\t<label>Personas</label>\n\t\t\t\t<input type=\"text\" :value=\"selected.persons\" v-model=\"persons\" class=\"form-control\">\n\t\t\t\t<form-error :errors=\"errors.persons\"></form-error>\n\t\t\t</div>\n\n\t\t\t<div class=\"col-sm-6\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<selectable :options=\"distributions\"\n\t\t\t\t\t\t\t\t\t\t:placeholder=\"Selecciona una distribución\"\n\t\t\t\t\t\t\t\t\t\t:value=\"selected.distribution\"\n\t\t\t\t\t\t\t\t\t\t@change=\"addDistribution\"\n\t\t\t\t>\n\t\t\t\t</selectable>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -30329,7 +30337,7 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
+exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDistribution = exports.addPersons = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
 
 var _mutationTypes = require('./mutation-types');
 
@@ -30507,41 +30515,55 @@ var addDate = exports.addDate = function addDate(_ref12, date) {
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addTimeTo = exports.addTimeTo = function addTimeTo(_ref13, timeTo) {
+var addPersons = exports.addPersons = function addPersons(_ref13, persons) {
 	var dispatch = _ref13.dispatch;
 	var state = _ref13.state;
+
+	dispatch(_mutationTypes.ADD_PERSONS, persons);
+};
+
+var addDistribution = exports.addDistribution = function addDistribution(_ref14, distribution) {
+	var dispatch = _ref14.dispatch;
+	var state = _ref14.state;
+
+	dispatch(_mutationTypes.ADD_DISTRIBUTION, distribution);
+};
+
+var addTimeTo = exports.addTimeTo = function addTimeTo(_ref15, timeTo) {
+	var dispatch = _ref15.dispatch;
+	var state = _ref15.state;
 
 	dispatch(_mutationTypes.ADD_TIME_TO, timeTo);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref14, timeFrom) {
-	var dispatch = _ref14.dispatch;
-	var state = _ref14.state;
+var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref16, timeFrom) {
+	var dispatch = _ref16.dispatch;
+	var state = _ref16.state;
 
 	dispatch(_mutationTypes.ADD_TIME_FROM, timeFrom);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addType = exports.addType = function addType(_ref15, type) {
-	var dispatch = _ref15.dispatch;
-	var state = _ref15.state;
+var addType = exports.addType = function addType(_ref17, type) {
+	var dispatch = _ref17.dispatch;
+	var state = _ref17.state;
 
 	dispatch(_mutationTypes.ADD_TYPE, type);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addMember = exports.addMember = function addMember(_ref16, user) {
-	var dispatch = _ref16.dispatch;
-	var state = _ref16.state;
+var addMember = exports.addMember = function addMember(_ref18, user) {
+	var dispatch = _ref18.dispatch;
+	var state = _ref18.state;
 
 	dispatch(_mutationTypes.ADD_MEMBER, user);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addBookable = exports.addBookable = function addBookable(_ref17, bookable) {
-	var dispatch = _ref17.dispatch;
-	var state = _ref17.state;
+var addBookable = exports.addBookable = function addBookable(_ref19, bookable) {
+	var dispatch = _ref19.dispatch;
+	var state = _ref19.state;
 	var changed = arguments.length <= 2 || arguments[2] === undefined ? true : arguments[2];
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
@@ -30549,9 +30571,9 @@ var addBookable = exports.addBookable = function addBookable(_ref17, bookable) {
 	calculate({ dispatch: dispatch, state: state }, changed);
 };
 
-var addBooking = exports.addBooking = function addBooking(_ref18, booking) {
-	var dispatch = _ref18.dispatch;
-	var state = _ref18.state;
+var addBooking = exports.addBooking = function addBooking(_ref20, booking) {
+	var dispatch = _ref20.dispatch;
+	var state = _ref20.state;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
 
@@ -30563,6 +30585,8 @@ var addBooking = exports.addBooking = function addBooking(_ref18, booking) {
 	dispatch(_mutationTypes.ADD_TIME_FROM, time_from);
 	dispatch(_mutationTypes.ADD_TIME_TO, time_to);
 	dispatch(booking.paid ? _mutationTypes.PAID : _mutationTypes.UNPAID);
+	dispatch(_mutationTypes.ADD_DISTRIBUTION, booking.distribution);
+	dispatch(_mutationTypes.ADD_PERSONS, booking.persons);
 
 	calculate({ dispatch: dispatch, state: state });
 };
@@ -30683,7 +30707,9 @@ var state = {
 	date: null,
 	type: null,
 	member: null,
-	paid: false
+	paid: false,
+	distribution: null,
+	persons: null
 };
 
 /**
@@ -30692,6 +30718,10 @@ var state = {
  */
 var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.ADD_DATE, function (state, date) {
 	state.date = date;
+}), _defineProperty(_mutations, _mutationTypes.ADD_PERSONS, function (state, persons) {
+	state.persons = persons;
+}), _defineProperty(_mutations, _mutationTypes.ADD_DISTRIBUTION, function (state, distribution) {
+	state.distribution = distribution;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TIME_TO, function (state, timeTo) {
 	state.time_to = timeTo;
 }), _defineProperty(_mutations, _mutationTypes.ADD_TIME_FROM, function (state, timeFrom) {
@@ -30730,6 +30760,8 @@ Object.defineProperty(exports, "__esModule", {
  */
 
 var ADD_DATE = exports.ADD_DATE = 'ADD_DATE';
+var ADD_DISTRIBUTION = exports.ADD_DISTRIBUTION = 'ADD_DISTRIBUTION';
+var ADD_PERSONS = exports.ADD_PERSONS = 'ADD_PERSONS';
 var ADD_TIME_TO = exports.ADD_TIME_TO = 'ADD_TIME_TO';
 var ADD_TIME_FROM = exports.ADD_TIME_FROM = 'ADD_TIME_FROM';
 var ADD_TYPE = exports.ADD_TYPE = 'ADD_TYPE';
@@ -30819,7 +30851,17 @@ var initialState = {
 	loading: {
 		progress: 1,
 		isLoading: false
-	}
+	},
+	distributions: [{
+		name: 'Distribución en U (hasta 16 pax.)',
+		id: 'u'
+	}, {
+		name: 'Distribución en linea (hasta 18 pax.)',
+		id: 'line'
+	}, {
+		name: 'Distribución solo sillas (hasta 30 pax.)',
+		id: 'chairs'
+	}]
 };
 
 /**

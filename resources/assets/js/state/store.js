@@ -46,7 +46,21 @@ const initialState = {
 	loading: {
 		progress: 1,
 		isLoading: false
-	}
+	},
+	distributions: [
+		{
+			name: 'Distribución en U (hasta 16 pax.)',
+			id: 'u'
+		},
+		{
+			name: 'Distribución en linea (hasta 18 pax.)',
+			id: 'line'
+		},
+		{
+			name: 'Distribución solo sillas (hasta 30 pax.)',
+			id: 'chairs'
+		},
+	]
 }
 
 /**

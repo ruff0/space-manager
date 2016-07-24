@@ -257,6 +257,11 @@ class Invoice extends Model
 	{
 		$lastInvoice = $this->where('paid', true)->max('number');
 
+		if(!$lastInvoice)
+		{
+			$lastInvoice = 201500000;
+		}
+
 		if($lastInvoice) {
 			$this->paid = 1;
 			$this->number = $lastInvoice + 1;

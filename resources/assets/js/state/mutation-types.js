@@ -4,6 +4,8 @@
  */
 
 export const ADD_DATE = 'ADD_DATE'
+export const ADD_DISTRIBUTION = 'ADD_DISTRIBUTION'
+export const ADD_PERSONS = 'ADD_PERSONS'
 export const ADD_TIME_TO = 'ADD_TIME_TO'
 export const ADD_TIME_FROM = 'ADD_TIME_FROM'
 export const ADD_TYPE = 'ADD_TYPE'

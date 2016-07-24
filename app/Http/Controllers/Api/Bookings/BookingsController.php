@@ -31,7 +31,7 @@ class BookingsController extends Controller
 	public function index(BookingsSearchRequest $request)
 	{
 		$available = [];
-
+		$persons = $request->has('persons') ? $request->get('persons') : 0;
 		if ($request->has('date') && $request->has('type')) {
 			$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 			$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
@@ -65,7 +65,18 @@ class BookingsController extends Controller
 						foreach ($resource->bookables as $bookable) {
 							if(!in_array($bookable->id, $available))
 							{
-								$available[] = $bookable->id;
+								if($persons > 0)
+								{
+									if($bookable->max_occupants >= $persons)
+									{
+										$available[] = $bookable->id;
+									}
+								}
+								else {
+									$available[] = $bookable->id;
+								}
+
+
 							}
 						}
 					}
@@ -106,6 +117,8 @@ class BookingsController extends Controller
 			$paymentMethod = $request->get('payment');
 		}
 
+		$persons = $request->has('persons') ? $request->get('persons') : null;
+		$distribution = $request->has('distribution') ? $request->get('distribution') : null;
 
 		if ($paymentMethod == 'card' && !$member->hasStripeId()) {
 			return response()->json($data = [
@@ -126,6 +139,25 @@ class BookingsController extends Controller
 		$resource = $bookable->firstWithoutBookings($hours, $timeFrom, $timeTo);
 		$invoice = Invoice::create(['paid' => 0, 'type' => 'booking']);
 		$invoice->toMember($member);
+		$description = '';
+
+		if($persons){
+			$description .= "Un total de " . $persons. '<br>';
+		}
+		if($distribution) {
+
+			switch($distribution){
+				case 'u': $text =  'en forma de U.';
+					break;
+				case 'line': $text = 'en linea.';
+					break;
+				case 'chairs': $text = 'solo sillas en fila.';
+			}
+
+			$description .= "y la distribución " . $text;
+		}
+
+
 		$line = new Line([
 			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
 			'name'        => $bookable->name,
@@ -191,14 +223,16 @@ class BookingsController extends Controller
 		$member->decrementPassFor($bookable->id, $passHours);
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
-			'time_to'   => $timeTo
+			'time_to'   => $timeTo,
+			'persons'   => $persons,
+			'distribution'  => $distribution
 		]);
 
 		$booking->bookable()->associate($bookable->id);
 		$booking->resource()->associate($resource->id);
 		$booking->save();
 
-		$invoice->payable_id = $booking;
+		$invoice->payable_id = $booking->id;
 		$invoice->save();
 
 		return response()->json([
@@ -298,11 +332,34 @@ class BookingsController extends Controller
 		}
 		
 		$invoice = new QuoteInvoice();
-		
+
+		$description = '';
+		$persons = $request->has('persons') ? $request->get('persons') : null;
+		$distribution = $request->has('distribution') ? $request->get('distribution') : null;
+		if ($persons) {
+			$description .= "Un total de " . $persons . ' personas <br>';
+		}
+		if ($distribution) {
+
+			switch ($distribution) {
+				case 'u':
+					$text = 'en forma de U.';
+					break;
+				case 'line':
+					$text = 'en linea.';
+					break;
+				case 'chairs':
+					$text = 'solo con sillas en fila.';
+			}
+
+			$description .= "Con una distribución " . $text;
+		}
+
 		$line = new QuoteLine([
 			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
 			'name'        => $bookable->name,
 			'description' => $bookable->description .
+			                 $description.
 			                 "<br/> <small>Reserva el dia {$timeFrom->format('d/m/Y')}</small>".
 			                 "<br/> <small>Desde {$timeFrom->format('H:i')} - Hasta {$timeTo->format('H:i')} • ({$hours} hrs.)  "
 		]);

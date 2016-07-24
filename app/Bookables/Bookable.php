@@ -125,7 +125,14 @@ class Bookable extends Model implements SluggableInterface
 		$bookables = $query->whereIn('id', $available)->get();
 
 		foreach ($bookables as $bookable) {
+
 			if ($bookable->resources) {
+				$distributions = $bookable->resources->first()->settings('distributions');
+
+					if( isset($distributions) )
+				{
+					$bookable->distributions = $bookable->resources->first()->settings('distributions');
+				}
 				$bookable->available = true;
 				$bookable->time_to = $timeTo->format('H:i');
 				$bookable->time_from = $timeFrom->format('H:i');

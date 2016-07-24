@@ -5,15 +5,16 @@ $.ajaxSetup({
 		'X-CSRF-TOKEN': $el.data('token')
 	}
 });
-
+$(".distributions-select").hide()
 var data = {
 	date: null,
-	time_from:null,
-	time_to:null
+	time_from: null,
+	time_to: null
 };
 var bookables = {};
+var $distributions = {};
 
-$el.steps({
+$steps = $el.steps({
 	headerTag: "h6",
 	bodyTag: "fieldset",
 	transitionEffect: "fade",
@@ -24,22 +25,32 @@ $el.steps({
 		finish: 'Rerervar & Pagar'
 	},
 	onStepChanging: function (event, currentIndex, newIndex) {
+
 		// Allways allow previous action even if the current form is not valid!
 		if (currentIndex > newIndex) {
 			$('.secure-payment').remove();
+			$(".distributions-select").hide()
 			return true;
 		}
 		if (newIndex === 1) {
+
+
+			$distributions = {};
 			$(".bookables").addClass('blocked');
-			if($('input[name=bookable-type]:checked').length <= 0)
-			{
+			if ($('input[name=bookable-type]:checked').length <= 0) {
 				$(".errors").empty().html("<li>Debes de seleccionar una opción</li>").fadeIn(500)
 				return false;
 			}
 			$(".errors").empty().hide()
 
-
 			data.type = $('input[name=bookable-type]:checked').val();
+
+			if (data.type != 4) {
+				$('.persons-field').hide()
+			}
+			else {
+				$('.persons-field').show()
+			}
 
 			// Remove the inputs we don't
 			$('[data-notVisible]').show();
@@ -47,7 +58,7 @@ $el.steps({
 			var itemsToRemove = $('[data-notVisible="' + toRemove + '"]');
 
 
-			if(itemsToRemove.length > 0 ){
+			if (itemsToRemove.length > 0) {
 				itemsToRemove.hide();
 			}
 			$('.bookables').hide();
@@ -93,7 +104,7 @@ $el.steps({
 				hiddenSuffix: '-to'
 			});
 
-			$('input[type="text"]').on('change', function (e){
+			$('input[type="text"]').on('change', function (e) {
 
 				if (itemsToRemove.length == 0) {
 					data.time_from = null;
@@ -102,13 +113,14 @@ $el.steps({
 				data.date = $("[name=datedate]").val()
 				data.time_from = $("[name=time-from]").val()
 				data.time_to = $("[name=time-to]").val()
+				data.persons = $('[name=persons]').val();
 
 				if (itemsToRemove.length > 0) {
 					data.time_from = '0800';
 					data.time_to = '2100';
 				}
-				if (data.date != "" && data.time_from != "" && data.time_to != "")
-				{
+				if (data.date != "" && data.time_from != "" && data.time_to != "") {
+
 					$.ajax({
 						data: data,
 						url: '/api/bookings',
@@ -128,27 +140,31 @@ $el.steps({
 								var message = bookable.message;
 								if (bookable.discount.percentage > 0)
 									message += "<br>" + bookable.discount.message;
-								if(bookable.raw_price > 0)
-								{
+								if (bookable.raw_price > 0) {
 									$('[data-bookable=' + bookable.id + ']').removeClass('notavailable');
 									$('[data-bookable=' + bookable.id + ']').find('.times').html(bookable.times)
 									$('[data-bookable=' + bookable.id + ']').find('.total-price').html(totalPrice)
 									$('[data-bookable=' + bookable.id + ']').find('.message').html(message)
 								}
+								else {
+									$('[data-bookable=' + bookable.id + ']').addClass('notavailable');
+								}
+								if(bookable.distributions)
+								{
+									$distributions[bookable.id] = bookable.distributions
+								}
 								else
 								{
-									$('[data-bookable=' + bookable.id + ']').addClass('notavailable');
+								 	$distributions[bookable.id] = null
 								}
 							})
 
-							if(result.available.length == 0 )
-							{
+							if (result.available.length == 0) {
 								$('.errors.alert.alert-danger').html('Actualmente no hay nada disponible para la fecha y hora escogida, ' +
 									'prueba con otra fecha y hora.').show()
 							}
-							else
-							{
-								$('.errors.alert.alert-danger').html().hide()
+							else {
+								$('.errors').empty().hide()
 							}
 						},
 						error: function (result) {
@@ -161,17 +177,27 @@ $el.steps({
 			return true;
 		}
 
-		if (newIndex === 2) {
+		if ( newIndex === 2 ) {
+
 			if ($('input[name=bookable]:checked').length <= 0) {
-				$(".errors").empty().html("<li>Debes de seleccionar una opción</li>").fadeIn(500)
+				$(".errors").empty().html("<li>Debes de seleccionar un espacio</li>").fadeIn(500)
 				return false;
 			}
+
+			if($needsDistribution && $('input[name=distribution]:checked').length <= 0 )
+			{
+				$(".errors").empty().html("<li>Debes de seleccionar una distribución</li>").fadeIn(500)
+				return false;
+
+			}
+
 			$(".errors").empty().hide()
 			data.bookable = $('input[name=bookable]:checked').val();
+			data.distribution = $('input[name=distribution]:checked').val();
 
 			$(".actions.clearfix").prepend(
-				'<div class="pull-left no-padding secure-payment">'+
-					'<img src="/images/secure_payment.png" class="img-responsive" alt="Secure payment">'+
+				'<div class="pull-left no-padding secure-payment">' +
+				'<img src="/images/secure_payment.png" class="img-responsive" alt="Secure payment">' +
 				'</div>'
 			);
 			var $return = false;
@@ -313,8 +339,8 @@ $('.select-simple').select2({
 $('.file-styled').uniform({
 	fileButtonClass: 'action btn bg-blue'
 });
-
-$("label.thumb-label").off('click').on('click', function(e){
+var $needsDistribution = false;
+$("label.thumb-label:not(.distribution)").off('click').on('click', function (e) {
 	$el = $(e.currentTarget);
 	$el.parents('fieldset').find(".thumbnail").addClass('not-selected');
 	$el.parents('fieldset').find(".thumb-label").addClass('bg-info-400').removeClass('bg-success-400');
@@ -322,8 +348,47 @@ $("label.thumb-label").off('click').on('click', function(e){
 	$el.parents('fieldset').find('.thumbnail').removeClass('selected')
 	$el.parents('.thumbnail').removeClass('not-selected').addClass('selected')
 	$('.selected .thumb-label').addClass('bg-success-400').removeClass('bg-info-400')
-})
-$(".steps-basic").show()
-$(window).on('ready', function(){
 
-});
+
+	if($distributions && $el.data('distributions'))
+	{
+		$needsDistribution = false;
+		$(".distributions-select").hide();
+		if($distributions[$el.data('distributions')].u || $distributions[$el.data('distributions')].line || $distributions[$el.data('distributions')].chairs)
+		{
+			$needsDistribution = true;
+			$(".distributions-select").show();
+			$('[data-distribution]').addClass('blocked')
+			$('[data-distribution]').addClass('hidden')
+			$.each($distributions[$el.data('distributions')], function (distribution, value) {
+				if (value)
+				{
+					$('[data-distribution=' + distribution + ']').removeClass('blocked')
+					$('[data-distribution=' + distribution + ']').removeClass('hidden')
+				}
+			})
+		}
+	}
+
+})
+
+$("label.thumb-label.distribution").off('click').on('click', function (e) {
+	$el = $(e.currentTarget);
+	$el.parents('fieldset').find(".thumbnail.distributions").addClass('not-selected');
+	$el.parents('fieldset').find(".thumb-label.distribution").addClass('bg-info-400').removeClass('bg-success-400');
+
+	$el.parents('fieldset').find('.thumbnail.distributions').removeClass('selected')
+	$el.parents('.thumbnail.distributions').removeClass('not-selected').addClass('selected')
+	$('.selected .thumb-label.distribution').addClass('bg-success-400').removeClass('bg-info-400')
+})
+
+// $("label.thumb-label").off('click').on('click', function(e) {
+// 	console.log($(e.currentTarget))
+// 	if ($('input[name=bookable]:checked').length <= 0 && $('input[name=distribution]:checked').length <= 0) {
+// 		$(".distributions-select").show()
+// 		return false;
+// 	}
+//
+// })
+
+$(".steps-basic").show()

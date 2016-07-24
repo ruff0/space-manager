@@ -1,5 +1,7 @@
 import {
 	ADD_DATE,
+	ADD_PERSONS,
+	ADD_DISTRIBUTION,
 	ADD_TIME_TO,
 	ADD_TIME_FROM,
 	ADD_TYPE,
@@ -136,6 +138,14 @@ export const addDate = ({dispatch, state}, date) => {
 	searchBookables({dispatch, state})
 }
 
+export const addPersons = ({dispatch, state}, persons) => {
+	dispatch(ADD_PERSONS, persons)
+}
+
+export const addDistribution = ({dispatch, state}, distribution) => {
+	dispatch(ADD_DISTRIBUTION, distribution)
+}
+
 export const addTimeTo = ({dispatch, state}, timeTo) => {
 	dispatch(ADD_TIME_TO, timeTo)
 	searchBookables({dispatch, state})
@@ -173,6 +183,8 @@ export const addBooking = ({dispatch, state}, booking) => {
 	dispatch(ADD_TIME_FROM, time_from)
 	dispatch(ADD_TIME_TO, time_to)
 	dispatch(booking.paid ? PAID : UNPAID)
+	dispatch(ADD_DISTRIBUTION, booking.distribution)
+	dispatch(ADD_PERSONS, booking.persons)
 
 	calculate({dispatch, state})
 }

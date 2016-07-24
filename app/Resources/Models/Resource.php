@@ -54,6 +54,11 @@ class Resource extends Model
 			return $settings->$value;
 		}
 
+		if ($value && !property_exists($settings, $value))
+		{
+			return [];
+		}
+
 
 		return $settings;
 	}

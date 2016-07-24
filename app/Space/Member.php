@@ -375,11 +375,11 @@ class Member extends Model
 	 */
 	public function hasPlan()
 	{
-		$return  = true;
+		$return  = false;
 
-		if($this->currentPlan())
+		if($this->currentPlan() && !$this->currentPlan()->default)
 		{
-			$return = false;
+			$return = true;
 		}
 
 		return $return;

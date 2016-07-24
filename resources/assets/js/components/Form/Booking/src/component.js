@@ -7,6 +7,8 @@ import FormError from "../../Error"
 
 import {
 	addDate,
+	addPersons,
+	addDistribution,
 	addTimeTo,
 	addTimeFrom,
 	addType,
@@ -37,6 +39,8 @@ export default {
 	vuex: {
 		actions : {
 			addDate,
+			addPersons,
+			addDistribution,
 			addTimeTo,
 			addTimeFrom,
 			addType,
@@ -55,6 +59,7 @@ export default {
 			errors: (state) => state.errors,
 			resources: (state) => state.resources,
 			members: (state) => state.members,
+			distributions: (state) => state.distributions,
 			member: (state) => {
 				let currentMember = _.find(state.members, (m) => {
 					return m.id == state.booking.member
@@ -83,7 +88,8 @@ export default {
 	 * Public properties
 	 */
 	props: {
-		booking: {}
+		booking: {},
+		persons: null,
 	},
 
 	/**
@@ -125,8 +131,7 @@ export default {
 			this.types = response.data
 			if (!this.isNew) {
 				this.addMember(this.booking.member_id)
-				this.addType(this.booking.bookable_id)
-
+				this.addType(this.booking.type)
 			}
 		})
 		if (!this.isNew) {
@@ -162,9 +167,11 @@ export default {
 	 */
 	methods: {
 		reserve () {
+			this.addPersons(this.persons)
 			this.makeReservation({ payment: 'cash' })
 		},
 		reserveAndPay () {
+			this.addPersons(this.persons)
 			this.makeReservation({ payment: 'card' })
 		},
 		pay () {

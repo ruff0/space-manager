@@ -57,6 +57,43 @@
 				</div>
 			</div>
 			@endif
+
+			@if(isset($type) && $type == 'booking' && $resource->resourceable_type == "App\Resources\Models\ClassRoom")
+				<div class="form form-inline @if(!$selectedResource) hidden @endif">
+				<div class="form-group">
+					<label for="">Distribuciones disponibles</label>
+					<label for="resources[{{$resource->id}}][settings][distributions][u]">
+					<input type="checkbox" class="form-control"
+					       name="resources[{{$resource->id}}][settings][distributions][u]"
+					       value="1"
+					       id="resources[{{$resource->id}}][settings][distributions][u]"
+					       @if($resource->settings('distributions') && isset($resource->settings('distributions')->u)) checked @endif
+					/>
+						Distribucion en U (18 pax.)
+					</label>
+
+					<label for="resources[{{$resource->id}}][settings][distributions][line]">
+					<input type="checkbox" class="form-control"
+					       name="resources[{{$resource->id}}][settings][distributions][line]"
+					       value="1"
+					       id="resources[{{$resource->id}}][settings][distributions][line]"
+					       @if($resource->settings('distributions') && isset($resource->settings('distributions')->line)) checked @endif
+					/>
+						Distribucion en U  (18 pax.)
+					</label>
+
+					<label for="resources[{{$resource->id}}][settings][distributions][chairs]">
+					<input type="checkbox" class="form-control"
+					       name="resources[{{$resource->id}}][settings][distributions][chairs]"
+					       value="1"
+					       id="resources[{{$resource->id}}][settings][distributions][chairs]"
+					       @if($resource->settings('distributions') && isset($resource->settings('distributions')->chairs)) checked @endif
+					/>
+						Solo sillas (30 pax.)
+					</label>
+				</div>
+			</div>
+			@endif
 		</div>
 	</div>
 	{{--@if(isset($actions) && $actions)--}}
