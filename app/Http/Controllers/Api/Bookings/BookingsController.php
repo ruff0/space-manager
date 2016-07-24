@@ -40,6 +40,7 @@ class BookingsController extends Controller
 
 			foreach ($bookables as $bookable)
 			{
+
 				foreach ($bookable->roomResources() as $resource)
 				{
 					$settings = $resource->settings;
@@ -57,6 +58,8 @@ class BookingsController extends Controller
 							    ->where('time_to', '>', $timeFrom);
 						  });
 					});
+
+
 					if($bookings->count() == 0)
 					{
 						foreach ($resource->bookables as $bookable) {
@@ -196,19 +199,17 @@ class BookingsController extends Controller
 		}
 
 		$rooms = collect($resources['rooms']);
-		$rooms->first();
 		$member->decrementPassFor($bookable->id, $passHours);
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
 			'time_to'   => $timeTo
 		]);
 
-
-		$booking->bookable()->associate($bookable);
-		$booking->resource()->associate($rooms->first());
+		$booking->bookable()->associate($bookable->id);
+		$booking->resource()->associate($rooms->first()->resourceables()->first()->id);
 		$booking->save();
 
-		$invoice->payable_id = $booking->id;
+		$invoice->payable_id = $booking;
 		$invoice->save();
 
 		return response()->json([

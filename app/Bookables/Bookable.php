@@ -6,8 +6,10 @@ use App\Bookings\Booking;
 use App\Files\Image;
 use App\Resources\Models\ClassRoom;
 use App\Resources\Models\MeetingRoom;
+use App\Resources\Models\Office;
 use App\Resources\Models\Resource;
 use App\Resources\Models\Spot;
+use App\Resources\Models\Virtual;
 use App\Space\Pass;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -295,7 +297,9 @@ class Bookable extends Model implements SluggableInterface
 		            ->whereIn('resources.resourceable_type', [
 			            MeetingRoom::class,
 			            ClassRoom::class,
-			            Spot::class
+			            Spot::class,
+			            Virtual::class,
+			            Office::class
 		            ])->get();
 	}
 
