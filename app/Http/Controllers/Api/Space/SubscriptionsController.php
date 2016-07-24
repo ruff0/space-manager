@@ -151,6 +151,11 @@ class SubscriptionsController extends Controller
 		}
 
 		$member = Auth::user()->member;
+		$actualPlan = $member->currentPlan();
+
+		if (Carbon::parse($request->get("date_from"))->isToday() && $actualPlan &&  $actualPlan->isDefault()) {
+			$member->currentSubscription()->delete();
+		}
 
 
 		$invoice = Invoice::create(['paid' => 0, 'type' => 'plan']);

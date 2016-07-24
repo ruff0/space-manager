@@ -357,6 +357,8 @@ class Member extends Model
 	{
 		if($this->currentSubscription())
 			return $this->currentSubscription()->plan;
+
+		return null;
 	}
 
 	/**

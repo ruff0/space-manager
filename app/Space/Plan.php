@@ -224,6 +224,14 @@ class Plan extends Model implements SluggableInterface
 		$plan = new static;
 		return $plan->where('default', true)->first();
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function isDefault()
+	{
+		return $this->default;
+	}
 	#######################################################################################
 	# Relations
 	#######################################################################################
