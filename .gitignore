@@ -6,5 +6,5 @@ Homestead.yaml
 Homestead.json
 .env
 
-
+.idea/
 /storage/debugbar
