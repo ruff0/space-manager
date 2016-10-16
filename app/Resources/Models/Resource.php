@@ -54,6 +54,11 @@ class Resource extends Model
 			return $settings->$value;
 		}
 
+		if ($value && !property_exists($settings, $value))
+		{
+			return [];
+		}
+
 
 		return $settings;
 	}
@@ -79,6 +84,9 @@ class Resource extends Model
 			case "spot" :
 				$type = Spot::class;
 				break;
+			case "virtual" :
+				$type = Virtual::class;
+				break;
 			case "meetingroom" :
 				$type = MeetingRoom::class;
 				break;
@@ -91,6 +99,7 @@ class Resource extends Model
 					"App\\Resources\\Models\\MeetingRoom",
 					"App\\Resources\\Models\\ClassRoom",
 					"App\\Resources\\Models\\Spot",
+					"App\\Resources\\Models\\Virtual",
 					"App\\Resources\\Models\\Office",
 				]);
 				break;

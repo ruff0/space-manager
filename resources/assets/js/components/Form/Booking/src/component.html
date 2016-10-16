@@ -126,6 +126,25 @@
 			</div>
 		</div>
 
+		<div class="row pb-20" v-if="selected.type == 4">
+			<div class="col-sm-6">
+				<label>Personas</label>
+				<input type="text" :value="selected.persons" v-model="persons" class="form-control">
+				<form-error :errors="errors.persons"></form-error>
+			</div>
+
+			<div class="col-sm-6">
+				<label>Recurso</label>
+				<selectable :options="distributions"
+										:placeholder="Selecciona una distribución"
+										:value="selected.distribution"
+										@change="addDistribution"
+				>
+				</selectable>
+				<form-error :errors="errors.bookable"></form-error>
+			</div>
+		</div>
+
 
 	</div>
 </div>

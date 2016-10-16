@@ -3,6 +3,7 @@
 @section('body-class', 'home')
 
 @section('page-scripts')
+	<script>$(".steps-basic").hide()</script>
 	<script src="/js/page/bookables.js"></script>
 @endsection
 
@@ -80,6 +81,13 @@
 										</div>
 									</div>
 									<div class="flexbox-container">
+										<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4 persons-field">
+											<div class="form-group">
+												<label for="persons">Personas</label>
+												<input type="text" id="persons" name="persons" class="form-control"
+												       placeholder="¿Cuantas personas van a asistir?">
+											</div>
+										</div>
 										<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4">
 											<div class="form-group">
 												<label for="date">Fecha</label>
@@ -102,6 +110,9 @@
 											</div>
 										</div>
 									</div>
+
+
+
 									<div class=" flexbox-container pt-20 pb-20">
 										{{--{!! dd($bookableTypes) !!}--}}
 										@forelse($bookableTypes as $type)
@@ -115,8 +126,9 @@
 														<img src="{{$bookable->mainImage()}}" alt="">
 														<div class="caption-overflow">
 															<p class="times text-center pt-20 mt-20"></p>
-																<span>
-																	<label class="thumb-label btn bg-info-400 btn-icon btn-xs legitRipple">
+															<span>
+																	<label class="thumb-label btn bg-info-400 btn-icon btn-xs legitRipple"
+																	       data-distributions="{{$bookable->id}}">
 
 																		<div class="plus">
 																			Reservar <i class="icon-cross2"></i>
@@ -138,12 +150,12 @@
 																<i class="icon-user"></i>
 																{{$bookable->max_occupants }}
 															</span>
-															<span class="pull-right">
+														<span class="pull-right">
 																@if($bookable->hasType(1))
-																	@currencyFormat($bookable->priceFullTime())/Dia
-																@else
-																	@currencyFormat($bookable->pricePerHour())/Hora
-																@endif
+																@currencyFormat($bookable->priceFullTime())/Dia
+															@else
+																@currencyFormat($bookable->pricePerHour())/Hora
+															@endif
 															</span>
 													</div>
 													<div class="caption text-center">
@@ -161,7 +173,79 @@
 											Aki
 										@endforelse
 									</div>
+
+									<div class="distributions-select">
+										<h4 class="text-center">Elige una distribución para la sala</h4>
+										<div class="flexbox-container pt-20 pb-20">
+
+										<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4
+																			thumbnail no-padding distributions blocked" data-distribution="u">
+											<div class="thumb">
+												<img src="/images/u.png" alt="">
+												<div class="caption-overflow">
+													<p class="times text-center pt-20 mt-20"></p>
+													<span>
+														<label class="thumb-label distribution btn bg-info-400 btn-icon btn-xs legitRipple">
+															<div class="plus">
+																Elegir <i class="icon-cross2"></i>
+																<b class="total-price text-center"></b>
+															</div>
+															<i class="icon-checkmark"></i>
+															<input type="radio" name="distribution" class="styled" value="u">
+														</label>
+													</span>
+
+													<p class="pt-20 mt-20"></p>
+													<p class="message text-center pt-20 mt-20"></p>
+												</div>
+											</div>
+										</div>
+										<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4
+																			thumbnail no-padding distributions blocked" data-distribution="line">
+											<div class="thumb">
+												<img src="/images/lines.png" alt="">
+												<div class="caption-overflow">
+													<p class="times text-center pt-20 mt-20"></p>
+													<span>
+														<label class="thumb-label distribution btn bg-info-400 btn-icon btn-xs legitRipple">
+															<div class="plus">
+																Elegir <i class="icon-cross2"></i>
+																<b class="total-price text-center"></b>
+															</div>
+															<i class="icon-checkmark"></i>
+															<input type="radio" name="distribution" class="styled" value="line">
+														</label>
+													</span>
+													<p class="pt-20 mt-20"></p>
+													<p class="message text-center pt-20 mt-20"></p>
+												</div>
+											</div>
+										</div>
+										<div class="flexbox-item-sm-3 flexbox-item-xs-10 flexbox-item-xsh-4
+																			thumbnail no-padding distributions blocked" data-distribution="chairs">
+											<div class="thumb">
+												<img src="/images/chairs.png" alt="">
+												<div class="caption-overflow">
+													<p class="times text-center pt-20 mt-20"></p>
+													<span>
+														<label class="thumb-label distribution btn bg-info-400 btn-icon btn-xs legitRipple">
+															<div class="plus">
+																Elegir <i class="icon-cross2"></i>
+																<b class="total-price text-center"></b>
+															</div>
+															<i class="icon-checkmark"></i>
+															<input type="radio" name="distribution" class="styled" value="chairs">
+														</label>
+													</span>
+													<p class="pt-20 mt-20"></p>
+													<p class="message text-center pt-20 mt-20"></p>
+												</div>
+											</div>
+										</div>
+									</div>
+									</div>
 								</fieldset>
+
 								<h6>Detalles</h6>
 								<fieldset class="col-md-12" style="min-height:50vh">
 
@@ -207,6 +291,7 @@
 
 									<div class="mt-20 pt-20 mb-20 pb-20 col-md-2 pull-right no-padding"></div>
 								</fieldset>
+
 							</form>
 						</div>
 					</div>
@@ -214,8 +299,8 @@
 						<div class="alert alert-info ">
 							<h4>Hola {{$user->fullname()}}</h4> <br>
 							<p>
-								Para cualquier duda o consulta puedes contactar nos por
-								telefono <a href="tel:+34966444114">+34 966 444 114</a> o
+								Para cualquier duda o consulta puedes contactarnos por
+								teléfono <a href="tel:+34966444114">+34 966 444 114</a> o
 								por email <a href="mailto:info@ulab.es">info@ulab.es</a>.
 							</p>
 

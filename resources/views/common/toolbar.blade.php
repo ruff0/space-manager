@@ -9,10 +9,18 @@
 	</ul>
 
 	<div class="navbar-collapse collapse" id="navbar-filter">
-		<div class="navbar-right">
+		<div class="row">
 			<ul class="nav navbar-nav">
 				<li>
-					<a href="/home">Dashboard</a>
+					<a href="{{route('home')}}" class="legitRipple">
+						<img src="/images/logo_dark.png" alt="" height="25">
+					</a>
+				</li>
+			</ul>
+			<div class="navbar-right">
+			<ul class="nav navbar-nav">
+				<li>
+					<a href="/home">Inicio</a>
 				</li>
 
 				<li>
@@ -47,6 +55,7 @@
 					</ul>
 				</li>
 			</ul>
+		</div>
 		</div>
 	</div>
 </div>

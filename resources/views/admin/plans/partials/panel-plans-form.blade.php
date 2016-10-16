@@ -6,12 +6,12 @@
 	</div>
 	<div id="collapse-group1" class="panel-collapse collapse in">
 		<div class="panel-body">
-			<form action="">
+			<form action="#">
 				<div class="row pb-20">
 					<div class="col-sm-12">
 						<label>Plan del usuario</label>
 						@inject('plans', 'App\Space\Plan')
-						<select id="plan_id" name="plan_id" data-value="{{$member->subscriptions->count() > 0?$member->subscriptions->first()->plan_id:0}}" data-placeholder="Selecciona el plan" class="select">
+						<select id="plan_id" name="plan_id" data-value="{{$member->subscriptions->count() > 0 ? $member->subscriptions->first()->plan_id:0}}" data-placeholder="Selecciona el plan" class="select">
 							<option></option>
 							@foreach($plans->whereActive(true)->get() as $plan)
 								<option value="{{$plan->id}}"

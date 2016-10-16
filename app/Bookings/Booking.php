@@ -18,7 +18,7 @@ class Booking extends Model
 	/**
 	 * @var array
 	 */
-	protected $fillable = ['time_from', 'time_to'];
+	protected $fillable = ['time_from', 'time_to', 'persons', 'distribution'];
 
 	/**
 	 * @var array
@@ -28,7 +28,7 @@ class Booking extends Model
 	/**
 	 * @var array
 	 */
-	protected $appends = ['paid', 'isNew'];
+	protected $appends = ['paid', 'isNew', 'type'];
 
 	/**
 	 * Get all of the owning bookable models.
@@ -64,6 +64,17 @@ class Booking extends Model
 		return Invoice::where('type', 'booking')
 			->where('payable_id', $this->id)
 			->first();
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getTypeAttribute()
+	{
+		if($this->bookable && $this->bookable->bookable_type_id)
+			return $this->bookable->bookable_type_id;
+
+		return null;
 	}
 
 	/**

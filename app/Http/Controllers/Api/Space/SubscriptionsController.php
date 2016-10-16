@@ -77,21 +77,12 @@ class SubscriptionsController extends Controller
 					$subscriptions = $resource->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
 						$q->where(function ($q) use ($dateFrom, $dateTo) {
 							$q->where('date_from', '>=', $dateFrom);
-//							  ->where('date_to', '<=', $dateTo);
 						});
-//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//							  $q->where('date_from', '<', $dateTo)
-//							    ->where('date_to', '>', $dateTo);
-//						  })
-//						  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//							  $q->where('date_from', '<', $dateFrom)
-//							    ->where('date_to', '>', $dateFrom);
-//						  });
 					})->get();
 
 
 					if ($plan->id == $request->get('plan')) {
-						if ($subscriptions->count() === 0) {
+						if ($subscriptions->count() === 0 || $resource->resourceable->hasInfiniteResources()) {
 							if (!array_key_exists($resource->resourceable->id, $available)) {
 								$available[$resource->resourceable->id] = $resource->resourceable;
 							}
@@ -137,21 +128,17 @@ class SubscriptionsController extends Controller
 
 		$plan = Plan::findOrFail($request->get('plan'));
 		$room = $plan->resources()->where('resources.resourceable_id', $request->get('room'))->first();
-//		dd($room);
 		$isBooked = $room->subscriptions()->where(function ($q) use ($dateFrom, $dateTo) {
 			$q->where(function ($q) use ($dateFrom, $dateTo) {
 				$q->where('date_from', '>=', $dateFrom);
-//				  ->where('date_to', '<=', $dateTo);
 			});
-//			  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//				  $q->where('date_from', '<', $dateTo)
-//				    ->where('date_to', '>', $dateTo);
-//			  })
-//			  ->orWhere(function ($q) use ($dateFrom, $dateTo) {
-//				  $q->where('date_from', '<', $dateFrom)
-//				    ->where('date_to', '>', $dateFrom);
-//			  });
 		})->first();
+
+		if($room->resourceable->hasInfiniteResources())
+		{
+			$isBooked = false;
+		}
+
 
 		if ($isBooked) {
 			return response()->json([
@@ -164,6 +151,11 @@ class SubscriptionsController extends Controller
 		}
 
 		$member = Auth::user()->member;
+		$actualPlan = $member->currentPlan();
+
+		if (Carbon::parse($request->get("date_from"))->isToday() && $actualPlan &&  $actualPlan->isDefault()) {
+			$member->currentSubscription()->delete();
+		}
 
 
 		$invoice = Invoice::create(['paid' => 0, 'type' => 'plan']);
@@ -283,11 +275,13 @@ class SubscriptionsController extends Controller
 			$price = ($plan->priceForStripe() / 30) * $daysToCharge;
 		}
 
+		$description = $room->hasInfiniteResources() ? "" : " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  ";
+
 		$line = new QuoteLine([
 			'price'       => (int)$price,
 			'name'        => $plan->name,
 			'description' => $plan->description .
-			                 "<br/> " . $room->name . " - {$room->floor}m<sup>2</sup> ({$room->max_occupants} pers.)  " .
+			                 "<br/> " . $room->name . $description .
 			                 "<br/> <small>Reserva a partir del {$dateFrom->format('d/m/Y')}</small>"
 		]);
 

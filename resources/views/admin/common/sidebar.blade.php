@@ -91,6 +91,11 @@
 								</a>
 							</li>
 							<li>
+								<a href="{{route('admin.virtuals.index')}}" class="legitRipple">
+									<span>Virtuales</span>
+								</a>
+							</li>
+							<li>
 								<a href="{{route('admin.offices.index')}}" class="legitRipple">
 									<span>Despachos</span>
 								</a>

@@ -5,6 +5,8 @@ import {
 	ADD_TYPE,
 	ADD_BOOKABLE,
 	ADD_MEMBER,
+	ADD_DISTRIBUTION,
+	ADD_PERSONS,
 	BOOKING_HAS_CHANGED,
 	PAID,
 	UNPAID
@@ -22,7 +24,9 @@ const state = {
 	date: null,
 	type: null,
 	member: null,
-	paid: false
+	paid: false,
+	distribution: null,
+	persons: null
 }
 
 /**
@@ -32,6 +36,12 @@ const state = {
 const mutations = {
 	[ADD_DATE] (state, date) {
 		state.date = date
+	},
+	[ADD_PERSONS] (state, persons) {
+		state.persons = persons
+	},
+	[ADD_DISTRIBUTION] (state, distribution) {
+		state.distribution = distribution
 	},
 	[ADD_TIME_TO] (state, timeTo) {
 		state.time_to = timeTo

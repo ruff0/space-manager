@@ -6,8 +6,10 @@ use App\Bookings\Booking;
 use App\Files\Image;
 use App\Resources\Models\ClassRoom;
 use App\Resources\Models\MeetingRoom;
+use App\Resources\Models\Office;
 use App\Resources\Models\Resource;
 use App\Resources\Models\Spot;
+use App\Resources\Models\Virtual;
 use App\Space\Pass;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
@@ -123,7 +125,14 @@ class Bookable extends Model implements SluggableInterface
 		$bookables = $query->whereIn('id', $available)->get();
 
 		foreach ($bookables as $bookable) {
+
 			if ($bookable->resources) {
+				$distributions = $bookable->resources->first()->settings('distributions');
+
+					if( isset($distributions) )
+				{
+					$bookable->distributions = $bookable->resources->first()->settings('distributions');
+				}
 				$bookable->available = true;
 				$bookable->time_to = $timeTo->format('H:i');
 				$bookable->time_from = $timeFrom->format('H:i');
@@ -295,7 +304,9 @@ class Bookable extends Model implements SluggableInterface
 		            ->whereIn('resources.resourceable_type', [
 			            MeetingRoom::class,
 			            ClassRoom::class,
-			            Spot::class
+			            Spot::class,
+			            Virtual::class,
+			            Office::class
 		            ])->get();
 	}
 
@@ -385,5 +396,34 @@ class Bookable extends Model implements SluggableInterface
 		];
 	}
 
+	public function firstWithoutBookings($hours, $timeFrom, $timeTo)
+	{
+		$available = [];
+		foreach ($this->roomResources() as $resource) {
+			$bookings = $resource->bookings()->where(function ($q) use ($timeFrom, $timeTo) {
+				$q->where(function ($q) use ($timeFrom, $timeTo) {
+					$q->where('time_from', '>=', $timeFrom)
+					  ->where('time_to', '<=', $timeTo);
+				})
+				  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
+					  $q->where('time_from', '<', $timeTo)
+					    ->where('time_to', '>', $timeTo);
+				  })
+				  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
+					  $q->where('time_from', '<', $timeFrom)
+					    ->where('time_to', '>', $timeFrom);
+				  });
+			});
 
+			if ($bookings->count() == 0) {
+				foreach ($resource->bookables as $bookable) {
+					if (!in_array($bookable->id, $available)) {
+						return $resource;
+					}
+				}
+			}
+		}
+
+		throw new \Exception('No resource available');
+	}
 }
