@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "bootstrap-sass": "^3.0.0",
+    "bower": "^1.7.9",
     "gritcode-components": "^0.4.7",
     "laravel-elixir": "^5.0.0",
     "stylus": "^0.54.3"

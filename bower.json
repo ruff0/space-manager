@@ -1,0 +1,21 @@
+{
+  "name": "space-manager",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Boudy de Geer <boudydegeer@mosaiqo.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/u-lab/space-manager",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fullcalendar": "^3.0.1"
+  }
+}

@@ -20,7 +20,9 @@
     "barryvdh/laravel-snappy": "^0.3.0",
     "h4cc/wkhtmltopdf-i386": "0.12.x",
     "h4cc/wkhtmltopdf-amd64": "^0.12.3",
-    "h4cc/wkhtmltoimage-amd64": "^0.12.3"
+    "h4cc/wkhtmltoimage-amd64": "^0.12.3",
+    "mosaiqo/cqrs": "@dev",
+    "ramsey/uuid": "^3.5"
   },
   "require-dev": {
     "fzaninotto/faker": "~1.4",
@@ -58,7 +60,16 @@
       "php artisan optimize"
     ]
   },
+  "repositories": {
+    "cqrs": {
+      "type": "path",
+      "package": {
+        "name": "mosaiqo/cqrs"
+      },
+      "url": "./packages/mosaiqo/cqrs"
+    }
+  },
   "config": {
-    "preferred-install": "dist"
+    "preferred-install": "dev"
   }
 }

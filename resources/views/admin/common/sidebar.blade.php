@@ -69,6 +69,23 @@
 					</li>
 
 					<li class="navigation-header">
+						<span>Eventos</span>
+						<i class="icon-menu" title="Eventos"></i>
+					</li>
+					<li>
+						<a href="{{route('admin.bookings.calendar')}}" class="legitRipple">
+							<i class="icon-stack2"></i>
+							<span>Calendario de eventos</span>
+						</a>
+					</li>
+					<li>
+						<a href="{{route('admin.events.index')}}" class="legitRipple">
+							<i class="icon-stack2"></i>
+							<span>Listado de Eventos</span>
+						</a>
+					</li>
+
+					<li class="navigation-header">
 						<span>Recursos</span>
 						<i class="icon-menu" title="Recursos"></i>
 					</li>

@@ -1,0 +1,21 @@
+{
+  "name": "mosaiqo/cqrs",
+  "description": "Cqrs package for DDD",
+  "keywords": [
+    "CQRS",
+    "Domain Driven Design"
+  ],
+  "license": "MIT",
+  "type": "package",
+  "autoload": {
+    "psr-4": {
+      "Mosaiqo\\Cqrs\\": "./src",
+      "Mosaiqo\\Cqrs\\Tests\\": "./tests",
+      "Mosaiqo\\Cqrs\\Stubs\\": "./stubs"
+    }
+  },
+  "require-dev": {
+    "mockery/mockery": "0.9.*",
+    "phpunit/phpunit": "~4.0"
+  }
+}

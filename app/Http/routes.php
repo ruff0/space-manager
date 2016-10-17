@@ -128,6 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
 			'uses' => 'BookingsController@calendar'
 		]);
 		Route::resource('bookings', 'BookingsController');
+		Route::resource('events', 'EventsController');
 
 		// Resources
 		Route::resource('meetingrooms', 'MeetingRoomsController');
