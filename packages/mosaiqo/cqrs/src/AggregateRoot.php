@@ -2,7 +2,7 @@
 
 namespace Mosaiqo\Cqrs;
 
-use Mosaiqo\Cqrs\Contracts\DomainEventInterface as DomainEvent;
+use Mosaiqo\Cqrs\Contracts\DomainEvent;
 
 class AggregateRoot {
 
@@ -51,8 +51,9 @@ class AggregateRoot {
 	 */
 	protected function publish(DomainEvent $event)
 	{
-		// TODO: DomainEventPublisher
 		// Perhaps we want to pass it in the constructor?
+		$eventPublisher = DomainEventPublisher::instance();
+		$eventPublisher->publish($event);
 	}
 
 	/**

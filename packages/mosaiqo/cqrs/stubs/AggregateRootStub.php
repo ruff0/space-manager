@@ -3,7 +3,7 @@
 namespace Mosaiqo\Cqrs\Stubs;
 
 use Mosaiqo\Cqrs\AggregateRoot;
-use Mosaiqo\Cqrs\Contracts\DomainEventInterface as DomainEvent;
+use Mosaiqo\Cqrs\Contracts\DomainEvent;
 
 class AggregateRootStub extends AggregateRoot
 {

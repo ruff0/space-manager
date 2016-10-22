@@ -11,6 +11,20 @@
 |
 */
 
+use Mosaiqo\Cqrs\EloquentEventStore;
+
+Route::get("/testingEventStorming", function(\Illuminate\Http\Request $request){
+	 \App\Events\Commands\CreateEventOrganizedByUser::fromRequest($request);
+});
+
+Route::get("/testingEventStorming/{id}", function($id){
+	$eventStore = new EloquentEventStore();
+	$events = $eventStore->allStoredEventsSince($id);
+
+	 \App\Events\Domain\Models\Event::replay(
+		 \App\Events\Domain\EventId::fromString($id), $events
+	 );
+});
 
 Route::auth();
 Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api'], function () {

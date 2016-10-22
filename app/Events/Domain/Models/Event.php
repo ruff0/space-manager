@@ -22,6 +22,7 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot {
 	 */
 	public $id;
 
+
 	private function __construct(EventId $id) {
 		$this->id = $id;
 	}
@@ -53,9 +54,14 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot {
 		$this->booking = $event->booking;
 	}
 
-	public static function reconstitute(EventStream $events)
+	/**
+	 * @param $id
+	 * @param $events
+	 * @return Event
+	 */
+	public static function replay($id ,$events)
 	{
-		$aggregate = new self($events->getAggregateId());
+		$aggregate = new self($id);
 
 		foreach ($events as $event)
 		{

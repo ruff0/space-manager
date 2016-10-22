@@ -11,7 +11,7 @@ class EloquentEventRepositories implements EventRepository
 	private $eventStore;
 	private $projector;
 
-	public function __construct($eventStore, $projector)
+	public function __construct($eventStore, $projector = null)
 	{
 		$this->eventStore = $eventStore;
 		$this->projector = $projector;
@@ -23,7 +23,9 @@ class EloquentEventRepositories implements EventRepository
 		$this->eventStore->append(new EventStream($event->id()), $events);
 
 		$event->clearEvents();
-		$this->projector->project($events);
+		if ($this->projector) {
+			$this->projector->project($events);
+		}
 	}
 
 	public function byId(EventId $eventId)
