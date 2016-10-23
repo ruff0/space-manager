@@ -3,11 +3,12 @@
 namespace Mosaiqo\Cqrs\Contracts;
 
 interface EventStore {
-    /**
-     * @param DomainEvent $event
-     * @return mixed
-     */
-    public function append(DomainEvent $event);
+	/**
+	 * @param AggregateIdentity $aggregateIdentity
+	 * @param DomainEvent $event
+	 * @return mixed
+	 */
+    public function persist(AggregateIdentity $aggregateIdentity, DomainEvent $event);
 
     /**
      * @param $eventId

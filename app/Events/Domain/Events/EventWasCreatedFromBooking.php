@@ -32,14 +32,21 @@ class EventWasCreatedFromBooking implements DomainEvent {
 
 	public function __construct(EventId $id, Event $event, BookingInterface $booking)
 	{
-		$this->occurredOn = Carbon::now();
 		$this->id = $id->id;
 		$this->event = $event->id;
 		$this->booking = $booking;
+
+		$this->occurredOn = Carbon::now();
 	}
 
+	/**
+	 * @return static
+	 */
+	public function occurredOn(){
+		return $this->occurredOn;
+	}
 
-	public function toJson()
+	public function payload()
 	{
 		return json_encode([
 			"event" => $this->event->id,
@@ -47,11 +54,10 @@ class EventWasCreatedFromBooking implements DomainEvent {
 		]);
 	}
 
-
-	/**
-	 * @return static
-	 */
-	public function occurredOn(){
-		return $this->occurredOn;
+	public static function fromArray(array $payload)
+	{
+		$event = new static;
+		$event->event = $payload['event'];
+		$event->booking = $payload['booking'];
 	}
 }

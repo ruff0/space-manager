@@ -4,31 +4,35 @@ namespace Mosaiqo\Cqrs;
 
 use Mosaiqo\Cqrs\Contracts\DomainEvent;
 
-class AggregateRoot {
-
-	protected $recordedEvents = [];
+class AggregateRoot
+{
 
 	/**
-	 * Processes a DomainEvent
-	 *
-	 * @param DomainEvent $event
-	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+	 * @var array
 	 */
-	protected function process(DomainEvent $event)
+	protected $pendingEvents = [];
+
+	/**
+	 * AggregateRoot constructor.
+	 */
+	protected function __construct()
 	{
-		$this->record($event);
-		$this->apply($event);
-		$this->publish($event);
 	}
 
 	/**
-	 * It records a Domain event to a collection
-	 * @param DomainEvent $event
-	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+	 * @param $events
+	 * @return Event
 	 */
-	protected function record(DomainEvent $event)
+	public static function rebuildFrom(DomainEvent $events)
 	{
-		$this->recordedEvents[] = $event;
+		$aggregate = new self;
+
+		foreach ($events as $event) {
+			$aggregate->apply($event);
+		}
+
+		return $aggregate;
+
 	}
 
 	/**
@@ -39,31 +43,22 @@ class AggregateRoot {
 	 */
 	protected function apply(DomainEvent $event)
 	{
+		event();
 		$className = (new \ReflectionClass($event))->getShortName();
 		$method = "apply{$className}";
 		$this->$method($event);
 	}
 
 	/**
-	 * Publishes a DomainEvent
-	 * @param DomainEvent $event
-	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
-	 */
-	protected function publish(DomainEvent $event)
-	{
-		// Perhaps we want to pass it in the constructor?
-		$eventPublisher = DomainEventPublisher::instance();
-		$eventPublisher->publish($event);
-	}
-
-	/**
-	 * Returns a collection of events
+	 * Returns a collection of all events still to apply
 	 * @return array
 	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
-	public function recordedEvents()
+	public function pendingEvents()
 	{
-		return $this->recordedEvents;
+		$events = $this->pendingEvents;
+		$this->clearEvents();
+		return $events;
 	}
 
 	/**
@@ -72,7 +67,18 @@ class AggregateRoot {
 	 */
 	public function clearEvents()
 	{
-		$this->recordedEvents = [];
+		$this->pendingEvents = [];
+	}
+
+	/**
+	 * It records a Domain event to a collection
+	 * @param DomainEvent $event
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+	 */
+	protected function raise(DomainEvent $event)
+	{
+		$this->pendingEvents[] = $event;
+		$this->apply($event);
 	}
 }
 

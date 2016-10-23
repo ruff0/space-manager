@@ -18,7 +18,7 @@ class EloquentEventStore implements EventStore
 			'id' => $event->id,
 			'type' => get_class($event),
 			'occurredAt' => $event->occurredOn(),
-			'payload' => $event->toJson()
+			'payload' => $event->payload()
 		]);
 
 		$storedEvent->save();
@@ -33,7 +33,7 @@ class EloquentEventStore implements EventStore
 		$storedEvent = EloquentStoredEvent::where('id', "=", $eventId)->get();
 
 		$storedEvent->map(function($event){
-			 new $event->type()
+//			 new $event->type()
 		});
 	}
 }

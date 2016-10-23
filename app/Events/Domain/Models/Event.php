@@ -5,12 +5,12 @@ namespace App\Events\Domain\Models;
 use App\Bookings\Contracts\Domain\Models\BookingInterface;
 use App\Events\Domain\EventId;
 use App\Events\Domain\Events\EventWasCreatedFromBooking;
-use App\ValueObjects\Date;
 use Mosaiqo\Cqrs\AggregateRoot;
 use Mosaiqo\Cqrs\Contracts\EventSourcedAggregateRoot;
 use Mosaiqo\Cqrs\Contracts\EventStream;
 
-class Event extends AggregateRoot implements EventSourcedAggregateRoot {
+class Event extends AggregateRoot implements EventSourcedAggregateRoot
+{
 
 	/**
 	 * @var
@@ -23,8 +23,11 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot {
 	public $id;
 
 
-	private function __construct(EventId $id) {
-		$this->id = $id;
+	/**
+	 * Event constructor.
+	 */
+	protected function __construct()
+	{
 	}
 
 	/**
@@ -35,9 +38,10 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot {
 	public static function fromBooking(BookingInterface $booking)
 	{
 		$id = EventId::create();
+
 		$event = new static($id);
 
-		$event->process(
+		$event->publish(
 			new EventWasCreatedFromBooking($id, $event, $booking)
 		);
 
@@ -54,21 +58,5 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot {
 		$this->booking = $event->booking;
 	}
 
-	/**
-	 * @param $id
-	 * @param $events
-	 * @return Event
-	 */
-	public static function replay($id ,$events)
-	{
-		$aggregate = new self($id);
 
-		foreach ($events as $event)
-		{
-			$aggregate->apply($event);
-		}
-
-		return $aggregate;
-
-	}
 }
