@@ -8,7 +8,7 @@ namespace Mosaiqo\Cqrs\Contracts;
  */
 interface EventSourcedAggregateRoot
 {
-	public static function rebuildFrom(DomainEvent $events);
+	public static function rebuildFrom($events);
 }
 
 

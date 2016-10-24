@@ -3,7 +3,10 @@
 namespace App\Events\Commands;
 
 use App\Bookings\Domain\Booking;
+use App\Events\Domain\EventId;
 use App\Events\Domain\Models\Event;
+use Mosaiqo\Cqrs\Contracts\EventStore;
+use Mosaiqo\Cqrs\EloquentEventStore;
 use Symfony\Component\HttpFoundation\Request;
 
 class CreateEventOrganizedByUser
@@ -32,8 +35,14 @@ class CreateEventOrganizedByUser
 //
 //			$event->addTickets($ticket);
 //		}
+		$eventId = EventId::generateNew();
+		$event = Event::fromBooking($eventId, new Booking());
 
-		  Event::fromBooking(new Booking());
+		$eventStore = new EloquentEventStore();
+		foreach ($event->pendingEvents() as $pendingEvent)
+		{
+			$eventStore->persist($eventId, $pendingEvent);
+		}
 
 	}
 }

@@ -3,6 +3,7 @@
 namespace App\Events\Domain\Events;
 
 use App\Bookings\Contracts\Domain\Models\BookingInterface;
+use App\Bookings\Domain\Booking;
 use App\Events\Domain\EventId;
 use App\Events\Domain\Models\Event;
 use Carbon\Carbon;
@@ -32,8 +33,8 @@ class EventWasCreatedFromBooking implements DomainEvent {
 
 	public function __construct(EventId $id, Event $event, BookingInterface $booking)
 	{
-		$this->id = $id->id;
-		$this->event = $event->id;
+		$this->id = $id;
+		$this->event = $event;
 		$this->booking = $booking;
 
 		$this->occurredOn = Carbon::now();
@@ -49,15 +50,20 @@ class EventWasCreatedFromBooking implements DomainEvent {
 	public function payload()
 	{
 		return json_encode([
-			"event" => $this->event->id,
+			"event" => "this is my title",
 			"booking" => $this->booking
 		]);
 	}
 
 	public static function fromArray(array $payload)
 	{
-		$event = new static;
-		$event->event = $payload['event'];
-		$event->booking = $payload['booking'];
+		$booking  = new Booking;
+		$eventId = EventId::fromString($payload['id']);
+
+		return new EventWasCreatedFromBooking(
+			$eventId,
+			Event::fromBooking($eventId, $booking),
+			$booking
+		);
 	}
 }

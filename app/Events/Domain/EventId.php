@@ -3,28 +3,73 @@
 namespace App\Events\Domain;
 
 
+use Mosaiqo\Cqrs\Contracts\AggregateIdentity;
 use Ramsey\Uuid\Uuid;
 
-class EventId
+class EventId implements AggregateIdentity
 {
+	/**
+	 * @var Uuid
+	 */
+	private $id;
 
-	public $id;
-
-	private function __construct()
+	/**
+	 * EventId constructor.
+	 * @param Uuid $id
+	 */
+	private function __construct(Uuid $id)
 	{
-		$this->id = Uuid::uuid4()->toString();
+		$this->id = $id;
 	}
 
+	/**
+	 * @return static
+	 */
 	public static function create()
 	{
 		return new static;
 	}
 
+	/**
+	 * @param $string
+	 * @return EventId
+	 */
 	public static function fromString($string)
 	{
-		$eventId =  new static;
-		$eventId->id = Uuid::fromString($string);
+		return new EventId(Uuid::fromString($string));
 
-		return $eventId;
+	}
+
+	/**
+	 * @return EventId
+	 */
+	public static function generateNew()
+	{
+		return new EventId(Uuid::uuid4());
+	}
+
+	/**
+	 * @param AggregateIdentity $that
+	 * @return bool
+	 */
+	public function equals(AggregateIdentity $that)
+	{
+		return $this->id == $that->id;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function toString()
+	{
+		return $this->id->toString();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->toString();
 	}
 }

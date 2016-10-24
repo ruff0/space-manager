@@ -6,6 +6,7 @@ use App\Bookings\Contracts\Domain\Models\BookingInterface;
 use App\Events\Domain\EventId;
 use App\Events\Domain\Events\EventWasCreatedFromBooking;
 use Mosaiqo\Cqrs\AggregateRoot;
+use Mosaiqo\Cqrs\Contracts\AggregateIdentity;
 use Mosaiqo\Cqrs\Contracts\EventSourcedAggregateRoot;
 use Mosaiqo\Cqrs\Contracts\EventStream;
 
@@ -15,12 +16,12 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 	/**
 	 * @var
 	 */
-	public $booking;
+	private $booking;
 
 	/**
 	 * @var EventId
 	 */
-	public $id;
+	private $id;
 
 
 	/**
@@ -31,19 +32,15 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 	}
 
 	/**
+	 * @param AggregateIdentity $aggregateIdentity
 	 * @param BookingInterface $booking
-	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 * @return static
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
-	public static function fromBooking(BookingInterface $booking)
+	public static function fromBooking(AggregateIdentity $aggregateIdentity, BookingInterface $booking)
 	{
-		$id = EventId::create();
-
-		$event = new static($id);
-
-		$event->publish(
-			new EventWasCreatedFromBooking($id, $event, $booking)
-		);
+		$event = new Event;
+		$event->raise(new EventWasCreatedFromBooking($aggregateIdentity, $event, $booking));
 
 		return $event;
 	}

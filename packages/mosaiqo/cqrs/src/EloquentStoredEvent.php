@@ -5,7 +5,7 @@ namespace Mosaiqo\Cqrs;
 use Illuminate\Database\Eloquent\Model;
 use Mosaiqo\Cqrs\Contracts\DomainEvent;
 
-class EloquentStoredEvent extends Model implements DomainEvent {
+class EloquentStoredEvent extends Model {
 
 	protected $table = 'event_store';
 

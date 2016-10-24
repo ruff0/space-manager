@@ -23,12 +23,15 @@ class AggregateRoot
 	 * @param $events
 	 * @return Event
 	 */
-	public static function rebuildFrom(DomainEvent $events)
+	public static function rebuildFrom($events)
 	{
-		$aggregate = new self;
+		$aggregate = new static;
 
 		foreach ($events as $event) {
-			$aggregate->apply($event);
+			$e = $event->type;
+			$array = json_decode($event->payload, true);
+			$array['id'] = $event->id;
+			$aggregate->apply($e::fromArray($array));
 		}
 
 		return $aggregate;
@@ -41,9 +44,8 @@ class AggregateRoot
 	 * @param DomainEvent $event
 	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
-	protected function apply(DomainEvent $event)
+	protected function apply($event)
 	{
-		event();
 		$className = (new \ReflectionClass($event))->getShortName();
 		$method = "apply{$className}";
 		$this->$method($event);

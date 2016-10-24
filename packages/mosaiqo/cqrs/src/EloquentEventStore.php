@@ -2,6 +2,7 @@
 
 namespace Mosaiqo\Cqrs;
 
+use Mosaiqo\Cqrs\Contracts\AggregateIdentity;
 use Mosaiqo\Cqrs\Contracts\DomainEvent;
 use Mosaiqo\Cqrs\Contracts\EventStore;
 
@@ -9,16 +10,17 @@ class EloquentEventStore implements EventStore
 {
 
 	/**
+	 * @param AggregateIdentity $aggregateIdentity
 	 * @param DomainEvent $event
 	 * @return mixed
 	 */
-	public function append(DomainEvent $event)
+	public function persist(AggregateIdentity $aggregateIdentity, DomainEvent $event)
 	{
 		$storedEvent = new EloquentStoredEvent([
-			'id' => $event->id,
+			'id' => $aggregateIdentity,
 			'type' => get_class($event),
+			'payload' => $event->payload(),
 			'occurredAt' => $event->occurredOn(),
-			'payload' => $event->payload()
 		]);
 
 		$storedEvent->save();
@@ -30,10 +32,6 @@ class EloquentEventStore implements EventStore
 	 */
 	public function allStoredEventsSince($eventId)
 	{
-		$storedEvent = EloquentStoredEvent::where('id', "=", $eventId)->get();
-
-		$storedEvent->map(function($event){
-//			 new $event->type()
-		});
+		return EloquentStoredEvent::where('id', "=", $eventId)->get();
 	}
 }
