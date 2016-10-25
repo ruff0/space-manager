@@ -1,6 +1,7 @@
 <?php
 
 use App\Bookings\Contracts\Domain\Models\BookingInterface;
+use App\Events\Domain\EventId;
 use App\Events\Domain\Models\Event;
 use App\ValueObjects\Date;
 
@@ -14,9 +15,10 @@ class EventTest extends TestCase {
 
 		$booking = \Mockery::mock(BookingInterface::class);
 
-		$event = Event::fromBooking($booking);
+    $eventId = EventId::generateNew();
+		$event = Event::fromBooking($eventId, $booking);
 
 		$this->assertInstanceOf(App\Events\Domain\Models\Event::class, $event);
-		$this->assertInstanceOf(BookingInterface::class, $event->booking);
+		$this->assertInstanceOf(BookingInterface::class, $event->getBooking());
 	}
 }

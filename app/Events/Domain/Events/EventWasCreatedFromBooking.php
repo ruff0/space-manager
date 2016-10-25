@@ -50,7 +50,7 @@ class EventWasCreatedFromBooking implements DomainEvent {
 	public function payload()
 	{
 		return json_encode([
-			"event" => "this is my title",
+			"event" => $this->event,
 			"booking" => $this->booking
 		]);
 	}

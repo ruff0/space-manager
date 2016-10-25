@@ -45,6 +45,12 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 		return $event;
 	}
 
+    public function getBooking()
+    {
+        return $this->booking;
+	  }
+
+
 	/**
 	 * @param $event
 	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
