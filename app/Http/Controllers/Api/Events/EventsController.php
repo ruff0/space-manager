@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Events;
 
+use App\Events\Commands\CreateEventOrganizedByUser;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
@@ -11,10 +12,9 @@ class EventsController extends Controller
 {
 	public function store(Request $request)
 	{
-		$event = CreaEventOrganizedByUser::fromRequest($request);
+		$event = CreateEventOrganizedByUser::fromRequest($request);
 
 		return response()->json([
-			 "data" => $event->toArray(),
 			 "success" => [
 			 	 "message" => [
 			 	 	 "Tu evento se ha creado correctamente."

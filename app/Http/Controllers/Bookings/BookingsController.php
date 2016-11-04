@@ -13,7 +13,7 @@ class BookingsController extends Controller
 	public function create(){
 		$bookableTypes = BookableType::where('active', true)->with('bookables')->whereActive(true)->get();
 
-		return view('bookings.index', [
+		return view('bookings.create', [
 			'bookableTypes' => $bookableTypes
 		]);
 	}

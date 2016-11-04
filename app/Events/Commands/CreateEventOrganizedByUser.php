@@ -36,7 +36,9 @@ class CreateEventOrganizedByUser
 //			$event->addTickets($ticket);
 //		}
 		$eventId = EventId::generateNew();
-		$event = Event::fromBooking($eventId, new Booking());
+
+    $booking = \App\Bookings\Booking::find($request->get("booking"))->toArray();
+		$event = Event::fromBooking($eventId, Booking::fromArray($booking));
 
 		$eventStore = new EloquentEventStore();
 		foreach ($event->pendingEvents() as $pendingEvent)

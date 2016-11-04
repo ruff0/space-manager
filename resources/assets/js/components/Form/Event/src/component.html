@@ -6,55 +6,27 @@
 				{{message}}
 			</span>
 		</h6>
-		<div class="heading-elements" v-if="resources && calculated">
+		<div class="heading-elements">
 			<div class="button-set pull-right">
+
 				<u-button :ladda="{style:'zoom-in'}"
 						  class="pull-right"
 						  data-style="zoom-in"
 						  color="primary"
+						  @click="create"
+				>
+					Crear
+				</u-button>
+
+				<u-button :ladda="{style:'zoom-in'}"
+						  class="pull-right mr-10"
+						  data-style="zoom-in"
+						  color="primary"
 						  @click="cancel"
-						  v-if="canBeCanceled && !hasChanged"
 				>
 					Cancelar
 				</u-button>
 
-				<u-button :ladda="{style:'zoom-in'}"
-						  class="pull-right mr-10"
-						  data-style="zoom-in"
-						  color="primary"
-						  @click="reserve"
-						  v-if="(!canBeCanceled && canMakeReservation) || hasChanged"
-				>
-					Reservar
-				</u-button>
-				<u-button :ladda="{style:'zoom-in'}"
-						  class="pull-right mr-10"
-						  data-style="zoom-in"
-						  color="primary"
-						  @click="reserveAndPay"
-						  v-if="(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)"
-				>
-					Reservar & pagar
-				</u-button>
-				<u-button :ladda="{style:'zoom-in'}"
-						  class="pull-right mr-10"
-						  data-style="zoom-in"
-						  color="primary"
-						  @click="pay"
-						  v-if="canBeCanceled && canPayWithCard && !hasChanged"
-				>
-					Cobrar
-				</u-button>
-
-				<u-button :ladda="{style:'zoom-in'}"
-						  class="pull-right mr-10"
-						  data-style="zoom-in"
-						  color="primary"
-						  @click="markAsPaid"
-						  v-if="canBeCanceled && !hasChanged"
-				>
-					Marcar como pagada
-				</u-button>
 			</div>
 
 		</div>
@@ -64,7 +36,7 @@
 		<div class="row pb-20">
 			<div class="col-sm-12">
 				<label>Titulo</label>
-				<input type="name" v-model="name" class="form-control">
+				<input type="text" v-model="form.title" class="form-control">
 				<form-error :errors="errors.type"></form-error>
 			</div>
 		</div>
@@ -72,15 +44,8 @@
 		<div class="row pb-20">
 			<div class="col-sm-12">
 				<label>Descripción</label>
-				<textarea class="form-control" v-model="description" id="" cols="30" rows="10"></textarea>
+				<textarea class="form-control" v-model="form.description" id="" cols="30" rows="10"></textarea>
 				<form-error :errors="errors.type"></form-error>
-			</div>
-		</div>
-
-		<div class="row pb-20">
-			<div class="col-sm-12">
-				<label>Recurso</label>
-				<form-error :errors="errors.bookable"></form-error>
 			</div>
 		</div>
 	</div>

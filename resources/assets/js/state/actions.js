@@ -18,9 +18,11 @@ import {
 	PAID,
 	UNPAID,
 	CANCELED,
-	CLEAR_PRICE
+	CLEAR_PRICE,
+	CREATE_EVENT
 } from './mutation-types'
 import _ from 'lodash'
+import events from './api/events'
 import bookings from './api/bookings'
 import members from './api/members'
 
@@ -187,4 +189,18 @@ export const addBooking = ({dispatch, state}, booking) => {
 	dispatch(ADD_PERSONS, booking.persons)
 
 	calculate({dispatch, state})
+}
+
+
+export const createEvent = ({dispatch, state}, data) => {
+	data = _.merge(data, state.event)
+	events.store(
+		data,
+		// handle success
+		(resources) => dispatch(CREATE_EVENT, EVENT),
+		// handle error
+		(errors) => dispatch(ADD_ERRORS, errors)
+	)
+
+
 }

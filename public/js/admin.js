@@ -29786,7 +29786,7 @@ var v = new Vue({
 	}
 });
 
-},{"./components/Calendar/Scheduler.vue":10,"./components/Discount/Discount.vue":11,"./components/Form/Booking":12,"./components/Form/Event":15,"./components/Form/TimePicker":17,"./components/Pass":18,"./components/Tables/Price":19,"./directives/Block":20,"./state/mutation-types":25,"./state/store":26,"vue":5,"vue-resource":4}],9:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":10,"./components/Discount/Discount.vue":11,"./components/Form/Booking":12,"./components/Form/Event":15,"./components/Form/TimePicker":17,"./components/Pass":18,"./components/Tables/Price":19,"./directives/Block":20,"./state/mutation-types":27,"./state/store":28,"vue":5,"vue-resource":4}],9:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
@@ -30480,7 +30480,7 @@ exports.default = {
   }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<label class=\"validation-error-label\" v-for=\"error in errors\" v-if=\"errors\">\n\t{{error}}\n</label>"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<label class=\"validation-error-label\" v-for=\"error in errors\">\n\t{{error}}\n</label>"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -30498,11 +30498,40 @@ if (module.hot) {(function () {  module.hot.accept()
 },{"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],15:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _lodash = require("lodash");
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _TimePicker = require("../../TimePicker");
+
+var _TimePicker2 = _interopRequireDefault(_TimePicker);
+
+var _DatePicker = require("../../DatePicker");
+
+var _DatePicker2 = _interopRequireDefault(_DatePicker);
+
+var _Selectable = require("../../Selectable");
+
+var _Selectable2 = _interopRequireDefault(_Selectable);
+
+var _Button = require("../../../Button");
+
+var _Button2 = _interopRequireDefault(_Button);
+
+var _Error = require("../../Error");
+
+var _Error2 = _interopRequireDefault(_Error);
+
+var _actions = require("../../../../state/actions");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 exports.default = {
     /**
      * Name of the component
@@ -30510,13 +30539,30 @@ exports.default = {
      */
     name: 'Event',
 
+    vuex: {
+        actions: {
+            createEvent: _actions.createEvent
+        },
+        getters: {
+            loading: function loading(state) {
+                return state.loading.isLoading;
+            },
+            errors: function errors(state) {
+                return state.errors;
+            }
+        }
+    },
+
     /**
      * The data object for the component it self
      * More info: http://vuejs.org/api/#data
      */
     data: function data() {
         return {
-            msg: 'Hello World event!'
+            form: {
+                title: "",
+                description: ""
+            }
         };
     },
 
@@ -30525,6 +30571,7 @@ exports.default = {
      * Public properties
      */
     props: {
+        booking: null,
         event: {}
     },
 
@@ -30549,14 +30596,31 @@ exports.default = {
     },
 
 
+    methods: {
+        cancel: function cancel() {},
+        create: function create() {
+            this.createEvent({
+                booking: this.booking,
+                title: this.form.title,
+                description: this.form.description
+            });
+        }
+    },
+
     /**
      * Child components of this one
      * More info: http://vuejs.org/guide/components.html
      */
-    components: {}
+    components: {
+        TimePicker: _TimePicker2.default,
+        DatePicker: _DatePicker2.default,
+        Selectable: _Selectable2.default,
+        UButton: _Button2.default,
+        FormError: _Error2.default
+    }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\" v-if=\"resources && calculated\">\n\t\t\t<div class=\"button-set pull-right\">\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"cancel\"\n\t\t\t\t\t\t  v-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"reserve\"\n\t\t\t\t\t\t  v-if=\"(!canBeCanceled && canMakeReservation) || hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tReservar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"reserveAndPay\"\n\t\t\t\t\t\t  v-if=\"(!canBeCanceled && canMakeReservation) || (canPayWithCard && hasChanged)\"\n\t\t\t\t>\n\t\t\t\t\tReservar & pagar\n\t\t\t\t</u-button>\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"pay\"\n\t\t\t\t\t\t  v-if=\"canBeCanceled && canPayWithCard && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tCobrar\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"markAsPaid\"\n\t\t\t\t\t\t  v-if=\"canBeCanceled && !hasChanged\"\n\t\t\t\t>\n\t\t\t\t\tMarcar como pagada\n\t\t\t\t</u-button>\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Titulo</label>\n\t\t\t\t<input type=\"name\" v-model=\"name\" class=\"form-control\">\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"description\" id=\"\" cols=\"30\" rows=\"10\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Recurso</label>\n\t\t\t\t<form-error :errors=\"errors.bookable\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\">\n\t\t\t<div class=\"button-set pull-right\">\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"create\"\n\t\t\t\t>\n\t\t\t\t\tCrear\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"cancel\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Titulo</label>\n\t\t\t\t<input type=\"text\" v-model=\"form.title\" class=\"form-control\">\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"form.description\" id=\"\" cols=\"30\" rows=\"10\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -30571,7 +30635,7 @@ if (module.hot) {(function () {  module.hot.accept()
     hotAPI.update("_v-29fb4685", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],16:[function(require,module,exports){
+},{"../../../../state/actions":21,"../../../Button":9,"../../DatePicker":13,"../../Error":14,"../../Selectable":16,"../../TimePicker":17,"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],16:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
@@ -31218,13 +31282,17 @@ exports.default = {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDistribution = exports.addPersons = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
+exports.createEvent = exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDistribution = exports.addPersons = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
 
 var _mutationTypes = require('./mutation-types');
 
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
+
+var _events = require('./api/events');
+
+var _events2 = _interopRequireDefault(_events);
 
 var _bookings = require('./api/bookings');
 
@@ -31472,7 +31540,23 @@ var addBooking = exports.addBooking = function addBooking(_ref20, booking) {
 	calculate({ dispatch: dispatch, state: state });
 };
 
-},{"./api/bookings":22,"./api/members":23,"./mutation-types":25,"lodash":1}],22:[function(require,module,exports){
+var createEvent = exports.createEvent = function createEvent(_ref21, data) {
+	var dispatch = _ref21.dispatch;
+	var state = _ref21.state;
+
+	data = _lodash2.default.merge(data, state.event);
+	_events2.default.store(data,
+	// handle success
+	function (resources) {
+		return dispatch(_mutationTypes.CREATE_EVENT, EVENT);
+	},
+	// handle error
+	function (errors) {
+		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+	});
+};
+
+},{"./api/bookings":22,"./api/events":23,"./api/members":24,"./mutation-types":27,"lodash":1}],22:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31552,6 +31636,31 @@ var _vue2 = _interopRequireDefault(_vue);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
+	store: function store(params, done, error) {
+		return _vue2.default.http.post('/api/events', params).then(function (response) {
+			done(response.json());
+		}, function (response) {
+			if (response.status == 422 || response.status == 404 || response.status == 500) {
+				error(response.data);
+			}
+		});
+	}
+};
+
+},{"vue":5}],24:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _vue = require('vue');
+
+var _vue2 = _interopRequireDefault(_vue);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = {
 	getAll: function getAll(params, done, error) {
 		return _vue2.default.http.get('/api/members', { params: params }).then(function (response) {
 			done(response.json());
@@ -31563,7 +31672,7 @@ exports.default = {
 	}
 };
 
-},{"vue":5}],24:[function(require,module,exports){
+},{"vue":5}],25:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31629,7 +31738,46 @@ exports.default = {
 	mutations: mutations
 };
 
-},{"../mutation-types":25}],25:[function(require,module,exports){
+},{"../mutation-types":27}],26:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _mutationTypes = require("../mutation-types");
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * Initial State
+ * @type {{}}
+ */
+var state = {
+    bookingId: null,
+    title: "",
+    description: ""
+};
+
+/**
+ * Mutations
+ * @type {{}}
+ */
+var mutations = _defineProperty({}, _mutationTypes.CREATE_EVENT, function (state, event) {
+    state.bookingId = event.booking;
+    state.title = event.title;
+    state.description = event.description;
+});
+
+/**
+ * Booking Module
+ */
+exports.default = {
+    state: state,
+    mutations: mutations
+};
+
+},{"../mutation-types":27}],27:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31666,7 +31814,9 @@ var PAID = exports.PAID = 'PAID';
 var UNPAID = exports.UNPAID = 'UNPAID';
 var CANCELED = exports.CANCELED = 'CANCELED';
 
-},{}],26:[function(require,module,exports){
+var CREATE_EVENT = exports.CREATE_EVENT = 'CREATE_EVENT';
+
+},{}],28:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31692,6 +31842,10 @@ var _mutationTypes = require('./mutation-types');
 var _booking = require('./modules/booking');
 
 var _booking2 = _interopRequireDefault(_booking);
+
+var _event = require('./modules/event');
+
+var _event2 = _interopRequireDefault(_event);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31776,10 +31930,11 @@ exports.default = new _vuex2.default.Store({
 	state: _lodash2.default.clone(initialState),
 	mutations: mutations,
 	modules: {
-		booking: _booking2.default
+		booking: _booking2.default,
+		event: _event2.default
 	}
 });
 
-},{"./modules/booking":24,"./mutation-types":25,"lodash":1,"vue":5,"vuex":7}]},{},[8]);
+},{"./modules/booking":25,"./modules/event":26,"./mutation-types":27,"lodash":1,"vue":5,"vuex":7}]},{},[8]);
 
 //# sourceMappingURL=admin.js.map

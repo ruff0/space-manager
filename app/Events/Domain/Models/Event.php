@@ -13,53 +13,64 @@ use Mosaiqo\Cqrs\Contracts\EventStream;
 class Event extends AggregateRoot implements EventSourcedAggregateRoot
 {
 
-	/**
-	 * @var
-	 */
-	private $booking;
+    /**
+     * @var
+     */
+    private $booking;
 
-	/**
-	 * @var EventId
-	 */
-	private $id;
+    /**
+     * @var EventId
+     */
+    private $id;
 
 
-	/**
-	 * Event constructor.
-	 */
-	protected function __construct()
-	{
-	}
+    /**
+     * Event constructor.
+     */
+    protected function __construct()
+    {
+    }
 
-	/**
-	 * @param AggregateIdentity $aggregateIdentity
-	 * @param BookingInterface $booking
-	 * @return static
-	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
-	 */
-	public static function fromBooking(AggregateIdentity $aggregateIdentity, BookingInterface $booking)
-	{
-		$event = new Event;
-		$event->raise(new EventWasCreatedFromBooking($aggregateIdentity, $event, $booking));
+    /**
+     * @param AggregateIdentity $aggregateIdentity
+     * @param BookingInterface $booking
+     * @return static
+     * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+     */
+    public static function fromBooking(AggregateIdentity $aggregateIdentity, BookingInterface $booking)
+    {
+        $event = new Event;
+        $event->raise(new EventWasCreatedFromBooking($aggregateIdentity, $event, $booking));
 
-		return $event;
-	}
+        return $event;
+    }
+
+    public function addTitle(BookingTitle $title)
+    {
+        $this->raise(new TitleWasAdded($title));
+    }
+
+
+    public function addDescription(BookingDescription $description)
+    {
+        $this->raise(new DescriptionWasAdded($description));
+    }
 
     public function getBooking()
     {
         return $this->booking;
-	  }
+    }
 
 
-	/**
-	 * @param $event
-	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
-	 */
-	protected function applyEventWasCreatedFromBooking($event)
-	{
-		$this->id = $event->id;
-		$this->booking = $event->booking;
-	}
+    /**
+     * @param $event
+     * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+     */
+    protected function applyEventWasCreatedFromBooking($event)
+    {
+        $this->id = $event->id;
+        $this->booking = $event->booking;
+    }
 
 
 }

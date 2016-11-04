@@ -1,3 +1,14 @@
+import _ from "lodash";
+import TimePicker from "../../TimePicker";
+import DatePicker from "../../DatePicker";
+import Selectable from "../../Selectable";
+import UButton from "../../../Button";
+import FormError from "../../Error";
+
+import {
+    createEvent
+} from "../../../../state/actions";
+
 export default{
     /**
      * Name of the component
@@ -5,13 +16,26 @@ export default{
      */
     name: 'Event',
 
+    vuex: {
+      actions : {
+        createEvent
+      },
+      getters: {
+          loading: (state) => state.loading.isLoading,
+          errors: (state) => state.errors,
+      }
+    },
+
     /**
      * The data object for the component it self
      * More info: http://vuejs.org/api/#data
      */
     data(){
         return {
-            msg: 'Hello World event!'
+            form: {
+                title: "",
+                description: ""
+            }
         }
     },
 
@@ -19,7 +43,8 @@ export default{
      * Public properties
      */
     props : {
-        event : {}
+        booking: null,
+        event: {}
     },
 
     /**
@@ -42,9 +67,27 @@ export default{
         console.log('Component is ready')
     },
 
+    methods: {
+        cancel(){},
+        create(){
+            this.createEvent({
+                booking: this.booking,
+                title: this.form.title,
+                description: this.form.description
+            })
+        }
+
+    },
+
     /**
      * Child components of this one
      * More info: http://vuejs.org/guide/components.html
      */
-    components: {}
+    components: {
+        TimePicker,
+        DatePicker,
+        Selectable,
+        UButton,
+        FormError
+    }
 }

@@ -28,3 +28,5 @@ export const BOOKED = 'BOOKED'
 export const PAID = 'PAID'
 export const UNPAID = 'UNPAID'
 export const CANCELED = 'CANCELED'
+
+export const CREATE_EVENT = 'CREATE_EVENT'
