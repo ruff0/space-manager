@@ -7,8 +7,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Requests\Bookables\CreateBookableForm;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
-use App\Http\Requests;
 use Symfony\Component\HttpFoundation\Response;
 
 class BookablesController extends AdminController
@@ -34,7 +32,7 @@ class BookablesController extends AdminController
 		$bookables = Bookable::all();
 
 		return view('admin.bookables.index', [
-			'current'   => $this->current,
+			'current' => $this->current,
 			'bookables' => $bookables
 		]);
 	}
@@ -50,7 +48,7 @@ class BookablesController extends AdminController
 		$bookable = new Bookable;
 
 		return view('admin.bookables.create', [
-			'current'  => $this->current,
+			'current' => $this->current,
 			'bookable' => $bookable
 		]);
 	}
@@ -67,7 +65,7 @@ class BookablesController extends AdminController
 	{
 		$bookable = Bookable::create($request->all());
 
-			if ($request->has('images')) {
+		if ($request->has('images')) {
 			$bookable->images()->sync($request->get('images'));
 		}
 
@@ -102,7 +100,7 @@ class BookablesController extends AdminController
 		$this->current['action'] = 'Actualizar';
 
 		return view('admin.bookables.edit', [
-			'current'  => $this->current,
+			'current' => $this->current,
 			'bookable' => $bookables
 		]);
 	}
@@ -111,7 +109,7 @@ class BookablesController extends AdminController
 	 * Update the specified resource in storage.
 	 *
 	 * @param CreateBookableForm $request
-	 * @param Bookable           $bookables
+	 * @param Bookable $bookables
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
@@ -121,8 +119,7 @@ class BookablesController extends AdminController
 			$request->all()
 		);
 
-		if($request->has('images'))
-		{
+		if ($request->has('images')) {
 			$bookables->images()->sync($request->get('images'));
 		}
 
@@ -144,14 +141,14 @@ class BookablesController extends AdminController
 
 		if ($request->ajax() || $request->wantsJson()) {
 			return new JsonResponse([
-				'status'  => 'success',
+				'status' => 'success',
 				'message' => 'La entidad se ha borrado correctamente'
 			], Response::HTTP_OK
 			);
 		}
 
 		return redirect()->route('admin.bookabletypes.index')
-		                 ->withStatus('success')
-		                 ->withMessage('La entidad se ha borrado correctamente');
+			->withStatus('success')
+			->withMessage('La entidad se ha borrado correctamente');
 	}
 }

@@ -1,0 +1,83 @@
+<div class="panel panel-white">
+    <div class="panel-heading" data-spy="affix">
+        <h6 class="panel-title">
+            {{header}}
+            <span class="text-highlight bg-primary" v-if="hasChanged && !isNew">
+				{{message}}
+			</span>
+        </h6>
+        <div class="heading-elements">
+            <u-button :ladda="{style:'zoom-in'}"
+                      class="pull-right"
+                      data-style="zoom-in"
+                      color="primary"
+                      @click="create"
+            >
+                Crear
+            </u-button>
+
+            <u-button :ladda="{style:'zoom-in'}"
+                      class="pull-right mr-10"
+                      data-style="zoom-in"
+                      color="primary"
+                      @click="cancel"
+            >
+                Cancelar
+            </u-button>
+
+        </div>
+    </div>
+    <div class="panel-body" v-block="loading">
+        <div class="Event">
+            <div class="Event--Header">
+                <div class="Header--Image">
+                    <file-upload id="image" url="/files"></file-upload>
+                </div>
+                <div class="Header--Info">
+                    <time class="Info--Date">
+                        <p class="Date--Month">{{month}}</p>
+                        <p class="Date--Day">{{day}}</p>
+                    </time>
+
+
+                    <div class="Header--Title">
+                        <h1 class="Title" v-medium="title" placeholder="Aquí pon el título de tú evento"></h1>
+                    </div>
+                </div>
+
+                <div class="Header--NavBar"></div>
+            </div>
+            <div class="Event--Body">
+                <div class="Event--Description">
+                    <dt>Descripción</dt>
+                    <input type="hidden" v-model="form.description">
+                    <dd>
+                        <editor></editor>
+                        <quill :content.sync="content" :config="config"></quill>
+                    </dd>
+                    <form-error :errors="errors.type"></form-error>
+                </div>
+                <div class="Event--Details">
+                    <dt>Fecha y Hora</dt>
+                    <dd>
+                        <p>{{descriptiveDate}}</p>
+                        <p>{{descriptiveTime}}</p>
+                    </dd>
+                    <hr>
+                    <dt>Ubicación</dt>
+                    <dd>
+                        <p>Sala: {{room}}</p>
+                        <p>ULab</p>
+                        <p>Pza San Cristobal, 14</p>
+                        <p>03002 Alicante (Spain)</p>
+                    </dd>
+
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+</div>

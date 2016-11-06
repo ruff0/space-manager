@@ -2,13 +2,10 @@
 
 namespace App\Providers;
 
-use App\Events\Infrastructure\Repositories\EloquentEventRepositories;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Mosaiqo\Cqrs\DomainEventPublisher;
-use Mosaiqo\Cqrs\EloquentEventStore;
-use Mosaiqo\Cqrs\PersistEventSubscriber;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,9 +26,7 @@ class AppServiceProvider extends ServiceProvider
 			return "<?php echo number_format($value, 2, ',', '.') . ' €'?>";
 		});
 
-		DomainEventPublisher::instance()->subscribe(
-			new PersistEventSubscriber( new EloquentEventStore() )
-		);
+
 	}
 
 	/**
@@ -41,6 +36,16 @@ class AppServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		//
+		$projections = [
+
+		];
+
+		    //new PersistEventSubscriber(new EloquentEventStore())
+		$eventPublisher = DomainEventPublisher::instance();
+
+		foreach ($projections as $projection) {
+			$eventPublisher->subscribe($projection);
+		}
+
 	}
 }

@@ -1,9 +1,225 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports = { "default": require("core-js/library/fn/object/define-property"), __esModule: true };
+},{"core-js/library/fn/object/define-property":3}],2:[function(require,module,exports){
+"use strict";
+
+exports.__esModule = true;
+
+var _defineProperty = require("../core-js/object/define-property");
+
+var _defineProperty2 = _interopRequireDefault(_defineProperty);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+exports.default = function (obj, key, value) {
+  if (key in obj) {
+    (0, _defineProperty2.default)(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+};
+},{"../core-js/object/define-property":1}],3:[function(require,module,exports){
+require('../../modules/es6.object.define-property');
+var $Object = require('../../modules/_core').Object;
+module.exports = function defineProperty(it, key, desc){
+  return $Object.defineProperty(it, key, desc);
+};
+},{"../../modules/_core":6,"../../modules/es6.object.define-property":19}],4:[function(require,module,exports){
+module.exports = function(it){
+  if(typeof it != 'function')throw TypeError(it + ' is not a function!');
+  return it;
+};
+},{}],5:[function(require,module,exports){
+var isObject = require('./_is-object');
+module.exports = function(it){
+  if(!isObject(it))throw TypeError(it + ' is not an object!');
+  return it;
+};
+},{"./_is-object":15}],6:[function(require,module,exports){
+var core = module.exports = {version: '2.4.0'};
+if(typeof __e == 'number')__e = core; // eslint-disable-line no-undef
+},{}],7:[function(require,module,exports){
+// optional / simple context binding
+var aFunction = require('./_a-function');
+module.exports = function(fn, that, length){
+  aFunction(fn);
+  if(that === undefined)return fn;
+  switch(length){
+    case 1: return function(a){
+      return fn.call(that, a);
+    };
+    case 2: return function(a, b){
+      return fn.call(that, a, b);
+    };
+    case 3: return function(a, b, c){
+      return fn.call(that, a, b, c);
+    };
+  }
+  return function(/* ...args */){
+    return fn.apply(that, arguments);
+  };
+};
+},{"./_a-function":4}],8:[function(require,module,exports){
+// Thank's IE8 for his funny defineProperty
+module.exports = !require('./_fails')(function(){
+  return Object.defineProperty({}, 'a', {get: function(){ return 7; }}).a != 7;
+});
+},{"./_fails":11}],9:[function(require,module,exports){
+var isObject = require('./_is-object')
+  , document = require('./_global').document
+  // in old IE typeof document.createElement is 'object'
+  , is = isObject(document) && isObject(document.createElement);
+module.exports = function(it){
+  return is ? document.createElement(it) : {};
+};
+},{"./_global":12,"./_is-object":15}],10:[function(require,module,exports){
+var global    = require('./_global')
+  , core      = require('./_core')
+  , ctx       = require('./_ctx')
+  , hide      = require('./_hide')
+  , PROTOTYPE = 'prototype';
+
+var $export = function(type, name, source){
+  var IS_FORCED = type & $export.F
+    , IS_GLOBAL = type & $export.G
+    , IS_STATIC = type & $export.S
+    , IS_PROTO  = type & $export.P
+    , IS_BIND   = type & $export.B
+    , IS_WRAP   = type & $export.W
+    , exports   = IS_GLOBAL ? core : core[name] || (core[name] = {})
+    , expProto  = exports[PROTOTYPE]
+    , target    = IS_GLOBAL ? global : IS_STATIC ? global[name] : (global[name] || {})[PROTOTYPE]
+    , key, own, out;
+  if(IS_GLOBAL)source = name;
+  for(key in source){
+    // contains in native
+    own = !IS_FORCED && target && target[key] !== undefined;
+    if(own && key in exports)continue;
+    // export native or passed
+    out = own ? target[key] : source[key];
+    // prevent global pollution for namespaces
+    exports[key] = IS_GLOBAL && typeof target[key] != 'function' ? source[key]
+    // bind timers to global for call from export context
+    : IS_BIND && own ? ctx(out, global)
+    // wrap global constructors for prevent change them in library
+    : IS_WRAP && target[key] == out ? (function(C){
+      var F = function(a, b, c){
+        if(this instanceof C){
+          switch(arguments.length){
+            case 0: return new C;
+            case 1: return new C(a);
+            case 2: return new C(a, b);
+          } return new C(a, b, c);
+        } return C.apply(this, arguments);
+      };
+      F[PROTOTYPE] = C[PROTOTYPE];
+      return F;
+    // make static versions for prototype methods
+    })(out) : IS_PROTO && typeof out == 'function' ? ctx(Function.call, out) : out;
+    // export proto methods to core.%CONSTRUCTOR%.methods.%NAME%
+    if(IS_PROTO){
+      (exports.virtual || (exports.virtual = {}))[key] = out;
+      // export proto methods to core.%CONSTRUCTOR%.prototype.%NAME%
+      if(type & $export.R && expProto && !expProto[key])hide(expProto, key, out);
+    }
+  }
+};
+// type bitmap
+$export.F = 1;   // forced
+$export.G = 2;   // global
+$export.S = 4;   // static
+$export.P = 8;   // proto
+$export.B = 16;  // bind
+$export.W = 32;  // wrap
+$export.U = 64;  // safe
+$export.R = 128; // real proto method for `library` 
+module.exports = $export;
+},{"./_core":6,"./_ctx":7,"./_global":12,"./_hide":13}],11:[function(require,module,exports){
+module.exports = function(exec){
+  try {
+    return !!exec();
+  } catch(e){
+    return true;
+  }
+};
+},{}],12:[function(require,module,exports){
+// https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
+var global = module.exports = typeof window != 'undefined' && window.Math == Math
+  ? window : typeof self != 'undefined' && self.Math == Math ? self : Function('return this')();
+if(typeof __g == 'number')__g = global; // eslint-disable-line no-undef
+},{}],13:[function(require,module,exports){
+var dP         = require('./_object-dp')
+  , createDesc = require('./_property-desc');
+module.exports = require('./_descriptors') ? function(object, key, value){
+  return dP.f(object, key, createDesc(1, value));
+} : function(object, key, value){
+  object[key] = value;
+  return object;
+};
+},{"./_descriptors":8,"./_object-dp":16,"./_property-desc":17}],14:[function(require,module,exports){
+module.exports = !require('./_descriptors') && !require('./_fails')(function(){
+  return Object.defineProperty(require('./_dom-create')('div'), 'a', {get: function(){ return 7; }}).a != 7;
+});
+},{"./_descriptors":8,"./_dom-create":9,"./_fails":11}],15:[function(require,module,exports){
+module.exports = function(it){
+  return typeof it === 'object' ? it !== null : typeof it === 'function';
+};
+},{}],16:[function(require,module,exports){
+var anObject       = require('./_an-object')
+  , IE8_DOM_DEFINE = require('./_ie8-dom-define')
+  , toPrimitive    = require('./_to-primitive')
+  , dP             = Object.defineProperty;
+
+exports.f = require('./_descriptors') ? Object.defineProperty : function defineProperty(O, P, Attributes){
+  anObject(O);
+  P = toPrimitive(P, true);
+  anObject(Attributes);
+  if(IE8_DOM_DEFINE)try {
+    return dP(O, P, Attributes);
+  } catch(e){ /* empty */ }
+  if('get' in Attributes || 'set' in Attributes)throw TypeError('Accessors not supported!');
+  if('value' in Attributes)O[P] = Attributes.value;
+  return O;
+};
+},{"./_an-object":5,"./_descriptors":8,"./_ie8-dom-define":14,"./_to-primitive":18}],17:[function(require,module,exports){
+module.exports = function(bitmap, value){
+  return {
+    enumerable  : !(bitmap & 1),
+    configurable: !(bitmap & 2),
+    writable    : !(bitmap & 4),
+    value       : value
+  };
+};
+},{}],18:[function(require,module,exports){
+// 7.1.1 ToPrimitive(input [, PreferredType])
+var isObject = require('./_is-object');
+// instead of the ES6 spec version, we didn't implement @@toPrimitive case
+// and the second argument - flag - preferred type is a string
+module.exports = function(it, S){
+  if(!isObject(it))return it;
+  var fn, val;
+  if(S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+  if(typeof (fn = it.valueOf) == 'function' && !isObject(val = fn.call(it)))return val;
+  if(!S && typeof (fn = it.toString) == 'function' && !isObject(val = fn.call(it)))return val;
+  throw TypeError("Can't convert object to primitive value");
+};
+},{"./_is-object":15}],19:[function(require,module,exports){
+var $export = require('./_export');
+// 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
+$export($export.S + $export.F * !require('./_descriptors'), 'Object', {defineProperty: require('./_object-dp').f});
+},{"./_descriptors":8,"./_export":10,"./_object-dp":16}],20:[function(require,module,exports){
 (function (global){
 /**
  * @license
  * lodash <https://lodash.com/>
- * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Copyright JS Foundation and other contributors <https://js.foundation/>
  * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
@@ -14,7 +230,7 @@
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.16.4';
+  var VERSION = '4.16.6';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
@@ -53,7 +269,7 @@
       DEFAULT_TRUNC_OMISSION = '...';
 
   /** Used to detect hot functions by number of calls within a span of milliseconds. */
-  var HOT_COUNT = 500,
+  var HOT_COUNT = 800,
       HOT_SPAN = 16;
 
   /** Used to indicate the type of lazy iteratees. */
@@ -88,13 +304,16 @@
   /** `Object#toString` result references. */
   var argsTag = '[object Arguments]',
       arrayTag = '[object Array]',
+      asyncTag = '[object AsyncFunction]',
       boolTag = '[object Boolean]',
       dateTag = '[object Date]',
+      domExcTag = '[object DOMException]',
       errorTag = '[object Error]',
       funcTag = '[object Function]',
       genTag = '[object GeneratorFunction]',
       mapTag = '[object Map]',
       numberTag = '[object Number]',
+      nullTag = '[object Null]',
       objectTag = '[object Object]',
       promiseTag = '[object Promise]',
       proxyTag = '[object Proxy]',
@@ -102,6 +321,7 @@
       setTag = '[object Set]',
       stringTag = '[object String]',
       symbolTag = '[object Symbol]',
+      undefinedTag = '[object Undefined]',
       weakMapTag = '[object WeakMap]',
       weakSetTag = '[object WeakSet]';
 
@@ -227,13 +447,15 @@
       rsZWJ = '\\u200d';
 
   /** Used to compose unicode regexes. */
-  var rsLowerMisc = '(?:' + rsLower + '|' + rsMisc + ')',
-      rsUpperMisc = '(?:' + rsUpper + '|' + rsMisc + ')',
-      rsOptLowerContr = '(?:' + rsApos + '(?:d|ll|m|re|s|t|ve))?',
-      rsOptUpperContr = '(?:' + rsApos + '(?:D|LL|M|RE|S|T|VE))?',
+  var rsMiscLower = '(?:' + rsLower + '|' + rsMisc + ')',
+      rsMiscUpper = '(?:' + rsUpper + '|' + rsMisc + ')',
+      rsOptContrLower = '(?:' + rsApos + '(?:d|ll|m|re|s|t|ve))?',
+      rsOptContrUpper = '(?:' + rsApos + '(?:D|LL|M|RE|S|T|VE))?',
       reOptMod = rsModifier + '?',
       rsOptVar = '[' + rsVarRange + ']?',
       rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+      rsOrdLower = '\\d*(?:(?:1st|2nd|3rd|(?![123])\\dth)\\b)',
+      rsOrdUpper = '\\d*(?:(?:1ST|2ND|3RD|(?![123])\\dTH)\\b)',
       rsSeq = rsOptVar + reOptMod + rsOptJoin,
       rsEmoji = '(?:' + [rsDingbat, rsRegional, rsSurrPair].join('|') + ')' + rsSeq,
       rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
@@ -252,10 +474,12 @@
 
   /** Used to match complex or compound words. */
   var reUnicodeWord = RegExp([
-    rsUpper + '?' + rsLower + '+' + rsOptLowerContr + '(?=' + [rsBreak, rsUpper, '$'].join('|') + ')',
-    rsUpperMisc + '+' + rsOptUpperContr + '(?=' + [rsBreak, rsUpper + rsLowerMisc, '$'].join('|') + ')',
-    rsUpper + '?' + rsLowerMisc + '+' + rsOptLowerContr,
-    rsUpper + '+' + rsOptUpperContr,
+    rsUpper + '?' + rsLower + '+' + rsOptContrLower + '(?=' + [rsBreak, rsUpper, '$'].join('|') + ')',
+    rsMiscUpper + '+' + rsOptContrUpper + '(?=' + [rsBreak, rsUpper + rsMiscLower, '$'].join('|') + ')',
+    rsUpper + '?' + rsMiscLower + '+' + rsOptContrLower,
+    rsUpper + '+' + rsOptContrUpper,
+    rsOrdUpper,
+    rsOrdLower,
     rsDigits,
     rsEmoji
   ].join('|'), 'g');
@@ -498,7 +722,7 @@
    */
   function arrayAggregator(array, setter, iteratee, accumulator) {
     var index = -1,
-        length = array ? array.length : 0;
+        length = array == null ? 0 : array.length;
 
     while (++index < length) {
       var value = array[index];
@@ -518,7 +742,7 @@
    */
   function arrayEach(array, iteratee) {
     var index = -1,
-        length = array ? array.length : 0;
+        length = array == null ? 0 : array.length;
 
     while (++index < length) {
       if (iteratee(array[index], index, array) === false) {
@@ -538,7 +762,7 @@
    * @returns {Array} Returns `array`.
    */
   function arrayEachRight(array, iteratee) {
-    var length = array ? array.length : 0;
+    var length = array == null ? 0 : array.length;
 
     while (length--) {
       if (iteratee(array[length], length, array) === false) {
@@ -560,7 +784,7 @@
    */
   function arrayEvery(array, predicate) {
     var index = -1,
-        length = array ? array.length : 0;
+        length = array == null ? 0 : array.length;
 
     while (++index < length) {
       if (!predicate(array[index], index, array)) {
@@ -581,7 +805,7 @@
    */
   function arrayFilter(array, predicate) {
     var index = -1,
-        length = array ? array.length : 0,
+        length = array == null ? 0 : array.length,
         resIndex = 0,
         result = [];
 
@@ -604,7 +828,7 @@
    * @returns {boolean} Returns `true` if `target` is found, else `false`.
    */
   function arrayIncludes(array, value) {
-    var length = array ? array.length : 0;
+    var length = array == null ? 0 : array.length;
     return !!length && baseIndexOf(array, value, 0) > -1;
   }
 
@@ -619,7 +843,7 @@
    */
   function arrayIncludesWith(array, value, comparator) {
     var index = -1,
-        length = array ? array.length : 0;
+        length = array == null ? 0 : array.length;
 
     while (++index < length) {
       if (comparator(value, array[index])) {
@@ -640,7 +864,7 @@
    */
   function arrayMap(array, iteratee) {
     var index = -1,
-        length = array ? array.length : 0,
+        length = array == null ? 0 : array.length,
         result = Array(length);
 
     while (++index < length) {
@@ -682,7 +906,7 @@
    */
   function arrayReduce(array, iteratee, accumulator, initAccum) {
     var index = -1,
-        length = array ? array.length : 0;
+        length = array == null ? 0 : array.length;
 
     if (initAccum && length) {
       accumulator = array[++index];
@@ -706,7 +930,7 @@
    * @returns {*} Returns the accumulated value.
    */
   function arrayReduceRight(array, iteratee, accumulator, initAccum) {
-    var length = array ? array.length : 0;
+    var length = array == null ? 0 : array.length;
     if (initAccum && length) {
       accumulator = array[--length];
     }
@@ -728,7 +952,7 @@
    */
   function arraySome(array, predicate) {
     var index = -1,
-        length = array ? array.length : 0;
+        length = array == null ? 0 : array.length;
 
     while (++index < length) {
       if (predicate(array[index], index, array)) {
@@ -872,7 +1096,7 @@
    * @returns {number} Returns the mean.
    */
   function baseMean(array, iteratee) {
-    var length = array ? array.length : 0;
+    var length = array == null ? 0 : array.length;
     return length ? (baseSum(array, iteratee) / length) : NAN;
   }
 
@@ -1412,7 +1636,7 @@
    * var defer = _.runInContext({ 'setTimeout': setImmediate }).defer;
    */
   var runInContext = (function runInContext(context) {
-    context = context ? _.defaults(root.Object(), context, _.pick(root, contextProps)) : root;
+    context = context == null ? root : _.defaults(root.Object(), context, _.pick(root, contextProps));
 
     /** Built-in constructor references. */
     var Array = context.Array,
@@ -1433,12 +1657,6 @@
     /** Used to detect overreaching core-js shims. */
     var coreJsData = context['__core-js_shared__'];
 
-    /** Used to detect methods masquerading as native. */
-    var maskSrcKey = (function() {
-      var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
-      return uid ? ('Symbol(src)_1.' + uid) : '';
-    }());
-
     /** Used to resolve the decompiled source of functions. */
     var funcToString = funcProto.toString;
 
@@ -1448,15 +1666,21 @@
     /** Used to generate unique IDs. */
     var idCounter = 0;
 
-    /** Used to infer the `Object` constructor. */
-    var objectCtorString = funcToString.call(Object);
+    /** Used to detect methods masquerading as native. */
+    var maskSrcKey = (function() {
+      var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
+      return uid ? ('Symbol(src)_1.' + uid) : '';
+    }());
 
     /**
      * Used to resolve the
      * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
      * of values.
      */
-    var objectToString = objectProto.toString;
+    var nativeObjectToString = objectProto.toString;
+
+    /** Used to infer the `Object` constructor. */
+    var objectCtorString = funcToString.call(Object);
 
     /** Used to restore the original `_` reference in `_.noConflict`. */
     var oldDash = root._;
@@ -1473,11 +1697,12 @@
         Uint8Array = context.Uint8Array,
         allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined,
         getPrototype = overArg(Object.getPrototypeOf, Object),
-        iteratorSymbol = Symbol ? Symbol.iterator : undefined,
         objectCreate = Object.create,
         propertyIsEnumerable = objectProto.propertyIsEnumerable,
         splice = arrayProto.splice,
-        spreadableSymbol = Symbol ? Symbol.isConcatSpreadable : undefined;
+        spreadableSymbol = Symbol ? Symbol.isConcatSpreadable : undefined,
+        symIterator = Symbol ? Symbol.iterator : undefined,
+        symToStringTag = Symbol ? Symbol.toStringTag : undefined;
 
     var defineProperty = (function() {
       try {
@@ -1911,7 +2136,7 @@
      */
     function Hash(entries) {
       var index = -1,
-          length = entries ? entries.length : 0;
+          length = entries == null ? 0 : entries.length;
 
       this.clear();
       while (++index < length) {
@@ -2015,7 +2240,7 @@
      */
     function ListCache(entries) {
       var index = -1,
-          length = entries ? entries.length : 0;
+          length = entries == null ? 0 : entries.length;
 
       this.clear();
       while (++index < length) {
@@ -2132,7 +2357,7 @@
      */
     function MapCache(entries) {
       var index = -1,
-          length = entries ? entries.length : 0;
+          length = entries == null ? 0 : entries.length;
 
       this.clear();
       while (++index < length) {
@@ -2236,7 +2461,7 @@
      */
     function SetCache(values) {
       var index = -1,
-          length = values ? values.length : 0;
+          length = values == null ? 0 : values.length;
 
       this.__data__ = new MapCache;
       while (++index < length) {
@@ -2583,12 +2808,12 @@
      */
     function baseAt(object, paths) {
       var index = -1,
-          isNil = object == null,
           length = paths.length,
-          result = Array(length);
+          result = Array(length),
+          skip = object == null;
 
       while (++index < length) {
-        result[index] = isNil ? undefined : get(object, paths[index]);
+        result[index] = skip ? undefined : get(object, paths[index]);
       }
       return result;
     }
@@ -2778,7 +3003,7 @@
       outer:
       while (++index < length) {
         var value = array[index],
-            computed = iteratee ? iteratee(value) : value;
+            computed = iteratee == null ? value : iteratee(value);
 
         value = (comparator || value !== 0) ? value : 0;
         if (isCommon && computed === computed) {
@@ -3045,14 +3270,20 @@
     }
 
     /**
-     * The base implementation of `getTag`.
+     * The base implementation of `getTag` without fallbacks for buggy environments.
      *
      * @private
      * @param {*} value The value to query.
      * @returns {string} Returns the `toStringTag`.
      */
     function baseGetTag(value) {
-      return objectToString.call(value);
+      if (value == null) {
+        return value === undefined ? undefinedTag : nullTag;
+      }
+      value = Object(value);
+      return (symToStringTag && symToStringTag in value)
+        ? getRawTag(value)
+        : objectToString(value);
     }
 
     /**
@@ -3214,7 +3445,7 @@
      * @returns {boolean} Returns `true` if `value` is an `arguments` object,
      */
     function baseIsArguments(value) {
-      return isObjectLike(value) && objectToString.call(value) == argsTag;
+      return isObjectLike(value) && baseGetTag(value) == argsTag;
     }
 
     /**
@@ -3225,7 +3456,7 @@
      * @returns {boolean} Returns `true` if `value` is an array buffer, else `false`.
      */
     function baseIsArrayBuffer(value) {
-      return isObjectLike(value) && objectToString.call(value) == arrayBufferTag;
+      return isObjectLike(value) && baseGetTag(value) == arrayBufferTag;
     }
 
     /**
@@ -3236,7 +3467,7 @@
      * @returns {boolean} Returns `true` if `value` is a date object, else `false`.
      */
     function baseIsDate(value) {
-      return isObjectLike(value) && objectToString.call(value) == dateTag;
+      return isObjectLike(value) && baseGetTag(value) == dateTag;
     }
 
     /**
@@ -3418,7 +3649,7 @@
      * @returns {boolean} Returns `true` if `value` is a regexp, else `false`.
      */
     function baseIsRegExp(value) {
-      return isObject(value) && objectToString.call(value) == regexpTag;
+      return isObjectLike(value) && baseGetTag(value) == regexpTag;
     }
 
     /**
@@ -3441,7 +3672,7 @@
      */
     function baseIsTypedArray(value) {
       return isObjectLike(value) &&
-        isLength(value.length) && !!typedArrayTags[objectToString.call(value)];
+        isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
     }
 
     /**
@@ -4102,7 +4333,7 @@
      */
     function baseSortedIndex(array, value, retHighest) {
       var low = 0,
-          high = array ? array.length : low;
+          high = array == null ? low : array.length;
 
       if (typeof value == 'number' && value === value && high <= HALF_MAX_ARRAY_LENGTH) {
         while (low < high) {
@@ -4138,7 +4369,7 @@
       value = iteratee(value);
 
       var low = 0,
-          high = array ? array.length : 0,
+          high = array == null ? 0 : array.length,
           valIsNaN = value !== value,
           valIsNull = value === null,
           valIsSymbol = isSymbol(value),
@@ -4388,18 +4619,24 @@
      * @returns {Array} Returns the new array of values.
      */
     function baseXor(arrays, iteratee, comparator) {
+      var length = arrays.length;
+      if (length < 2) {
+        return length ? baseUniq(arrays[0]) : [];
+      }
       var index = -1,
-          length = arrays.length;
+          result = Array(length);
 
       while (++index < length) {
-        var result = result
-          ? arrayPush(
-              baseDifference(result, arrays[index], iteratee, comparator),
-              baseDifference(arrays[index], result, iteratee, comparator)
-            )
-          : arrays[index];
+        var array = arrays[index],
+            othIndex = -1;
+
+        while (++othIndex < length) {
+          if (othIndex != index) {
+            result[index] = baseDifference(result[index] || array, arrays[othIndex], iteratee, comparator);
+          }
+        }
       }
-      return (result && result.length) ? baseUniq(result, iteratee, comparator) : [];
+      return baseUniq(baseFlatten(result, 1), iteratee, comparator);
     }
 
     /**
@@ -5937,6 +6174,33 @@
     }
 
     /**
+     * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+     *
+     * @private
+     * @param {*} value The value to query.
+     * @returns {string} Returns the raw `toStringTag`.
+     */
+    function getRawTag(value) {
+      var isOwn = hasOwnProperty.call(value, symToStringTag),
+          tag = value[symToStringTag];
+
+      try {
+        value[symToStringTag] = undefined;
+        var unmasked = true;
+      } catch (e) {}
+
+      var result = nativeObjectToString.call(value);
+      if (unmasked) {
+        if (isOwn) {
+          value[symToStringTag] = tag;
+        } else {
+          delete value[symToStringTag];
+        }
+      }
+      return result;
+    }
+
+    /**
      * Creates an array of the own enumerable symbol properties of `object`.
      *
      * @private
@@ -5978,9 +6242,9 @@
         (Set && getTag(new Set) != setTag) ||
         (WeakMap && getTag(new WeakMap) != weakMapTag)) {
       getTag = function(value) {
-        var result = objectToString.call(value),
+        var result = baseGetTag(value),
             Ctor = result == objectTag ? value.constructor : undefined,
-            ctorString = Ctor ? toSource(Ctor) : undefined;
+            ctorString = Ctor ? toSource(Ctor) : '';
 
         if (ctorString) {
           switch (ctorString) {
@@ -6061,7 +6325,7 @@
       if (result || ++index != length) {
         return result;
       }
-      length = object ? object.length : 0;
+      length = object == null ? 0 : object.length;
       return !!length && isLength(length) && isIndex(key, length) &&
         (isArray(object) || isArguments(object));
     }
@@ -6473,6 +6737,17 @@
     }
 
     /**
+     * Converts `value` to a string using `Object.prototype.toString`.
+     *
+     * @private
+     * @param {*} value The value to convert.
+     * @returns {string} Returns the converted string.
+     */
+    function objectToString(value) {
+      return nativeObjectToString.call(value);
+    }
+
+    /**
      * A specialized version of `baseRest` which transforms the rest array.
      *
      * @private
@@ -6682,7 +6957,7 @@
      * Converts `func` to its source code.
      *
      * @private
-     * @param {Function} func The function to process.
+     * @param {Function} func The function to convert.
      * @returns {string} Returns the source code.
      */
     function toSource(func) {
@@ -6762,7 +7037,7 @@
       } else {
         size = nativeMax(toInteger(size), 0);
       }
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length || size < 1) {
         return [];
       }
@@ -6793,7 +7068,7 @@
      */
     function compact(array) {
       var index = -1,
-          length = array ? array.length : 0,
+          length = array == null ? 0 : array.length,
           resIndex = 0,
           result = [];
 
@@ -6965,7 +7240,7 @@
      * // => [1, 2, 3]
      */
     function drop(array, n, guard) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return [];
       }
@@ -6999,7 +7274,7 @@
      * // => [1, 2, 3]
      */
     function dropRight(array, n, guard) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return [];
       }
@@ -7059,8 +7334,7 @@
      * @since 3.0.0
      * @category Array
      * @param {Array} array The array to query.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @returns {Array} Returns the slice of `array`.
      * @example
      *
@@ -7121,7 +7395,7 @@
      * // => [4, '*', '*', 10]
      */
     function fill(array, value, start, end) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return [];
       }
@@ -7141,8 +7415,7 @@
      * @since 1.1.0
      * @category Array
      * @param {Array} array The array to inspect.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @param {number} [fromIndex=0] The index to search from.
      * @returns {number} Returns the index of the found element, else `-1`.
      * @example
@@ -7169,7 +7442,7 @@
      * // => 2
      */
     function findIndex(array, predicate, fromIndex) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return -1;
       }
@@ -7189,8 +7462,7 @@
      * @since 2.0.0
      * @category Array
      * @param {Array} array The array to inspect.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @param {number} [fromIndex=array.length-1] The index to search from.
      * @returns {number} Returns the index of the found element, else `-1`.
      * @example
@@ -7217,7 +7489,7 @@
      * // => 0
      */
     function findLastIndex(array, predicate, fromIndex) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return -1;
       }
@@ -7246,7 +7518,7 @@
      * // => [1, 2, [3, [4]], 5]
      */
     function flatten(array) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       return length ? baseFlatten(array, 1) : [];
     }
 
@@ -7265,7 +7537,7 @@
      * // => [1, 2, 3, 4, 5]
      */
     function flattenDeep(array) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       return length ? baseFlatten(array, INFINITY) : [];
     }
 
@@ -7290,7 +7562,7 @@
      * // => [1, 2, 3, [4], 5]
      */
     function flattenDepth(array, depth) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return [];
       }
@@ -7315,7 +7587,7 @@
      */
     function fromPairs(pairs) {
       var index = -1,
-          length = pairs ? pairs.length : 0,
+          length = pairs == null ? 0 : pairs.length,
           result = {};
 
       while (++index < length) {
@@ -7371,7 +7643,7 @@
      * // => 3
      */
     function indexOf(array, value, fromIndex) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return -1;
       }
@@ -7397,7 +7669,7 @@
      * // => [1, 2]
      */
     function initial(array) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       return length ? baseSlice(array, 0, -1) : [];
     }
 
@@ -7487,9 +7759,8 @@
       var comparator = last(arrays),
           mapped = arrayMap(arrays, castArrayLikeObject);
 
-      if (comparator === last(mapped)) {
-        comparator = undefined;
-      } else {
+      comparator = typeof comparator == 'function' ? comparator : undefined;
+      if (comparator) {
         mapped.pop();
       }
       return (mapped.length && mapped[0] === arrays[0])
@@ -7513,7 +7784,7 @@
      * // => 'a~b~c'
      */
     function join(array, separator) {
-      return array ? nativeJoin.call(array, separator) : '';
+      return array == null ? '' : nativeJoin.call(array, separator);
     }
 
     /**
@@ -7531,7 +7802,7 @@
      * // => 3
      */
     function last(array) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       return length ? array[length - 1] : undefined;
     }
 
@@ -7557,7 +7828,7 @@
      * // => 1
      */
     function lastIndexOf(array, value, fromIndex) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return -1;
       }
@@ -7660,8 +7931,7 @@
      * @category Array
      * @param {Array} array The array to modify.
      * @param {Array} values The values to remove.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee invoked per element.
+     * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
      * @returns {Array} Returns `array`.
      * @example
      *
@@ -7731,7 +8001,7 @@
      * // => ['b', 'd']
      */
     var pullAt = flatRest(function(array, indexes) {
-      var length = array ? array.length : 0,
+      var length = array == null ? 0 : array.length,
           result = baseAt(array, indexes);
 
       basePullAt(array, arrayMap(indexes, function(index) {
@@ -7754,8 +8024,7 @@
      * @since 2.0.0
      * @category Array
      * @param {Array} array The array to modify.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @returns {Array} Returns the new array of removed elements.
      * @example
      *
@@ -7815,7 +8084,7 @@
      * // => [3, 2, 1]
      */
     function reverse(array) {
-      return array ? nativeReverse.call(array) : array;
+      return array == null ? array : nativeReverse.call(array);
     }
 
     /**
@@ -7835,7 +8104,7 @@
      * @returns {Array} Returns the slice of `array`.
      */
     function slice(array, start, end) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return [];
       }
@@ -7882,8 +8151,7 @@
      * @category Array
      * @param {Array} array The sorted array to inspect.
      * @param {*} value The value to evaluate.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee invoked per element.
+     * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
      * @returns {number} Returns the index at which `value` should be inserted
      *  into `array`.
      * @example
@@ -7918,7 +8186,7 @@
      * // => 1
      */
     function sortedIndexOf(array, value) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (length) {
         var index = baseSortedIndex(array, value);
         if (index < length && eq(array[index], value)) {
@@ -7961,8 +8229,7 @@
      * @category Array
      * @param {Array} array The sorted array to inspect.
      * @param {*} value The value to evaluate.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee invoked per element.
+     * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
      * @returns {number} Returns the index at which `value` should be inserted
      *  into `array`.
      * @example
@@ -7997,7 +8264,7 @@
      * // => 3
      */
     function sortedLastIndexOf(array, value) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (length) {
         var index = baseSortedIndex(array, value, true) - 1;
         if (eq(array[index], value)) {
@@ -8065,7 +8332,7 @@
      * // => [2, 3]
      */
     function tail(array) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       return length ? baseSlice(array, 1, length) : [];
     }
 
@@ -8128,7 +8395,7 @@
      * // => []
      */
     function takeRight(array, n, guard) {
-      var length = array ? array.length : 0;
+      var length = array == null ? 0 : array.length;
       if (!length) {
         return [];
       }
@@ -8147,8 +8414,7 @@
      * @since 3.0.0
      * @category Array
      * @param {Array} array The array to query.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @returns {Array} Returns the slice of `array`.
      * @example
      *
@@ -8189,8 +8455,7 @@
      * @since 3.0.0
      * @category Array
      * @param {Array} array The array to query.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @returns {Array} Returns the slice of `array`.
      * @example
      *
@@ -8253,8 +8518,7 @@
      * @since 4.0.0
      * @category Array
      * @param {...Array} [arrays] The arrays to inspect.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee invoked per element.
+     * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
      * @returns {Array} Returns the new array of combined values.
      * @example
      *
@@ -8296,9 +8560,7 @@
      */
     var unionWith = baseRest(function(arrays) {
       var comparator = last(arrays);
-      if (isArrayLikeObject(comparator)) {
-        comparator = undefined;
-      }
+      comparator = typeof comparator == 'function' ? comparator : undefined;
       return baseUniq(baseFlatten(arrays, 1, isArrayLikeObject, true), undefined, comparator);
     });
 
@@ -8321,9 +8583,7 @@
      * // => [2, 1]
      */
     function uniq(array) {
-      return (array && array.length)
-        ? baseUniq(array)
-        : [];
+      return (array && array.length) ? baseUniq(array) : [];
     }
 
     /**
@@ -8338,8 +8598,7 @@
      * @since 4.0.0
      * @category Array
      * @param {Array} array The array to inspect.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee invoked per element.
+     * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
      * @returns {Array} Returns the new duplicate free array.
      * @example
      *
@@ -8351,9 +8610,7 @@
      * // => [{ 'x': 1 }, { 'x': 2 }]
      */
     function uniqBy(array, iteratee) {
-      return (array && array.length)
-        ? baseUniq(array, getIteratee(iteratee, 2))
-        : [];
+      return (array && array.length) ? baseUniq(array, getIteratee(iteratee, 2)) : [];
     }
 
     /**
@@ -8377,9 +8634,8 @@
      * // => [{ 'x': 1, 'y': 2 }, { 'x': 2, 'y': 1 }]
      */
     function uniqWith(array, comparator) {
-      return (array && array.length)
-        ? baseUniq(array, undefined, comparator)
-        : [];
+      comparator = typeof comparator == 'function' ? comparator : undefined;
+      return (array && array.length) ? baseUniq(array, undefined, comparator) : [];
     }
 
     /**
@@ -8511,8 +8767,7 @@
      * @since 4.0.0
      * @category Array
      * @param {...Array} [arrays] The arrays to inspect.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee invoked per element.
+     * @param {Function} [iteratee=_.identity] The iteratee invoked per element.
      * @returns {Array} Returns the new array of filtered values.
      * @example
      *
@@ -8554,9 +8809,7 @@
      */
     var xorWith = baseRest(function(arrays) {
       var comparator = last(arrays);
-      if (isArrayLikeObject(comparator)) {
-        comparator = undefined;
-      }
+      comparator = typeof comparator == 'function' ? comparator : undefined;
       return baseXor(arrayFilter(arrays, isArrayLikeObject), undefined, comparator);
     });
 
@@ -8627,7 +8880,8 @@
      * @since 3.8.0
      * @category Array
      * @param {...Array} [arrays] The arrays to process.
-     * @param {Function} [iteratee=_.identity] The function to combine grouped values.
+     * @param {Function} [iteratee=_.identity] The function to combine
+     *  grouped values.
      * @returns {Array} Returns the new array of grouped elements.
      * @example
      *
@@ -9004,8 +9258,7 @@
      * @since 0.5.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee to transform keys.
+     * @param {Function} [iteratee=_.identity] The iteratee to transform keys.
      * @returns {Object} Returns the composed aggregate object.
      * @example
      *
@@ -9039,8 +9292,7 @@
      * @since 0.1.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
      * @returns {boolean} Returns `true` if all elements pass the predicate check,
      *  else `false`.
@@ -9086,8 +9338,7 @@
      * @since 0.1.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @returns {Array} Returns the new filtered array.
      * @see _.reject
      * @example
@@ -9127,8 +9378,7 @@
      * @since 0.1.0
      * @category Collection
      * @param {Array|Object} collection The collection to inspect.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @param {number} [fromIndex=0] The index to search from.
      * @returns {*} Returns the matched element, else `undefined`.
      * @example
@@ -9165,8 +9415,7 @@
      * @since 2.0.0
      * @category Collection
      * @param {Array|Object} collection The collection to inspect.
-     * @param {Function} [predicate=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [predicate=_.identity] The function invoked per iteration.
      * @param {number} [fromIndex=collection.length-1] The index to search from.
      * @returns {*} Returns the matched element, else `undefined`.
      * @example
@@ -9188,8 +9437,7 @@
      * @since 4.0.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [iteratee=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [iteratee=_.identity] The function invoked per iteration.
      * @returns {Array} Returns the new flattened array.
      * @example
      *
@@ -9213,8 +9461,7 @@
      * @since 4.7.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [iteratee=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [iteratee=_.identity] The function invoked per iteration.
      * @returns {Array} Returns the new flattened array.
      * @example
      *
@@ -9238,8 +9485,7 @@
      * @since 4.7.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [iteratee=_.identity]
-     *  The function invoked per iteration.
+     * @param {Function} [iteratee=_.identity] The function invoked per iteration.
      * @param {number} [depth=1] The maximum recursion depth.
      * @returns {Array} Returns the new flattened array.
      * @example
@@ -9328,8 +9574,7 @@
      * @since 0.1.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee to transform keys.
+     * @param {Function} [iteratee=_.identity] The iteratee to transform keys.
      * @returns {Object} Returns the composed aggregate object.
      * @example
      *
@@ -9438,8 +9683,7 @@
      * @since 4.0.0
      * @category Collection
      * @param {Array|Object} collection The collection to iterate over.
-     * @param {Function} [iteratee=_.identity]
-     *  The iteratee to transform keys.
+     * @param {Function} [iteratee=_.identity] The iteratee to transform keys.
      * @returns {Object} Returns the composed aggregate object.
      * @example
      *
@@ -10454,7 +10698,7 @@
      * function. Its creation may be customized by replacing the `_.memoize.Cache`
      * constructor with one whose instances implement the
      * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
-     * method interface of `delete`, `get`, `has`, and `set`.
+     * method interface of `clear`, `delete`, `get`, `has`, and `set`.
      *
      * @static
      * @memberOf _
@@ -10488,7 +10732,7 @@
      * _.memoize.Cache = WeakMap;
      */
     function memoize(func, resolver) {
-      if (typeof func != 'function' || (resolver && typeof resolver != 'function')) {
+      if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
         throw new TypeError(FUNC_ERROR_TEXT);
       }
       var memoized = function() {
@@ -10904,8 +11148,7 @@
      * // => '<p>fred, barney, &amp; pebbles</p>'
      */
     function wrap(value, wrapper) {
-      wrapper = wrapper == null ? identity : wrapper;
-      return partial(wrapper, value);
+      return partial(castFunction(wrapper), value);
     }
 
     /*------------------------------------------------------------------------*/
@@ -11013,6 +11256,7 @@
      * // => 0
      */
     function cloneWith(value, customizer) {
+      customizer = typeof customizer == 'function' ? customizer : undefined;
       return baseClone(value, false, true, customizer);
     }
 
@@ -11067,6 +11311,7 @@
      * // => 20
      */
     function cloneDeepWith(value, customizer) {
+      customizer = typeof customizer == 'function' ? customizer : undefined;
       return baseClone(value, true, true, customizer);
     }
 
@@ -11330,7 +11575,7 @@
      */
     function isBoolean(value) {
       return value === true || value === false ||
-        (isObjectLike(value) && objectToString.call(value) == boolTag);
+        (isObjectLike(value) && baseGetTag(value) == boolTag);
     }
 
     /**
@@ -11389,7 +11634,7 @@
      * // => false
      */
     function isElement(value) {
-      return value != null && value.nodeType === 1 && isObjectLike(value) && !isPlainObject(value);
+      return isObjectLike(value) && value.nodeType === 1 && !isPlainObject(value);
     }
 
     /**
@@ -11426,6 +11671,9 @@
      * // => false
      */
     function isEmpty(value) {
+      if (value == null) {
+        return true;
+      }
       if (isArrayLike(value) &&
           (isArray(value) || typeof value == 'string' || typeof value.splice == 'function' ||
             isBuffer(value) || isTypedArray(value) || isArguments(value))) {
@@ -11538,8 +11786,9 @@
       if (!isObjectLike(value)) {
         return false;
       }
-      return (objectToString.call(value) == errorTag) ||
-        (typeof value.message == 'string' && typeof value.name == 'string');
+      var tag = baseGetTag(value);
+      return tag == errorTag || tag == domExcTag ||
+        (typeof value.message == 'string' && typeof value.name == 'string' && !isPlainObject(value));
     }
 
     /**
@@ -11590,10 +11839,13 @@
      * // => false
      */
     function isFunction(value) {
+      if (!isObject(value)) {
+        return false;
+      }
       // The use of `Object#toString` avoids issues with the `typeof` operator
-      // in Safari 9 which returns 'object' for typed array and other constructors.
-      var tag = isObject(value) ? objectToString.call(value) : '';
-      return tag == funcTag || tag == genTag || tag == proxyTag;
+      // in Safari 9 which returns 'object' for typed arrays and other constructors.
+      var tag = baseGetTag(value);
+      return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
     }
 
     /**
@@ -11944,7 +12196,7 @@
      */
     function isNumber(value) {
       return typeof value == 'number' ||
-        (isObjectLike(value) && objectToString.call(value) == numberTag);
+        (isObjectLike(value) && baseGetTag(value) == numberTag);
     }
 
     /**
@@ -11976,7 +12228,7 @@
      * // => true
      */
     function isPlainObject(value) {
-      if (!isObjectLike(value) || objectToString.call(value) != objectTag) {
+      if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
         return false;
       }
       var proto = getPrototype(value);
@@ -11984,8 +12236,8 @@
         return true;
       }
       var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
-      return (typeof Ctor == 'function' &&
-        Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
+      return typeof Ctor == 'function' && Ctor instanceof Ctor &&
+        funcToString.call(Ctor) == objectCtorString;
     }
 
     /**
@@ -12076,7 +12328,7 @@
      */
     function isString(value) {
       return typeof value == 'string' ||
-        (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag);
+        (!isArray(value) && isObjectLike(value) && baseGetTag(value) == stringTag);
     }
 
     /**
@@ -12098,7 +12350,7 @@
      */
     function isSymbol(value) {
       return typeof value == 'symbol' ||
-        (isObjectLike(value) && objectToString.call(value) == symbolTag);
+        (isObjectLike(value) && baseGetTag(value) == symbolTag);
     }
 
     /**
@@ -12180,7 +12432,7 @@
      * // => false
      */
     function isWeakSet(value) {
-      return isObjectLike(value) && objectToString.call(value) == weakSetTag;
+      return isObjectLike(value) && baseGetTag(value) == weakSetTag;
     }
 
     /**
@@ -12265,8 +12517,8 @@
       if (isArrayLike(value)) {
         return isString(value) ? stringToArray(value) : copyArray(value);
       }
-      if (iteratorSymbol && value[iteratorSymbol]) {
-        return iteratorToArray(value[iteratorSymbol]());
+      if (symIterator && value[symIterator]) {
+        return iteratorToArray(value[symIterator]());
       }
       var tag = getTag(value),
           func = tag == mapTag ? mapToArray : (tag == setTag ? setToArray : values);
@@ -12699,7 +12951,7 @@
      */
     function create(prototype, properties) {
       var result = baseCreate(prototype);
-      return properties ? baseAssign(result, properties) : result;
+      return properties == null ? result : baseAssign(result, properties);
     }
 
     /**
@@ -13806,7 +14058,7 @@
      * // => ['h', 'i']
      */
     function values(object) {
-      return object ? baseValues(object, keys(object)) : [];
+      return object == null ? [] : baseValues(object, keys(object));
     }
 
     /**
@@ -15193,7 +15445,7 @@
      * // => 'no match'
      */
     function cond(pairs) {
-      var length = pairs ? pairs.length : 0,
+      var length = pairs == null ? 0 : pairs.length,
           toIteratee = getIteratee();
 
       pairs = !length ? [] : arrayMap(pairs, function(pair) {
@@ -16945,8 +17197,8 @@
     // Add lazy aliases.
     lodash.prototype.first = lodash.prototype.head;
 
-    if (iteratorSymbol) {
-      lodash.prototype[iteratorSymbol] = wrapperToIterator;
+    if (symIterator) {
+      lodash.prototype[symIterator] = wrapperToIterator;
     }
     return lodash;
   });
@@ -16984,7 +17236,7 @@
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],2:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -17166,7 +17418,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],3:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 var Vue // late bind
 var map = Object.create(null)
 var shimmed = false
@@ -17467,7 +17719,7 @@ function format (id) {
   return match ? match[0] : id
 }
 
-},{}],4:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /*!
  * vue-resource v0.9.3
  * https://github.com/vuejs/vue-resource
@@ -18780,7 +19032,7 @@ if (typeof window !== 'undefined' && window.Vue) {
 }
 
 module.exports = plugin;
-},{}],5:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 (function (process){
 /*!
  * Vue.js v1.0.28
@@ -29021,7 +29273,7 @@ setTimeout(function () {
 
 module.exports = Vue;
 }).call(this,require('_process'))
-},{"_process":2}],6:[function(require,module,exports){
+},{"_process":21}],25:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 exports.insert = function (css) {
@@ -29041,7 +29293,7 @@ exports.insert = function (css) {
   return elem
 }
 
-},{}],7:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /*!
  * Vuex v0.8.2
  * (c) 2016 Evan You
@@ -29680,7 +29932,7 @@ exports.insert = function (css) {
   return index;
 
 }));
-},{}],8:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var _Block = require('./directives/Block');
@@ -29786,7 +30038,7 @@ var v = new Vue({
 	}
 });
 
-},{"./components/Calendar/Scheduler.vue":10,"./components/Discount/Discount.vue":11,"./components/Form/Booking":12,"./components/Form/Event":15,"./components/Form/TimePicker":17,"./components/Pass":18,"./components/Tables/Price":19,"./directives/Block":20,"./state/mutation-types":27,"./state/store":28,"vue":5,"vue-resource":4}],9:[function(require,module,exports){
+},{"./components/Calendar/Scheduler.vue":29,"./components/Discount/Discount.vue":30,"./components/Form/Booking":31,"./components/Form/Event":34,"./components/Form/TimePicker":37,"./components/Pass":38,"./components/Tables/Price":39,"./directives/Block":40,"./state/mutation-types":47,"./state/store":48,"vue":24,"vue-resource":23}],28:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
@@ -29924,12 +30176,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-5dfa91f0", module.exports)
+    hotAPI.createRecord("_v-153bc850", module.exports)
   } else {
-    hotAPI.update("_v-5dfa91f0", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-153bc850", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],10:[function(require,module,exports){
+},{"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],29:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert(".Calendar {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.Calendar--List {\n  -webkit-box-flex: 1;\n      -ms-flex: 1 0 0;\n          flex: 1 0 0;\n}\n.Calendar--Calendar {\n  -webkit-box-flex: 1;\n      -ms-flex: 1 0 20em;\n          flex: 1 0 20em;\n  margin: 1em 4em;\n}\n.fc-license-message {\n  display: none !important;\n}\n.fc-head .fc-scroller {\n  min-height: auto !important;\n}\n")
 'use strict';
@@ -30027,12 +30279,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-7a8a8bfd", module.exports)
+    hotAPI.createRecord("_v-62e74f45", module.exports)
   } else {
-    hotAPI.update("_v-7a8a8bfd", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-62e74f45", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],11:[function(require,module,exports){
+},{"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],30:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30094,12 +30346,12 @@ if (module.hot) {(function () {  module.hot.accept()
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-95233268", module.exports)
+    hotAPI.createRecord("_v-28481a84", module.exports)
   } else {
-    hotAPI.update("_v-95233268", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-28481a84", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3}],12:[function(require,module,exports){
+},{"vue":24,"vue-hot-reload-api":22}],31:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 "use strict";
@@ -30324,12 +30576,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-65a49e84", module.exports)
+    hotAPI.createRecord("_v-05cd99cc", module.exports)
   } else {
-    hotAPI.update("_v-65a49e84", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-05cd99cc", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../../../state/actions":21,"../../../Button":9,"../../DatePicker":13,"../../Error":14,"../../Selectable":16,"../../TimePicker":17,"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],13:[function(require,module,exports){
+},{"../../../../state/actions":41,"../../../Button":28,"../../DatePicker":32,"../../Error":33,"../../Selectable":36,"../../TimePicker":37,"lodash":20,"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],32:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
@@ -30449,12 +30701,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-dfa6dc32", module.exports)
+    hotAPI.createRecord("_v-dd831cc2", module.exports)
   } else {
-    hotAPI.update("_v-dfa6dc32", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-dd831cc2", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],14:[function(require,module,exports){
+},{"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],33:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
@@ -30490,12 +30742,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-0014331a", module.exports)
+    hotAPI.createRecord("_v-733513bb", module.exports)
   } else {
-    hotAPI.update("_v-0014331a", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-733513bb", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],15:[function(require,module,exports){
+},{"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],34:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 "use strict";
@@ -30503,6 +30755,10 @@ var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _defineProperty2 = require("babel-runtime/helpers/defineProperty");
+
+var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
 var _lodash = require("lodash");
 
@@ -30527,6 +30783,10 @@ var _Button2 = _interopRequireDefault(_Button);
 var _Error = require("../../Error");
 
 var _Error2 = _interopRequireDefault(_Error);
+
+var _File = require("../../File.vue");
+
+var _File2 = _interopRequireDefault(_File);
 
 var _actions = require("../../../../state/actions");
 
@@ -30566,6 +30826,16 @@ exports.default = {
         };
     },
 
+    /**
+     *
+     */
+    events: (0, _defineProperty3.default)({
+        'vdropzone-success': function vdropzoneSuccess(file) {
+            console.log('A file was successfully uploaded');
+        }
+    }, "vdropzone-success", function vdropzoneSuccess(file) {
+        console.log('A file was successfully uploaded');
+    }),
 
     /**
      * Public properties
@@ -30600,7 +30870,7 @@ exports.default = {
         cancel: function cancel() {},
         create: function create() {
             this.createEvent({
-                booking: this.booking,
+                bookingId: this.booking,
                 title: this.form.title,
                 description: this.form.description
             });
@@ -30616,11 +30886,12 @@ exports.default = {
         DatePicker: _DatePicker2.default,
         Selectable: _Selectable2.default,
         UButton: _Button2.default,
-        FormError: _Error2.default
+        FormError: _Error2.default,
+        FileUpload: _File2.default
     }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\">\n\t\t\t<div class=\"button-set pull-right\">\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"create\"\n\t\t\t\t>\n\t\t\t\t\tCrear\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"cancel\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Titulo</label>\n\t\t\t\t<input type=\"text\" v-model=\"form.title\" class=\"form-control\">\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"form.description\" id=\"\" cols=\"30\" rows=\"10\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\">\n\t\t\t<div class=\"button-set pull-right\">\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"create\"\n\t\t\t\t>\n\t\t\t\t\tCrear\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"cancel\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Titulo</label>\n\t\t\t\t<input type=\"text\" v-model=\"form.title\" class=\"form-control\">\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"form.description\" id=\"\" cols=\"30\" rows=\"10\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Image</label>\n\t\t\t\t<file-upload id=\"image\" url=\"/files\"></file-upload>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -30630,12 +30901,87 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-29fb4685", module.exports)
+    hotAPI.createRecord("_v-c58b1866", module.exports)
   } else {
-    hotAPI.update("_v-29fb4685", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-c58b1866", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"../../../../state/actions":21,"../../../Button":9,"../../DatePicker":13,"../../Error":14,"../../Selectable":16,"../../TimePicker":17,"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],16:[function(require,module,exports){
+},{"../../../../state/actions":41,"../../../Button":28,"../../DatePicker":32,"../../Error":33,"../../File.vue":35,"../../Selectable":36,"../../TimePicker":37,"babel-runtime/helpers/defineProperty":2,"lodash":20,"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],35:[function(require,module,exports){
+var __vueify_insert__ = require("vueify/lib/insert-css")
+var __vueify_style__ = __vueify_insert__.insert("/*\n * The MIT License\n * Copyright (c) 2012 Matias Meno <m@tias.me>\n */\n/* line 24, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n.dropzone, .dropzone * {\n  box-sizing: border-box; }\n\n/* line 27, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n.dropzone {\n  position: relative; }\n  /* line 31, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n  .dropzone .dz-preview {\n    position: relative;\n    display: inline-block;\n    width: 120px;\n    margin: 0.5em; }\n    /* line 37, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview .dz-progress {\n      display: block;\n      height: 15px;\n      border: 1px solid #aaa; }\n      /* line 41, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n      .dropzone .dz-preview .dz-progress .dz-upload {\n        display: block;\n        height: 100%;\n        width: 0;\n        background: green; }\n    /* line 49, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview .dz-error-message {\n      color: red;\n      display: none; }\n    /* line 54, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview.dz-error .dz-error-message, .dropzone .dz-preview.dz-error .dz-error-mark {\n      display: block; }\n    /* line 59, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview.dz-success .dz-success-mark {\n      display: block; }\n    /* line 64, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview .dz-error-mark, .dropzone .dz-preview .dz-success-mark {\n      position: absolute;\n      display: none;\n      left: 30px;\n      top: 30px;\n      width: 54px;\n      height: 58px;\n      left: 50%;\n      margin-left: -27px; }\n\n/*\n * The MIT License\n * Copyright (c) 2012 Matias Meno <m@tias.me>\n */\n@-webkit-keyframes passing-through {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30%, 70% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-40px);\n    -moz-transform: translateY(-40px);\n    -ms-transform: translateY(-40px);\n    -o-transform: translateY(-40px);\n    transform: translateY(-40px); } }\n\n@-moz-keyframes passing-through {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30%, 70% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-40px);\n    -moz-transform: translateY(-40px);\n    -ms-transform: translateY(-40px);\n    -o-transform: translateY(-40px);\n    transform: translateY(-40px); } }\n\n@keyframes passing-through {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30%, 70% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-40px);\n    -moz-transform: translateY(-40px);\n    -ms-transform: translateY(-40px);\n    -o-transform: translateY(-40px);\n    transform: translateY(-40px); } }\n\n@-webkit-keyframes slide-in {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); } }\n\n@-moz-keyframes slide-in {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); } }\n\n@keyframes slide-in {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); } }\n\n@-webkit-keyframes pulse {\n  0% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); }\n  10% {\n    -webkit-transform: scale(1.1);\n    -moz-transform: scale(1.1);\n    -ms-transform: scale(1.1);\n    -o-transform: scale(1.1);\n    transform: scale(1.1); }\n  20% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); } }\n\n@-moz-keyframes pulse {\n  0% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); }\n  10% {\n    -webkit-transform: scale(1.1);\n    -moz-transform: scale(1.1);\n    -ms-transform: scale(1.1);\n    -o-transform: scale(1.1);\n    transform: scale(1.1); }\n  20% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); } }\n\n@keyframes pulse {\n  0% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); }\n  10% {\n    -webkit-transform: scale(1.1);\n    -moz-transform: scale(1.1);\n    -ms-transform: scale(1.1);\n    -o-transform: scale(1.1);\n    transform: scale(1.1); }\n  20% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); } }\n\n/* line 94, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n.dropzone, .dropzone * {\n  box-sizing: border-box; }\n\n/* line 97, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n.dropzone {\n  min-height: 150px;\n  border: 2px solid rgba(0, 0, 0, 0.3);\n  background: white;\n  padding: 20px 20px; }\n  /* line 103, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone.dz-clickable {\n    cursor: pointer; }\n    /* line 106, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone.dz-clickable * {\n      cursor: default; }\n    /* line 110, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message * {\n      cursor: pointer; }\n  /* line 122, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone.dz-started .dz-message {\n    display: none; }\n  /* line 127, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone.dz-drag-hover {\n    border-style: solid; }\n    /* line 129, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone.dz-drag-hover .dz-message {\n      opacity: 0.5; }\n  /* line 133, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone .dz-message {\n    text-align: center;\n    margin: 2em 0; }\n  /* line 142, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone .dz-preview {\n    position: relative;\n    display: inline-block;\n    vertical-align: top;\n    margin: 16px;\n    min-height: 100px; }\n    /* line 151, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:hover {\n      z-index: 1000; }\n      /* line 154, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview:hover .dz-details {\n        opacity: 1; }\n    /* line 161, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-file-preview .dz-image {\n      border-radius: 20px;\n      background: #999;\n      background: -webkit-linear-gradient(top, #eee, #ddd);\n      background: linear-gradient(to bottom, #eee, #ddd); }\n    /* line 167, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-file-preview .dz-details {\n      opacity: 1; }\n    /* line 172, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-image-preview {\n      background: white; }\n      /* line 174, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview.dz-image-preview .dz-details {\n        -webkit-transition: opacity 0.2s linear;\n        -moz-transition: opacity 0.2s linear;\n        -ms-transition: opacity 0.2s linear;\n        -o-transition: opacity 0.2s linear;\n        transition: opacity 0.2s linear; }\n    /* line 179, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-remove {\n      font-size: 14px;\n      text-align: center;\n      display: block;\n      cursor: pointer;\n      border: none; }\n      /* line 185, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-remove:hover {\n        text-decoration: underline; }\n    /* line 190, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:hover .dz-details {\n      opacity: 1; }\n    /* line 193, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-details {\n      z-index: 20;\n      position: absolute;\n      top: 0;\n      left: 0;\n      opacity: 0;\n      font-size: 13px;\n      min-width: 100%;\n      max-width: 100%;\n      padding: 2em 1em;\n      text-align: center;\n      color: rgba(0, 0, 0, 0.9);\n      line-height: 150%; }\n      /* line 215, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-details .dz-size {\n        margin-bottom: 1em;\n        font-size: 16px; }\n      /* line 220, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-details .dz-filename {\n        white-space: nowrap; }\n        /* line 225, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n        .dropzone .dz-preview .dz-details .dz-filename:hover span {\n          border: 1px solid rgba(200, 200, 200, 0.8);\n          background-color: rgba(255, 255, 255, 0.8); }\n        /* line 230, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n        .dropzone .dz-preview .dz-details .dz-filename:not(:hover) {\n          overflow: hidden;\n          text-overflow: ellipsis; }\n          /* line 231, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n          .dropzone .dz-preview .dz-details .dz-filename:not(:hover) span {\n            border: 1px solid transparent; }\n      /* line 241, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-details .dz-filename span, .dropzone .dz-preview .dz-details .dz-size span {\n        background-color: rgba(255, 255, 255, 0.4);\n        padding: 0 0.4em;\n        border-radius: 3px; }\n    /* line 253, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:hover .dz-image img {\n      -webkit-transform: scale(1.05, 1.05);\n      -moz-transform: scale(1.05, 1.05);\n      -ms-transform: scale(1.05, 1.05);\n      -o-transform: scale(1.05, 1.05);\n      transform: scale(1.05, 1.05);\n      -webkit-filter: blur(8px);\n      filter: blur(8px); }\n    /* line 259, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-image {\n      border-radius: 20px;\n      overflow: hidden;\n      width: 120px;\n      height: 120px;\n      position: relative;\n      display: block;\n      z-index: 10; }\n      /* line 268, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-image img {\n        display: block; }\n    /* line 275, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-success .dz-success-mark {\n      -webkit-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -moz-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -ms-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -o-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1); }\n    /* line 280, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-error .dz-error-mark {\n      opacity: 1;\n      -webkit-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -moz-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -ms-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -o-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1); }\n    /* line 287, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {\n      pointer-events: none;\n      opacity: 0;\n      z-index: 500;\n      position: absolute;\n      display: block;\n      top: 50%;\n      left: 50%;\n      margin-left: -27px;\n      margin-top: -27px; }\n      /* line 304, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-success-mark svg, .dropzone .dz-preview .dz-error-mark svg {\n        display: block;\n        width: 54px;\n        height: 54px; }\n    /* line 312, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-processing .dz-progress {\n      opacity: 1;\n      -webkit-transition: all 0.2s linear;\n      -moz-transition: all 0.2s linear;\n      -ms-transition: all 0.2s linear;\n      -o-transition: all 0.2s linear;\n      transition: all 0.2s linear; }\n    /* line 316, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-complete .dz-progress {\n      opacity: 0;\n      -webkit-transition: opacity 0.4s ease-in;\n      -moz-transition: opacity 0.4s ease-in;\n      -ms-transition: opacity 0.4s ease-in;\n      -o-transition: opacity 0.4s ease-in;\n      transition: opacity 0.4s ease-in; }\n    /* line 322, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:not(.dz-processing) .dz-progress {\n      -webkit-animation: pulse 6s ease infinite;\n      -moz-animation: pulse 6s ease infinite;\n      -ms-animation: pulse 6s ease infinite;\n      -o-animation: pulse 6s ease infinite;\n      animation: pulse 6s ease infinite; }\n    /* line 326, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-progress {\n      opacity: 1;\n      z-index: 1000;\n      pointer-events: none;\n      position: absolute;\n      height: 16px;\n      left: 50%;\n      top: 50%;\n      margin-top: -8px;\n      width: 80px;\n      margin-left: -40px;\n      background: rgba(255, 255, 255, 0.9);\n      -webkit-transform: scale(1);\n      border-radius: 8px;\n      overflow: hidden; }\n      /* line 352, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-progress .dz-upload {\n        background: #333;\n        background: -webkit-linear-gradient(top, #666, #444);\n        background: linear-gradient(to bottom, #666, #444);\n        position: absolute;\n        top: 0;\n        left: 0;\n        bottom: 0;\n        width: 0;\n        -webkit-transition: width 300ms ease-in-out;\n        -moz-transition: width 300ms ease-in-out;\n        -ms-transition: width 300ms ease-in-out;\n        -o-transition: width 300ms ease-in-out;\n        transition: width 300ms ease-in-out; }\n    /* line 366, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-error .dz-error-message {\n      display: block; }\n    /* line 369, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-error:hover .dz-error-message {\n      opacity: 1;\n      pointer-events: auto; }\n    /* line 375, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-error-message {\n      pointer-events: none;\n      z-index: 1000;\n      position: absolute;\n      display: block;\n      display: none;\n      opacity: 0;\n      -webkit-transition: opacity 0.3s ease;\n      -moz-transition: opacity 0.3s ease;\n      -ms-transition: opacity 0.3s ease;\n      -o-transition: opacity 0.3s ease;\n      transition: opacity 0.3s ease;\n      border-radius: 8px;\n      font-size: 13px;\n      top: 130px;\n      left: -10px;\n      width: 140px;\n      background: #be2626;\n      background: -webkit-linear-gradient(top, #be2626, #a92222);\n      background: linear-gradient(to bottom, #be2626, #a92222);\n      padding: 0.5em 1.2em;\n      color: white; }\n      /* line 397, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-error-message:after {\n        content: '';\n        position: absolute;\n        top: -6px;\n        left: 64px;\n        width: 0;\n        height: 0;\n        border-left: 6px solid transparent;\n        border-right: 6px solid transparent;\n        border-bottom: 6px solid #be2626; }\n\n/* line 5, stdin */\n.preview {\n  height: 360px;\n  overflow: hidden;\n  max-width: 100%; }\n  /* line 9, stdin */\n  .preview img {\n    max-width: 100%; }\n\n/* line 14, stdin */\n.dropzone {\n  padding: 0;\n  height: 360px;\n  background: rgba(255, 255, 255, 0.901961);\n  border: none;\n  border-radius: 0; }\n")
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = {
+    props: {
+        url: {
+            type: String,
+            default: 'SomeUrlToInitialize'
+        },
+        autoProcessQueue: {
+            type: Boolean,
+            default: true
+        },
+        files: {
+            type: Array,
+            default: function _default() {
+                return [];
+            }
+        }
+    },
+    data: function data() {
+        return {
+            uploaded: false,
+            image: null
+        };
+    },
+    ready: function ready() {
+        var _this = this;
+
+        var dropzone = new Dropzone(this.$els.dropzone, {
+            url: this.url,
+            autoProcessQueue: this.autoProcessQueue,
+            uploadMultiple: false,
+            maxFiles: 1,
+            sending: function sending(file, xhr, formData) {
+                // Pass token. You can use the same method to pass any other values as well such as a id to associate the image with for example.
+                formData.append("_token", document.querySelector('#token').getAttribute('value')); // Laravel expect the token post value to be named _token by default
+            }
+        });
+
+        dropzone.on('thumbnail', function (file, thumbnail) {
+            _this.files.push({ file: file, thumbnail: thumbnail });
+        });
+
+        dropzone.on('success', function (file) {
+            var response = JSON.parse(file.xhr.response);
+            _this.image = "/" + response.pathname;
+            _this.uploaded = true;
+        });
+    },
+    destroyed: function destroyed() {
+        this.files = [];
+    }
+};
+if (module.exports.__esModule) module.exports = module.exports.default
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "\n<div>\n    <div v-el:dropzone=\"\" class=\"dropzone\" v-if=\"!uploaded\"></div>\n    <div v-el:preview=\"\" class=\"preview\" v-if=\"uploaded &amp;&amp; image\">\n        <img :src=\"image\">\n    </div>\n</div>\n"
+if (module.hot) {(function () {  module.hot.accept()
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), true)
+  if (!hotAPI.compatible) return
+  module.hot.dispose(function () {
+    __vueify_insert__.cache["/*\n * The MIT License\n * Copyright (c) 2012 Matias Meno <m@tias.me>\n */\n/* line 24, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n.dropzone, .dropzone * {\n  box-sizing: border-box; }\n\n/* line 27, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n.dropzone {\n  position: relative; }\n  /* line 31, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n  .dropzone .dz-preview {\n    position: relative;\n    display: inline-block;\n    width: 120px;\n    margin: 0.5em; }\n    /* line 37, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview .dz-progress {\n      display: block;\n      height: 15px;\n      border: 1px solid #aaa; }\n      /* line 41, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n      .dropzone .dz-preview .dz-progress .dz-upload {\n        display: block;\n        height: 100%;\n        width: 0;\n        background: green; }\n    /* line 49, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview .dz-error-message {\n      color: red;\n      display: none; }\n    /* line 54, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview.dz-error .dz-error-message, .dropzone .dz-preview.dz-error .dz-error-mark {\n      display: block; }\n    /* line 59, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview.dz-success .dz-success-mark {\n      display: block; }\n    /* line 64, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/basic.scss */\n    .dropzone .dz-preview .dz-error-mark, .dropzone .dz-preview .dz-success-mark {\n      position: absolute;\n      display: none;\n      left: 30px;\n      top: 30px;\n      width: 54px;\n      height: 58px;\n      left: 50%;\n      margin-left: -27px; }\n\n/*\n * The MIT License\n * Copyright (c) 2012 Matias Meno <m@tias.me>\n */\n@-webkit-keyframes passing-through {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30%, 70% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-40px);\n    -moz-transform: translateY(-40px);\n    -ms-transform: translateY(-40px);\n    -o-transform: translateY(-40px);\n    transform: translateY(-40px); } }\n\n@-moz-keyframes passing-through {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30%, 70% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-40px);\n    -moz-transform: translateY(-40px);\n    -ms-transform: translateY(-40px);\n    -o-transform: translateY(-40px);\n    transform: translateY(-40px); } }\n\n@keyframes passing-through {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30%, 70% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); }\n  100% {\n    opacity: 0;\n    -webkit-transform: translateY(-40px);\n    -moz-transform: translateY(-40px);\n    -ms-transform: translateY(-40px);\n    -o-transform: translateY(-40px);\n    transform: translateY(-40px); } }\n\n@-webkit-keyframes slide-in {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); } }\n\n@-moz-keyframes slide-in {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); } }\n\n@keyframes slide-in {\n  0% {\n    opacity: 0;\n    -webkit-transform: translateY(40px);\n    -moz-transform: translateY(40px);\n    -ms-transform: translateY(40px);\n    -o-transform: translateY(40px);\n    transform: translateY(40px); }\n  30% {\n    opacity: 1;\n    -webkit-transform: translateY(0px);\n    -moz-transform: translateY(0px);\n    -ms-transform: translateY(0px);\n    -o-transform: translateY(0px);\n    transform: translateY(0px); } }\n\n@-webkit-keyframes pulse {\n  0% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); }\n  10% {\n    -webkit-transform: scale(1.1);\n    -moz-transform: scale(1.1);\n    -ms-transform: scale(1.1);\n    -o-transform: scale(1.1);\n    transform: scale(1.1); }\n  20% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); } }\n\n@-moz-keyframes pulse {\n  0% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); }\n  10% {\n    -webkit-transform: scale(1.1);\n    -moz-transform: scale(1.1);\n    -ms-transform: scale(1.1);\n    -o-transform: scale(1.1);\n    transform: scale(1.1); }\n  20% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); } }\n\n@keyframes pulse {\n  0% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); }\n  10% {\n    -webkit-transform: scale(1.1);\n    -moz-transform: scale(1.1);\n    -ms-transform: scale(1.1);\n    -o-transform: scale(1.1);\n    transform: scale(1.1); }\n  20% {\n    -webkit-transform: scale(1);\n    -moz-transform: scale(1);\n    -ms-transform: scale(1);\n    -o-transform: scale(1);\n    transform: scale(1); } }\n\n/* line 94, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n.dropzone, .dropzone * {\n  box-sizing: border-box; }\n\n/* line 97, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n.dropzone {\n  min-height: 150px;\n  border: 2px solid rgba(0, 0, 0, 0.3);\n  background: white;\n  padding: 20px 20px; }\n  /* line 103, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone.dz-clickable {\n    cursor: pointer; }\n    /* line 106, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone.dz-clickable * {\n      cursor: default; }\n    /* line 110, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone.dz-clickable .dz-message, .dropzone.dz-clickable .dz-message * {\n      cursor: pointer; }\n  /* line 122, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone.dz-started .dz-message {\n    display: none; }\n  /* line 127, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone.dz-drag-hover {\n    border-style: solid; }\n    /* line 129, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone.dz-drag-hover .dz-message {\n      opacity: 0.5; }\n  /* line 133, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone .dz-message {\n    text-align: center;\n    margin: 2em 0; }\n  /* line 142, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n  .dropzone .dz-preview {\n    position: relative;\n    display: inline-block;\n    vertical-align: top;\n    margin: 16px;\n    min-height: 100px; }\n    /* line 151, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:hover {\n      z-index: 1000; }\n      /* line 154, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview:hover .dz-details {\n        opacity: 1; }\n    /* line 161, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-file-preview .dz-image {\n      border-radius: 20px;\n      background: #999;\n      background: -webkit-linear-gradient(top, #eee, #ddd);\n      background: linear-gradient(to bottom, #eee, #ddd); }\n    /* line 167, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-file-preview .dz-details {\n      opacity: 1; }\n    /* line 172, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-image-preview {\n      background: white; }\n      /* line 174, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview.dz-image-preview .dz-details {\n        -webkit-transition: opacity 0.2s linear;\n        -moz-transition: opacity 0.2s linear;\n        -ms-transition: opacity 0.2s linear;\n        -o-transition: opacity 0.2s linear;\n        transition: opacity 0.2s linear; }\n    /* line 179, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-remove {\n      font-size: 14px;\n      text-align: center;\n      display: block;\n      cursor: pointer;\n      border: none; }\n      /* line 185, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-remove:hover {\n        text-decoration: underline; }\n    /* line 190, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:hover .dz-details {\n      opacity: 1; }\n    /* line 193, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-details {\n      z-index: 20;\n      position: absolute;\n      top: 0;\n      left: 0;\n      opacity: 0;\n      font-size: 13px;\n      min-width: 100%;\n      max-width: 100%;\n      padding: 2em 1em;\n      text-align: center;\n      color: rgba(0, 0, 0, 0.9);\n      line-height: 150%; }\n      /* line 215, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-details .dz-size {\n        margin-bottom: 1em;\n        font-size: 16px; }\n      /* line 220, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-details .dz-filename {\n        white-space: nowrap; }\n        /* line 225, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n        .dropzone .dz-preview .dz-details .dz-filename:hover span {\n          border: 1px solid rgba(200, 200, 200, 0.8);\n          background-color: rgba(255, 255, 255, 0.8); }\n        /* line 230, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n        .dropzone .dz-preview .dz-details .dz-filename:not(:hover) {\n          overflow: hidden;\n          text-overflow: ellipsis; }\n          /* line 231, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n          .dropzone .dz-preview .dz-details .dz-filename:not(:hover) span {\n            border: 1px solid transparent; }\n      /* line 241, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-details .dz-filename span, .dropzone .dz-preview .dz-details .dz-size span {\n        background-color: rgba(255, 255, 255, 0.4);\n        padding: 0 0.4em;\n        border-radius: 3px; }\n    /* line 253, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:hover .dz-image img {\n      -webkit-transform: scale(1.05, 1.05);\n      -moz-transform: scale(1.05, 1.05);\n      -ms-transform: scale(1.05, 1.05);\n      -o-transform: scale(1.05, 1.05);\n      transform: scale(1.05, 1.05);\n      -webkit-filter: blur(8px);\n      filter: blur(8px); }\n    /* line 259, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-image {\n      border-radius: 20px;\n      overflow: hidden;\n      width: 120px;\n      height: 120px;\n      position: relative;\n      display: block;\n      z-index: 10; }\n      /* line 268, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-image img {\n        display: block; }\n    /* line 275, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-success .dz-success-mark {\n      -webkit-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -moz-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -ms-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -o-animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1);\n      animation: passing-through 3s cubic-bezier(0.77, 0, 0.175, 1); }\n    /* line 280, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-error .dz-error-mark {\n      opacity: 1;\n      -webkit-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -moz-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -ms-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      -o-animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1);\n      animation: slide-in 3s cubic-bezier(0.77, 0, 0.175, 1); }\n    /* line 287, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-success-mark, .dropzone .dz-preview .dz-error-mark {\n      pointer-events: none;\n      opacity: 0;\n      z-index: 500;\n      position: absolute;\n      display: block;\n      top: 50%;\n      left: 50%;\n      margin-left: -27px;\n      margin-top: -27px; }\n      /* line 304, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-success-mark svg, .dropzone .dz-preview .dz-error-mark svg {\n        display: block;\n        width: 54px;\n        height: 54px; }\n    /* line 312, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-processing .dz-progress {\n      opacity: 1;\n      -webkit-transition: all 0.2s linear;\n      -moz-transition: all 0.2s linear;\n      -ms-transition: all 0.2s linear;\n      -o-transition: all 0.2s linear;\n      transition: all 0.2s linear; }\n    /* line 316, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-complete .dz-progress {\n      opacity: 0;\n      -webkit-transition: opacity 0.4s ease-in;\n      -moz-transition: opacity 0.4s ease-in;\n      -ms-transition: opacity 0.4s ease-in;\n      -o-transition: opacity 0.4s ease-in;\n      transition: opacity 0.4s ease-in; }\n    /* line 322, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview:not(.dz-processing) .dz-progress {\n      -webkit-animation: pulse 6s ease infinite;\n      -moz-animation: pulse 6s ease infinite;\n      -ms-animation: pulse 6s ease infinite;\n      -o-animation: pulse 6s ease infinite;\n      animation: pulse 6s ease infinite; }\n    /* line 326, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-progress {\n      opacity: 1;\n      z-index: 1000;\n      pointer-events: none;\n      position: absolute;\n      height: 16px;\n      left: 50%;\n      top: 50%;\n      margin-top: -8px;\n      width: 80px;\n      margin-left: -40px;\n      background: rgba(255, 255, 255, 0.9);\n      -webkit-transform: scale(1);\n      border-radius: 8px;\n      overflow: hidden; }\n      /* line 352, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-progress .dz-upload {\n        background: #333;\n        background: -webkit-linear-gradient(top, #666, #444);\n        background: linear-gradient(to bottom, #666, #444);\n        position: absolute;\n        top: 0;\n        left: 0;\n        bottom: 0;\n        width: 0;\n        -webkit-transition: width 300ms ease-in-out;\n        -moz-transition: width 300ms ease-in-out;\n        -ms-transition: width 300ms ease-in-out;\n        -o-transition: width 300ms ease-in-out;\n        transition: width 300ms ease-in-out; }\n    /* line 366, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-error .dz-error-message {\n      display: block; }\n    /* line 369, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview.dz-error:hover .dz-error-message {\n      opacity: 1;\n      pointer-events: auto; }\n    /* line 375, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n    .dropzone .dz-preview .dz-error-message {\n      pointer-events: none;\n      z-index: 1000;\n      position: absolute;\n      display: block;\n      display: none;\n      opacity: 0;\n      -webkit-transition: opacity 0.3s ease;\n      -moz-transition: opacity 0.3s ease;\n      -ms-transition: opacity 0.3s ease;\n      -o-transition: opacity 0.3s ease;\n      transition: opacity 0.3s ease;\n      border-radius: 8px;\n      font-size: 13px;\n      top: 130px;\n      left: -10px;\n      width: 140px;\n      background: #be2626;\n      background: -webkit-linear-gradient(top, #be2626, #a92222);\n      background: linear-gradient(to bottom, #be2626, #a92222);\n      padding: 0.5em 1.2em;\n      color: white; }\n      /* line 397, /Users/boudydegeer/Sites/space-manager/node_modules/dropzone/src/dropzone.scss */\n      .dropzone .dz-preview .dz-error-message:after {\n        content: '';\n        position: absolute;\n        top: -6px;\n        left: 64px;\n        width: 0;\n        height: 0;\n        border-left: 6px solid transparent;\n        border-right: 6px solid transparent;\n        border-bottom: 6px solid #be2626; }\n\n/* line 5, stdin */\n.preview {\n  height: 360px;\n  overflow: hidden;\n  max-width: 100%; }\n  /* line 9, stdin */\n  .preview img {\n    max-width: 100%; }\n\n/* line 14, stdin */\n.dropzone {\n  padding: 0;\n  height: 360px;\n  background: rgba(255, 255, 255, 0.901961);\n  border: none;\n  border-radius: 0; }\n"] = false
+    document.head.removeChild(__vueify_style__)
+  })
+  if (!module.hot.data) {
+    hotAPI.createRecord("_v-380475c8", module.exports)
+  } else {
+    hotAPI.update("_v-380475c8", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+  }
+})()}
+},{"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],36:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
@@ -30804,12 +31150,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-6702ac3e", module.exports)
+    hotAPI.createRecord("_v-64deecce", module.exports)
   } else {
-    hotAPI.update("_v-6702ac3e", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-64deecce", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],17:[function(require,module,exports){
+},{"lodash":20,"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -30908,12 +31254,12 @@ if (module.hot) {(function () {  module.hot.accept()
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-5ad44806", module.exports)
+    hotAPI.createRecord("_v-5be627be", module.exports)
   } else {
-    hotAPI.update("_v-5ad44806", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-5be627be", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3}],18:[function(require,module,exports){
+},{"vue":24,"vue-hot-reload-api":22}],38:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert(".clickable-icon {\n  cursor: pointer;\n}\n.clickable-icon:hover {\n  color: #ff7175;\n}\n")
 'use strict';
@@ -31151,12 +31497,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-14a6f632", module.exports)
+    hotAPI.createRecord("_v-43ed6fa2", module.exports)
   } else {
-    hotAPI.update("_v-14a6f632", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-43ed6fa2", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"lodash":1,"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],19:[function(require,module,exports){
+},{"lodash":20,"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],39:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
 var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
@@ -31241,12 +31587,12 @@ if (module.hot) {(function () {  module.hot.accept()
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
-    hotAPI.createRecord("_v-8d33c956", module.exports)
+    hotAPI.createRecord("_v-598f169d", module.exports)
   } else {
-    hotAPI.update("_v-8d33c956", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
+    hotAPI.update("_v-598f169d", module.exports, (typeof module.exports === "function" ? module.exports.options : module.exports).template)
   }
 })()}
-},{"vue":5,"vue-hot-reload-api":3,"vueify/lib/insert-css":6}],20:[function(require,module,exports){
+},{"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],40:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31276,7 +31622,7 @@ exports.default = {
 	}
 };
 
-},{}],21:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31305,17 +31651,17 @@ var _members2 = _interopRequireDefault(_members);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var setLoading = exports.setLoading = function setLoading(_ref, _ref2) {
-	var dispatch = _ref.dispatch;
-	var state = _ref.state;
-	var loading = _ref2.loading;
-	var progress = _ref2.progress;
+	var dispatch = _ref.dispatch,
+	    state = _ref.state;
+	var loading = _ref2.loading,
+	    progress = _ref2.progress;
 
 	dispatch(_mutationTypes.SET_LOADING, { loading: loading, progress: progress });
 };
 
 var payReservation = exports.payReservation = function payReservation(_ref3, id) {
-	var dispatch = _ref3.dispatch;
-	var state = _ref3.state;
+	var dispatch = _ref3.dispatch,
+	    state = _ref3.state;
 
 	var data = _lodash2.default.merge({
 		payment: 'card',
@@ -31335,8 +31681,8 @@ var payReservation = exports.payReservation = function payReservation(_ref3, id)
 };
 
 var cancelReservation = exports.cancelReservation = function cancelReservation(_ref4, id) {
-	var dispatch = _ref4.dispatch;
-	var state = _ref4.state;
+	var dispatch = _ref4.dispatch,
+	    state = _ref4.state;
 
 	_bookings2.default.cancel(id,
 	// handle success
@@ -31350,8 +31696,8 @@ var cancelReservation = exports.cancelReservation = function cancelReservation(_
 };
 
 var markReservationsAsPaid = exports.markReservationsAsPaid = function markReservationsAsPaid(_ref5, id) {
-	var dispatch = _ref5.dispatch;
-	var state = _ref5.state;
+	var dispatch = _ref5.dispatch,
+	    state = _ref5.state;
 
 	var data = _lodash2.default.merge({
 		payment: 'cash',
@@ -31371,8 +31717,8 @@ var markReservationsAsPaid = exports.markReservationsAsPaid = function markReser
 };
 
 var makeReservation = exports.makeReservation = function makeReservation(_ref6, data) {
-	var dispatch = _ref6.dispatch;
-	var state = _ref6.state;
+	var dispatch = _ref6.dispatch,
+	    state = _ref6.state;
 
 	data = _lodash2.default.merge(data, state.booking);
 	_bookings2.default.store(data,
@@ -31387,8 +31733,8 @@ var makeReservation = exports.makeReservation = function makeReservation(_ref6, 
 };
 
 var searchBookables = exports.searchBookables = function searchBookables(_ref7) {
-	var dispatch = _ref7.dispatch;
-	var state = _ref7.state;
+	var dispatch = _ref7.dispatch,
+	    state = _ref7.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type) {
@@ -31407,8 +31753,8 @@ var searchBookables = exports.searchBookables = function searchBookables(_ref7) 
 };
 
 var calculate = exports.calculate = function calculate(_ref8, changed) {
-	var dispatch = _ref8.dispatch;
-	var state = _ref8.state;
+	var dispatch = _ref8.dispatch,
+	    state = _ref8.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type && b.bookable) {
@@ -31428,8 +31774,8 @@ var calculate = exports.calculate = function calculate(_ref8, changed) {
 };
 
 var getMembers = exports.getMembers = function getMembers(_ref9) {
-	var dispatch = _ref9.dispatch;
-	var state = _ref9.state;
+	var dispatch = _ref9.dispatch,
+	    state = _ref9.state;
 
 	_members2.default.getAll({},
 	// handle success
@@ -31443,76 +31789,76 @@ var getMembers = exports.getMembers = function getMembers(_ref9) {
 };
 
 var addResources = exports.addResources = function addResources(_ref10, resources) {
-	var dispatch = _ref10.dispatch;
-	var state = _ref10.state;
+	var dispatch = _ref10.dispatch,
+	    state = _ref10.state;
 
 	dispatch(_mutationTypes.ADD_RESOURCES, resources);
 };
 
 var addErrors = exports.addErrors = function addErrors(_ref11, errors) {
-	var dispatch = _ref11.dispatch;
-	var state = _ref11.state;
+	var dispatch = _ref11.dispatch,
+	    state = _ref11.state;
 
 	dispatch(_mutationTypes.ADD_ERRORS, errors);
 };
 
 var addDate = exports.addDate = function addDate(_ref12, date) {
-	var dispatch = _ref12.dispatch;
-	var state = _ref12.state;
+	var dispatch = _ref12.dispatch,
+	    state = _ref12.state;
 
 	dispatch(_mutationTypes.ADD_DATE, date);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
 var addPersons = exports.addPersons = function addPersons(_ref13, persons) {
-	var dispatch = _ref13.dispatch;
-	var state = _ref13.state;
+	var dispatch = _ref13.dispatch,
+	    state = _ref13.state;
 
 	dispatch(_mutationTypes.ADD_PERSONS, persons);
 };
 
 var addDistribution = exports.addDistribution = function addDistribution(_ref14, distribution) {
-	var dispatch = _ref14.dispatch;
-	var state = _ref14.state;
+	var dispatch = _ref14.dispatch,
+	    state = _ref14.state;
 
 	dispatch(_mutationTypes.ADD_DISTRIBUTION, distribution);
 };
 
 var addTimeTo = exports.addTimeTo = function addTimeTo(_ref15, timeTo) {
-	var dispatch = _ref15.dispatch;
-	var state = _ref15.state;
+	var dispatch = _ref15.dispatch,
+	    state = _ref15.state;
 
 	dispatch(_mutationTypes.ADD_TIME_TO, timeTo);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
 var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref16, timeFrom) {
-	var dispatch = _ref16.dispatch;
-	var state = _ref16.state;
+	var dispatch = _ref16.dispatch,
+	    state = _ref16.state;
 
 	dispatch(_mutationTypes.ADD_TIME_FROM, timeFrom);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
 var addType = exports.addType = function addType(_ref17, type) {
-	var dispatch = _ref17.dispatch;
-	var state = _ref17.state;
+	var dispatch = _ref17.dispatch,
+	    state = _ref17.state;
 
 	dispatch(_mutationTypes.ADD_TYPE, type);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
 var addMember = exports.addMember = function addMember(_ref18, user) {
-	var dispatch = _ref18.dispatch;
-	var state = _ref18.state;
+	var dispatch = _ref18.dispatch,
+	    state = _ref18.state;
 
 	dispatch(_mutationTypes.ADD_MEMBER, user);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
 var addBookable = exports.addBookable = function addBookable(_ref19, bookable) {
-	var dispatch = _ref19.dispatch;
-	var state = _ref19.state;
+	var dispatch = _ref19.dispatch,
+	    state = _ref19.state;
 	var changed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
@@ -31521,8 +31867,8 @@ var addBookable = exports.addBookable = function addBookable(_ref19, bookable) {
 };
 
 var addBooking = exports.addBooking = function addBooking(_ref20, booking) {
-	var dispatch = _ref20.dispatch;
-	var state = _ref20.state;
+	var dispatch = _ref20.dispatch,
+	    state = _ref20.state;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
 
@@ -31541,14 +31887,14 @@ var addBooking = exports.addBooking = function addBooking(_ref20, booking) {
 };
 
 var createEvent = exports.createEvent = function createEvent(_ref21, data) {
-	var dispatch = _ref21.dispatch;
-	var state = _ref21.state;
+	var dispatch = _ref21.dispatch,
+	    state = _ref21.state;
 
-	data = _lodash2.default.merge(data, state.event);
+	data = _lodash2.default.merge(state.event, data);
 	_events2.default.store(data,
 	// handle success
 	function (resources) {
-		return dispatch(_mutationTypes.CREATE_EVENT, EVENT);
+		return dispatch(_mutationTypes.CREATE_EVENT, data);
 	},
 	// handle error
 	function (errors) {
@@ -31556,7 +31902,7 @@ var createEvent = exports.createEvent = function createEvent(_ref21, data) {
 	});
 };
 
-},{"./api/bookings":22,"./api/events":23,"./api/members":24,"./mutation-types":27,"lodash":1}],22:[function(require,module,exports){
+},{"./api/bookings":42,"./api/events":43,"./api/members":44,"./mutation-types":47,"lodash":20}],42:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31622,7 +31968,7 @@ exports.default = {
 	}
 };
 
-},{"vue":5}],23:[function(require,module,exports){
+},{"vue":24}],43:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31647,7 +31993,7 @@ exports.default = {
 	}
 };
 
-},{"vue":5}],24:[function(require,module,exports){
+},{"vue":24}],44:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31672,7 +32018,7 @@ exports.default = {
 	}
 };
 
-},{"vue":5}],25:[function(require,module,exports){
+},{"vue":24}],45:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31738,7 +32084,7 @@ exports.default = {
 	mutations: mutations
 };
 
-},{"../mutation-types":27}],26:[function(require,module,exports){
+},{"../mutation-types":47}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31777,7 +32123,7 @@ exports.default = {
     mutations: mutations
 };
 
-},{"../mutation-types":27}],27:[function(require,module,exports){
+},{"../mutation-types":47}],47:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31816,7 +32162,7 @@ var CANCELED = exports.CANCELED = 'CANCELED';
 
 var CREATE_EVENT = exports.CREATE_EVENT = 'CREATE_EVENT';
 
-},{}],28:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -31904,10 +32250,10 @@ var initialState = {
  * @type {{}}
  */
 var mutations = (_mutations = {}, _defineProperty(_mutations, _mutationTypes.SET_LOADING, function (state, _ref) {
-	var _ref$loading = _ref.loading;
-	var loading = _ref$loading === undefined ? true : _ref$loading;
-	var _ref$progress = _ref.progress;
-	var progress = _ref$progress === undefined ? 1 : _ref$progress;
+	var _ref$loading = _ref.loading,
+	    loading = _ref$loading === undefined ? true : _ref$loading,
+	    _ref$progress = _ref.progress,
+	    progress = _ref$progress === undefined ? 1 : _ref$progress;
 
 	state.loading.isLoading = loading;
 	state.loading.progress = progress;
@@ -31935,6 +32281,6 @@ exports.default = new _vuex2.default.Store({
 	}
 });
 
-},{"./modules/booking":25,"./modules/event":26,"./mutation-types":27,"lodash":1,"vue":5,"vuex":7}]},{},[8]);
+},{"./modules/booking":45,"./modules/event":46,"./mutation-types":47,"lodash":20,"vue":24,"vuex":26}]},{},[27]);
 
 //# sourceMappingURL=admin.js.map

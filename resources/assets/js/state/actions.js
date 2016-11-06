@@ -193,11 +193,11 @@ export const addBooking = ({dispatch, state}, booking) => {
 
 
 export const createEvent = ({dispatch, state}, data) => {
-	data = _.merge(data, state.event)
+	data = _.merge(state.event, data)
 	events.store(
 		data,
 		// handle success
-		(resources) => dispatch(CREATE_EVENT, EVENT),
+		(resources) => dispatch(CREATE_EVENT, data),
 		// handle error
 		(errors) => dispatch(ADD_ERRORS, errors)
 	)

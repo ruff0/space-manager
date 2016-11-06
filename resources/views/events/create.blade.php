@@ -3,8 +3,6 @@
 @section('body-class', 'home')
 
 @section('page-scripts')
-	<script>$(".steps-basic").hide()</script>
-	<script src="/js/page/bookables.js"></script>
 @endsection
 
 @section('content')
@@ -17,21 +15,9 @@
 			<div class="content">
 
 				<div class="row">
-					<div class="col-lg-8 col-lg-offset-2">
-						<event-form :event="{{$event->toJson()}}" :booking="{{$booking->id}}"></event-form>
+					<div class="col-lg-10 col-lg-offset-1">
+						<event :event="{{$event->toJson()}}" :booking="{{$booking}}"></event>
 					</div>
-					<div class="col-lg-2 pull-right">
-						<div class="alert alert-info ">
-							<h4>Hola {{$user->fullname()}}</h4> <br>
-							<p>
-								Para cualquier duda o consulta puedes contactarnos por
-								teléfono <a href="tel:+34966444114">+34 966 444 114</a> o
-								por email <a href="mailto:info@ulab.es">info@ulab.es</a>.
-							</p>
-
-						</div>
-					</div>
-
 				</div>
 				{{-- /user profile --}}
 

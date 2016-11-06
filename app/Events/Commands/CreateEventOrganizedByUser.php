@@ -3,7 +3,9 @@
 namespace App\Events\Commands;
 
 use App\Bookings\Domain\Booking;
+use App\Events\Domain\EventDescription;
 use App\Events\Domain\EventId;
+use App\Events\Domain\EventTitle;
 use App\Events\Domain\Models\Event;
 use Mosaiqo\Cqrs\Contracts\EventStore;
 use Mosaiqo\Cqrs\EloquentEventStore;
@@ -36,9 +38,11 @@ class CreateEventOrganizedByUser
 //			$event->addTickets($ticket);
 //		}
 		$eventId = EventId::generateNew();
-
-    $booking = \App\Bookings\Booking::find($request->get("booking"))->toArray();
+    $booking = \App\Bookings\Booking::find($request->get("bookingId"))->toArray();
 		$event = Event::fromBooking($eventId, Booking::fromArray($booking));
+		$event->addTitle(EventTitle::fromString($request->get('title')));
+		$event->addDescription(EventDescription::fromString($request->get('description')));
+
 
 		$eventStore = new EloquentEventStore();
 		foreach ($event->pendingEvents() as $pendingEvent)

@@ -2,42 +2,59 @@
 
 namespace App\Events\Domain\Events;
 
-use App\Bookings\Contracts\Domain\Models\BookingInterface;
-use App\Bookings\Domain\Booking;
-use App\Events\Domain\EventId;
-use App\Events\Domain\Models\Event;
 use Carbon\Carbon;
+use App\Events\Domain\EventId;
+use App\Bookings\Domain\Booking;
+use App\Events\Domain\Models\Event;
 use Mosaiqo\Cqrs\Contracts\DomainEvent;
+use App\Bookings\Contracts\Domain\Models\BookingInterface;
 
 class EventWasCreatedFromBooking implements DomainEvent {
 
 		/**
 	 * @var EventId
 	 */
-	public $id;
-
-		/**
-	 * @var Event
-	 */
-	public $event;
+	protected $id;
 
 	/**
 	 * @var BookingInterface
 	 */
-	public $booking;
+	protected $booking;
 
 	/**
 	 * @var Carbon
 	 */
 	protected $occurredOn;
 
-	public function __construct(EventId $id, Event $event, BookingInterface $booking)
+	/**
+	 * EventWasCreatedFromBooking constructor.
+	 * @param EventId $eventId
+	 * @param BookingInterface $booking
+	 */
+	public function __construct(EventId $eventId, BookingInterface $booking)
 	{
-		$this->id = $id;
-		$this->event = $event;
+		$this->id = $eventId->toString();
 		$this->booking = $booking;
 
 		$this->occurredOn = Carbon::now();
+	}
+
+	/**
+	 * @return EventId
+	 * @author ${USER} <boudydegeer@mosaiqo.com>
+	 */
+	public function id()
+	{
+		return $this->id;
+	}
+
+	/**
+	 * @return BookingInterface
+	 * @author ${USER} <boudydegeer@mosaiqo.com>
+	 */
+	public function booking()
+	{
+		return $this->booking;
 	}
 
 	/**
@@ -47,23 +64,27 @@ class EventWasCreatedFromBooking implements DomainEvent {
 		return $this->occurredOn;
 	}
 
+	/**
+	 * @return string
+	 * @author ${USER} <boudydegeer@mosaiqo.com>
+	 */
 	public function payload()
 	{
 		return json_encode([
-			"event" => $this->event,
-			"booking" => $this->booking
+			"booking" => $this->booking()
 		]);
 	}
 
+	/**
+	 * @param array $payload
+	 * @return EventWasCreatedFromBooking
+	 * @author Boudy de Geer  <boudydegeer@mosaiqo.com>
+	 */
 	public static function fromArray(array $payload)
 	{
-		$booking  = new Booking;
-		$eventId = EventId::fromString($payload['id']);
-
 		return new EventWasCreatedFromBooking(
-			$eventId,
-			Event::fromBooking($eventId, $booking),
-			$booking
+			EventId::fromString($payload['id']),
+			Booking::fromArray($payload['booking'])
 		);
 	}
 }

@@ -12,6 +12,13 @@ class Booking implements BookingInterface {
     {
         $booking = new Booking;
         $booking->id = $array['id'];
+        $booking->member = $array['member_id'];
+        $booking->resource = $array['resource_id'];
+        $booking->distribution = $array['distribution'];
+        $booking->persons = $array['persons'];
+        $booking->date = $array['time_from'];
+        $booking->timeFrom = $array['time_from'];
+        $booking->timeTo = $array['time_to'];
 
         return $booking;
     }

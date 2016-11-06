@@ -21,7 +21,7 @@
     "h4cc/wkhtmltopdf-i386": "0.12.x",
     "h4cc/wkhtmltopdf-amd64": "^0.12.3",
     "h4cc/wkhtmltoimage-amd64": "^0.12.3",
-    "mosaiqo/cqrs": "@dev",
+    "mosaiqo/cqrs": "dev-master",
     "ramsey/uuid": "^3.5"
   },
   "require-dev": {
@@ -60,15 +60,12 @@
       "php artisan optimize"
     ]
   },
-  "repositories": {
-    "cqrs": {
-      "type": "path",
-      "package": {
-        "name": "mosaiqo/cqrs"
-      },
-      "url": "./packages/mosaiqo/cqrs"
+  "repositories": [
+    {
+      "type": "vcs",
+      "url" : "git@github.com:boudydegeer/CQRS.git"
     }
-  },
+  ],
   "config": {
     "preferred-install": "dev"
   }

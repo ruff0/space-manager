@@ -4,6 +4,7 @@ import DatePicker from "../../DatePicker";
 import Selectable from "../../Selectable";
 import UButton from "../../../Button";
 import FormError from "../../Error";
+import FileUpload from '../../File.vue'
 
 import {
     createEvent
@@ -36,6 +37,17 @@ export default{
                 title: "",
                 description: ""
             }
+        }
+    },
+    /**
+     *
+     */
+    events: {
+        'vdropzone-success': function (file) {
+            console.log('A file was successfully uploaded')
+        },
+        'vdropzone-success': function (file) {
+            console.log('A file was successfully uploaded')
         }
     },
 
@@ -71,7 +83,7 @@ export default{
         cancel(){},
         create(){
             this.createEvent({
-                booking: this.booking,
+                bookingId: this.booking,
                 title: this.form.title,
                 description: this.form.description
             })
@@ -88,6 +100,7 @@ export default{
         DatePicker,
         Selectable,
         UButton,
-        FormError
+        FormError,
+        FileUpload
     }
 }

@@ -12,7 +12,7 @@ class EventsController extends Controller
 {
 	public function store(Request $request)
 	{
-		$event = CreateEventOrganizedByUser::fromRequest($request);
+		CreateEventOrganizedByUser::fromRequest($request);
 
 		return response()->json([
 			 "success" => [
