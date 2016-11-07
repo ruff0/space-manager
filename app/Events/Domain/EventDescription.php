@@ -14,7 +14,7 @@ class EventDescription
 	 * EventId constructor.
 	 * @param string $string
 	 */
-	private function __construct(string $string)
+	private function __construct($string)
 	{
 		$this->description = $string;
 	}
@@ -23,7 +23,7 @@ class EventDescription
 	 * @param $string
 	 * @return EventId
 	 */
-	public static function fromString(string $string)
+	public static function fromString($string)
 	{
 		return new EventDescription($string);
 	}

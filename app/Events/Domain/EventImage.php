@@ -16,7 +16,7 @@ class EventImage
 	 * EventId constructor.
 	 * @param string $string
 	 */
-	private function __construct(string $string)
+	private function __construct($string)
 	{
 		$this->image = $string;
 	}
@@ -25,7 +25,7 @@ class EventImage
 	 * @param $string
 	 * @return EventId
 	 */
-	public static function fromString(string $string)
+	public static function fromString($string)
 	{
 		return new EventImage($string);
 	}

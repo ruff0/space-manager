@@ -14,7 +14,7 @@ class EventTitle
 	 * EventId constructor.
 	 * @param string $string
 	 */
-	private function __construct(string $string)
+	private function __construct($string)
 	{
 		$this->title = $string;
 	}
@@ -23,7 +23,7 @@ class EventTitle
 	 * @param $string
 	 * @return EventId
 	 */
-	public static function fromString(string $string)
+	public static function fromString($string)
 	{
 		return new EventTitle($string);
 	}
