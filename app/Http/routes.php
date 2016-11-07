@@ -30,6 +30,15 @@ Route::auth();
 /**
  * API
  */
+Route::group(['prefix' => 'api', 'namespace' => 'Api'], function () {
+	Route::group(['namespace' => 'Events'], function () {
+		Route::get('/events', 'EventsController@index');
+		Route::get('/events/{event}', 'EventsController@show');
+
+		Route::get('/categories', 'CategoriesController@index');
+	});
+});
+
 Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api'], function () {
 	/**
 	 * Bookables Routes
@@ -69,11 +78,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	});
 
 	Route::group(['namespace' => 'Events'], function () {
-		Route::get('/events', 'EventsController@index');
-		Route::get('/events/{event}', 'EventsController@show');
 		Route::post('/events', 'EventsController@store');
-
-		Route::get('/categories', 'CategoriesController@index');
 	});
 
 	Route::group(['namespace' => 'Bookables'], function () {
