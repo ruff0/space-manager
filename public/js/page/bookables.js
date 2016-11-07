@@ -248,6 +248,7 @@ $steps = $el.steps({
 		}
 	},
 	onFinished: function (event, currentIndex) {
+
 		$.ajax({
 			url: '/api/bookings',
 			data: data,
@@ -264,6 +265,23 @@ $steps = $el.steps({
 				if (text.success.messages.length > 0) {
 					$(".errors").empty().html("").hide();
 					$(".success").empty().html(messages).fadeIn(500);
+				}
+
+				if (text.metadata.eventable.isIt > 0) {
+					swal({
+						title: text.metadata.eventable.title,
+						text: text.metadata.eventable.message,
+						type: "warning",
+						showCancelButton: true,
+						confirmButtonColor: "#FF7043",
+						confirmButtonText: text.metadata.eventable.confirmButton.text,
+						cancelButtonText: text.metadata.eventable.cancelButton.text
+					}, function (isConfirm) {
+						if (isConfirm) {
+							// swal.enableLoading();
+							window.location = text.metadata.eventable.confirmButton.location
+						}
+					})
 				}
 
 			},

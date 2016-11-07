@@ -27,6 +27,7 @@ var Calendar = {
 }
 var Form = {
 	Booking: require('./components/Form/Booking'),
+	Event: require('./components/Form/Event'),
 	TimePicker: require('./components/Form/TimePicker')
 }
 var Discounts = {
@@ -84,6 +85,7 @@ var v = new Vue({
 		'discount': Discounts.Discount,
 		'pass': Passes.Pass,
 		'booking-form': Form.Booking,
+		'event-form': Form.Event,
 		'price-table': Table.Price,
 		'time-picker': Form.TimePicker
 	},

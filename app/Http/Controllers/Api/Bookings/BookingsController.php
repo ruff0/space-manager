@@ -5,19 +5,16 @@ namespace App\Http\Controllers\Api\Bookings;
 use App\Bookables\Bookable;
 use App\Bookables\BookableType;
 use App\Bookings\Booking;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\BookingsSearchRequest;
 use App\Http\Requests\Bookings\CreateBookingForm;
 use App\Invoices\Models\Invoice;
 use App\Invoices\Models\Line;
 use App\Invoices\QuoteInvoice;
 use App\Invoices\QuoteLine;
-use App\Resources\Models\Resource;
 use App\Space\Member;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -38,41 +35,34 @@ class BookingsController extends Controller
 			$bookables = BookableType::find($request->get('type'))->bookables()->get();
 
 
-			foreach ($bookables as $bookable)
-			{
+			foreach ($bookables as $bookable) {
 
-				foreach ($bookable->roomResources() as $resource)
-				{
+				foreach ($bookable->roomResources() as $resource) {
 					$settings = $resource->settings;
 					$bookings = $resource->bookings()->where(function ($q) use ($timeFrom, $timeTo) {
 						$q->where(function ($q) use ($timeFrom, $timeTo) {
 							$q->where('time_from', '>=', $timeFrom)
-							  ->where('time_to', '<=', $timeTo);
+								->where('time_to', '<=', $timeTo);
 						})
-						  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
-							  $q->where('time_from', '<', $timeTo)
-							    ->where('time_to', '>', $timeTo);
-						  })
-						  ->orWhere(function ($q) use ($timeFrom, $timeTo) {
-							  $q->where('time_from', '<', $timeFrom)
-							    ->where('time_to', '>', $timeFrom);
-						  });
+							->orWhere(function ($q) use ($timeFrom, $timeTo) {
+								$q->where('time_from', '<', $timeTo)
+									->where('time_to', '>', $timeTo);
+							})
+							->orWhere(function ($q) use ($timeFrom, $timeTo) {
+								$q->where('time_from', '<', $timeFrom)
+									->where('time_to', '>', $timeFrom);
+							});
 					});
 
 
-					if($bookings->count() == 0)
-					{
+					if ($bookings->count() == 0) {
 						foreach ($resource->bookables as $bookable) {
-							if(!in_array($bookable->id, $available))
-							{
-								if($persons > 0)
-								{
-									if($bookable->max_occupants >= $persons)
-									{
+							if (!in_array($bookable->id, $available)) {
+								if ($persons > 0) {
+									if ($bookable->max_occupants >= $persons) {
 										$available[] = $bookable->id;
 									}
-								}
-								else {
+								} else {
 									$available[] = $bookable->id;
 								}
 
@@ -101,68 +91,79 @@ class BookingsController extends Controller
 	 */
 	public function store(CreateBookingForm $request)
 	{
-		if ($request->exists('member') && $request->has('member'))
-		{
+		// If the member is sent we get it
+		if ($request->exists('member') && $request->has('member')) {
 			$member = Member::findOrFail($request->get('member'));
-		}
-		else
-		{
+		} else { // we get the default member
 			$member = Auth::user()->member;
 		}
 
+		// We determine the payment method
 		$paymentMethod = 'card';
-
-		if($request->has('payment'))
-		{
+		if ($request->has('payment')) {
 			$paymentMethod = $request->get('payment');
 		}
 
+		// How many person assist
 		$persons = $request->has('persons') ? $request->get('persons') : null;
+
+		// The distribution we need
 		$distribution = $request->has('distribution') ? $request->get('distribution') : null;
 
+		// If current member has no card saved and the payment method is card
+		// we throw an exception
 		if ($paymentMethod == 'card' && !$member->hasStripeId()) {
 			return response()->json($data = [
 				'error' => [
 					'needsPaymentMethod' => true,
-					'messages'           => [
+					'messages' => [
 						'No tienes ningún metodo de pago definido',
 					]
 				]
 			], 422);
 		}
 
+		// We get the bookable
 		$bookable = Bookable::findOrFail($request->get('bookable'));
+
+		// We collect the timestamps for the booking
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
 		$hours = $timeFrom->diffInHours($timeTo);
 
+		// We get the first resource free to book
 		$resource = $bookable->firstWithoutBookings($hours, $timeFrom, $timeTo);
+
+		// We create the invoice
 		$invoice = Invoice::create(['paid' => 0, 'type' => 'booking']);
 		$invoice->toMember($member);
 		$description = '';
 
-		if($persons){
-			$description .= "Un total de " . $persons. '<br>';
+		if ($persons) {
+			$description .= "Un total de " . $persons . '<br>';
 		}
-		if($distribution) {
+		if ($distribution) {
 
-			switch($distribution){
-				case 'u': $text =  'en forma de U.';
+			switch ($distribution) {
+				case 'u':
+					$text = 'en forma de U.';
 					break;
-				case 'line': $text = 'en linea.';
+				case 'line':
+					$text = 'en linea.';
 					break;
-				case 'chairs': $text = 'solo sillas en fila.';
+				case 'chairs':
+					$text = 'solo sillas en fila.';
 			}
 
 			$description .= "y la distribución " . $text;
 		}
 
-
+		// We create the invoice line
 		$line = new Line([
-			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
-			'name'        => $bookable->name,
+			'price' => (int)$bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
+			'name' => $bookable->name,
 			'description' => $bookable->description,
-			'amount'      => 1
+			'amount' => 1
 		]);
 		$invoice->addLine($line);
 
@@ -184,27 +185,28 @@ class BookingsController extends Controller
 					$percentage = 100;
 					$total = ($price / 100) * $percentage;
 					$line = new Line([
-						'price'       => -$total,
-						'name'        => "Bono por horas ({$passHours} hrs.)",
+						'price' => -$total,
+						'name' => "Bono por horas ({$passHours} hrs.)",
 						'description' => "Descuento aplicado por bono de horas ({$passHours} hrs.)",
-						'amount'      => 1
+						'amount' => 1
 					]);
 					$invoice->addLine($line);
 				}
 			}
-			
+
 			if ((($pass && $pass->hours < $hours) || (!$pass)) &&
-			    $discount && Carbon::parse($discount['date_to'])->gte(Carbon::now())) {
+				$discount && Carbon::parse($discount['date_to'])->gte(Carbon::now())
+			) {
 				$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 
 				$percentage = $discount['percentage'];
 				if ($percentage) {
 					$total = ($price / 100) * $percentage;
 					$discountLine = new Line([
-						'price'       => (int)-$total,
-						'name'        => 'Descuento',
+						'price' => (int)-$total,
+						'name' => 'Descuento',
 						'description' => "Descuento aplicado $percentage%",
-						'amount'      => 1
+						'amount' => 1
 					]);
 
 					$invoice->addLine($discountLine);
@@ -215,17 +217,16 @@ class BookingsController extends Controller
 		$invoice->save();
 
 		// Make Stripe Charge
-		if($paymentMethod == 'card' && !$passHours && $invoice->getTotalForStripe() )
-		{
+		if ($paymentMethod == 'card' && !$passHours && $invoice->getTotalForStripe()) {
 			$invoice->pay();
 		}
 
 		$member->decrementPassFor($bookable->id, $passHours);
 		$booking = $member->bookings()->create([
 			'time_from' => $timeFrom,
-			'time_to'   => $timeTo,
-			'persons'   => $persons,
-			'distribution'  => $distribution
+			'time_to' => $timeTo,
+			'persons' => $persons,
+			'distribution' => $distribution
 		]);
 
 		$booking->bookable()->associate($bookable->id);
@@ -239,7 +240,22 @@ class BookingsController extends Controller
 			'success' => [
 				'messages' => [
 					'Tu reserva se ha realizado correctamente. Gracias! Te hemos enviado un email con los detalles.',
+				],
+			],
+			'metadata' => [
+				'eventable' => [
+					'isIt' => $resource->isEventable(),
+					'title' => 'Crear un evento para tu reserva.',
+					'message' => '¿Quieres crear un evento para esta reserva?',
+					'cancelButton' => [
+						'text' => 'No, Gracias!'
+					],
+					'confirmButton' => [
+						'text' => 'Si, crear ahora',
+						'location' => "/bookings/{$booking->id}/events/create"
+					]
 				]
+
 			]
 		], 200);
 	}
@@ -252,9 +268,8 @@ class BookingsController extends Controller
 	 */
 	public function update(Booking $bookings, Request $request)
 	{
-		
-		if($request->has('action'))
-		{
+
+		if ($request->has('action')) {
 			$action = $request->get('action');
 			$bookings->$action($request->all());
 		}
@@ -268,7 +283,7 @@ class BookingsController extends Controller
 		], 200);
 
 	}
-	
+
 	/**
 	 * @param Booking $bookings
 	 *
@@ -276,7 +291,7 @@ class BookingsController extends Controller
 	 */
 	public function destroy(Booking $bookings)
 	{
-		if(!$bookings->paid) {
+		if (!$bookings->paid) {
 			$bookings->delete();
 
 			return response()->json($bookings);
@@ -284,7 +299,7 @@ class BookingsController extends Controller
 
 		return response()->json(
 			[
-				'data'=> [
+				'data' => [
 					'errors' => [
 						'booking' => 'No se ha podido borrar'
 					]
@@ -302,19 +317,16 @@ class BookingsController extends Controller
 	 */
 	public function calculate(Request $request)
 	{
-		if($request->exists('member') && $request->has('member'))
-		{
+		if ($request->exists('member') && $request->has('member')) {
 			$member = Member::findOrFail($request->get('member'));
-		}
-		else
-		{
+		} else {
 			$member = Auth::user()->member;
 		}
 
 
 		$timeFrom = Carbon::parse($request->get('date') . " " . $request->get('time_from'));
 		$timeTo = Carbon::parse($request->get('date') . " " . $request->get('time_to'));
-		$hours  = $timeFrom->diffInHours($timeTo);
+		$hours = $timeFrom->diffInHours($timeTo);
 
 		$bookable = Bookable::findOrFail($request->get('bookable'));
 		$resources = [
@@ -323,14 +335,13 @@ class BookingsController extends Controller
 
 		$bookable->calculatePrice($hours, $timeFrom, $timeTo);
 
-		foreach ($bookable->resources as $resource)
-		{
+		foreach ($bookable->resources as $resource) {
 			$settings = $resource->settings;
 			if ($resource->ofType('room')) {
 				$resources['rooms'][] = $resource->resourceable;
 			}
 		}
-		
+
 		$invoice = new QuoteInvoice();
 
 		$description = '';
@@ -356,51 +367,51 @@ class BookingsController extends Controller
 		}
 
 		$line = new QuoteLine([
-			'price'       => (int) $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
-			'name'        => $bookable->name,
+			'price' => (int)$bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true),
+			'name' => $bookable->name,
 			'description' => $bookable->description .
-			                 $description.
-			                 "<br/> <small>Reserva el dia {$timeFrom->format('d/m/Y')}</small>".
-			                 "<br/> <small>Desde {$timeFrom->format('H:i')} - Hasta {$timeTo->format('H:i')} • ({$hours} hrs.)  "
+				$description .
+				"<br/> <small>Reserva el dia {$timeFrom->format('d/m/Y')}</small>" .
+				"<br/> <small>Desde {$timeFrom->format('H:i')} - Hasta {$timeTo->format('H:i')} • ({$hours} hrs.)  "
 		]);
 		$invoice->addLine($line);
 
 		$discount = $member->appliedDiscounts('bookings');
 
-		if($pass = $member->hasPassForType($bookable->id, $timeFrom))
-		{
-			if (!$bookable->isPartTime($hours, $timeFrom, $timeTo) &&  $hours < 6 && $pass->hours) {
-				if ($pass->hours < $hours)	$passHours = $pass->hours;
-				else $passHours = $hours;
+		if ($pass = $member->hasPassForType($bookable->id, $timeFrom)) {
+			if (!$bookable->isPartTime($hours, $timeFrom, $timeTo) && $hours < 6 && $pass->hours) {
+				if ($pass->hours < $hours) {
+					$passHours = $pass->hours;
+				} else {
+					$passHours = $hours;
+				}
 
 				$price = $bookable->calculatePriceForTimeFrame($passHours, $timeFrom, $timeTo, true);
 				$percentage = 100;
 				$total = ($price / 100) * $percentage;
 				$line = new QuoteLine([
-					'price'       => -$total,
-					'name'        => "Bono por horas ({$passHours} hrs.)",
+					'price' => -$total,
+					'name' => "Bono por horas ({$passHours} hrs.)",
 					'description' => "Descuento aplicado por bono de horas ({$passHours} hrs.)"
 				]);
 				$invoice->addLine($line);
 			}
 		}
 
-		if( (($pass && $pass->hours < $hours ) || (!$pass)) &&
+		if ((($pass && $pass->hours < $hours) || (!$pass)) &&
 			$discount && Carbon::parse($discount['date_to'])->gte(Carbon::now())
-		)
-		{
+		) {
 			$price = $bookable->calculatePriceForTimeFrame($hours, $timeFrom, $timeTo, true);
 			$percentage = $discount['percentage'];
-		  if($percentage)
-		  {
-			  $total = ($price / 100) * $percentage;
-			  $line = new QuoteLine([
-				  'price'       => -$total,
-				  'name'        => "Descuento $percentage%",
-				  'description' => "Descuento aplicado $percentage%"
-			  ]);
-			  $invoice->addLine($line);
-		  }
+			if ($percentage) {
+				$total = ($price / 100) * $percentage;
+				$line = new QuoteLine([
+					'price' => -$total,
+					'name' => "Descuento $percentage%",
+					'description' => "Descuento aplicado $percentage%"
+				]);
+				$invoice->addLine($line);
+			}
 		}
 
 		return $invoice->toJson();

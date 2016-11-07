@@ -22,6 +22,7 @@ import {
  * Modules
  */
 import booking from './modules/booking'
+import event from './modules/event'
 
 Vue.use(Vuex)
 
@@ -98,6 +99,7 @@ export default new Vuex.Store({
 	state: _.clone(initialState),
 	mutations,
 	modules: {
-		booking
+		booking,
+		event
 	}
 })

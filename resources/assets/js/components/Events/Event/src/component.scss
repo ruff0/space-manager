@@ -1,0 +1,112 @@
+.panel-body{
+  padding: 0;
+}
+
+.Event {
+  padding: 0;
+  .Event--Header{
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+
+    .Header--Image {
+      background: #45494E;
+      height: 360px;
+      width: 70%;
+      flex: 0 0 70%;
+    }
+
+    .Header--Info {
+      background: rgba(255, 255, 255, 0.901961);
+      height: 360px;
+      width: 30%;
+      flex: 0 0 30%;
+      border-left: 1px solid #ccc;
+      padding: 30px 20px;
+
+      .Info--Date {
+        .Date--Month {
+          font-size: 12px;
+          font-weight: 600;
+          line-height: 15px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          margin: 0;
+        }
+        .Date--Day {
+          font-size: 20px;
+          font-weight: normal;
+          line-height: 1.25em;
+          letter-spacing: 1px;
+          margin: 0;
+        }
+      }
+
+      .Header--Title {
+        .Title{
+          color: #000;
+          margin-top: 2em;
+        }
+      }
+    }
+
+    .Header--NavBar {
+      height: 60px;
+      width: 100%;
+      flex: 0 0 100%;
+      display: flex;
+      border-top: 1px solid #D2D6DF;
+      border-bottom: 1px solid #D2D6DF;
+
+      .NavBar--Left{
+        width: 70%;
+        flex: 0 0 70%;
+      }
+      .NavBar--Right{
+        width: 30%;
+        flex: 0 0 30%;
+        padding: 10px 20px;
+      }
+    }
+  }
+
+  .Event--Body {
+    display: flex;
+    flex-wrap: wrap;
+    //flex-direction: column;
+
+    dt {
+      font-size: 12px;
+      line-height: 18px;
+      color: #282C35;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    dd {
+      font-size: 15px;
+      line-height: 18px;
+      font-weight: 400
+    }
+  }
+
+  .Event--Description {
+    width: 70%;
+    flex: 0 0 70%;
+    min-height: 400px;
+    padding: 20px;
+
+    .ql-editor {
+      min-height: 400px;
+    }
+  }
+
+  .Event--Details {
+    width: 30%;
+    flex: 0 0 30%;
+    min-height: 400px;
+    padding: 20px;
+
+  }
+}
+

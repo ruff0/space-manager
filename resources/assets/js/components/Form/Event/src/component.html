@@ -1,0 +1,60 @@
+<div class="panel panel-white">
+	<div class="panel-heading">
+		<h6 class="panel-title">
+			{{title}}
+			<span class="text-highlight bg-primary" v-if="hasChanged && !isNew">
+				{{message}}
+			</span>
+		</h6>
+		<div class="heading-elements">
+			<div class="button-set pull-right">
+
+				<u-button :ladda="{style:'zoom-in'}"
+						  class="pull-right"
+						  data-style="zoom-in"
+						  color="primary"
+						  @click="create"
+				>
+					Crear
+				</u-button>
+
+				<u-button :ladda="{style:'zoom-in'}"
+						  class="pull-right mr-10"
+						  data-style="zoom-in"
+						  color="primary"
+						  @click="cancel"
+				>
+					Cancelar
+				</u-button>
+
+			</div>
+
+		</div>
+	</div>
+	<div class="panel-body" v-block="loading">
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
+				<label>Titulo</label>
+				<input type="text" v-model="form.title" class="form-control">
+				<form-error :errors="errors.type"></form-error>
+			</div>
+		</div>
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
+				<label>Descripción</label>
+				<textarea class="form-control" v-model="form.description" id="" cols="30" rows="10"></textarea>
+				<form-error :errors="errors.type"></form-error>
+			</div>
+		</div>
+
+		<div class="row pb-20">
+			<div class="col-sm-12">
+				<label>Image</label>
+				<file-upload id="image" url="/files"></file-upload>
+				<form-error :errors="errors.type"></form-error>
+			</div>
+		</div>
+	</div>
+</div>

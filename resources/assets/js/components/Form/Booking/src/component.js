@@ -1,10 +1,9 @@
-import _ from "lodash"
-import TimePicker from "../../TimePicker"
-import DatePicker from "../../DatePicker"
-import Selectable from "../../Selectable"
-import UButton from "../../../Button"
-import FormError from "../../Error"
-
+import _ from "lodash";
+import TimePicker from "../../TimePicker";
+import DatePicker from "../../DatePicker";
+import Selectable from "../../Selectable";
+import UButton from "../../../Button";
+import FormError from "../../Error";
 import {
 	addDate,
 	addPersons,
@@ -21,23 +20,21 @@ import {
 	cancelReservation,
 	markReservationsAsPaid,
 	makeReservation
-} from '../../../../state/actions'
-
-
+} from "../../../../state/actions";
 
 
 export default {
-  /**
-   * Name of the component
-   * More info: http://vuejs.org/api/#name
-   */
-  name: 'Booking',
+	/**
+	 * Name of the component
+	 * More info: http://vuejs.org/api/#name
+	 */
+	name: 'Booking',
 
 	/**
 	 * Vuex instance
 	 */
 	vuex: {
-		actions : {
+		actions: {
 			addDate,
 			addPersons,
 			addDistribution,
@@ -64,7 +61,7 @@ export default {
 				let currentMember = _.find(state.members, (m) => {
 					return m.id == state.booking.member
 				});
-				if(currentMember) return currentMember
+				if (currentMember) return currentMember
 
 				return null
 			},
@@ -74,15 +71,15 @@ export default {
 		}
 	},
 
-  /**
-   * The data object for the component it self
-   * More info: http://vuejs.org/api/#data
-   */
-  data () {
-    return {
+	/**
+	 * The data object for the component it self
+	 * More info: http://vuejs.org/api/#data
+	 */
+	data () {
+		return {
 			types: []
-    }
-  },
+		}
+	},
 
 	/**
 	 * Public properties
@@ -95,7 +92,7 @@ export default {
 	/**
 	 *
 	 */
-	computed : {
+	computed: {
 		isNew() {
 			return this.booking.isNew
 		},
@@ -110,13 +107,13 @@ export default {
 			return this.selected.paid
 		},
 		canMakeReservation(){
-			return (!this.isNew && this.member)? true : false
+			return (!this.isNew && this.member) ? true : false
 		},
 		canPayWithCard() {
-			return (this.member && this.member.hasCreditCard)? true: false;
+			return (this.member && this.member.hasCreditCard) ? true : false;
 		},
 		message() {
-			return  !this.isNew ? 'Ten en cuenta que al haber editado estas creando un reserva nueva!!!': ''
+			return !this.isNew ? 'Ten en cuenta que al haber editado estas creando un reserva nueva!!!' : ''
 		},
 		title () {
 			return !this.isNew && this.hasChanged ? "Editar reserva" : "Crear una reserva"
@@ -136,25 +133,25 @@ export default {
 		})
 		if (!this.isNew) {
 			this.addBooking(this.booking)
-			setTimeout(()=>{
+			setTimeout(()=> {
 				this.addBookable(this.booking.bookable_id, false)
 			}, 1500)
 		}
 	},
 
-  /**
-   * This is called when the component is ready
-   * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
-   */
-  ready () {
+	/**
+	 * This is called when the component is ready
+	 * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+	 */
+	ready () {
 
 	},
 
-  /**
-   * Child components of this one
-   * More info: http://vuejs.org/guide/components.html
-   */
-  components: {
+	/**
+	 * Child components of this one
+	 * More info: http://vuejs.org/guide/components.html
+	 */
+	components: {
 		TimePicker,
 		DatePicker,
 		Selectable,
@@ -168,11 +165,11 @@ export default {
 	methods: {
 		reserve () {
 			this.addPersons(this.persons)
-			this.makeReservation({ payment: 'cash' })
+			this.makeReservation({payment: 'cash'})
 		},
 		reserveAndPay () {
 			this.addPersons(this.persons)
-			this.makeReservation({ payment: 'card' })
+			this.makeReservation({payment: 'card'})
 		},
 		pay () {
 			this.payReservation(this.booking.id)

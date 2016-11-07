@@ -11,37 +11,53 @@
 |
 */
 
+use Mosaiqo\Cqrs\EloquentEventStore;
+
+Route::get("/testingEventStorming", function (\Illuminate\Http\Request $request) {
+	\App\Events\Commands\CreateEventOrganizedByUser::fromRequest($request);
+});
+
+Route::get("/testingEventStorming/{id}", function ($id) {
+	$eventStore = new EloquentEventStore();
+	$events = $eventStore->allStoredEventsSince($id);
+
+	$event = \App\Events\Domain\Models\Event::rebuildFrom($events);
+	dd($event);
+});
 
 Route::auth();
+
+/**
+ * API
+ */
 Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api'], function () {
 	/**
 	 * Bookables Routes
 	 */
 	Route::group(['namespace' => 'Space'], function () {
 		Route::post('/members/{members}/payment-methods', [
-			'as'   => 'api.members.payment-methods.create',
+			'as' => 'api.members.payment-methods.create',
 			'uses' => 'PaymentMethodsController@store'
 		]);
-		
+
 		Route::post('/members/{members}/discounts', [
-			'as'   => 'api.members.discounts.store',
+			'as' => 'api.members.discounts.store',
 			'uses' => 'MemberDiscountsController@store'
 		]);
-		
-		Route::resource('members.passes','MemberPassesController', [
+
+		Route::resource('members.passes', 'MemberPassesController', [
 			'except' => ['show', 'create', 'edit']
 		]);
 
-		Route::resource('members','MembersController', [
+		Route::resource('members', 'MembersController', [
 			'only' => ['index']
 		]);
-		
+
 		Route::get('/subscriptions', 'SubscriptionsController@index');
 		Route::post('/subscriptions', 'SubscriptionsController@store');
 		Route::post('/subscriptions/calculate', 'SubscriptionsController@calculate');
 		Route::post('/subscriptions/rooms', 'SubscriptionsController@rooms');
 	});
-
 
 
 	Route::group(['namespace' => 'Bookings'], function () {
@@ -50,6 +66,14 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 		Route::patch('/bookings/{bookings}', 'BookingsController@update');
 		Route::delete('/bookings/{bookings}', 'BookingsController@destroy');
 		Route::post('/bookings/calculate', 'BookingsController@calculate');
+	});
+
+	Route::group(['namespace' => 'Events'], function () {
+		Route::get('/events', 'EventsController@index');
+		Route::get('/events/{event}', 'EventsController@show');
+		Route::post('/events', 'EventsController@store');
+
+		Route::get('/categories', 'CategoriesController@index');
 	});
 
 	Route::group(['namespace' => 'Bookables'], function () {
@@ -63,10 +87,19 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	});
 });
 
+/**
+ * Web
+ */
+Route::group(['namespace' => 'Events'], function () {
+	Route::get('/events/{event}', 'EventsController@show');
+});
 
 Route::group(['middleware' => ['auth']], function () {
 	Route::get('/', 'HomeController@index');
 	Route::get('/home', ['as' => 'home', 'uses' => 'HomeController@index']);
+
+	// File uploads
+	Route::resource('files', 'FilesController');
 
 	/**
 	 * Bookables Routes
@@ -74,6 +107,7 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::group(['namespace' => 'Bookings'], function () {
 		Route::get('/bookings', 'BookingsController@index');
 		Route::get('/bookings/create', 'BookingsController@create');
+		Route::get('/bookings/{booking}/events/create', 'BookingEventsController@create');
 	});
 
 	Route::group(['namespace' => 'Subscriptions'], function () {
@@ -94,7 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 		Route::get('invoices/{invoices}/download', [
 			'as' => 'invoices.download',
-			'uses' =>	'InvoicesController@download'
+			'uses' => 'InvoicesController@download'
 		]);
 	});
 
@@ -122,12 +156,13 @@ Route::group(['middleware' => ['auth']], function () {
 		Route::resource('plans', 'PlansController');
 		Route::resource('members', 'MembersController');
 		Route::resource('bookables', 'BookablesController');
-	
+
 		Route::get('bookings/calendar', [
-			'as'  => 'admin.bookings.calendar',
+			'as' => 'admin.bookings.calendar',
 			'uses' => 'BookingsController@calendar'
 		]);
 		Route::resource('bookings', 'BookingsController');
+		Route::resource('events', 'EventsController');
 
 		// Resources
 		Route::resource('meetingrooms', 'MeetingRoomsController');

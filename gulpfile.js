@@ -56,9 +56,10 @@ elixir(function (mix) {
 			'pages/login.js',
 			'plugins/ui/ripple.min.js',
 
-			"./bower_components/moment/moment.js",
-			"./bower_components/fullcalendar/dist/fullcalendar.min.js",
-			"./bower_components/fullcalendar-scheduler/dist/scheduler.min.js",
+			"./node_modules/moment/moment.js",
+			"./node_modules/moment/locale/es.js",
+			"./node_modules/fullcalendar/dist/fullcalendar.min.js",
+			"./node_modules/fullcalendar-scheduler/dist/scheduler.min.js",
 		])
 		.scripts(
 			[

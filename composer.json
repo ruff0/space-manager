@@ -20,7 +20,9 @@
     "barryvdh/laravel-snappy": "^0.3.0",
     "h4cc/wkhtmltopdf-i386": "0.12.x",
     "h4cc/wkhtmltopdf-amd64": "^0.12.3",
-    "h4cc/wkhtmltoimage-amd64": "^0.12.3"
+    "h4cc/wkhtmltoimage-amd64": "^0.12.3",
+    "mosaiqo/cqrs": "dev-master",
+    "ramsey/uuid": "^3.5"
   },
   "require-dev": {
     "fzaninotto/faker": "~1.4",
@@ -58,7 +60,13 @@
       "php artisan optimize"
     ]
   },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url" : "git@github.com:boudydegeer/CQRS.git"
+    }
+  ],
   "config": {
-    "preferred-install": "dist"
+    "preferred-install": "dev"
   }
 }
