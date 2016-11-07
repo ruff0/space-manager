@@ -31,7 +31,7 @@ export default{
                 ops: [],
             },
             config: {
-                placeholder: 'Compose an epic...',
+                placeholder: "Aquí pon la descripción de tú evento",
             },
             title: '',
             image: null,

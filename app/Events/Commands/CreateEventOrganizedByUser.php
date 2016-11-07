@@ -33,6 +33,6 @@ class CreateEventOrganizedByUser
 		$event->addDescription(EventDescription::fromString($request->get('description')));
 		$event->addImage(EventImage::fromFile($file));
 
-		EloquentEventStore::persistAllFor($eventId, $event->pendingEvents());
+		EloquentEventStore::persistAllFor($eventId, collect($event->pendingEvents()));
 	}
 }

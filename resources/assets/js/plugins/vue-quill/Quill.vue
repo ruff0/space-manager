@@ -1,35 +1,16 @@
 <template>
     <div>
-        <div v-el:toolbar class="ui top attached menu toolbar ql-toolbar ql-snow">
-            <slot name="toolbar">
-                <div class="ql-format-group">
-                    <a class="ql-format-button ql-bold"></a>
-                    <span class="ql-format-separator"></span>
-                    <a class="ql-format-button ql-underline"></a>
-                    <span class="ql-format-separator"></span>
-                    <a class="ql-format-button ql-italic"></a>
-                </div>
-                <div class="ql-format-group">
-                    <a class="ql-format-button ql-list"></a>
-                    <span class="ql-format-separator"></span>
-                    <a class="ql-format-button ql-bullet"></a>
-                    <span class="ql-format-separator"></span>
-                    <span title="Text Alignment" class="ql-align ql-picker">
-                        <span class="ql-picker-label" data-value="left"></span>
-                        <span class="ql-picker-options">
-                            <span data-value="left" class="ql-picker-item ql-selected"></span>
-                            <span data-value="center" class="ql-picker-item"></span>
-                            <span data-value="right" class="ql-picker-item"></span>
-                            <span data-value="justify" class="ql-picker-item"></span>
-                        </span>
-                    </span>
-                </div>
-            </slot>
-        </div>
         <div class="ui attached segment" v-el:quill @click.prevent="focusEditor"></div>
     </div>
 </template>
+<style lang="stylus">
+    @import "../../../../../node_modules/quill/assets/snow.styl";
+    @import "../../../../../node_modules/quill/assets/bubble.styl";
 
+    .ql-editor {
+        min-height: 400px;
+    }
+</style>
 <script>
     const Quill = require('quill')
     export default {
@@ -61,10 +42,35 @@
             },
 
             config: {
-                default() {
-                    return {
+                coerce(options) {
 
+                    let defaults = {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: [
+                                ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                                ['blockquote'],
+                                [{'list': 'ordered'}, {'list': 'bullet'}],
+//                                [{'script': 'sub'}, {'script': 'super'}],      // superscript/subscript
+//                                [{'indent': '-1'}, {'indent': '+1'}],          // outdent/indent
+//                                [{'direction': 'rtl'}],                         // text direction
+
+//                                [{'size': ['small', false, 'large', 'huge']}],  // custom dropdown
+                                [{'header': [1, 2, 3, 4, 5, 6, false]}],
+
+                                [{'color': []}, {'background': []}],          // dropdown with defaults from theme
+                                [{'font': []}],
+                                [{'align': []}],
+
+                                ['clean']                                         // remove formatting button
+                            ]
+                        }
                     }
+
+                    for (var attribute in options) {
+                        defaults[attribute] = options[attribute];
+                    }
+                    return defaults;
                 },
             },
         },
@@ -76,6 +82,7 @@
         },
 
         ready() {
+            console.log(this.config);
             this.editor = new Quill(this.$els.quill, this.config)
 
             this.formats.map((format) => {
