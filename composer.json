@@ -62,8 +62,8 @@
   },
   "repositories": [
     {
-      "type": "vcs",
-      "url" : "git@github.com:boudydegeer/CQRS.git"
+      "type": "path",
+      "url" : "packages/mosaiqo/CQRS"
     }
   ],
   "config": {

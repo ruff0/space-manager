@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3a5c5861e407e355b812c11d6192d092",
-    "content-hash": "38169f9aebe2e83da0b4009e8c993836",
+    "hash": "88824e055502296287c7071515373fa7",
+    "content-hash": "0661080c7d8e739a24b4c16f0061e854",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -1352,15 +1352,10 @@
         {
             "name": "mosaiqo/cqrs",
             "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:boudydegeer/CQRS.git",
-                "reference": "9dabb63daa8b99b5306e76be93baf34a38114376"
-            },
             "dist": {
-                "type": "git",
-                "url": "git@github.com:boudydegeer/CQRS.git",
-                "reference": null,
+                "type": "path",
+                "url": "packages/mosaiqo/CQRS",
+                "reference": "9dabb63daa8b99b5306e76be93baf34a38114376",
                 "shasum": null
             },
             "require-dev": {
@@ -1386,12 +1381,7 @@
             "keywords": [
                 "CQRS",
                 "Domain Driven Design"
-            ],
-            "support": {
-                "source": "https://github.com/boudydegeer/CQRS/tree/master",
-                "issues": "https://github.com/boudydegeer/CQRS/issues"
-            },
-            "time": "2016-11-04 12:52:12"
+            ]
         },
         {
             "name": "mtdowling/cron-expression",
