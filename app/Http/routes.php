@@ -72,6 +72,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 		Route::get('/events', 'EventsController@index');
 		Route::get('/events/{event}', 'EventsController@show');
 		Route::post('/events', 'EventsController@store');
+
+		Route::get('/categories', 'CategoriesController@index');
 	});
 
 	Route::group(['namespace' => 'Bookables'], function () {
