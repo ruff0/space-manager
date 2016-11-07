@@ -1,4 +1,5 @@
 <!-- Vertical form modal -->
+@if(auth()->user())
 <div id="needsPaymentMethod" class="modal fade">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
@@ -21,4 +22,5 @@
 		</div>
 	</div>
 </div>
+@endif
 <!-- /vertical form modal -->

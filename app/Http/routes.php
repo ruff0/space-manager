@@ -26,6 +26,10 @@ Route::get("/testingEventStorming/{id}", function ($id) {
 });
 
 Route::auth();
+
+/**
+ * API
+ */
 Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api'], function () {
 	/**
 	 * Bookables Routes
@@ -66,6 +70,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 
 	Route::group(['namespace' => 'Events'], function () {
 		Route::get('/events', 'EventsController@index');
+		Route::get('/events/{event}', 'EventsController@show');
 		Route::post('/events', 'EventsController@store');
 	});
 
@@ -80,6 +85,12 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'api', 'namespace' => 'Api']
 	});
 });
 
+/**
+ * Web
+ */
+Route::group(['namespace' => 'Events'], function () {
+	Route::get('/events/{event}', 'EventsController@show');
+});
 
 Route::group(['middleware' => ['auth']], function () {
 	Route::get('/', 'HomeController@index');

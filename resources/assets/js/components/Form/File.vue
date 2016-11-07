@@ -23,10 +23,14 @@
                 default: () => []
             }
         },
+        events: {
+
+        },
         data(){
             return {
                 uploaded : false,
-                image: null
+                image: null,
+                id: null
             }
         },
         ready () {
@@ -48,6 +52,8 @@
             dropzone.on('success', (file) => {
                 let response = JSON.parse(file.xhr.response)
                 this.image = "/" + response.pathname
+                this.id = response.id
+                this.$emit('image-was-uploaded', response)
                 this.uploaded = true
             });
         },

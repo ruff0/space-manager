@@ -4,7 +4,9 @@ namespace App\Events\Domain\Models;
 
 use App\Events\Domain\EventDescription;
 use App\Events\Domain\EventId;
+use App\Events\Domain\EventImage;
 use App\Events\Domain\Events\EventDescriptionWasAdded;
+use App\Events\Domain\Events\EventImageWasAdded;
 use App\Events\Domain\Events\EventTitleWasAdded;
 use App\Events\Domain\EventTitle;
 use Mosaiqo\Cqrs\AggregateRoot;
@@ -33,12 +35,18 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 	private $title;
 
 	/**
+	 * @var EventTitle
+	 */
+	private $image;
+
+	/**
 	 * @var EventDescription
 	 */
 	private $description;
 
 	/**
 	 * Event constructor.
+	 * @param EventId $id
 	 */
 	protected function __construct(EventId $id)
 	{
@@ -65,7 +73,7 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 	 */
 	public function addTitle(EventTitle $title)
 	{
-		$this->raise(new EventTitleWasAdded($title));
+		$this->raise(new EventTitleWasAdded(EventId::fromString($this->id), $title));
 	}
 
 	/**
@@ -74,7 +82,16 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 	 */
 	public function addDescription(EventDescription $description)
 	{
-		$this->raise(new EventDescriptionWasAdded($description));
+		$this->raise(new EventDescriptionWasAdded(EventId::fromString($this->id), $description));
+	}
+
+	/**
+	 * @param EventImage $image
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+	 */
+	public function addImage(EventImage $image)
+	{
+		$this->raise(new EventImageWasAdded(EventId::fromString($this->id), $image));
 	}
 
 	/**
@@ -97,6 +114,10 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 
 			case EventDescriptionWasAdded::class:
 				$this->description = $event->description();
+				break;
+
+			case EventImageWasAdded::class:
+				$this->image = $event->image();
 				break;
 
 			default :

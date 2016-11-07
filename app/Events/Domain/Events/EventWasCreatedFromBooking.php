@@ -41,7 +41,7 @@ class EventWasCreatedFromBooking implements DomainEvent {
 
 	/**
 	 * @return EventId
-	 * @author ${USER} <boudydegeer@mosaiqo.com>
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
 	public function id()
 	{
@@ -50,7 +50,7 @@ class EventWasCreatedFromBooking implements DomainEvent {
 
 	/**
 	 * @return BookingInterface
-	 * @author ${USER} <boudydegeer@mosaiqo.com>
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
 	public function booking()
 	{
@@ -66,7 +66,7 @@ class EventWasCreatedFromBooking implements DomainEvent {
 
 	/**
 	 * @return string
-	 * @author ${USER} <boudydegeer@mosaiqo.com>
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
 	public function payload()
 	{

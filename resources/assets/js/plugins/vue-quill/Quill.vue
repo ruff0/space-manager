@@ -76,7 +76,6 @@
         },
 
         ready() {
-            console.log(this.config)
             this.editor = new Quill(this.$els.quill, this.config)
 
             this.formats.map((format) => {

@@ -16,7 +16,7 @@
 
 				<div class="row">
 					<div class="col-lg-10 col-lg-offset-1">
-						<event :event="{{$event->toJson()}}" :booking="{{$booking->toJson()}}"></event>
+						<event :event="{{$event->toJson()}}"></event>
 					</div>
 				</div>
 				{{-- /user profile --}}

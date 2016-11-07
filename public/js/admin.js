@@ -30749,7 +30749,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":24,"vue-hot-reload-api":22,"vueify/lib/insert-css":25}],34:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
+var __vueify_style__ = __vueify_insert__.insert("h1[_v-c58b1866] {\n  color: #00a8ed;\n}")
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30891,13 +30891,13 @@ exports.default = {
     }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\">\n\t\t\t<div class=\"button-set pull-right\">\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"create\"\n\t\t\t\t>\n\t\t\t\t\tCrear\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"cancel\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Titulo</label>\n\t\t\t\t<input type=\"text\" v-model=\"form.title\" class=\"form-control\">\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"form.description\" id=\"\" cols=\"30\" rows=\"10\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Image</label>\n\t\t\t\t<file-upload id=\"image\" url=\"/files\"></file-upload>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\" _v-c58b1866=\"\">\n\t<div class=\"panel-heading\" _v-c58b1866=\"\">\n\t\t<h6 class=\"panel-title\" _v-c58b1866=\"\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged &amp;&amp; !isNew\" _v-c58b1866=\"\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\" _v-c58b1866=\"\">\n\t\t\t<div class=\"button-set pull-right\" _v-c58b1866=\"\">\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\" class=\"pull-right\" data-style=\"zoom-in\" color=\"primary\" @click=\"create\" _v-c58b1866=\"\">\n\t\t\t\t\tCrear\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\" class=\"pull-right mr-10\" data-style=\"zoom-in\" color=\"primary\" @click=\"cancel\" _v-c58b1866=\"\">\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\" _v-c58b1866=\"\">\n\n\t\t<div class=\"row pb-20\" _v-c58b1866=\"\">\n\t\t\t<div class=\"col-sm-12\" _v-c58b1866=\"\">\n\t\t\t\t<label _v-c58b1866=\"\">Titulo</label>\n\t\t\t\t<input type=\"text\" v-model=\"form.title\" class=\"form-control\" _v-c58b1866=\"\">\n\t\t\t\t<form-error :errors=\"errors.type\" _v-c58b1866=\"\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\" _v-c58b1866=\"\">\n\t\t\t<div class=\"col-sm-12\" _v-c58b1866=\"\">\n\t\t\t\t<label _v-c58b1866=\"\">Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"form.description\" id=\"\" cols=\"30\" rows=\"10\" _v-c58b1866=\"\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\" _v-c58b1866=\"\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\" _v-c58b1866=\"\">\n\t\t\t<div class=\"col-sm-12\" _v-c58b1866=\"\">\n\t\t\t\t<label _v-c58b1866=\"\">Image</label>\n\t\t\t\t<file-upload id=\"image\" url=\"/files\" _v-c58b1866=\"\"></file-upload>\n\t\t\t\t<form-error :errors=\"errors.type\" _v-c58b1866=\"\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["h1 {\n  color: #00a8ed;\n}"] = false
+    __vueify_insert__.cache["h1[_v-c58b1866] {\n  color: #00a8ed;\n}"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -30931,10 +30931,12 @@ exports.default = {
             }
         }
     },
+    events: {},
     data: function data() {
         return {
             uploaded: false,
-            image: null
+            image: null,
+            id: null
         };
     },
     ready: function ready() {
@@ -30958,6 +30960,8 @@ exports.default = {
         dropzone.on('success', function (file) {
             var response = JSON.parse(file.xhr.response);
             _this.image = "/" + response.pathname;
+            _this.id = response.id;
+            _this.$emit('image-was-uploaded', response);
             _this.uploaded = true;
         });
     },

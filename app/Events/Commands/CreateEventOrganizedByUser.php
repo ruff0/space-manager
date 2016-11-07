@@ -2,12 +2,15 @@
 
 namespace App\Events\Commands;
 
+use App\Bookings\Booking as EloquentBooking;
 use App\Bookings\Domain\Booking;
 use App\Events\Domain\EventDescription;
 use App\Events\Domain\EventId;
+use App\Events\Domain\EventImage;
 use App\Events\Domain\EventTitle;
 use App\Events\Domain\Models\Event;
-use Mosaiqo\Cqrs\Contracts\EventStore;
+use App\Files\File as EloquentFile;
+use Illuminate\Support\Facades\File;
 use Mosaiqo\Cqrs\EloquentEventStore;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -15,40 +18,21 @@ class CreateEventOrganizedByUser
 {
 	public static function fromRequest(Request $request)
 	{
-//		$title = EventTitle::fromString($request->get("title"));
-//		$description = EventDescription::fromString($request->get("description"));
-//		$image = EventImage::fromString($request->get("image"));
-//		$date  = EventDate::fromString($request->get("date"));
-//		$timeFrom = Time::fromString($request->get("time")["from"]);
-//		$timeTo = Time::fromString($request->get("time")["to"]);
-//
-//		$timeSpan = TimeSpan::create($timeFrom, $timeTo);
-//
-//		$event = Event::startsAt($timeFrom);
-//		$event->endsAt($timeTo);
-//		$event->addTitle($title);
-//		$event->addDescription($description);
-//		$event->addImage($image);
-//
-//		foreach($request->get("tickets") as $ticketFromRequest)
-//		{
-//			$ticket = Ticket::fromPrice($ticketFromRequest['price']);
-//			$ticket->availability($ticketFromRequest["quantity"]);
-//
-//			$event->addTickets($ticket);
-//		}
 		$eventId = EventId::generateNew();
-    $booking = \App\Bookings\Booking::find($request->get("bookingId"))->toArray();
+		$booking = EloquentBooking::find($request->get("booking"))->toArray();
+
+		$file = EloquentFile::find($request->get('image'));
+		if(File::exists("{$file->pathname}")) {
+			File::move("{$file->pathname}", "images/events/{$eventId}.{$file->extension}");
+			$file->pathname = "images/events/{$eventId}.{$file->extension}";
+			$file->save();
+		}
+
 		$event = Event::fromBooking($eventId, Booking::fromArray($booking));
 		$event->addTitle(EventTitle::fromString($request->get('title')));
 		$event->addDescription(EventDescription::fromString($request->get('description')));
+		$event->addImage(EventImage::fromFile($file));
 
-
-		$eventStore = new EloquentEventStore();
-		foreach ($event->pendingEvents() as $pendingEvent)
-		{
-			$eventStore->persist($eventId, $pendingEvent);
-		}
-
+		EloquentEventStore::persistAllFor($eventId, $event->pendingEvents());
 	}
 }

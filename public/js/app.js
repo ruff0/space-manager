@@ -46783,11 +46783,11 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":31,"vue-hot-reload-api":29,"vueify/lib/insert-css":32}],36:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("/* line 1, stdin */\n.panel-body {\n  padding: 0; }\n\n/* line 5, stdin */\n.Event {\n  padding: 0; }\n  /* line 7, stdin */\n  .Event .Event--Header {\n    padding: 0;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap;\n    background: #45494E; }\n    /* line 13, stdin */\n    .Event .Event--Header .Header--Image {\n      height: 360px;\n      width: 70%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 70%;\n              flex: 0 0 70%; }\n    /* line 19, stdin */\n    .Event .Event--Header .Header--Info {\n      background: rgba(255, 255, 255, 0.901961);\n      height: 360px;\n      width: 30%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 30%;\n              flex: 0 0 30%;\n      border-left: 1px solid #ccc;\n      padding: 30px 20px; }\n      /* line 28, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Month {\n        font-size: 12px;\n        font-weight: 600;\n        line-height: 15px;\n        letter-spacing: 0.5px;\n        text-transform: uppercase;\n        margin: 0; }\n      /* line 36, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Day {\n        font-size: 20px;\n        font-weight: normal;\n        line-height: 1.25em;\n        letter-spacing: 1px;\n        margin: 0; }\n      /* line 46, stdin */\n      .Event .Event--Header .Header--Info .Header--Title .Title {\n        color: #000;\n        margin-top: 2em; }\n    /* line 53, stdin */\n    .Event .Event--Header .Header--NavBar {\n      background: #333;\n      height: 60px;\n      width: 100%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 100%;\n              flex: 0 0 100%; }\n  /* line 61, stdin */\n  .Event .Event--Body {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap; }\n    /* line 66, stdin */\n    .Event .Event--Body dt {\n      font-size: 12px;\n      line-height: 18px;\n      color: #282C35;\n      text-transform: uppercase;\n      font-weight: 600; }\n    /* line 74, stdin */\n    .Event .Event--Body dd {\n      font-size: 15px;\n      line-height: 18px;\n      font-weight: 400; }\n  /* line 81, stdin */\n  .Event .Event--Description {\n    width: 70%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 70%;\n            flex: 0 0 70%;\n    min-height: 400px;\n    padding: 20px; }\n    /* line 87, stdin */\n    .Event .Event--Description .ql-editor {\n      min-height: 400px; }\n  /* line 92, stdin */\n  .Event .Event--Details {\n    width: 30%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 30%;\n            flex: 0 0 30%;\n    min-height: 400px;\n    padding: 20px; }\n")
+var __vueify_style__ = __vueify_insert__.insert("/* line 1, stdin */\n.panel-body[_v-675d673c] {\n  padding: 0; }\n\n/* line 5, stdin */\n.Event[_v-675d673c] {\n  padding: 0; }\n  /* line 7, stdin */\n  .Event .Event--Header[_v-675d673c] {\n    padding: 0;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap; }\n    /* line 12, stdin */\n    .Event .Event--Header .Header--Image[_v-675d673c] {\n      background: #45494E;\n      height: 360px;\n      width: 70%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 70%;\n              flex: 0 0 70%; }\n    /* line 19, stdin */\n    .Event .Event--Header .Header--Info[_v-675d673c] {\n      background: rgba(255, 255, 255, 0.901961);\n      height: 360px;\n      width: 30%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 30%;\n              flex: 0 0 30%;\n      border-left: 1px solid #ccc;\n      padding: 30px 20px; }\n      /* line 28, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Month[_v-675d673c] {\n        font-size: 12px;\n        font-weight: 600;\n        line-height: 15px;\n        letter-spacing: 0.5px;\n        text-transform: uppercase;\n        margin: 0; }\n      /* line 36, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Day[_v-675d673c] {\n        font-size: 20px;\n        font-weight: normal;\n        line-height: 1.25em;\n        letter-spacing: 1px;\n        margin: 0; }\n      /* line 46, stdin */\n      .Event .Event--Header .Header--Info .Header--Title .Title[_v-675d673c] {\n        color: #000;\n        margin-top: 2em; }\n    /* line 53, stdin */\n    .Event .Event--Header .Header--NavBar[_v-675d673c] {\n      height: 60px;\n      width: 100%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 100%;\n              flex: 0 0 100%;\n      display: -webkit-box;\n      display: -ms-flexbox;\n      display: flex;\n      border-top: 1px solid #D2D6DF;\n      border-bottom: 1px solid #D2D6DF; }\n      /* line 61, stdin */\n      .Event .Event--Header .Header--NavBar .NavBar--Left[_v-675d673c] {\n        width: 70%;\n        -webkit-box-flex: 0;\n            -ms-flex: 0 0 70%;\n                flex: 0 0 70%; }\n      /* line 65, stdin */\n      .Event .Event--Header .Header--NavBar .NavBar--Right[_v-675d673c] {\n        width: 30%;\n        -webkit-box-flex: 0;\n            -ms-flex: 0 0 30%;\n                flex: 0 0 30%;\n        padding: 10px 20px; }\n  /* line 73, stdin */\n  .Event .Event--Body[_v-675d673c] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap; }\n    /* line 78, stdin */\n    .Event .Event--Body dt[_v-675d673c] {\n      font-size: 12px;\n      line-height: 18px;\n      color: #282C35;\n      text-transform: uppercase;\n      font-weight: 600; }\n    /* line 86, stdin */\n    .Event .Event--Body dd[_v-675d673c] {\n      font-size: 15px;\n      line-height: 18px;\n      font-weight: 400; }\n  /* line 93, stdin */\n  .Event .Event--Description[_v-675d673c] {\n    width: 70%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 70%;\n            flex: 0 0 70%;\n    min-height: 400px;\n    padding: 20px; }\n    /* line 99, stdin */\n    .Event .Event--Description .ql-editor[_v-675d673c] {\n      min-height: 400px; }\n  /* line 104, stdin */\n  .Event .Event--Details[_v-675d673c] {\n    width: 30%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 30%;\n            flex: 0 0 30%;\n    min-height: 400px;\n    padding: 20px; }\n")
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _File = require("../../../Form/File.vue");
@@ -46811,126 +46811,137 @@ var _actions = require("../../../../state/actions");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = {
-  /**
-   * Name of the component
-   * More info: http://vuejs.org/api/#name
-   */
-  name: 'Event',
+    /**
+     * Name of the component
+     * More info: http://vuejs.org/api/#name
+     */
+    name: 'Event',
 
-  vuex: {
-    actions: {
-      createEvent: _actions.createEvent
+    vuex: {
+        actions: {
+            createEvent: _actions.createEvent
+        },
+        getters: {
+            loading: function loading(state) {
+                return state.loading.isLoading;
+            },
+            errors: function errors(state) {
+                return state.errors;
+            }
+        }
     },
-    getters: {
-      loading: function loading(state) {
-        return state.loading.isLoading;
-      },
-      errors: function errors(state) {
-        return state.errors;
-      }
+
+    /**
+     * The data object for the component it self
+     * More info: http://vuejs.org/api/#data
+     */
+    data: function data() {
+        return {
+            content: {
+                ops: []
+            },
+            config: {
+                placeholder: 'Compose an epic...'
+            },
+            title: '',
+            image: null
+        };
+    },
+
+
+    /**
+     * Public properties
+     */
+    props: {
+        booking: null,
+        event: {}
+    },
+
+    /**
+     * Computed properties
+     */
+    computed: {
+        isNew: function isNew() {
+            return this.event.isNew;
+        },
+        header: function header() {
+            return this.isNew ? "Crear un evento" : "Editar evento";
+        },
+        eventImage: function eventImage() {
+            return "/" + this.event.image;
+        },
+        room: function room() {
+            if (this.booking) return this.booking.bookable.name;
+        },
+        dateFrom: function dateFrom() {
+            if (this.booking) return (0, _moment2.default)(this.booking.time_from);
+
+            return (0, _moment2.default)(this.event.date + " " + this.event.to);
+        },
+        dateTo: function dateTo() {
+            if (this.booking) return (0, _moment2.default)(this.booking.time_to);
+
+            return (0, _moment2.default)(this.event.date + " " + this.event.from);
+        },
+        descriptiveDate: function descriptiveDate() {
+            // vie, 11 de noviembre de 2016
+            return this.dateFrom.format("dddd, DD") + " de " + this.dateFrom.format("MMMM") + " de " + this.dateFrom.format("YYYY");
+        },
+        descriptiveTime: function descriptiveTime() {
+
+            // 19:00 – 21:00 Hora estándar de Europa central Hora de España (Madrid)
+            return this.dateFrom.format("HH:mm") + " - " + this.dateTo.format("HH:mm") + "hrs.";
+        },
+        month: function month() {
+            return this.dateFrom.format("MMM");
+        },
+        day: function day() {
+            return this.dateFrom.format("DD");
+        }
+    },
+
+    /**
+     * This is called when the component is ready
+     * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+     */
+    ready: function ready() {
+        console.log('Component is ready');
+    },
+
+
+    methods: {
+        cancel: function cancel() {},
+        create: function create() {
+            this.createEvent({
+                booking: this.booking.id,
+                title: this.title,
+                description: this.content.ops[0].insert,
+                image: this.image.id
+            });
+        },
+        setImage: function setImage(e) {
+            this.image = e;
+        }
+    },
+
+    /**
+     * Child components of this one
+     * More info: http://vuejs.org/guide/components.html
+     */
+    components: {
+        UButton: _Button2.default,
+        FormError: _Error2.default,
+        FileUpload: _File2.default
     }
-  },
-
-  /**
-   * The data object for the component it self
-   * More info: http://vuejs.org/api/#data
-   */
-  data: function data() {
-    return {
-      content: {
-        ops: []
-      },
-      config: {
-        placeholder: 'Compose an epic...',
-        debug: 'info'
-      },
-      title: ''
-    };
-  },
-
-
-  /**
-   * Public properties
-   */
-  props: {
-    booking: null,
-    event: {}
-  },
-
-  /**
-   * Computed properties
-   */
-  computed: {
-    isNew: function isNew() {
-      return this.event.isNew;
-    },
-    header: function header() {
-      return this.isNew ? "Crear un evento" : "Editar evento";
-    },
-    room: function room() {
-      return this.booking.bookable.name;
-    },
-    dateFrom: function dateFrom() {
-      return (0, _moment2.default)(this.booking.time_from);
-    },
-    dateTo: function dateTo() {
-      return (0, _moment2.default)(this.booking.time_to);
-    },
-    descriptiveDate: function descriptiveDate() {
-      // vie, 11 de noviembre de 2016
-      return this.dateFrom.format("dddd, DD") + " de " + this.dateFrom.format("MMMM") + " de " + this.dateFrom.format("YYYY");
-    },
-    descriptiveTime: function descriptiveTime() {
-
-      // 19:00 – 21:00 Hora estándar de Europa central Hora de España (Madrid)
-      return this.dateFrom.format("HH:mm") + " - " + this.dateTo.format("HH:mm") + "hrs.";
-    },
-    month: function month() {
-      return this.dateFrom.format("MMM");
-    },
-    day: function day() {
-      return this.dateFrom.format("DD");
-    }
-  },
-
-  /**
-   * This is called when the component is ready
-   * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
-   */
-  ready: function ready() {
-    console.log('Component is ready');
-  },
-
-
-  methods: {
-    cancel: function cancel() {},
-    create: function create() {
-      this.createEvent({
-        bookingId: this.booking,
-        title: this.title,
-        description: this.content.ops[0].insert
-      });
-    }
-  },
-
-  /**
-   * Child components of this one
-   * More info: http://vuejs.org/guide/components.html
-   */
-  components: {
-    UButton: _Button2.default,
-    FormError: _Error2.default,
-    FileUpload: _File2.default
-  }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n    <div class=\"panel-heading\" data-spy=\"affix\">\n        <h6 class=\"panel-title\">\n            {{header}}\n            <span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n        </h6>\n        <div class=\"heading-elements\">\n            <u-button :ladda=\"{style:'zoom-in'}\"\n                      class=\"pull-right\"\n                      data-style=\"zoom-in\"\n                      color=\"primary\"\n                      @click=\"create\"\n            >\n                Crear\n            </u-button>\n\n            <u-button :ladda=\"{style:'zoom-in'}\"\n                      class=\"pull-right mr-10\"\n                      data-style=\"zoom-in\"\n                      color=\"primary\"\n                      @click=\"cancel\"\n            >\n                Cancelar\n            </u-button>\n\n        </div>\n    </div>\n    <div class=\"panel-body\" v-block=\"loading\">\n        <div class=\"Event\">\n            <div class=\"Event--Header\">\n                <div class=\"Header--Image\">\n                    <file-upload id=\"image\" url=\"/files\"></file-upload>\n                </div>\n                <div class=\"Header--Info\">\n                    <time class=\"Info--Date\">\n                        <p class=\"Date--Month\">{{month}}</p>\n                        <p class=\"Date--Day\">{{day}}</p>\n                    </time>\n\n\n                    <div class=\"Header--Title\">\n                        <h1 class=\"Title\" v-medium=\"title\" placeholder=\"Aquí pon el título de tú evento\"></h1>\n                    </div>\n                </div>\n\n                <div class=\"Header--NavBar\"></div>\n            </div>\n            <div class=\"Event--Body\">\n                <div class=\"Event--Description\">\n                    <dt>Descripción</dt>\n                    <input type=\"hidden\" v-model=\"form.description\">\n                    <dd>\n                        <editor></editor>\n                        <quill :content.sync=\"content\" :config=\"config\"></quill>\n                    </dd>\n                    <form-error :errors=\"errors.type\"></form-error>\n                </div>\n                <div class=\"Event--Details\">\n                    <dt>Fecha y Hora</dt>\n                    <dd>\n                        <p>{{descriptiveDate}}</p>\n                        <p>{{descriptiveTime}}</p>\n                    </dd>\n                    <hr>\n                    <dt>Ubicación</dt>\n                    <dd>\n                        <p>Sala: {{room}}</p>\n                        <p>ULab</p>\n                        <p>Pza San Cristobal, 14</p>\n                        <p>03002 Alicante (Spain)</p>\n                    </dd>\n\n\n                </div>\n\n            </div>\n        </div>\n\n    </div>\n</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\" _v-675d673c=\"\">\n    <div class=\"panel-heading\" v-if=\"booking\" _v-675d673c=\"\">\n        <h6 class=\"panel-title\" _v-675d673c=\"\">\n            {{header}}\n            <span class=\"text-highlight bg-primary\" v-if=\"hasChanged &amp;&amp; !isNew\" _v-675d673c=\"\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n        </h6>\n        <div class=\"heading-elements\" v-if=\"booking\" _v-675d673c=\"\">\n            <u-button :ladda=\"{style:'zoom-in'}\" class=\"pull-right\" data-style=\"zoom-in\" color=\"primary\" @click=\"create\" _v-675d673c=\"\">\n                Crear\n            </u-button>\n\n            <u-button :ladda=\"{style:'zoom-in'}\" class=\"pull-right mr-10\" data-style=\"zoom-in\" color=\"primary\" @click=\"cancel\" _v-675d673c=\"\">\n                Cancelar\n            </u-button>\n\n        </div>\n    </div>\n    <div class=\"panel-body\" v-block=\"loading\" _v-675d673c=\"\">\n        <div class=\"Event\" _v-675d673c=\"\">\n            <div class=\"Event--Header\" _v-675d673c=\"\">\n                <div class=\"Header--Image\" _v-675d673c=\"\">\n                    <file-upload id=\"image\" url=\"/files\" v-on:image-was-uploaded=\"setImage\" v-if=\"booking\" _v-675d673c=\"\"></file-upload>\n                    <div class=\"preview\" v-if=\"!booking\" _v-675d673c=\"\"> <img :src=\"eventImage\" _v-675d673c=\"\"> </div>\n                </div>\n                <div class=\"Header--Info\" _v-675d673c=\"\">\n                    <time class=\"Info--Date\" _v-675d673c=\"\">\n                        <p class=\"Date--Month\" _v-675d673c=\"\">{{month}}</p>\n                        <p class=\"Date--Day\" _v-675d673c=\"\">{{day}}</p>\n                    </time>\n\n                    <div class=\"Header--Title\" _v-675d673c=\"\">\n                        <h1 class=\"Title\" v-medium=\"title\" placeholder=\"Aquí pon el título de tú evento\" v-if=\"booking\" _v-675d673c=\"\"></h1>\n                        <h1 class=\"Title\" v-if=\"!booking\" _v-675d673c=\"\">{{event.title}}</h1>\n                    </div>\n                </div>\n\n                <div class=\"Header--NavBar\" v-if=\"!booking\" _v-675d673c=\"\">\n                    <div class=\"NavBar--Left\" _v-675d673c=\"\"></div>\n                    <div class=\"NavBar--Right\" _v-675d673c=\"\">\n                        <u-button :ladda=\"{style:'zoom-in'}\" class=\"pull-right btn-block\" data-style=\"zoom-in\" color=\"info\" @click=\"reserve\" _v-675d673c=\"\">\n                            Reservar\n                        </u-button>\n                    </div>\n                </div>\n            </div>\n            <div class=\"Event--Body\" _v-675d673c=\"\">\n                <div class=\"Event--Description\" _v-675d673c=\"\">\n                    <dt _v-675d673c=\"\">Descripción</dt>\n                    <dd _v-675d673c=\"\">\n                        <quill :content.sync=\"content\" :config=\"config\" v-if=\"booking\" _v-675d673c=\"\"></quill>\n                        <div v-if=\"!booking\" _v-675d673c=\"\">{{event.description}}</div>\n                    </dd>\n                    <form-error :errors=\"errors.type\" _v-675d673c=\"\"></form-error>\n                </div>\n                <div class=\"Event--Details\" _v-675d673c=\"\">\n                    <dt _v-675d673c=\"\">Fecha y Hora</dt>\n                    <dd _v-675d673c=\"\">\n                        <p _v-675d673c=\"\">{{descriptiveDate}}</p>\n                        <p _v-675d673c=\"\">{{descriptiveTime}}</p>\n                    </dd>\n                    <hr _v-675d673c=\"\">\n                    <dt _v-675d673c=\"\">Ubicación</dt>\n                    <dd _v-675d673c=\"\">\n                        <p _v-675d673c=\"\">Sala: {{room}}</p>\n                        <p _v-675d673c=\"\">ULab</p>\n                        <p _v-675d673c=\"\">Pza San Cristobal, 14</p>\n                        <p _v-675d673c=\"\">03002 Alicante (Spain)</p>\n                    </dd>\n\n\n                </div>\n\n            </div>\n        </div>\n\n    </div>\n</div>\n\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["/* line 1, stdin */\n.panel-body {\n  padding: 0; }\n\n/* line 5, stdin */\n.Event {\n  padding: 0; }\n  /* line 7, stdin */\n  .Event .Event--Header {\n    padding: 0;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap;\n    background: #45494E; }\n    /* line 13, stdin */\n    .Event .Event--Header .Header--Image {\n      height: 360px;\n      width: 70%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 70%;\n              flex: 0 0 70%; }\n    /* line 19, stdin */\n    .Event .Event--Header .Header--Info {\n      background: rgba(255, 255, 255, 0.901961);\n      height: 360px;\n      width: 30%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 30%;\n              flex: 0 0 30%;\n      border-left: 1px solid #ccc;\n      padding: 30px 20px; }\n      /* line 28, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Month {\n        font-size: 12px;\n        font-weight: 600;\n        line-height: 15px;\n        letter-spacing: 0.5px;\n        text-transform: uppercase;\n        margin: 0; }\n      /* line 36, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Day {\n        font-size: 20px;\n        font-weight: normal;\n        line-height: 1.25em;\n        letter-spacing: 1px;\n        margin: 0; }\n      /* line 46, stdin */\n      .Event .Event--Header .Header--Info .Header--Title .Title {\n        color: #000;\n        margin-top: 2em; }\n    /* line 53, stdin */\n    .Event .Event--Header .Header--NavBar {\n      background: #333;\n      height: 60px;\n      width: 100%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 100%;\n              flex: 0 0 100%; }\n  /* line 61, stdin */\n  .Event .Event--Body {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap; }\n    /* line 66, stdin */\n    .Event .Event--Body dt {\n      font-size: 12px;\n      line-height: 18px;\n      color: #282C35;\n      text-transform: uppercase;\n      font-weight: 600; }\n    /* line 74, stdin */\n    .Event .Event--Body dd {\n      font-size: 15px;\n      line-height: 18px;\n      font-weight: 400; }\n  /* line 81, stdin */\n  .Event .Event--Description {\n    width: 70%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 70%;\n            flex: 0 0 70%;\n    min-height: 400px;\n    padding: 20px; }\n    /* line 87, stdin */\n    .Event .Event--Description .ql-editor {\n      min-height: 400px; }\n  /* line 92, stdin */\n  .Event .Event--Details {\n    width: 30%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 30%;\n            flex: 0 0 30%;\n    min-height: 400px;\n    padding: 20px; }\n"] = false
+    __vueify_insert__.cache["/* line 1, stdin */\n.panel-body[_v-675d673c] {\n  padding: 0; }\n\n/* line 5, stdin */\n.Event[_v-675d673c] {\n  padding: 0; }\n  /* line 7, stdin */\n  .Event .Event--Header[_v-675d673c] {\n    padding: 0;\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap; }\n    /* line 12, stdin */\n    .Event .Event--Header .Header--Image[_v-675d673c] {\n      background: #45494E;\n      height: 360px;\n      width: 70%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 70%;\n              flex: 0 0 70%; }\n    /* line 19, stdin */\n    .Event .Event--Header .Header--Info[_v-675d673c] {\n      background: rgba(255, 255, 255, 0.901961);\n      height: 360px;\n      width: 30%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 30%;\n              flex: 0 0 30%;\n      border-left: 1px solid #ccc;\n      padding: 30px 20px; }\n      /* line 28, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Month[_v-675d673c] {\n        font-size: 12px;\n        font-weight: 600;\n        line-height: 15px;\n        letter-spacing: 0.5px;\n        text-transform: uppercase;\n        margin: 0; }\n      /* line 36, stdin */\n      .Event .Event--Header .Header--Info .Info--Date .Date--Day[_v-675d673c] {\n        font-size: 20px;\n        font-weight: normal;\n        line-height: 1.25em;\n        letter-spacing: 1px;\n        margin: 0; }\n      /* line 46, stdin */\n      .Event .Event--Header .Header--Info .Header--Title .Title[_v-675d673c] {\n        color: #000;\n        margin-top: 2em; }\n    /* line 53, stdin */\n    .Event .Event--Header .Header--NavBar[_v-675d673c] {\n      height: 60px;\n      width: 100%;\n      -webkit-box-flex: 0;\n          -ms-flex: 0 0 100%;\n              flex: 0 0 100%;\n      display: -webkit-box;\n      display: -ms-flexbox;\n      display: flex;\n      border-top: 1px solid #D2D6DF;\n      border-bottom: 1px solid #D2D6DF; }\n      /* line 61, stdin */\n      .Event .Event--Header .Header--NavBar .NavBar--Left[_v-675d673c] {\n        width: 70%;\n        -webkit-box-flex: 0;\n            -ms-flex: 0 0 70%;\n                flex: 0 0 70%; }\n      /* line 65, stdin */\n      .Event .Event--Header .Header--NavBar .NavBar--Right[_v-675d673c] {\n        width: 30%;\n        -webkit-box-flex: 0;\n            -ms-flex: 0 0 30%;\n                flex: 0 0 30%;\n        padding: 10px 20px; }\n  /* line 73, stdin */\n  .Event .Event--Body[_v-675d673c] {\n    display: -webkit-box;\n    display: -ms-flexbox;\n    display: flex;\n    -ms-flex-wrap: wrap;\n        flex-wrap: wrap; }\n    /* line 78, stdin */\n    .Event .Event--Body dt[_v-675d673c] {\n      font-size: 12px;\n      line-height: 18px;\n      color: #282C35;\n      text-transform: uppercase;\n      font-weight: 600; }\n    /* line 86, stdin */\n    .Event .Event--Body dd[_v-675d673c] {\n      font-size: 15px;\n      line-height: 18px;\n      font-weight: 400; }\n  /* line 93, stdin */\n  .Event .Event--Description[_v-675d673c] {\n    width: 70%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 70%;\n            flex: 0 0 70%;\n    min-height: 400px;\n    padding: 20px; }\n    /* line 99, stdin */\n    .Event .Event--Description .ql-editor[_v-675d673c] {\n      min-height: 400px; }\n  /* line 104, stdin */\n  .Event .Event--Details[_v-675d673c] {\n    width: 30%;\n    -webkit-box-flex: 0;\n        -ms-flex: 0 0 30%;\n            flex: 0 0 30%;\n    min-height: 400px;\n    padding: 20px; }\n"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -47182,7 +47193,7 @@ if (module.hot) {(function () {  module.hot.accept()
 })()}
 },{"vue":31,"vue-hot-reload-api":29,"vueify/lib/insert-css":32}],40:[function(require,module,exports){
 var __vueify_insert__ = require("vueify/lib/insert-css")
-var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
+var __vueify_style__ = __vueify_insert__.insert("h1[_v-c58b1866] {\n  color: #00a8ed;\n}")
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -47324,13 +47335,13 @@ exports.default = {
     }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
-;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\">\n\t<div class=\"panel-heading\">\n\t\t<h6 class=\"panel-title\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged && !isNew\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\">\n\t\t\t<div class=\"button-set pull-right\">\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"create\"\n\t\t\t\t>\n\t\t\t\t\tCrear\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\"\n\t\t\t\t\t\t  class=\"pull-right mr-10\"\n\t\t\t\t\t\t  data-style=\"zoom-in\"\n\t\t\t\t\t\t  color=\"primary\"\n\t\t\t\t\t\t  @click=\"cancel\"\n\t\t\t\t>\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\">\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Titulo</label>\n\t\t\t\t<input type=\"text\" v-model=\"form.title\" class=\"form-control\">\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"form.description\" id=\"\" cols=\"30\" rows=\"10\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\">\n\t\t\t<div class=\"col-sm-12\">\n\t\t\t\t<label>Image</label>\n\t\t\t\t<file-upload id=\"image\" url=\"/files\"></file-upload>\n\t\t\t\t<form-error :errors=\"errors.type\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
+;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<div class=\"panel panel-white\" _v-c58b1866=\"\">\n\t<div class=\"panel-heading\" _v-c58b1866=\"\">\n\t\t<h6 class=\"panel-title\" _v-c58b1866=\"\">\n\t\t\t{{title}}\n\t\t\t<span class=\"text-highlight bg-primary\" v-if=\"hasChanged &amp;&amp; !isNew\" _v-c58b1866=\"\">\n\t\t\t\t{{message}}\n\t\t\t</span>\n\t\t</h6>\n\t\t<div class=\"heading-elements\" _v-c58b1866=\"\">\n\t\t\t<div class=\"button-set pull-right\" _v-c58b1866=\"\">\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\" class=\"pull-right\" data-style=\"zoom-in\" color=\"primary\" @click=\"create\" _v-c58b1866=\"\">\n\t\t\t\t\tCrear\n\t\t\t\t</u-button>\n\n\t\t\t\t<u-button :ladda=\"{style:'zoom-in'}\" class=\"pull-right mr-10\" data-style=\"zoom-in\" color=\"primary\" @click=\"cancel\" _v-c58b1866=\"\">\n\t\t\t\t\tCancelar\n\t\t\t\t</u-button>\n\n\t\t\t</div>\n\n\t\t</div>\n\t</div>\n\t<div class=\"panel-body\" v-block=\"loading\" _v-c58b1866=\"\">\n\n\t\t<div class=\"row pb-20\" _v-c58b1866=\"\">\n\t\t\t<div class=\"col-sm-12\" _v-c58b1866=\"\">\n\t\t\t\t<label _v-c58b1866=\"\">Titulo</label>\n\t\t\t\t<input type=\"text\" v-model=\"form.title\" class=\"form-control\" _v-c58b1866=\"\">\n\t\t\t\t<form-error :errors=\"errors.type\" _v-c58b1866=\"\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\" _v-c58b1866=\"\">\n\t\t\t<div class=\"col-sm-12\" _v-c58b1866=\"\">\n\t\t\t\t<label _v-c58b1866=\"\">Descripción</label>\n\t\t\t\t<textarea class=\"form-control\" v-model=\"form.description\" id=\"\" cols=\"30\" rows=\"10\" _v-c58b1866=\"\"></textarea>\n\t\t\t\t<form-error :errors=\"errors.type\" _v-c58b1866=\"\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\n\t\t<div class=\"row pb-20\" _v-c58b1866=\"\">\n\t\t\t<div class=\"col-sm-12\" _v-c58b1866=\"\">\n\t\t\t\t<label _v-c58b1866=\"\">Image</label>\n\t\t\t\t<file-upload id=\"image\" url=\"/files\" _v-c58b1866=\"\"></file-upload>\n\t\t\t\t<form-error :errors=\"errors.type\" _v-c58b1866=\"\"></form-error>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</div>\n"
 if (module.hot) {(function () {  module.hot.accept()
   var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
   module.hot.dispose(function () {
-    __vueify_insert__.cache["h1 {\n  color: #00a8ed;\n}"] = false
+    __vueify_insert__.cache["h1[_v-c58b1866] {\n  color: #00a8ed;\n}"] = false
     document.head.removeChild(__vueify_style__)
   })
   if (!module.hot.data) {
@@ -47364,10 +47375,12 @@ exports.default = {
             }
         }
     },
+    events: {},
     data: function data() {
         return {
             uploaded: false,
-            image: null
+            image: null,
+            id: null
         };
     },
     ready: function ready() {
@@ -47391,6 +47404,8 @@ exports.default = {
         dropzone.on('success', function (file) {
             var response = JSON.parse(file.xhr.response);
             _this.image = "/" + response.pathname;
+            _this.id = response.id;
+            _this.$emit('image-was-uploaded', response);
             _this.uploaded = true;
         });
     },
@@ -49610,7 +49625,6 @@ exports.default = {
     ready: function ready() {
         var _this = this;
 
-        console.log(this.config);
         this.editor = new Quill(this.$els.quill, this.config);
 
         this.formats.map(function (format) {

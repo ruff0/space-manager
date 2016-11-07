@@ -3,14 +3,20 @@
 namespace App\Events\Domain\Events;
 
 
+use App\Events\Domain\EventId;
 use App\Events\Domain\EventTitle;
 use Carbon\Carbon;
 use Mosaiqo\Cqrs\Contracts\DomainEvent;
 
 class EventTitleWasAdded implements DomainEvent {
 
-		/**
+	/**
 	 * @var EventId
+	 */
+	protected $id;
+
+		/**
+	 * @var EventTitle
 	 */
 	protected $title;
 
@@ -22,16 +28,27 @@ class EventTitleWasAdded implements DomainEvent {
 
 	/**
 	 * EventTitleWasAdded constructor.
+	 * @param EventId $eventId
 	 * @param EventTitle $eventTitle
 	 */
-	public function __construct(EventTitle $eventTitle)
+	public function __construct(EventId $eventId, EventTitle $eventTitle)
 	{
+		$this->id = $eventId->toString();
 		$this->title = $eventTitle->toString();
 		$this->occurredOn = Carbon::now();
 	}
 
 	/**
 	 * @return EventId
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+	 */
+	public function id()
+	{
+		return $this->id;
+	}
+
+	/**
+	 * @return EventTitle
 	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
 	public function title()

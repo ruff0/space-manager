@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\Domain\Projections\EventListProjection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
@@ -37,14 +38,13 @@ class AppServiceProvider extends ServiceProvider
 	public function register()
 	{
 		$projections = [
-
+			EventListProjection::class
 		];
-
-		    //new PersistEventSubscriber(new EloquentEventStore())
+		//new PersistEventSubscriber(new EloquentEventStore())
 		$eventPublisher = DomainEventPublisher::instance();
 
 		foreach ($projections as $projection) {
-			$eventPublisher->subscribe($projection);
+			$eventPublisher->subscribe(new $projection);
 		}
 
 	}
