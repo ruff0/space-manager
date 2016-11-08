@@ -7,7 +7,7 @@ import {
  * @type {{}}
  */
 const state = {
-    bookingId: null,
+    booking: null,
     title: "",
     description: ""
 }

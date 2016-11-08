@@ -30044,126 +30044,129 @@ var __vueify_style__ = __vueify_insert__.insert("h1 {\n  color: #00a8ed;\n}")
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-	value: true
+    value: true
 });
 exports.default = {
-	/**
-  * Name of the component
-  * More info: http://vuejs.org/api/#name
-  */
-	name: 'Button',
+    /**
+     * Name of the component
+     * More info: http://vuejs.org/api/#name
+     */
+    name: 'Button',
 
-	/**
-  * Vuex instance
-  */
-	vuex: {
-		getters: {
-			progress: function progress(state) {
-				return state.loading.progress;
-			},
-			isLoading: function isLoading(state) {
-				return state.loading.isLoading;
-			}
-		}
-	},
-	/**
-  * The data object for the component it self
-  * More info: http://vuejs.org/api/#data
-  */
-	data: function data() {
-		return {
-			laddaInstance: null
-		};
-	},
-
-
-	/**
-  *
-  */
-	watch: {
-		progress: {
-			handler: function handler(value) {
-				this.setProgress(value);
-			},
-
-			immediate: true
-		}
-	},
-
-	/**
-  * Computed properties
-  */
-	computed: {
-		klass: function klass() {
-			return {
-				'btn-ladda btn-ladda-progress': this.ladda,
-				'legitRipple': this.ripple,
-				'btn-loading': this.loading
-			};
-		}
-	},
-
-	/**
-  * Public Properties
-  */
-	props: {
-		ladda: { type: Object, default: function _default() {
-				return false;
-			}
-		},
-		ripple: { type: Boolean, default: function _default() {
-				return false;
-			}
-		},
-		color: { type: String, default: function _default() {
-				return 'default';
-			}
-		}
-	},
-
-	/**
-  * This is called when the component is ready
-  * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
-  */
-	ready: function ready() {
-		this.load();
-	},
+    /**
+     * Vuex instance
+     */
+    vuex: {
+        getters: {
+            progress: function progress(state) {
+                return state.loading.progress;
+            },
+            isLoading: function isLoading(state) {
+                return state.loading.isLoading;
+            }
+        }
+    },
+    /**
+     * The data object for the component it self
+     * More info: http://vuejs.org/api/#data
+     */
+    data: function data() {
+        return {
+            laddaInstance: null
+        };
+    },
 
 
-	/**
-  * Child components of this one
-  * More info: http://vuejs.org/guide/components.html
-  */
-	components: {},
+    /**
+     *
+     */
+    watch: {
+        progress: {
+            handler: function handler(value) {
+                this.setProgress(value);
+            },
 
-	/**
-  * Methods
-  */
-	methods: {
-		load: function load() {
-			if (!this.isLoaded() && this.isLadda()) this.laddaInstance = Ladda.create(this.$el);
-		},
-		start: function start() {
-			if (this.isLoaded()) this.laddaInstance.start();
-		},
-		stop: function stop() {
-			if (this.isLoaded()) this.laddaInstance.stop();
-		},
-		setProgress: function setProgress(progress) {
-			if (this.isLoaded()) {
-				this.laddaInstance.setProgress(progress);
-				if (progress == 1) {
-					this.stop();
-				}
-			}
-		},
-		isLadda: function isLadda() {
-			return this.ladda;
-		},
-		isLoaded: function isLoaded() {
-			return this.laddaInstance;
-		}
-	}
+            immediate: true
+        }
+    },
+
+    /**
+     * Computed properties
+     */
+    computed: {
+        klass: function klass() {
+            return {
+                'btn-ladda btn-ladda-progress': this.ladda,
+                'legitRipple': this.ripple,
+                'btn-loading': this.loading
+            };
+        }
+    },
+
+    /**
+     * Public Properties
+     */
+    props: {
+        ladda: {
+            type: Object, default: function _default() {
+                return false;
+            }
+        },
+        ripple: {
+            type: Boolean, default: function _default() {
+                return false;
+            }
+        },
+        color: {
+            type: String, default: function _default() {
+                return 'default';
+            }
+        }
+    },
+
+    /**
+     * This is called when the component is ready
+     * You can find further documentation : http://vuejs.org/guide/instance.html#Lifecycle-Diagram
+     */
+    ready: function ready() {
+        this.load();
+    },
+
+
+    /**
+     * Child components of this one
+     * More info: http://vuejs.org/guide/components.html
+     */
+    components: {},
+
+    /**
+     * Methods
+     */
+    methods: {
+        load: function load() {
+            if (!this.isLoaded() && this.isLadda()) this.laddaInstance = Ladda.create(this.$el);
+        },
+        start: function start() {
+            if (this.isLoaded()) this.laddaInstance.start();
+        },
+        stop: function stop() {
+            if (this.isLoaded()) this.laddaInstance.stop();
+        },
+        setProgress: function setProgress(progress) {
+            if (this.isLoaded()) {
+                this.laddaInstance.setProgress(progress);
+                if (progress == 1) {
+                    this.stop();
+                }
+            }
+        },
+        isLadda: function isLadda() {
+            return this.ladda;
+        },
+        isLoaded: function isLoaded() {
+            return this.laddaInstance;
+        }
+    }
 };
 if (module.exports.__esModule) module.exports = module.exports.default
 ;(typeof module.exports === "function"? module.exports.options: module.exports).template = "<a type=\"button\" role=\"button\"\n\t\t\t\t@click=\"start\"\n\t\t\t\tclass=\"btn bg-primary\"\n\t\t\t\t:class=\"klass\"\n\t\t\t\t:data-style=\"ladda.style?ladda.style:false\"\n\t\t\t\t:disabled=\"isLoading\"\n>\n\t<span class=\"ladda-label\">\n\t\t<slot></slot>\n\t</span>\n</a>"
@@ -31627,45 +31630,43 @@ exports.default = {
 };
 
 },{}],41:[function(require,module,exports){
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-exports.createEvent = exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDistribution = exports.addPersons = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
+exports.sendErrorsNotification = exports.sendSuccessNotification = exports.createEvent = exports.addBooking = exports.addBookable = exports.addMember = exports.addType = exports.addTimeFrom = exports.addTimeTo = exports.addDistribution = exports.addPersons = exports.addDate = exports.addErrors = exports.addResources = exports.getMembers = exports.calculate = exports.searchBookables = exports.makeReservation = exports.markReservationsAsPaid = exports.cancelReservation = exports.payReservation = exports.setLoading = undefined;
 
-var _mutationTypes = require('./mutation-types');
+var _mutationTypes = require("./mutation-types");
 
-var _lodash = require('lodash');
+var _lodash = require("lodash");
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _events = require('./api/events');
+var _events = require("./api/events");
 
 var _events2 = _interopRequireDefault(_events);
 
-var _bookings = require('./api/bookings');
+var _bookings = require("./api/bookings");
 
 var _bookings2 = _interopRequireDefault(_bookings);
 
-var _members = require('./api/members');
+var _members = require("./api/members");
 
 var _members2 = _interopRequireDefault(_members);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var setLoading = exports.setLoading = function setLoading(_ref, _ref2) {
+var setLoading = exports.setLoading = function setLoading(_ref, data) {
 	var dispatch = _ref.dispatch,
 	    state = _ref.state;
-	var loading = _ref2.loading,
-	    progress = _ref2.progress;
 
-	dispatch(_mutationTypes.SET_LOADING, { loading: loading, progress: progress });
+	dispatch(_mutationTypes.SET_LOADING, data);
 };
 
-var payReservation = exports.payReservation = function payReservation(_ref3, id) {
-	var dispatch = _ref3.dispatch,
-	    state = _ref3.state;
+var payReservation = exports.payReservation = function payReservation(_ref2, id) {
+	var dispatch = _ref2.dispatch,
+	    state = _ref2.state;
 
 	var data = _lodash2.default.merge({
 		payment: 'card',
@@ -31684,9 +31685,9 @@ var payReservation = exports.payReservation = function payReservation(_ref3, id)
 	});
 };
 
-var cancelReservation = exports.cancelReservation = function cancelReservation(_ref4, id) {
-	var dispatch = _ref4.dispatch,
-	    state = _ref4.state;
+var cancelReservation = exports.cancelReservation = function cancelReservation(_ref3, id) {
+	var dispatch = _ref3.dispatch,
+	    state = _ref3.state;
 
 	_bookings2.default.cancel(id,
 	// handle success
@@ -31699,9 +31700,9 @@ var cancelReservation = exports.cancelReservation = function cancelReservation(_
 	});
 };
 
-var markReservationsAsPaid = exports.markReservationsAsPaid = function markReservationsAsPaid(_ref5, id) {
-	var dispatch = _ref5.dispatch,
-	    state = _ref5.state;
+var markReservationsAsPaid = exports.markReservationsAsPaid = function markReservationsAsPaid(_ref4, id) {
+	var dispatch = _ref4.dispatch,
+	    state = _ref4.state;
 
 	var data = _lodash2.default.merge({
 		payment: 'cash',
@@ -31720,9 +31721,9 @@ var markReservationsAsPaid = exports.markReservationsAsPaid = function markReser
 	});
 };
 
-var makeReservation = exports.makeReservation = function makeReservation(_ref6, data) {
-	var dispatch = _ref6.dispatch,
-	    state = _ref6.state;
+var makeReservation = exports.makeReservation = function makeReservation(_ref5, data) {
+	var dispatch = _ref5.dispatch,
+	    state = _ref5.state;
 
 	data = _lodash2.default.merge(data, state.booking);
 	_bookings2.default.store(data,
@@ -31736,9 +31737,9 @@ var makeReservation = exports.makeReservation = function makeReservation(_ref6, 
 	});
 };
 
-var searchBookables = exports.searchBookables = function searchBookables(_ref7) {
-	var dispatch = _ref7.dispatch,
-	    state = _ref7.state;
+var searchBookables = exports.searchBookables = function searchBookables(_ref6) {
+	var dispatch = _ref6.dispatch,
+	    state = _ref6.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type) {
@@ -31756,9 +31757,9 @@ var searchBookables = exports.searchBookables = function searchBookables(_ref7) 
 	}
 };
 
-var calculate = exports.calculate = function calculate(_ref8, changed) {
-	var dispatch = _ref8.dispatch,
-	    state = _ref8.state;
+var calculate = exports.calculate = function calculate(_ref7, changed) {
+	var dispatch = _ref7.dispatch,
+	    state = _ref7.state;
 
 	var b = state.booking;
 	if (b.date && b.time_to && b.time_from && b.type && b.bookable) {
@@ -31777,9 +31778,9 @@ var calculate = exports.calculate = function calculate(_ref8, changed) {
 	}
 };
 
-var getMembers = exports.getMembers = function getMembers(_ref9) {
-	var dispatch = _ref9.dispatch,
-	    state = _ref9.state;
+var getMembers = exports.getMembers = function getMembers(_ref8) {
+	var dispatch = _ref8.dispatch,
+	    state = _ref8.state;
 
 	_members2.default.getAll({},
 	// handle success
@@ -31792,77 +31793,77 @@ var getMembers = exports.getMembers = function getMembers(_ref9) {
 	});
 };
 
-var addResources = exports.addResources = function addResources(_ref10, resources) {
-	var dispatch = _ref10.dispatch,
-	    state = _ref10.state;
+var addResources = exports.addResources = function addResources(_ref9, resources) {
+	var dispatch = _ref9.dispatch,
+	    state = _ref9.state;
 
 	dispatch(_mutationTypes.ADD_RESOURCES, resources);
 };
 
-var addErrors = exports.addErrors = function addErrors(_ref11, errors) {
-	var dispatch = _ref11.dispatch,
-	    state = _ref11.state;
+var addErrors = exports.addErrors = function addErrors(_ref10, errors) {
+	var dispatch = _ref10.dispatch,
+	    state = _ref10.state;
 
 	dispatch(_mutationTypes.ADD_ERRORS, errors);
 };
 
-var addDate = exports.addDate = function addDate(_ref12, date) {
-	var dispatch = _ref12.dispatch,
-	    state = _ref12.state;
+var addDate = exports.addDate = function addDate(_ref11, date) {
+	var dispatch = _ref11.dispatch,
+	    state = _ref11.state;
 
 	dispatch(_mutationTypes.ADD_DATE, date);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addPersons = exports.addPersons = function addPersons(_ref13, persons) {
-	var dispatch = _ref13.dispatch,
-	    state = _ref13.state;
+var addPersons = exports.addPersons = function addPersons(_ref12, persons) {
+	var dispatch = _ref12.dispatch,
+	    state = _ref12.state;
 
 	dispatch(_mutationTypes.ADD_PERSONS, persons);
 };
 
-var addDistribution = exports.addDistribution = function addDistribution(_ref14, distribution) {
-	var dispatch = _ref14.dispatch,
-	    state = _ref14.state;
+var addDistribution = exports.addDistribution = function addDistribution(_ref13, distribution) {
+	var dispatch = _ref13.dispatch,
+	    state = _ref13.state;
 
 	dispatch(_mutationTypes.ADD_DISTRIBUTION, distribution);
 };
 
-var addTimeTo = exports.addTimeTo = function addTimeTo(_ref15, timeTo) {
-	var dispatch = _ref15.dispatch,
-	    state = _ref15.state;
+var addTimeTo = exports.addTimeTo = function addTimeTo(_ref14, timeTo) {
+	var dispatch = _ref14.dispatch,
+	    state = _ref14.state;
 
 	dispatch(_mutationTypes.ADD_TIME_TO, timeTo);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref16, timeFrom) {
-	var dispatch = _ref16.dispatch,
-	    state = _ref16.state;
+var addTimeFrom = exports.addTimeFrom = function addTimeFrom(_ref15, timeFrom) {
+	var dispatch = _ref15.dispatch,
+	    state = _ref15.state;
 
 	dispatch(_mutationTypes.ADD_TIME_FROM, timeFrom);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addType = exports.addType = function addType(_ref17, type) {
-	var dispatch = _ref17.dispatch,
-	    state = _ref17.state;
+var addType = exports.addType = function addType(_ref16, type) {
+	var dispatch = _ref16.dispatch,
+	    state = _ref16.state;
 
 	dispatch(_mutationTypes.ADD_TYPE, type);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addMember = exports.addMember = function addMember(_ref18, user) {
-	var dispatch = _ref18.dispatch,
-	    state = _ref18.state;
+var addMember = exports.addMember = function addMember(_ref17, user) {
+	var dispatch = _ref17.dispatch,
+	    state = _ref17.state;
 
 	dispatch(_mutationTypes.ADD_MEMBER, user);
 	searchBookables({ dispatch: dispatch, state: state });
 };
 
-var addBookable = exports.addBookable = function addBookable(_ref19, bookable) {
-	var dispatch = _ref19.dispatch,
-	    state = _ref19.state;
+var addBookable = exports.addBookable = function addBookable(_ref18, bookable) {
+	var dispatch = _ref18.dispatch,
+	    state = _ref18.state;
 	var changed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
@@ -31870,9 +31871,9 @@ var addBookable = exports.addBookable = function addBookable(_ref19, bookable) {
 	calculate({ dispatch: dispatch, state: state }, changed);
 };
 
-var addBooking = exports.addBooking = function addBooking(_ref20, booking) {
-	var dispatch = _ref20.dispatch,
-	    state = _ref20.state;
+var addBooking = exports.addBooking = function addBooking(_ref19, booking) {
+	var dispatch = _ref19.dispatch,
+	    state = _ref19.state;
 
 	dispatch(_mutationTypes.CLEAR_PRICE);
 
@@ -31890,19 +31891,42 @@ var addBooking = exports.addBooking = function addBooking(_ref20, booking) {
 	calculate({ dispatch: dispatch, state: state });
 };
 
-var createEvent = exports.createEvent = function createEvent(_ref21, data) {
-	var dispatch = _ref21.dispatch,
-	    state = _ref21.state;
+var createEvent = exports.createEvent = function createEvent(_ref20, data) {
+	var dispatch = _ref20.dispatch,
+	    state = _ref20.state;
 
 	data = _lodash2.default.merge(state.event, data);
 	_events2.default.store(data,
 	// handle success
-	function (resources) {
-		return dispatch(_mutationTypes.CREATE_EVENT, data);
+	function (response) {
+		dispatch(_mutationTypes.CREATE_EVENT, data);
+		dispatch(_mutationTypes.ADD_ERRORS, []);
+		sendSuccessNotification(response);
 	},
 	// handle error
 	function (errors) {
-		return dispatch(_mutationTypes.ADD_ERRORS, errors);
+		dispatch(_mutationTypes.ADD_ERRORS, errors);
+		sendErrorsNotification(errors);
+	});
+};
+
+var sendSuccessNotification = exports.sendSuccessNotification = function sendSuccessNotification(response) {
+	new PNotify({
+		title: response.success.title,
+		text: response.success.message[0],
+		type: 'success',
+		delay: 2000,
+		addclass: 'bg-success-300'
+	});
+};
+
+var sendErrorsNotification = exports.sendErrorsNotification = function sendErrorsNotification(errors) {
+	new PNotify({
+		title: "Oh no!",
+		text: "Ha habido algún error. Por favor revisa los datos.",
+		type: 'error',
+		delay: 2000,
+		addclass: 'bg-danger-300'
 	});
 };
 
@@ -32104,7 +32128,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @type {{}}
  */
 var state = {
-    bookingId: null,
+    booking: null,
     title: "",
     description: ""
 };
@@ -32165,6 +32189,8 @@ var UNPAID = exports.UNPAID = 'UNPAID';
 var CANCELED = exports.CANCELED = 'CANCELED';
 
 var CREATE_EVENT = exports.CREATE_EVENT = 'CREATE_EVENT';
+
+var SHOW_SUCCESS_MESSAGE = exports.SHOW_SUCCESS_MESSAGE = 'SHOW_SUCCESS_MESSAGE';
 
 },{}],48:[function(require,module,exports){
 'use strict';

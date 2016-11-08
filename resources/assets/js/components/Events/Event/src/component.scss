@@ -5,15 +5,23 @@
 .Event {
   padding: 0;
   .Event--Header{
+    background: #45494E;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
 
     .Header--Image {
-      background: #45494E;
       height: 360px;
       width: 70%;
       flex: 0 0 70%;
+      overflow: hidden;
+
+      .validation-error-label{
+        position: absolute;
+        top: 5em;
+        left:50%;
+      }
+
     }
 
     .Header--Info {

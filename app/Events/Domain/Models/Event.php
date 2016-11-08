@@ -8,7 +8,9 @@ use App\Events\Domain\EventImage;
 use App\Events\Domain\Events\EventDescriptionWasAdded;
 use App\Events\Domain\Events\EventImageWasAdded;
 use App\Events\Domain\Events\EventTitleWasAdded;
+use App\Events\Domain\Events\TicketWasGeneratedForEvent;
 use App\Events\Domain\EventTitle;
+use App\Events\Domain\TicketId;
 use Mosaiqo\Cqrs\AggregateRoot;
 use Mosaiqo\Cqrs\Contracts\EventStream;
 use Mosaiqo\Cqrs\Contracts\AggregateIdentity;
@@ -45,6 +47,16 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 	private $description;
 
 	/**
+	 * @var
+	 */
+	private $maxAttendees;
+
+	/**
+	 * @var
+	 */
+	private $tickets = [];
+
+	/**
 	 * Event constructor.
 	 * @param EventId $id
 	 */
@@ -63,6 +75,7 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 	{
 		$event = new Event($aggregateIdentity);
 		$event->raise(new EventWasCreatedFromBooking($aggregateIdentity, $booking));
+		$event->generateFreeTickets();
 
 		return $event;
 	}
@@ -105,6 +118,7 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 		switch ($className){
 			case EventWasCreatedFromBooking::class:
 				$this->id = $event->id();
+				$this->maxAttendees = $event->booking()->persons;
 				$this->booking = $event->booking();
 				break;
 
@@ -120,9 +134,24 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 				$this->image = $event->image();
 				break;
 
+			case TicketWasGeneratedForEvent::class:
+				array_push($this->tickets, $event->ticket());
+				dd($this);
+				break;
+
 			default :
 				throw new \Exception("Event {$className} could not be applied.");
 		}
+	}
+
+	/**
+	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
+	 */
+	private function generateFreeTickets()
+	{
+		$this->raise(
+			new TicketWasGeneratedForEvent(EventId::fromString($this->id), Ticket::generateFreeTicket($this->maxAttendees))
+		);
 	}
 
 

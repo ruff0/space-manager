@@ -4,7 +4,7 @@ export default {
     twoWay: true,
     params: ['mode'],
     update: function (newValue, oldValue) {
-        let mode = 'inlineMode'
+        let mode = 'richMode'
         let placeholder = ''
         if (this.params) {
             if (this.params.mode) {

@@ -22,6 +22,7 @@ class CreateEventOrganizedByUser
 		$booking = EloquentBooking::find($request->get("booking"))->toArray();
 
 		$file = EloquentFile::find($request->get('image'));
+
 		if(File::exists("{$file->pathname}")) {
 			File::move("{$file->pathname}", "images/events/{$eventId}.{$file->extension}");
 			$file->pathname = "images/events/{$eventId}.{$file->extension}";

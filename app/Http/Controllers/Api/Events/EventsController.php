@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Events;
 
 use App\Events\Commands\CreateEventOrganizedByUser;
 use App\Events\EloquentEvent;
+use App\Http\Requests\Events\CreateEventForm;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -43,11 +44,11 @@ class EventsController extends Controller
 	}
 
 	/**
-	 * @param Request $request
+	 * @param CreateEventForm $request
 	 * @return \Illuminate\Http\JsonResponse
 	 * @author Boudy de Geer <boudydegeer@mosaiqo.com>
 	 */
-	public function store(Request $request)
+	public function store(CreateEventForm $request)
 	{
 		CreateEventOrganizedByUser::fromRequest($request);
 

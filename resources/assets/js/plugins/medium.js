@@ -1592,12 +1592,12 @@
                         style.minHeight = el.clientHeight + 'px';
                         style.minWidth = el.clientWidth + 'px';
 
-                        if (s.mode !== Medium.inlineMode) {
-                            utils.setupContents();
-                            if (childCount === 0 && el.firstChild) {
-                                cursor.set(0, el.firstChild);
-                            }
-                        }
+                        // if (s.mode !== Medium.inlineMode) {
+                        //     utils.setupContents();
+                        //     if (childCount === 0 && el.firstChild) {
+                        //         cursor.set(0, el.firstChild);
+                        //     }
+                        // }
                     }
                     el.placeHolderActive = true;
                 } else if (el.placeHolderActive) {

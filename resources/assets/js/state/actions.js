@@ -20,14 +20,14 @@ import {
 	CANCELED,
 	CLEAR_PRICE,
 	CREATE_EVENT
-} from './mutation-types'
-import _ from 'lodash'
-import events from './api/events'
-import bookings from './api/bookings'
-import members from './api/members'
+} from "./mutation-types";
+import _ from "lodash";
+import events from "./api/events";
+import bookings from "./api/bookings";
+import members from "./api/members";
 
-export const setLoading = ({dispatch, state}, {loading, progress}) => {
-	dispatch(SET_LOADING, {loading, progress})
+export const setLoading = ({dispatch, state}, data) => {
+	dispatch(SET_LOADING, data)
 }
 
 export const payReservation = ({dispatch, state}, id) => {
@@ -62,7 +62,7 @@ export const markReservationsAsPaid = ({dispatch, state}, id) => {
 		action: 'markAsPaid',
 		id
 	})
-	
+
 	bookings.patch(
 		data,
 		// handle success
@@ -85,14 +85,14 @@ export const makeReservation = ({dispatch, state}, data) => {
 
 export const searchBookables = ({dispatch, state}) => {
 	const b = state.booking
-	if(b.date && b.time_to && b.time_from && b.type) {
+	if (b.date && b.time_to && b.time_from && b.type) {
 		dispatch(CLEAR_PRICE)
 		dispatch(CLEAR_RESOURCES)
 		bookings.getAll(
 			state.booking,
 			// handle success
 			(resources) => dispatch(ADD_RESOURCES, resources),
-		  // handle error
+			// handle error
 			(errors) => dispatch(ADD_ERRORS, errors)
 		)
 	}
@@ -100,18 +100,17 @@ export const searchBookables = ({dispatch, state}) => {
 
 export const calculate = ({dispatch, state}, changed) => {
 	const b = state.booking
-	if(b.date && b.time_to && b.time_from && b.type && b.bookable) {
+	if (b.date && b.time_to && b.time_from && b.type && b.bookable) {
 		bookings.calculate(
 			state.booking,
 			// handle success
 			(prices) => {
 				dispatch(ADD_PRICE, prices)
-				if(changed)
-				{
+				if (changed) {
 					dispatch(BOOKING_HAS_CHANGED, true)
 				}
 			},
-		  // handle error
+			// handle error
 			(errors) => dispatch(ADD_ERRORS, errors)
 		)
 	}
@@ -197,10 +196,38 @@ export const createEvent = ({dispatch, state}, data) => {
 	events.store(
 		data,
 		// handle success
-		(resources) => dispatch(CREATE_EVENT, data),
+		(response) => {
+			dispatch(CREATE_EVENT, data)
+			dispatch(ADD_ERRORS, [])
+			sendSuccessNotification(response)
+		},
 		// handle error
-		(errors) => dispatch(ADD_ERRORS, errors)
+		(errors) => {
+			dispatch(ADD_ERRORS, errors)
+			sendErrorsNotification(errors)
+		}
 	)
 
 
+}
+
+
+export const sendSuccessNotification = (response) => {
+	new PNotify({
+		title: response.success.title,
+		text: response.success.message[0],
+		type: 'success',
+		delay: 2000,
+		addclass: 'bg-success-300'
+	})
+}
+
+export const sendErrorsNotification = (errors) => {
+	new PNotify({
+		title: "Oh no!",
+		text: 	"Ha habido algún error. Por favor revisa los datos.",
+		type: 'error',
+		delay: 2000,
+		addclass: 'bg-danger-300'
+	})
 }

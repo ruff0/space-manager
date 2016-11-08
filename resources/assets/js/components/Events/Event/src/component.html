@@ -2,18 +2,16 @@
     <div class="panel-heading" v-if="booking">
         <h6 class="panel-title">
             {{header}}
-            <span class="text-highlight bg-primary" v-if="hasChanged && !isNew">
-				{{message}}
-			</span>
+            <span class="text-highlight bg-primary" v-if="hasChanged && !isNew">{{message}}</span>
         </h6>
         <div class="heading-elements" v-if="booking">
             <u-button :ladda="{style:'zoom-in'}"
                       class="pull-right"
                       data-style="zoom-in"
                       color="primary"
-                      @click="create"
+                      @click="save"
             >
-                Crear
+                Guardar
             </u-button>
 
             <u-button :ladda="{style:'zoom-in'}"
@@ -31,8 +29,11 @@
         <div class="Event">
             <div class="Event--Header">
                 <div class="Header--Image">
+                    <form-error :errors="errors.image"></form-error>
                     <file-upload id="image" url="/files" v-on:image-was-uploaded="setImage" v-if="booking"></file-upload>
-                    <div class="preview" v-if="!booking"> <img :src="eventImage"/> </div>
+                    <div class="preview" v-if="!booking">
+                        <img :src="eventImage"/>
+                    </div>
                 </div>
                 <div class="Header--Info">
                     <time class="Info--Date">
@@ -41,7 +42,8 @@
                     </time>
 
                     <div class="Header--Title">
-                        <h1 class="Title" v-medium="title" placeholder="Aquí pon el título de tú evento" v-if="booking"></h1>
+                        <h1 class="Title" v-medium="title" placeholder="Aquí pon el título de tú evento" mode="rich" v-if="booking"></h1>
+                        <form-error :errors="errors.title"></form-error>
                         <h1 class="Title" v-if="!booking">{{event.title}}</h1>
                     </div>
                 </div>
@@ -64,10 +66,10 @@
                 <div class="Event--Description">
                     <dt>Descripción</dt>
                     <dd>
+                        <form-error :errors="errors.description"></form-error>
                         <quill :content.sync="content" :config="config" v-if="booking"></quill>
                         <div v-if="!booking">{{event.description}}</div>
                     </dd>
-                    <form-error :errors="errors.type"></form-error>
                 </div>
                 <div class="Event--Details">
                     <dt>Fecha y Hora</dt>
@@ -83,8 +85,6 @@
                         <p>Pza San Cristobal, 14</p>
                         <p>03002 Alicante (Spain)</p>
                     </dd>
-
-
                 </div>
 
             </div>

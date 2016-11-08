@@ -30,3 +30,5 @@ export const UNPAID = 'UNPAID'
 export const CANCELED = 'CANCELED'
 
 export const CREATE_EVENT = 'CREATE_EVENT'
+
+export const SHOW_SUCCESS_MESSAGE = 'SHOW_SUCCESS_MESSAGE'

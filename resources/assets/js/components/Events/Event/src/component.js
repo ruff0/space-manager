@@ -3,7 +3,6 @@ import FormError from "../../../Form/Error";
 import UButton from "../../../Button";
 import Moment from "moment";
 import {createEvent} from "../../../../state/actions";
-
 export default{
     /**
      * Name of the component
@@ -28,13 +27,13 @@ export default{
     data(){
         return {
             content: {
-                ops: [],
+                ops: [{insert: ""}],
             },
             config: {
                 placeholder: "Aquí pon la descripción de tú evento",
             },
-            title: '',
-            image: null,
+            title: "",
+            image: { id: null },
         }
     },
 
@@ -106,8 +105,9 @@ export default{
 
     methods: {
         cancel() {
+            window.history.back()
         },
-        create(){
+        save(){
             this.createEvent({
                 booking: this.booking.id,
                 title: this.title,
@@ -117,7 +117,7 @@ export default{
         },
         setImage(e) {
             this.image = e
-        }
+        },
     },
 
     /**
