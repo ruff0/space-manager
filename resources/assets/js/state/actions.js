@@ -25,6 +25,7 @@ import _ from "lodash";
 import events from "./api/events";
 import bookings from "./api/bookings";
 import members from "./api/members";
+import tickets from "./api/tickets";
 
 export const setLoading = ({dispatch, state}, data) => {
 	dispatch(SET_LOADING, data)
@@ -199,6 +200,27 @@ export const createEvent = ({dispatch, state}, data) => {
 		(response) => {
 			dispatch(CREATE_EVENT, data)
 			dispatch(ADD_ERRORS, [])
+			sendSuccessNotification(response)
+		},
+		// handle error
+		(errors) => {
+			dispatch(ADD_ERRORS, errors)
+			sendErrorsNotification(errors)
+		}
+	)
+
+
+}
+
+
+export const reserveTicket = ({dispatch, state}, data) => {
+
+	tickets.store(
+		data,
+		// handle success
+		(response) => {
+			// dispatch(CREATE_EVENT, data)
+			// dispatch(ADD_ERRORS, [])
 			sendSuccessNotification(response)
 		},
 		// handle error

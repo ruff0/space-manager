@@ -2,7 +2,7 @@ import FileUpload from "../../../Form/File.vue";
 import FormError from "../../../Form/Error";
 import UButton from "../../../Button";
 import Moment from "moment";
-import {createEvent} from "../../../../state/actions";
+import {createEvent, reserveTicket} from "../../../../state/actions";
 export default{
     /**
      * Name of the component
@@ -12,7 +12,8 @@ export default{
 
     vuex: {
         actions: {
-            createEvent
+            createEvent,
+            reserveTicket
         },
         getters: {
             loading: (state) => state.loading.isLoading,
@@ -107,12 +108,22 @@ export default{
         cancel() {
             window.history.back()
         },
-        save(){
+        save() {
             this.createEvent({
                 booking: this.booking.id,
                 title: this.title,
                 description: this.content.ops[0].insert,
                 image: this.image.id,
+            })
+        },
+        openModal() {
+            $(this.$els.modal).modal().modal('show')
+        },
+        reserve() {
+            this.reserveTicket({
+                ticket: this.event.tickets[0].id,
+                amount: 1,
+                event: this.event.id
             })
         },
         setImage(e) {

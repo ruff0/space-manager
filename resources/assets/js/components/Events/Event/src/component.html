@@ -1,95 +1,122 @@
-<div class="panel panel-white">
-    <div class="panel-heading" v-if="booking">
-        <h6 class="panel-title">
-            {{header}}
-            <span class="text-highlight bg-primary" v-if="hasChanged && !isNew">{{message}}</span>
-        </h6>
-        <div class="heading-elements" v-if="booking">
-            <u-button :ladda="{style:'zoom-in'}"
-                      class="pull-right"
-                      data-style="zoom-in"
-                      color="primary"
-                      @click="save"
-            >
-                Guardar
-            </u-button>
+<div>
+    <div class="panel panel-white">
+        <div class="panel-heading" v-if="booking">
+            <h6 class="panel-title">
+                {{header}}
+                <span class="text-highlight bg-primary" v-if="hasChanged && !isNew">{{message}}</span>
+            </h6>
+            <div class="heading-elements" v-if="booking">
+                <u-button :ladda="{style:'zoom-in'}"
+                          class="pull-right"
+                          data-style="zoom-in"
+                          color="primary"
+                          @click="save"
+                >
+                    Guardar
+                </u-button>
 
-            <u-button :ladda="{style:'zoom-in'}"
-                      class="pull-right mr-10"
-                      data-style="zoom-in"
-                      color="primary"
-                      @click="cancel"
-            >
-                Cancelar
-            </u-button>
-
-        </div>
-    </div>
-    <div class="panel-body" v-block="loading">
-        <div class="Event">
-            <div class="Event--Header">
-                <div class="Header--Image">
-                    <form-error :errors="errors.image"></form-error>
-                    <file-upload id="image" url="/files" v-on:image-was-uploaded="setImage" v-if="booking"></file-upload>
-                    <div class="preview" v-if="!booking">
-                        <img :src="eventImage"/>
-                    </div>
-                </div>
-                <div class="Header--Info">
-                    <time class="Info--Date">
-                        <p class="Date--Month">{{month}}</p>
-                        <p class="Date--Day">{{day}}</p>
-                    </time>
-
-                    <div class="Header--Title">
-                        <h1 class="Title" v-medium="title" placeholder="Aquí pon el título de tú evento" mode="rich" v-if="booking"></h1>
-                        <form-error :errors="errors.title"></form-error>
-                        <h1 class="Title" v-if="!booking">{{event.title}}</h1>
-                    </div>
-                </div>
-
-                <div class="Header--NavBar" v-if="!booking">
-                    <div class="NavBar--Left"></div>
-                    <div class="NavBar--Right">
-                        <u-button :ladda="{style:'zoom-in'}"
-                                  class="pull-right btn-block"
-                                  data-style="zoom-in"
-                                  color="info"
-                                  @click="reserve"
-                        >
-                            Reservar
-                        </u-button>
-                    </div>
-                </div>
-            </div>
-            <div class="Event--Body">
-                <div class="Event--Description">
-                    <dt>Descripción</dt>
-                    <dd>
-                        <form-error :errors="errors.description"></form-error>
-                        <quill :content.sync="content" :config="config" v-if="booking"></quill>
-                        <div v-if="!booking">{{event.description}}</div>
-                    </dd>
-                </div>
-                <div class="Event--Details">
-                    <dt>Fecha y Hora</dt>
-                    <dd>
-                        <p>{{descriptiveDate}}</p>
-                        <p>{{descriptiveTime}}</p>
-                    </dd>
-                    <hr>
-                    <dt>Ubicación</dt>
-                    <dd>
-                        <p>Sala: {{room}}</p>
-                        <p>ULab</p>
-                        <p>Pza San Cristobal, 14</p>
-                        <p>03002 Alicante (Spain)</p>
-                    </dd>
-                </div>
+                <u-button :ladda="{style:'zoom-in'}"
+                          class="pull-right mr-10"
+                          data-style="zoom-in"
+                          color="primary"
+                          @click="cancel"
+                >
+                    Cancelar
+                </u-button>
 
             </div>
         </div>
+        <div class="panel-body" v-block="loading">
+            <div class="Event">
+                <div class="Event--Header">
+                    <div class="Header--Image">
+                        <form-error :errors="errors.image"></form-error>
+                        <file-upload id="image" url="/files" v-on:image-was-uploaded="setImage"
+                                     v-if="booking"></file-upload>
+                        <div class="preview" v-if="!booking">
+                            <img :src="eventImage"/>
+                        </div>
+                    </div>
+                    <div class="Header--Info">
+                        <time class="Info--Date">
+                            <p class="Date--Month">{{month}}</p>
+                            <p class="Date--Day">{{day}}</p>
+                        </time>
 
+                        <div class="Header--Title">
+                            <h1 class="Title" v-medium="title" placeholder="Aquí pon el título de tú evento" mode="rich"
+                                v-if="booking"></h1>
+                            <form-error :errors="errors.title"></form-error>
+                            <h1 class="Title" v-if="!booking">{{event.title}}</h1>
+                        </div>
+                    </div>
+
+                    <div class="Header--NavBar" v-if="!booking">
+                        <div class="NavBar--Left"></div>
+                        <div class="NavBar--Right">
+                            <u-button :ladda="{style:'zoom-in'}"
+                                      class="pull-right btn-block"
+                                      data-style="zoom-in"
+                                      color="info"
+                                      @click="openModal"
+                            >
+                                Reservar
+                            </u-button>
+                        </div>
+                    </div>
+                </div>
+                <div class="Event--Body">
+                    <div class="Event--Description">
+                        <dt>Descripción</dt>
+                        <dd>
+                            <form-error :errors="errors.description"></form-error>
+                            <quill :content.sync="content" :config="config" v-if="booking"></quill>
+                            <div v-if="!booking">{{event.description}}</div>
+                        </dd>
+                    </div>
+                    <div class="Event--Details">
+                        <dt>Fecha y Hora</dt>
+                        <dd>
+                            <p>{{descriptiveDate}}</p>
+                            <p>{{descriptiveTime}}</p>
+                        </dd>
+                        <hr>
+                        <dt>Ubicación</dt>
+                        <dd>
+                            <p>Sala: {{room}}</p>
+                            <p>ULab</p>
+                            <p>Pza San Cristobal, 14</p>
+                            <p>03002 Alicante (Spain)</p>
+                        </dd>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
+
+
+    <div class="modal fade" tabindex="-1" role="dialog" v-el:modal>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+
+                    <h4 class="modal-title">{{event.title}}</h4>
+                </div>
+                <div class="modal-body">
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @click="reserve">Reserve</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

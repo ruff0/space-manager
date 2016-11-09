@@ -136,7 +136,6 @@ class Event extends AggregateRoot implements EventSourcedAggregateRoot
 
 			case TicketWasGeneratedForEvent::class:
 				array_push($this->tickets, $event->ticket());
-				dd($this);
 				break;
 
 			default :
