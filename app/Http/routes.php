@@ -11,7 +11,16 @@
 |
 */
 
+use App\Jobs\SendWelcomeMail;
+use App\User\User;
 use Mosaiqo\Cqrs\EloquentEventStore;
+
+Route::get("/queue", function (\Illuminate\Http\Request $request) {
+	$user = new stdClass();
+	$user->name = "Boudy de Geer";
+	$user->email = "boudydegeer@mosaiqo.com";
+	dispatch(new SendWelcomeMail($user, ['foo' => 'bar']));
+});
 
 Route::get("/testingEventStorming", function (\Illuminate\Http\Request $request) {
     \App\Events\Commands\CreateEventOrganizedByUser::fromRequest($request);
