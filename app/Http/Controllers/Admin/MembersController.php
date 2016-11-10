@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Space\Member;
+use App\Space\Plan;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\AdminController;
@@ -68,6 +70,18 @@ class MembersController extends AdminController
 			$request->all()
 		);
 
+		$dateFrom = Carbon::now();
+		$dateTo = Carbon::parse("20991231");
+
+		$subscription = $member->subscriptions()->create([
+			'date_from' => $dateFrom,
+			'date_to' => $dateTo
+		]);
+
+		$subscription->plan()->associate(Plan::byDefault());
+		$subscription->save();
+
+
 		return redirect()->route('admin.members.index')->with(
 			'success', 'El miembro se ha guardado correctamente'
 		);
@@ -114,15 +128,23 @@ class MembersController extends AdminController
 	 *
 	 *
 	 * @param UpdateMemberForm $request
-	 * @param Member           $member
+	 * @param Member           $members
 	 *
 	 * @return \Illuminate\Http\Response
 	 */
-	public function update(UpdateMemberForm $request, Member $member)
+	public function update(UpdateMemberForm $request, Member $members)
 	{
-		$member = $member->update(
-			$request->all()
-		);
+		if($request->has('plan_id'))
+		{
+			$subscription = $members->subscription();
+			$subscription->plan()->associate(Plan::find($request->get('plan_id')));
+			$subscription->save();
+
+		} else {
+			$member = $members->update(
+				$request->all()
+			);
+		}
 
 		return redirect()->route('admin.members.index')->with(
 			'success', 'El miembro se ha guardado correctamente'

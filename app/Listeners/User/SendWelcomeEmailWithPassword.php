@@ -3,8 +3,10 @@
 namespace App\Listeners\User;
 
 use App\Events\Space\Contracts\MemberInterface;
+use App\Jobs\SendWelcomeMailWithPassword;
 
-class CreateMainUser
+
+class SendWelcomeEmailWithPassword
 {
 
 	/**
@@ -19,11 +21,11 @@ class CreateMainUser
 	{
 		$member = $event->getMember();
 
-		$_SERVER['h3rt'] = $psw = str_random(8);
+		$user = new \stdClass();
+		$user->name = $member->fullName();
+		$user->email = $member->email;
+		$user->password = $_SERVER['h3rt'];
 
-		return $member->users()->create([
-			"email"    => $member->email,
-			"password" => bcrypt($psw)
-		]);
+		dispatch(new SendWelcomeMailWithPassword($user));
 	}
 }

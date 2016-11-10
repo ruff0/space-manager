@@ -23,24 +23,28 @@ class UpdateMemberForm extends Request
 	 */
 	public function rules()
 	{
-		$rules = [
-			'name'          => 'required',
-			'lastname'      => 'required',
-			'email'         => 'required',
-			'identity'      => 'required',
-			'address_line1' => 'required',
-			'city'          => 'required',
-			'state'         => 'required',
-			'zip'           => 'required',
-			'mobile'        => 'required',
-			'phone'         => 'required',
-		];
+		if ($this->has('plan_id')) {
+			$rules  = ["plan_id" => "required"];
+		} else {
+			$rules = [
+				'name' => 'required',
+				'lastname' => 'required',
+				'email' => 'required',
+				'identity' => 'required',
+				'address_line1' => 'required',
+				'city' => 'required',
+				'state' => 'required',
+				'zip' => 'required',
+				'mobile' => 'required',
+				'phone' => 'required',
+			];
 
-		if ($this->has('company_identity')) {
-			$rules = array_merge($rules, [
-				'company_identity' => 'required',
-				'company_name'     => 'required',
-			]);
+			if ($this->has('company_identity')) {
+				$rules = array_merge($rules, [
+					'company_identity' => 'required',
+					'company_name' => 'required',
+				]);
+			}
 		}
 
 		return $rules;
@@ -55,18 +59,18 @@ class UpdateMemberForm extends Request
 	public function attributes()
 	{
 		return [
-			'name'             => 'nombre',
-			'lastname'         => 'apellidos',
-			'identity'         => 'NIF / NIE',
-			'address_line1'    => 'dirección',
-			'address_line2'    => 'dirección',
-			'city'             => 'ciudad',
-			'state'            => 'provincia',
-			'zip'              => 'código postal',
-			'mobile'           => 'móvil',
-			'phone'            => 'télefono',
+			'name' => 'nombre',
+			'lastname' => 'apellidos',
+			'identity' => 'NIF / NIE',
+			'address_line1' => 'dirección',
+			'address_line2' => 'dirección',
+			'city' => 'ciudad',
+			'state' => 'provincia',
+			'zip' => 'código postal',
+			'mobile' => 'móvil',
+			'phone' => 'télefono',
 			'company_identity' => 'CIF',
-			'company_name'     => 'razón social',
+			'company_name' => 'razón social',
 		];
 	}
 }

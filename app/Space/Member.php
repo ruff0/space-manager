@@ -4,7 +4,7 @@ namespace App\Space;
 
 use App\Bookings\Booking;
 use App\Events\Space\MemberFilledData;
-use App\Events\Space\MemberRegistered;
+use App\Events\Space\MemberWasRegistered;
 use App\Invoices\Models\Invoice;
 use App\User\User;
 use Carbon\Carbon;
@@ -29,6 +29,7 @@ use Laravel\Cashier\StripeGateway;
  * @property mixed isCompany
  * @property mixed subscriptions
  * @property mixed discounts
+ * @property mixed email
  */
 class Member extends Model
 {
@@ -275,7 +276,7 @@ class Member extends Model
 		if ($member && $member->hasNoUsers()) {
 			// Call event
 			list($user, $profile) = event(
-				new MemberRegistered($member)
+				new MemberWasRegistered($member)
 			);
 		}
 

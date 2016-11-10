@@ -6,7 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class SendWelcomeMail extends Job implements ShouldQueue
+class SendWelcomeMailWithPassword extends Job implements ShouldQueue
 {
 	use InteractsWithQueue, SerializesModels;
 

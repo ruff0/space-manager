@@ -6,7 +6,9 @@
 	</div>
 	<div id="collapse-group1" class="panel-collapse collapse in">
 		<div class="panel-body">
-			<form action="#">
+			<form action="{{ route('admin.members.update', [$member->id]) }}" method="POST">
+				{{ method_field('PUT') }}
+				{!! csrf_field() !!}
 				<div class="row pb-20">
 					<div class="col-sm-12">
 						<label>Plan del usuario</label>

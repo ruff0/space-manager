@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\Space\MemberHasRegistered;
 use App\Space\Member;
 use App\Space\Plan;
 use App\User\Profile;
@@ -88,6 +89,8 @@ class AuthController extends Controller
 	protected function create(array $data)
 	{
 		$member = new Member;
+		$member->name = $data['name'];
+		$member->email = $data['email'];
 		$member->save();
 
 		$dateFrom = Carbon::now();
@@ -101,13 +104,15 @@ class AuthController extends Controller
 		$subscription->plan()->associate(Plan::byDefault());
 		$subscription->save();
 
-		$user =  $member->users()->create([
+		$user = $member->users()->create([
 			'name'     => $data['name'],
 			'email'    => $data['email'],
 			'password' => bcrypt($data['password']),
 		]);
 
 		$user->assignRole('member');
+
+		event(new MemberHasRegistered($member));
 
 		return $user;
 	}

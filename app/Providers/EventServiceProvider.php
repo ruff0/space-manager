@@ -23,10 +23,16 @@ class EventServiceProvider extends ServiceProvider
 		'App\Events\Space\PlanWasUpdated' => [
 			'App\Listeners\Space\UpdateStripePlan',
 		],
+
 		// Member Events
-		'App\Events\Space\MemberRegistered' => [
+		'App\Events\Space\MemberWasRegistered' => [
 			'App\Listeners\User\CreateMainUser',
 			'App\Listeners\User\UpdateProfile',
+			'App\Listeners\User\SendWelcomeEmailWithPassword'
+		],
+
+		'App\Events\Space\MemberHasRegistered' => [
+			'App\Listeners\User\SendWelcomeEmail'
 		],
 		
 		'App\Events\Space\MemberFilledData' => [

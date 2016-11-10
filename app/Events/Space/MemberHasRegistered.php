@@ -6,7 +6,7 @@ use App\Events\Event;
 use App\Events\Space\Contracts\MemberInterface;
 use App\Space\Member;
 
-class MemberRegistered extends Event implements MemberInterface
+class MemberHasRegistered extends Event implements MemberInterface
 {
 	/**
 	 * @var Member
